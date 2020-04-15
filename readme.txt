@@ -22,12 +22,12 @@ The title **Red Eclipse Legacy** is only a work-in-progress one; we might change
 
 # Red Eclipse
 
--* A free first-person arena shooter; released as free and open source software
--* Available for Windows, GNU/Linux, BSD, and macOS
--* Features parkour gameplay, such as impulse boosts, dashing, and other tricks
--* Favourite gamemodes with an array of mutators and variables
--* A built-in editor lets you create your own maps cooperatively online
--* Download for free at http://redeclipse.net/
+* A free first-person arena shooter; released as free and open source software
+* Available for Windows, GNU/Linux, BSD, and macOS
+* Features parkour gameplay, such as impulse boosts, dashing, and other tricks
+* Favourite gamemodes with an array of mutators and variables
+* A built-in editor lets you create your own maps cooperatively online
+* Download for free at http://redeclipse.net/
 
 ## About
 
