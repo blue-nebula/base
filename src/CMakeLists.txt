@@ -139,10 +139,12 @@ endif()
 
 set(targets redeclipse${BIN_SUFFIX} redeclipse_server${BIN_SUFFIX} genkey${BIN_SUFFIX})
 foreach(target IN LISTS targets)
-    set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
+    if(NOT APPLE)
+        set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 
-    install(
-        TARGETS ${target}
-        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../bin/${ARCHITECTURE}/
-    )
+        install(
+            TARGETS ${target}
+            DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../bin/${ARCHITECTURE}/
+        )
+    endif(NOT APPLE)
 endforeach()
