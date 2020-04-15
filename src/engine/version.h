@@ -3,7 +3,7 @@
 #define VERSION_PATCH 0
 #define VERSION_STRING "1.6.0"
 #define VERSION_NAME "Red Eclipse Legacy"
-#define VERSION_UNAME "redeclipse_legacy"
+#define VERSION_UNAME "redeclipse-legacy"
 #define VERSION_VNAME "REDECLIPSE_LEGACY"
 #define VERSION_RELEASE "Sunset Edition"
 // TODO: branding
