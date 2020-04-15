@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Title
-echo "== Guidelines for Connecting to the Red Eclipse Master Server ==" \
+echo "== Guidelines for Connecting to the Red Eclipse Legacy Master Server ==" \
     > "$2"
 
 # Indented headers to wiki-style headers

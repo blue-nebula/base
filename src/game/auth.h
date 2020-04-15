@@ -2,25 +2,26 @@
 // This file can be found in the distribution under: ./docs/guidelines.txt
 // Or at: http://redeclipse.net/wiki/Multiplayer_Guidelines
 //
-// The Red Eclipse Team provides the play.redeclipse.net master server for the
-// benefit of the Red Eclipse Community. We impose a general set of guidelines
-// for any server/user which connects to the play.redeclipse.net master server.
+// The Red Eclipse Legacy Team provides the re.assassinate-you.net master server
+// for the benefit of the Red Eclipse Legacy Community.
+// We impose a general set of guidelines
+// for any server/user which connects to the re.assassinate-you.net master server.
 // The team reserves the right to block any attempt to connect to the master
 // server at their discretion. Access to services provided by the project are
 // considered to be a privilege, not a right.
 
 // These guidelines are imposed to ensure the integrity of both the Red Eclipse
-// game, and its community. If you do not agree to these terms, you should not
-// connect to the play.redeclipse.net master server, or any servers which are
-// connected to it. These guidelines are not designed to limit your opinion or
-// freedoms granted to you by the open source licenses employed by the project,
-// nor do they cover usage of the game in either offline play or on servers
-// which are not connected to the Red Eclipse master.
+// Legacy game, and its community. If you do not agree to these terms,
+// you should not connect to the re.assassinate-you.net master server, or any
+// servers which are connected to it. These guidelines are not designed to limit
+// your opinion or freedoms granted to you by the open source licenses employed
+// by the project, nor do they cover usage of the game in either offline play or
+// on servers which are not connected to the Red Eclipse Legacy master.
 
 // If you have questions or comments regarding these guidelines please contact
-// the Red Eclipse Team. Any person seeking to modify their game or server for
-// use on the master server should first seek permission from the Red Eclipse
-// Team, each modification must be approved and will be done on a case-by-case
+// the Red Eclipse Legacy Team. Any person seeking to modify their game or server
+// for use on the master server should first seek permission from the Red Eclipse
+// Legacy Team, each modification must be approved and will be done on a case-by-case
 // basis.
 
 void hashpassword(int cn, int sessionid, const char *pwd, char *result, int maxlen)

@@ -5,11 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleName</key>
-	<string>Red Eclipse</string>
+	<string>Red Eclipse Legacy</string>
 	<key>CFBundleDisplayName</key>
 	<string>Red Eclipse</string>
 	<key>CFBundleIdentifier</key>
-	<string>net.redeclipse.game</string>
+	<string>net.redeclipse-legacy.game</string>
 	<key>CFBundleExecutable</key>
 	<string>redeclipse</string>
 	<key>CFBundleIconFile</key>
@@ -27,6 +27,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.5.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>(C) 2009-2017 Quinton Reeves, Lee Salzman, under the ZLIB License</string>
+	<string>(C) 2009-2020 Red Eclipse Legacy Team, Quinton Reeves, Lee Salzman, under the ZLIB License</string>
 </dict>
 </plist>

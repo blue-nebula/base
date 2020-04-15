@@ -15,7 +15,7 @@ SEMABUILD_DEPLOY="false"
 semabuild_setup() {
     echo "setting up ${BRANCH_NAME}..."
     git config --global user.email "noreply@redeclipse.net" || return 1
-    git config --global user.name "Red Eclipse" || return 1
+    git config --global user.name "Red Eclipse Legacy" || return 1
     git config --global credential.helper store || return 1
     echo "https://${GITHUB_TOKEN}:x-oauth-basic@github.com" > "${HOME}/.git-credentials"
     rm -rf "${SEMABUILD_BUILD}" || return 1

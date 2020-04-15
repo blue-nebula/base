@@ -176,7 +176,7 @@ dist: dist-clean dist-bz2 dist-bz2-combined dist-win dist-zip dist-mac
 		-a $(torrent-trackers-url) \
 		-w $(torrent-webseed-baseurl)/$(tarname).bz2 \
 		-n $(tarname).bz2 \
-		-c "Red Eclipse v$(appversion) ($(apprelease)) GNU/Linux" \
+		-c "Red Eclipse Legacy v$(appversion) ($(apprelease)) GNU/Linux" \
 		$(tarname).bz2
 
 dist-torrent-nix: ../$(tarname).bz2.torrent

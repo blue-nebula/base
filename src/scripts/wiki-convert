@@ -3,7 +3,7 @@
 BEGIN {
     FS = "\t"
 
-    print "This page was automatically generated from the source of Red Eclipse, please do not edit it manually."
+    print "This page was automatically generated from the source of Red Eclipse Legacy, please do not edit it manually."
     print ""
     print "{| border=\"1\" class=\"wikitable sortable\""
     print "! Name&nbsp;&&nbsp;Parameters"

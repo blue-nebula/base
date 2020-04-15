@@ -167,7 +167,7 @@ Sets the server type of the local server. 0 for local only, 1 for private, 2 for
 .BI \-sm servermaster
 Connects to
 .I servermaster
-to get the list of available servers, defaults to play.redeclipse.net.
+to get the list of available servers, defaults to re.assassinate-you.net.
 
 .TP
 .BI \-sa servermasterport

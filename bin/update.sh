@@ -14,13 +14,13 @@ redeclipse_update_init() {
         if [ "${REDECLIPSE_TARGET}" = "windows" ]; then
             REDECLIPSE_WINDOCS=`reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" //v "Personal" | tr -d '\r' | tr -d '\n' | sed -e 's/.*\(.\):\\\/\/\1\//g;s/\\\/\//g'`
             if [ -d "${REDECLIPSE_WINDOCS}" ]; then
-                REDECLIPSE_CACHE="${REDECLIPSE_WINDOCS}/My Games/Red Eclipse/cache"
+                REDECLIPSE_CACHE="${REDECLIPSE_WINDOCS}/My Games/Red Eclipse Legacy/cache"
                 return 0
             fi
         elif [ "${REDECLIPSE_TARGET}" = "macos" ]; then
-            REDECLIPSE_CACHE="${HOME}/Library/Application Support/Red Eclipse/cache"
+            REDECLIPSE_CACHE="${HOME}/Library/Application Support/Red Eclipse Legacy/cache"
         else
-            REDECLIPSE_CACHE="${HOME}/.redeclipse/cache"
+            REDECLIPSE_CACHE="${HOME}/.redeclipse-legacy/cache"
         fi
     fi
     return 0

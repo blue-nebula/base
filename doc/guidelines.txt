@@ -1,15 +1,15 @@
 GUIDELINES FOR CONNECTING TO THE RED ECLIPSE MASTER SERVER
 
-The Red Eclipse Team provides the play.redeclipse.net master server for the
+The Red Eclipse Team provides the re.assassinate-you.net master server for the
 benefit of the Red Eclipse Community. We impose a general set of guidelines
-for any server/user which connects to the play.redeclipse.net master server.
+for any server/user which connects to the re.assassinate-you.net master server.
 The team reserves the right to block any attempt to connect to the master
 server at their discretion. Access to services provided by the project are
 considered to be a privilege, not a right.
 
 These guidelines are imposed to ensure the integrity of both the Red Eclipse
 game, and its community. If you do not agree to these terms, you should not
-connect to the play.redeclipse.net master server, or any servers which are
+connect to the re.assassinate-you.net master server, or any servers which are
 connected to it. These guidelines are not designed to limit your opinion or
 freedoms granted to you by the open source licenses employed by the project,
 nor do they cover usage of the game in either offline play or on servers

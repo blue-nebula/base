@@ -13,7 +13,7 @@ setlocal enableextensions enabledelayedexpansion
     if DEFINED REDECLIPSE_CACHE goto redeclipse_update_setup
     for /f "tokens=3* delims= " %%a in ('reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal"') do set REDECLIPSE_WINDOCS=%%a
     if EXIST "%REDECLIPSE_WINDOCS%" (
-        set REDECLIPSE_CACHE=%REDECLIPSE_WINDOCS%\My Games\Red Eclipse\cache
+        set REDECLIPSE_CACHE=%REDECLIPSE_WINDOCS%\My Games\Red Eclipse Legacy\cache
     ) else if EXIST "%REDECLIPSE_HOME%" (
         set REDECLIPSE_CACHE=%REDECLIPSE_HOME%\cache
     ) else (

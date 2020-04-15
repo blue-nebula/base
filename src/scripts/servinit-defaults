@@ -4,8 +4,8 @@
 # doc/examples/servexec.cfg
 #
 # It reads all sv_* variables in doc/examples/servexec.cfg, extracts their
-# default value by executing them in a Red Eclipse server, then feeds this
-# value back to the corresponding variable in doc/examples/servexec.cfg
+# default value by executing them in a Red Eclipse Legacy server, then feeds
+# this value back to the corresponding variable in doc/examples/servexec.cfg
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 

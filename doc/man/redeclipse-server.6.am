@@ -139,7 +139,7 @@ sets the server port to
 .BI \-sm servermaster
 Uses
 .I servermaster
-as the master server, defaults to play.redeclipse.net.
+as the master server, defaults to re.assassinate-you.net.
 
 .TP
 .BI \-sa servermasterport
