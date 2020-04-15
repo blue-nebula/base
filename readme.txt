@@ -1,12 +1,36 @@
-﻿# Red Eclipse
-* A free first-person arena shooter; released as free and open source software
-* Available for Windows, GNU/Linux, BSD, and macOS
-* Features parkour gameplay, such as impulse boosts, dashing, and other tricks
-* Favourite gamemodes with an array of mutators and variables
-* A built-in editor lets you create your own maps cooperatively online
-* Download for free at http://redeclipse.net/
+# Red Eclipse Legacy
+
+**Red Eclipse Legacy** (work-in-progress title) is a fork of [Red Eclipse 1](https://redeclipse.net). While the *Red Eclipse* team have moved their game on to another engine for their latest release, 2.0, this also meant a total conversion of the gameplay, in our opinion sacrificing some of the best aspects.
+
+Therefore, a group of eager community members have started to fork off *Red Eclipse* from the last 1.x series release, setting up the necessary infrastructure to (re-)establish a community around *Red Eclipse* 1.5+.
+
+We thank the *Red Eclipse* developers for providing us with one of the (if not the best) free software shooter, providing us with so many hours of fun. We build upon their great work and continue to support and maintain it.
+
+
+## Current state of Red Eclipse Legacy
+
+Our goal is to ensure a strict distinction between Red Eclipse and our project. We do want to allow for a coexistance on people's computers for example. Therefore we also try to adjust the game's branding and append **Legacy** to it.
+
+We already provide our own [master server](https://github.com/TheAssassin/python-masterserver) (which also re-hosts the entries on the official Red Eclipse master server) to which more Red Eclipse 1.6 servers are connected than on the official Red Eclipse instance. Check out our online server browser, [Redflare-Python](https://redflare.assassinate-you.net).
+
+Right now we are working on creating downloadable binaries, installers etc., as a first step in our journey to a standalone **Red Eclipse Legacy** game.
+
+The title **Red Eclipse Legacy** is only a work-in-progress one; we might change it later on.
+
+
+-------
+
+# Red Eclipse
+
+-* A free first-person arena shooter; released as free and open source software
+-* Available for Windows, GNU/Linux, BSD, and macOS
+-* Features parkour gameplay, such as impulse boosts, dashing, and other tricks
+-* Favourite gamemodes with an array of mutators and variables
+-* A built-in editor lets you create your own maps cooperatively online
+-* Download for free at http://redeclipse.net/
 
 ## About
+
 Red Eclipse is a fun-filled new take on the first-person arena shooter, built as a total conversion of Cube Engine 2, which lends itself towards a balanced gameplay, with a general theme of agility in a variety of environments. For more information, visit our [Wiki](http://redeclipse.net/wiki) or [Forums](http://redeclipse.net/forum).
 
 The project is a free and open source game built on the Cube Engine 2 using SDL and OpenGL which allows it to be ported to many platforms; you can [download a package](http://redeclipse.net/download) for Windows, GNU/Linux, BSD, and macOS; or grab a development copy from our [Git repository](http://redeclipse.net/devel) and live on the bleeding edge.
