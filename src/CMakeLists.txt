@@ -67,9 +67,30 @@ function(add_redeclipse_executable target)
     elseif(MINGW)
         target_link_libraries(${target} ws2_32 winmm)
     endif()
+
+    install(
+        TARGETS ${target}
+        RUNTIME DESTINATION bin
+    )
 endfunction()
 
 # the specific applications configuration is a bit complex, so it's been split into three separate CMake files
 include(cmake/client.cmake)
 include(cmake/server.cmake)
 include(cmake/genkey.cmake)
+
+# install config for cubescript files (containing the menu definitions etc.)
+install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/config
+    DESTINATION share/redeclipse
+)
+
+# install config for data files
+# the if below allows for testing the install config without having to copy too many files
+if(NOT SKIP_INSTALL_DATA)
+    install(
+        DIRECTORY ${PROJECT_SOURCE_DIR}/data
+        DESTINATION share/redeclipse
+        PATTERN ".git*" EXCLUDE
+    )
+endif()
