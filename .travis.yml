@@ -26,5 +26,6 @@ matrix:
             - sdl2
             - sdl2_image
             - sdl2_mixer
+            - glew
           update: true
       script: bash -xe ci/build-mac.sh
