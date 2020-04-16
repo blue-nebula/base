@@ -16,5 +16,5 @@ matrix:
     - name: macOS (x86_64)
       os: osx
       install:
-        - brew install sdl2
+        - brew install sdl2 sdl2_image sdl2_mixer
       script: bash -xe ci/build-mac.sh
