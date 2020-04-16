@@ -20,7 +20,6 @@ matrix:
 
     - name: macOS (x86_64)
       os: osx
-      osx_image: xcode8
       addons:
         homebrew:
           packages:
