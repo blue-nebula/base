@@ -19,6 +19,6 @@ OLD_CWD=$(realpath .)
 
 pushd "$BUILD_DIR"
 
-cmake "$REPO_ROOT"
+cmake "$REPO_ROOT" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
 make -j$(nprocs)
