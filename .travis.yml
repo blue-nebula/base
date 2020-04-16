@@ -1,0 +1,20 @@
+language: c++
+
+# for regular CI, we don't need the submodules
+git:
+  submodules: false
+
+matrix:
+  include:
+    - name: Ubuntu xenial (x86_64)
+      dist: xenial
+      install:
+        - sudo apt update
+        - sudo apt install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev zlib1g-dev
+      script: bash -xe ci/build-nix.sh
+
+    - name: macOS (x86_64)
+      os: osx
+      install:
+        - brew install sdl2
+      script: bash -xe ci/build-mac.sh
