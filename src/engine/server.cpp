@@ -1554,45 +1554,67 @@ void trytofindocta(bool fallback)
     }
 }
 
-void setlocations(bool wanthome)
-{
-    int backstep = 3;
-    loopirev(backstep) if(!fileexists(findfile("config/version.cfg", "r"), "r"))
-    { // standalone solution to this is: pebkac
-        if(!i || chdir("..") < 0) fatal("could not find config directory");
-    }
-    if(!execfile("config/version.cfg", false, EXEC_VERSION|EXEC_BUILTIN)) fatal("cannot exec 'config/version.cfg'");
-    // pseudo directory with game content
-    const char *dir = getenv(sup_var("DATADIR"));
-    if(dir && *dir) addpackagedir(dir);
-    else addpackagedir("data");
-    if(!fileexists(findfile("maps/readme.txt", "r"), "r")) fatal("could not find game data");
-    if(wanthome)
+/**
+ * Set paths to files and directories locations.
+ * @param wanthome use data in executing user's home directory
+ */
+void setlocations(bool wanthome) {
+    // search for config directory, which contains the essential cubescript files (defining the menus etc.)
     {
+        int backstep = 3;
+        loopirev(backstep) if (!fileexists(findfile("config/version.cfg", "r"), "r")) {
+            if (i <= 0 || chdir("..") < 0) {
+                fatal("could not find config directory");
+            }
+        }
+
+        if (!execfile("config/version.cfg", false, EXEC_VERSION | EXEC_BUILTIN)) {
+            fatal("cannot exec 'config/version.cfg'");
+        }
+
+    }
+
+    // search for game data
+    {
+        const char* dir = getenv(sup_var("DATADIR"));
+        if (dir != nullptr && dir[0] != '\0') {
+            addpackagedir(dir);
+        } else {
+            addpackagedir("data");
+        }
+
+        // sanity check -- simple, but it works
+        if (!fileexists(findfile("maps/readme.txt", "r"), "r")) {
+            fatal("could not find game data");
+        }
+
+        if (wanthome) {
 #if defined(WIN32)
-        string dir = "";
-        if(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, dir) == S_OK)
-        {
-            defformatstring(s, "%s\\My Games\\%s", dir, versionname);
-            sethomedir(s);
-        }
+            string dir = "";
+            if(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, dir) == S_OK)
+            {
+                defformatstring(s, "%s\\My Games\\%s", dir, versionname);
+                sethomedir(s);
+            }
 #elif defined(__APPLE__)
-        extern const char *mac_personaldir();
-        const char *dir = mac_personaldir(); // typically  /Users/<name>/Application Support/
-        if(dir && *dir)
-        {
-            defformatstring(s, "%s/%s", dir, versionname);
-            sethomedir(s);
-        }
+            extern const char *mac_personaldir();
+            const char *dir = mac_personaldir(); // typically  /Users/<name>/Application Support/
+            if(dir && *dir)
+            {
+                defformatstring(s, "%s/%s", dir, versionname);
+                sethomedir(s);
+            }
 #else
-        const char *dir = getenv("HOME");
-        if(dir && *dir)
-        {
-            defformatstring(s, "%s/.%s", dir, versionuname);
-            sethomedir(s);
-        }
+            const char* dir = getenv("HOME");
+            if (dir != nullptr && dir[0] != '\0') {
+                defformatstring(s, "%s/.%s", dir, versionuname);
+                sethomedir(s);
+            }
 #endif
-        else sethomedir("home");
+            else {
+                sethomedir("home");
+            }
+        }
     }
 }
 
