@@ -1,42 +1,33 @@
-cmake_minimum_required(VERSION 2.8.11)
+# 3.6+ needed for pkg-config's IMPORTED targets
+# 3.8+ needed for OpenGL's IMPORTED targets
+cmake_minimum_required(VERSION 3.7)
 
 # set compile options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
 
-# Use pkg-config to configure dependencies later
+# Use pkg-config to configure some dependencies
 find_package(PkgConfig REQUIRED)
-# the dependencies required by all platforms
-set(client_deps zlib sdl2 SDL2_image SDL2_mixer gl)
 
-# the client depends on almost all the source files
-file(GLOB client_sources engine/*.cpp game/*.cpp shared/*.cpp support/sqlite3.c)
+pkg_check_modules(zlib zlib REQUIRED IMPORTED_TARGET)
+pkg_check_modules(sdl2 sdl2 REQUIRED IMPORTED_TARGET)
+pkg_check_modules(SDL2_image SDL2_image REQUIRED IMPORTED_TARGET)
+pkg_check_modules(SDL2_mixer SDL2_mixer REQUIRED IMPORTED_TARGET)
 
-# the server requires less source files
-file(GLOB server_sources
-    shared/crypto.cpp
-    shared/geom.cpp
-    shared/stream.cpp
-    shared/tools.cpp
-    shared/zip.cpp
-    support/sqlite3.c
-    engine/command.cpp
-    engine/irc.cpp
-    engine/master.cpp
-    engine/server.cpp
-    game/server.cpp
-)
+# OpenGL may be imported with pkg-config on Unix, but that doesn't work on macOS
+set(OpenGL_GL_PREFERENCE LEGACY)
+find_package(OpenGL REQUIRED)
 
-# genkey is a rather simple application
-file(GLOB genkey_sources
-    engine/genkey.cpp
-    shared/crypto.cpp
-)
-
-# neither server nor client need genkey.cpp
-# to avoid warnings about duplicate main()s, it has to be removed from their source lists
-file(GLOB genkey_cpp_path engine/genkey.cpp)
-list(REMOVE_ITEM client_sources ${genkey_cpp_path})
-list(REMOVE_ITEM server_sources ${genkey_cpp_path})
+# platform specific code
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(BIN_SUFFIX "_linux")
+elseif(APPLE)
+    set(BIN_SUFFIX "_osx")
+elseif(MINGW)
+    set(BIN_SUFFIX "_windows")
+else()
+    message(WARNING "Unknown build platform")
+    set(BIN_SUFFIX "_unknown")
+endif()
 
 # make sure sqlite3 is built with the correct flags
 file(GLOB sqlite3_cpp_path support/sqlite3.c)
@@ -44,51 +35,7 @@ set_source_files_properties(support/sqlite3.c PROPERTIES
     COMPILE_FLAGS "-DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION"
 )
 
-# platform specific code
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    list(APPEND client_deps x11)
-    link_libraries(rt)
-    set(BIN_SUFFIX "_linux")
-elseif(APPLE)
-    # build OS X specific Objective-C code
-    file(GLOB mac_client_sources
-        xcode/main.m xcode/macutils.mm
-        xcode/SDLmain.m xcode/ConsoleView.m
-    )
-    file(GLOB mac_server_sources
-        xcode/macutils.mm
-    )
-    list(APPEND client_sources ${mac_client_sources})
-    list(APPEND server_sources ${mac_server_sources})
-    set(BIN_SUFFIX "_osx")
-elseif(MINGW)
-    link_libraries(ws2_32 winmm)
-    set(BIN_SUFFIX "_windows")
-else()
-    set(BIN_SUFFIX "_native")
-endif()
-
-# configure dependencies with pkg-config
-foreach(dep IN LISTS client_deps)
-    pkg_check_modules(${dep} REQUIRED ${dep})
-
-    # add the necessary includes
-    foreach(include_dir IN LISTS ${dep}_INCLUDE_DIRS)
-        include_directories(${include_dir})
-    endforeach(include_dir)
-
-    # link to the libraries
-    foreach(lib IN LISTS ${dep}_LIBRARIES)
-        link_libraries(${lib})
-    endforeach(lib)
-
-    # tell the compiler where to find the libraries' binaries
-    foreach(lib_dir IN LISTS ${dep}_LIBRARY_DIRS)
-        link_directories(${lib_dir})
-    endforeach(lib_dir)
-endforeach(dep)
-
-# configure enet
+# import enet
 set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
 add_subdirectory(${ENET_SOURCE_DIRECTORY})
 
@@ -106,45 +53,23 @@ if(MINGW)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 endif()
 
-# add the client executable and link it to enet
-add_executable(redeclipse${BIN_SUFFIX} ${client_sources})
-target_link_libraries(redeclipse${BIN_SUFFIX} enet)
+# most executables share some of their configuration
+# therefore we define our own function to add and configure them
+function(add_redeclipse_executable target)
+    add_executable(${target} ${ARGN})
 
-# add the server executable and link it to enet
-# (define STANDALONE to "notify" the preprocessor that the server is built this time)
-add_executable(redeclipse_server${BIN_SUFFIX} ${server_sources})
-target_link_libraries(redeclipse_server${BIN_SUFFIX} enet)
-set_target_properties(redeclipse_server${BIN_SUFFIX} PROPERTIES
-    COMPILE_FLAGS "-DSTANDALONE"
-)
+    set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 
-if(APPLE)
-    # include framework required in xcode/ code
-    find_library(COCOA_LIBRARY Cocoa)
-    target_link_libraries(redeclipse${BIN_SUFFIX} ${COCOA_LIBRARY})
-    target_link_libraries(redeclipse_server${BIN_SUFFIX} ${COCOA_LIBRARY})
-else(APPLE)
-    # add the genkey executable
-    add_executable(genkey${BIN_SUFFIX} ${genkey_sources})
-endif(APPLE)
+    if(APPLE)
+        # include framework required in xcode/ code
+        find_library(COCOA_LIBRARY Cocoa)
+        target_link_libraries(${target} ${COCOA_LIBRARY})
+    elseif(MINGW)
+        target_link_libraries(${target} ws2_32 winmm)
+    endif()
+endfunction()
 
-# install to ../bin/
-if(${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "i[3-6]86")
-	set(ARCHITECTURE "x86")
-elseif(${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "x86_64")
-	set(ARCHITECTURE "amd64")
-else()
-    set(ARCHITECTURE "native")
-endif()
-
-set(targets redeclipse${BIN_SUFFIX} redeclipse_server${BIN_SUFFIX} genkey${BIN_SUFFIX})
-foreach(target IN LISTS targets)
-    if(NOT APPLE)
-        set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
-
-        install(
-            TARGETS ${target}
-            DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../bin/${ARCHITECTURE}/
-        )
-    endif(NOT APPLE)
-endforeach()
+# the specific applications configuration is a bit complex, so it's been split into three separate CMake files
+include(cmake/client.cmake)
+include(cmake/server.cmake)
+include(cmake/genkey.cmake)
