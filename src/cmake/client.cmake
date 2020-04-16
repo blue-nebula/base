@@ -16,7 +16,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     list(APPEND client_deps PkgConfig::x11 rt)
 elseif(APPLE)
     # build OS X specific Objective-C code
-    file(GLOB mac_client_sources xcode/SDLmain.m xcode/main.m xcode/macutils.mm xcode/ConsoleView.m)
+    file(GLOB mac_client_sources xcode/SDLmain.m xcode/macutils.mm xcode/ConsoleView.m)
     list(APPEND client_sources ${mac_client_sources})
 endif()
 
