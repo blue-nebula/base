@@ -1956,7 +1956,7 @@ namespace client
                     if(flags&(1<<k))
                     {
                         n |= p.get()<<16;
-                        if(n&0x800000) n |= -1<<24;
+                        if(n&0x800000) n |= 0xFF000000;
                     }
                     o[k] = n/DMF;
                 }
@@ -1967,7 +1967,7 @@ namespace client
                     if(flags&(1<<(k+3)))
                     {
                         n |= p.get()<<16;
-                        if(n&0x800000) n |= -1<<24;
+                        if(n&0x800000) n |= 0xFF000000;
                     }
                     f[k] = n/DMF;
                 }
