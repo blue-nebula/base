@@ -94,3 +94,35 @@ if(NOT SKIP_INSTALL_DATA)
         PATTERN ".git*" EXCLUDE
     )
 endif()
+
+# APPNAME is the name of the executable -- needed for configure_file below
+set(APPNAME "redeclipse-legacy")
+
+# install desktop file
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/redeclipse-legacy.desktop.am
+    ${CMAKE_CURRENT_BINARY_DIR}/redeclipse.desktop
+    @ONLY
+)
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/redeclipse.desktop
+    DESTINATION share/applications
+)
+
+# TODO: install appstream data
+
+# install icons
+foreach(res IN ITEMS 16 32 48 64 128)
+    file(
+        COPY ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/redeclipse-legacy_x${res}.png
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/
+    )
+    file(RENAME
+        ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/redeclipse-legacy_x${res}.png
+        ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/redeclipse-legacy.png
+    )
+endforeach()
+install(
+    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/icons
+    DESTINATION share
+)
