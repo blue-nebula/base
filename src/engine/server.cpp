@@ -1596,7 +1596,6 @@ void setlocations(bool wanthome) {
             }
 
             // if chdir is not successful, chdir back to original cwd
-            printf("%s\n", fhs_share_dir);
             if (chdir(fhs_share_dir) < 0) {
                 if (chdir(orig_cwd) != 0) {
                     fatal("chdir() to original cwd failed");
