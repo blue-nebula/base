@@ -1578,7 +1578,7 @@ void setlocations(bool wanthome) {
 
         fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
         strncpy(fhs_share_dir, bin_dir, PATH_MAX);
-        strncat(fhs_share_dir, "/../share/redeclipse/", PATH_MAX - strlen(fhs_share_dir));
+        strncat(fhs_share_dir, "/../share/redeclipse-legacy/", PATH_MAX - strlen(fhs_share_dir));
 
         free(bin_path);
     }
