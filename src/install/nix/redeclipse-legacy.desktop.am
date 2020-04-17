@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Red Eclipse
+Name=Red Eclipse Legacy
 GenericName=First-person shooter game
 GenericName[es]=Juego de tiros en primera persona
 GenericName[gl]=Xogo de tiros en primeira persoa
@@ -18,6 +18,6 @@ Comment[pt]=Jogo de tiros em primeira pessoa com jogabilidade ágil e editor inc
 Comment[sv]=Förstapersonsskjutare med rörlig spelstil och inbyggd baneditor
 Comment[fr]=Jeu de tir à la première personne avec un éditeur de cartes intégré
 Icon=@APPNAME@
-Exec=@APPNAME@
+Exec=@APPNAME@@BIN_SUFFIX@
 Categories=Game;ActionGame;
 Keywords=fps,action,multiplayer,play,arena,mapeditor

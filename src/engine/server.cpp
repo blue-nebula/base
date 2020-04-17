@@ -3,8 +3,13 @@
 
 #include "engine.h"
 #include <signal.h>
+
 #ifdef WIN32
 #include <shlobj.h>
+#endif
+
+#if not defined(WIN32) and not defined(__APPLE__)
+#include <libgen.h>
 #endif
 
 int curtime = 0, totalmillis = 1, lastmillis = 1, timescale = 100, paused = 0, timeerr = 0, shutdownwait = 0;
@@ -1554,45 +1559,115 @@ void trytofindocta(bool fallback)
     }
 }
 
-void setlocations(bool wanthome)
-{
-    int backstep = 3;
-    loopirev(backstep) if(!fileexists(findfile("config/version.cfg", "r"), "r"))
-    { // standalone solution to this is: pebkac
-        if(!i || chdir("..") < 0) fatal("could not find config directory");
-    }
-    if(!execfile("config/version.cfg", false, EXEC_VERSION|EXEC_BUILTIN)) fatal("cannot exec 'config/version.cfg'");
-    // pseudo directory with game content
-    const char *dir = getenv(sup_var("DATADIR"));
-    if(dir && *dir) addpackagedir(dir);
-    else addpackagedir("data");
-    if(!fileexists(findfile("maps/readme.txt", "r"), "r")) fatal("could not find game data");
-    if(wanthome)
+/**
+ * Set paths to files and directories locations.
+ * @param wanthome use data in executing user's home directory
+ */
+void setlocations(bool wanthome) {
+    // first, we check if our new FHS-like directory in .../bin/../share/redeclipse exists
+    // we do this relative to the main binary (therefore argv0 needs to be passed) in order to be able to relocate
+    // the entire install tree (which is very handy, e.g., for distribution as an AppImage)
+    char* fhs_share_dir = NULL;
+
+#if not defined(WIN32) and not defined(__APPLE__)
+    // TODO: implement solution for macOS and win
     {
-#if defined(WIN32)
-        string dir = "";
-        if(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, dir) == S_OK)
-        {
-            defformatstring(s, "%s\\My Games\\%s", dir, versionname);
-            sethomedir(s);
-        }
-#elif defined(__APPLE__)
-        extern const char *mac_personaldir();
-        const char *dir = mac_personaldir(); // typically  /Users/<name>/Application Support/
-        if(dir && *dir)
-        {
-            defformatstring(s, "%s/%s", dir, versionname);
-            sethomedir(s);
-        }
-#else
-        const char *dir = getenv("HOME");
-        if(dir && *dir)
-        {
-            defformatstring(s, "%s/.%s", dir, versionuname);
-            sethomedir(s);
-        }
+        // note: realpath allocates a buffer which needs to be free'd if NULL is passed as second parameter
+        char* bin_path = realpath("/proc/self/exe", NULL);
+        char* bin_dir = dirname(bin_path);
+
+        fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
+        strncpy(fhs_share_dir, bin_dir, PATH_MAX);
+        strncat(fhs_share_dir, "/../share/redeclipse-legacy/", PATH_MAX - strlen(fhs_share_dir));
+
+        free(bin_path);
+    }
 #endif
-        else sethomedir("home");
+
+    // search for config directory, which contains the essential cubescript files (defining the menus etc.)
+    // we have to chdir(...) into its parent directory
+    {
+        // if the FHS-like directory tree is found, we just chdir() there and hope for the best
+        // TODO: check whether config/version.cfg is found and if not, change to the previous working directory
+        if (fhs_share_dir != NULL) {
+            char orig_cwd[PATH_MAX];
+            if (getcwd(orig_cwd, sizeof(orig_cwd)) == NULL) {
+                fatal("getcwd() failed");
+            }
+
+            // if chdir is not successful, chdir back to original cwd
+            if (chdir(fhs_share_dir) < 0) {
+                if (chdir(orig_cwd) != 0) {
+                    fatal("chdir() to original cwd failed");
+                }
+            }
+        }
+
+        int backstep = 3;
+        loopirev(backstep) if (!fileexists(findfile("config/version.cfg", "r"), "r")) {
+            if (i <= 0 || chdir("..") < 0) {
+                fatal("could not find config directory");
+            }
+        }
+
+        if (!execfile("config/version.cfg", false, EXEC_VERSION | EXEC_BUILTIN)) {
+            fatal("cannot exec 'config/version.cfg'");
+        }
+
+    }
+
+    // search for game data
+    {
+        const char* dir = getenv(sup_var("DATADIR"));
+        if (dir != NULL && dir[0] != '\0') {
+            addpackagedir(dir);
+        } else {
+            addpackagedir("data");
+        }
+
+        if (fhs_share_dir != NULL) {
+            char fhs_data_dir[PATH_MAX];
+            strncpy(fhs_data_dir, fhs_share_dir, PATH_MAX);
+            strncat(fhs_data_dir, "/data", PATH_MAX - strlen(fhs_data_dir));
+            addpackagedir(fhs_data_dir);
+        }
+
+        // sanity check -- simple, but it works
+        if (!fileexists(findfile("maps/readme.txt", "r"), "r")) {
+            fatal("could not find game data");
+        }
+
+        if (wanthome) {
+#if defined(WIN32)
+            string dir = "";
+            if(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, dir) == S_OK)
+            {
+                defformatstring(s, "%s\\My Games\\%s", dir, versionname);
+                sethomedir(s);
+            }
+#elif defined(__APPLE__)
+            extern const char *mac_personaldir();
+            const char *dir = mac_personaldir(); // typically  /Users/<name>/Application Support/
+            if(dir && *dir)
+            {
+                defformatstring(s, "%s/%s", dir, versionname);
+                sethomedir(s);
+            }
+#else
+            const char* dir = getenv("HOME");
+            if (dir != NULL && dir[0] != '\0') {
+                defformatstring(s, "%s/.%s", dir, versionuname);
+                sethomedir(s);
+            }
+#endif
+            else {
+                sethomedir("home");
+            }
+        }
+    }
+
+    if (fhs_share_dir != NULL) {
+        free(fhs_share_dir);
     }
 }
 
