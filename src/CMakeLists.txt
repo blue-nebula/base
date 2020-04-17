@@ -74,6 +74,9 @@ function(add_redeclipse_executable target)
     )
 endfunction()
 
+# APPNAME is the name of the executable -- determines the executable names and is also needed in configure_file below
+set(APPNAME "redeclipse-legacy")
+
 # the specific applications configuration is a bit complex, so it's been split into three separate CMake files
 include(cmake/client.cmake)
 include(cmake/server.cmake)
@@ -82,7 +85,7 @@ include(cmake/genkey.cmake)
 # install config for cubescript files (containing the menu definitions etc.)
 install(
     DIRECTORY ${PROJECT_SOURCE_DIR}/config
-    DESTINATION share/redeclipse
+    DESTINATION share/redeclipse-legacy
 )
 
 # install config for data files
@@ -90,22 +93,19 @@ install(
 if(NOT SKIP_INSTALL_DATA)
     install(
         DIRECTORY ${PROJECT_SOURCE_DIR}/data
-        DESTINATION share/redeclipse
+        DESTINATION share/redeclipse-legacy
         PATTERN ".git*" EXCLUDE
     )
 endif()
 
-# APPNAME is the name of the executable -- needed for configure_file below
-set(APPNAME "redeclipse-legacy")
-
 # install desktop file
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/redeclipse-legacy.desktop.am
-    ${CMAKE_CURRENT_BINARY_DIR}/redeclipse.desktop
+    ${CMAKE_CURRENT_BINARY_DIR}/redeclipse-legacy.desktop
     @ONLY
 )
 install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/redeclipse.desktop
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/redeclipse-legacy.desktop
     DESTINATION share/applications
 )
 

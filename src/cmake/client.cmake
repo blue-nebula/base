@@ -21,7 +21,7 @@ elseif(APPLE)
 endif()
 
 # finally, add the executable build configuration
-add_redeclipse_executable(redeclipse${BIN_SUFFIX} ${client_sources})
+add_redeclipse_executable(${APPNAME}${BIN_SUFFIX} ${client_sources})
 
 # CMake will also configure include dirs etc. for all targets linked against with target_link_libraries
-target_link_libraries(redeclipse${BIN_SUFFIX} ${client_deps})
+target_link_libraries(${APPNAME}${BIN_SUFFIX} ${client_deps})

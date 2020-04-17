@@ -30,13 +30,12 @@ elseif(APPLE)
 endif()
 
 # add the server executable and link it to enet
-add_redeclipse_executable(redeclipse_server${BIN_SUFFIX} ${server_sources})
+add_redeclipse_executable(${APPNAME}_server${BIN_SUFFIX} ${server_sources})
 
 # server only depends on enet
-target_link_libraries(redeclipse_server${BIN_SUFFIX} ${server_deps})
+target_link_libraries(${APPNAME}_server${BIN_SUFFIX} ${server_deps})
 
 # (define STANDALONE to "notify" the preprocessor that the server is built this time)
-set_target_properties(redeclipse_server${BIN_SUFFIX} PROPERTIES
+set_target_properties(${APPNAME}_server${BIN_SUFFIX} PROPERTIES
     COMPILE_FLAGS "-DSTANDALONE"
 )
-
