@@ -1,0 +1,34 @@
+# the name of the target operating system
+set(CMAKE_SYSTEM_NAME Windows)
+
+set(PREFIX x86_64-w64-mingw32)
+
+# which compilers to use for C and C++
+set(CMAKE_C_COMPILER ${PREFIX}-gcc)
+set(CMAKE_CXX_COMPILER ${PREFIX}-g++)
+set(CMAKE_RC_COMPILER ${PREFIX}-windres)
+
+# here is the target environment located
+set(CMAKE_FIND_ROOT_PATH /usr/${PREFIX})
+
+# adjust the default behaviour of the FIND_XXX() commands:
+# search headers and libraries in the target environment, search
+# programs in the host environment
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+# set up custom include and library paths for dependencies
+set(bundled_libs_dir ${PROJECT_SOURCE_DIR}/src/bundled-libs)
+
+set(ZLIB_INCLUDE_DIR ${bundled_libs_dir}/include)
+set(ZLIB_LIBRARY ${bundled_libs_dir}/${PREFIX}/lib/zlib1.dll)
+
+set(SDL2_INCLUDE_DIR ${bundled_libs_dir}/include CACHE PATH "" FORCE)
+set(SDL2_LIBRARY ${bundled_libs_dir}/${PREFIX}/lib/SDL2.dll CACHE PATH "" FORCE)
+
+set(SDL2_IMAGE_INCLUDE_DIR ${bundled_libs_dir}/include CACHE PATH "" FORCE)
+set(SDL2_IMAGE_LIBRARY ${bundled_libs_dir}/${PREFIX}/lib/SDL2_image.dll CACHE PATH "" FORCE)
+
+set(SDL2_MIXER_INCLUDE_DIR ${bundled_libs_dir}/include CACHE PATH "" FORCE)
+set(SDL2_MIXER_LIBRARY ${bundled_libs_dir}/${PREFIX}/lib/SDL2_mixer.dll CACHE PATH "" FORCE)
