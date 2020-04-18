@@ -1,17 +1,19 @@
-# 3.6+ needed for pkg-config's IMPORTED targets
+# 3.6+ needed for pkg-config's IMPORTED targets, as well as IMPORTED targets for zlib
 # 3.8+ needed for OpenGL's IMPORTED targets
 cmake_minimum_required(VERSION 3.7)
 
 # set compile options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
 
-# Use pkg-config to configure some dependencies
-find_package(PkgConfig REQUIRED)
+# we use find_package instead of pkg_check_modules etc. so we do not depend on .pc files for libraries used across all platforms
+# this allows for easier cross-compiling with MinGW, as we can use the precompiled libraries
+find_package(ZLIB REQUIRED)
 
-pkg_check_modules(zlib zlib REQUIRED IMPORTED_TARGET)
-pkg_check_modules(sdl2 sdl2 REQUIRED IMPORTED_TARGET)
-pkg_check_modules(SDL2_image SDL2_image REQUIRED IMPORTED_TARGET)
-pkg_check_modules(SDL2_mixer SDL2_mixer REQUIRED IMPORTED_TARGET)
+# for SDL2* we need to ship custom configs
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
 # OpenGL may be imported with pkg-config on Unix, but that doesn't work on macOS
 set(OpenGL_GL_PREFERENCE LEGACY)
