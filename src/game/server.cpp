@@ -5897,7 +5897,7 @@ namespace server
                         if(flags&(1<<k))
                         {
                             n |= p.get()<<16;
-                            if(n&0x800000) n |= -1<<24;
+                            if(n&0x800000) n |= 0xFF000000;
                         }
                         pos[k] = n/DMF;
                     }
@@ -5908,7 +5908,7 @@ namespace server
                         if(flags&(1<<(k+3)))
                         {
                             n |= p.get()<<16;
-                            if(n&0x800000) n |= -1<<24;
+                            if(n&0x800000) n |= 0xFF000000;
                         }
                         floorpos[k] = n/DMF;
                     }

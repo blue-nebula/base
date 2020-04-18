@@ -431,12 +431,6 @@ static SlotShaderParamValue *findslotparam(VSlot &s, const char *name)
     return findslotparam(*s.slot, name);
 }
 
-static inline float *findslotparam(VSlot &s, const char *name, float *noval)
-{
-    SlotShaderParamValue *p = findslotparam(s, name);
-    return p ? p->val : noval;
-}
- 
 static inline void setslotparam(SlotShaderParamState &l, const float *val)
 {
     switch(l.format)
