@@ -30,8 +30,8 @@ matrix:
           update: true
       script: bash -xe ci/build-mac.sh
 
-    - name: Windows (x86_64) cross (from Ubuntu xenial x86_64, MinGW-w64)
-      dist: xenial
+    - name: Windows (x86_64) cross (from Ubuntu bionic x86_64, MinGW-w64)
+      dist: bionic
       addons:
         apt:
           update: true
