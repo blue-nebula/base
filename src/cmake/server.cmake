@@ -15,7 +15,7 @@ file(GLOB server_sources
 
 # dependencies are imported globally in src/CMakeLists.txt
 # we can just list them by name here
-set(server_deps PkgConfig::zlib enet)
+set(server_deps ZLIB::ZLIB enet)
 
 # platform specific code
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

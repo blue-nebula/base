@@ -8,10 +8,11 @@ list(REMOVE_ITEM client_sources ${genkey_cpp_path})
 
 # dependencies are imported globally in src/CMakeLists.txt
 # we can just list them by name here
-set(client_deps PkgConfig::zlib PkgConfig::sdl2 PkgConfig::SDL2_image PkgConfig::SDL2_mixer OpenGL::GL enet)
+set(client_deps ZLIB::ZLIB SDL2::Main SDL2::Image SDL2::Mixer OpenGL::GL enet)
 
 # platform specific code
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    find_package(PkgConfig REQUIRED)
     pkg_check_modules(x11 x11 REQUIRED IMPORTED_TARGET)
     list(APPEND client_deps PkgConfig::x11 rt)
 elseif(APPLE)
