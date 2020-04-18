@@ -63,3 +63,8 @@ add_library(enet STATIC
         unix.c
         win32.c
     )
+
+# avoid annoying linking errors regarding missing __imp_* symbols
+if(MINGW)
+    target_link_libraries(enet PRIVATE winmm ws2_32)
+endif()
