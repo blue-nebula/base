@@ -8,6 +8,8 @@ file(GLOB genkey_sources
 if(NOT APPLE)
     add_redeclipse_executable(genkey${BIN_SUFFIX} ${genkey_sources})
 
+    target_link_libraries(genkey${BIN_SUFFIX} ZLIB::ZLIB)
+
     # like for the server, we also have to define STANDALONE here to avoid dependencies on SDL2
     set_target_properties(genkey${BIN_SUFFIX} PROPERTIES
         COMPILE_FLAGS "-DSTANDALONE"

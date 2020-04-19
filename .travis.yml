@@ -29,3 +29,12 @@ matrix:
             - glew
           update: true
       script: bash -xe ci/build-mac.sh
+
+    - name: Windows (x86_64) cross (from Ubuntu bionic x86_64, MinGW-w64)
+      dist: bionic
+      addons:
+        apt:
+          update: true
+          packages:
+            - mingw-w64
+      script: bash -xe ci/build-win-cross.sh
