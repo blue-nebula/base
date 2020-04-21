@@ -153,3 +153,13 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         DESTINATION bin
     )
 endif()
+
+
+# general CPack configuration
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_general.cmake)
+
+# add support for release archive generation
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_archive.cmake)
+
+# must be the last instruction
+include(CPack)
