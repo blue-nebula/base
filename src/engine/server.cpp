@@ -1607,7 +1607,7 @@ void setlocations(bool wanthome) {
 
                 // concatenate binary's directory with the expected path where to find the data
                 strncpy(fhs_share_dir, bin_path, PATH_MAX - 1);
-                strncat(fhs_share_dir, R"(\..\share\redeclipse-legacy\)", PATH_MAX - 1 - strlen(fhs_share_dir));
+                strncat(fhs_share_dir, "\\..\\share\\redeclipse-legacy\\", PATH_MAX - 1 - strlen(fhs_share_dir));
             }
         }
     }
