@@ -76,6 +76,12 @@ function(add_redeclipse_executable target)
     )
 endfunction()
 
+function(add_windows_rc_file target)
+    if(MINGW OR WIN32)
+        target_sources(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/redeclipse.rc)
+    endif()
+endfunction()
+
 # APPNAME is the name of the executable -- determines the executable names and is also needed in configure_file below
 set(APPNAME "redeclipse-legacy")
 

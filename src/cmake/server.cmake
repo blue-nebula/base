@@ -39,3 +39,6 @@ target_link_libraries(${APPNAME}_server${BIN_SUFFIX} ${server_deps})
 set_target_properties(${APPNAME}_server${BIN_SUFFIX} PROPERTIES
     COMPILE_FLAGS "-DSTANDALONE"
 )
+
+# make sure .rc file is added
+add_windows_rc_file(${APPNAME}_server${BIN_SUFFIX})
