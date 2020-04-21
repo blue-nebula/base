@@ -18,6 +18,10 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
+# make sure libgcc and libstdc++ are linked statically, otherwise we would have to ship them
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -static-libgcc -static-libstdc++")
+
 # set up custom include and library paths for dependencies
 set(bundled_libs_dir ${PROJECT_SOURCE_DIR}/src/bundled-libs)
 
