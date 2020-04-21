@@ -66,8 +66,8 @@ function(add_redeclipse_executable target)
         # include framework required in xcode/ code
         find_library(COCOA_LIBRARY Cocoa)
         target_link_libraries(${target} ${COCOA_LIBRARY})
-    elseif(MINGW)
-        target_link_libraries(${target} ws2_32 winmm)
+    elseif(WIN32 OR MINGW)
+        target_link_libraries(${target} ws2_32 winmm shlwapi)
     endif()
 
     install(

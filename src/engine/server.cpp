@@ -6,6 +6,7 @@
 
 #ifdef WIN32
 #include <shlobj.h>
+#include <shlwapi.h>
 #endif
 
 #if not defined(WIN32) and not defined(__APPLE__)
@@ -1570,7 +1571,7 @@ void setlocations(bool wanthome) {
     char* fhs_share_dir = NULL;
 
 #if not defined(WIN32) and not defined(__APPLE__)
-    // TODO: implement solution for macOS and win
+    // TODO: implement solution for macOS (or chdir into the data dir before running the executable)
     {
         // note: realpath allocates a buffer which needs to be free'd if NULL is passed as second parameter
         char* bin_path = realpath("/proc/self/exe", NULL);
@@ -1581,6 +1582,34 @@ void setlocations(bool wanthome) {
         strncat(fhs_share_dir, "/../share/redeclipse-legacy/", PATH_MAX - strlen(fhs_share_dir));
 
         free(bin_path);
+    }
+#elif defined(WIN32)
+    {
+        // thankfully we don't have any symlinks stuff on Windows we have to care about
+        // we should get away with simply calling some Windows API method
+        char* bin_path = (char*) calloc(PATH_MAX, sizeof(char));
+
+        unsigned long retval = GetModuleFileName(NULL, bin_path, PATH_MAX);
+
+        if (retval == 0 || retval == PATH_MAX) {
+            // method failed, we just print a message and move on
+            fprintf(stderr, "failed to get own binary path\r\n");
+            free(bin_path);
+        } else {
+            // try to truncate the string to the directory's name
+            // TODO: conditionally use Windows 8+ method, this method has a strange seemingly-random 260 characters limit
+            if (!PathRemoveFileSpec(bin_path)) {
+                fprintf(stderr, "failed to get own binary path\r\n");
+                free(bin_path);
+            } else {
+                // allocate some space for the actual FHS-style path
+                fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
+
+                // concatenate binary's directory with the expected path where to find the data
+                strncpy(fhs_share_dir, bin_path, PATH_MAX - 1);
+                strncat(fhs_share_dir, R"(\..\share\redeclipse-legacy\)", PATH_MAX - 1 - strlen(fhs_share_dir));
+            }
+        }
     }
 #endif
 
