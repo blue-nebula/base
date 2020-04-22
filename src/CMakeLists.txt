@@ -98,7 +98,9 @@ install(
 
 # install config for data files
 # the if below allows for testing the install config without having to copy too many files
-if(NOT SKIP_INSTALL_DATA)
+if(SKIP_INSTALL_DATA)
+    message(WARNING "not installing any game data")
+else()
     install(
         DIRECTORY ${PROJECT_SOURCE_DIR}/data
         DESTINATION share/redeclipse-legacy
