@@ -21,6 +21,6 @@ execute_process(
 )
 
 # CMake composes file names using a <package_name>-<package_version>-<platform>.<ext> scheme
-set(CPACK_PACKAGE_NAME red-eclipse-legacy)
+set(CPACK_PACKAGE_NAME redeclipse-legacy)
 set(CPACK_PACKAGE_VERSION ${_CPACK_VERSION})
 
