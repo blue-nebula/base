@@ -9,6 +9,23 @@ Therefore, a group of eager community members have started to fork off *Red Ecli
 We thank the *Red Eclipse* developers for providing us with one of the (if not the best) free software shooter, providing us with so many hours of fun. We build upon their great work and continue to support and maintain it.
 
 
+## Download the game
+
+The game has not officially been release yet. However, there are **beta-grade builds** available on our [release page](https://github.com/redeclipse-legacy/release/releases/tag/continuous).
+
+- For Linux, we recommend using our [AppImages](http://appimage.org/).
+- For Windows, we consider creating an installer later on. For now, you can download a `.zip` archive containing both the game and the data.
+- For macOS, we provide a binary archive, too. Please note that currently those have not been tested yet. Feedback welcome!
+
+The builds are **fully compatible with Red Eclipse 1.5.8 to 1.6.0**.
+
+
+## Get in touch
+
+This project is still very young. We provide an official chatroom on the [freenode IRC network](https://freenode.net/). Our channel is [`#re-legacy`](irc://chat.freenode.net/re-legacy) ([webchat](https://webchat.freenode.net/#re-legacy)).
+Please do not hesitate to get in touch with us!
+
+
 ## Current state of Red Eclipse Legacy
 
 Our goal is to ensure a strict distinction between Red Eclipse and our project. We do want to allow for a coexistance on people's computers for example. Therefore we also try to adjust the game's branding and append **Legacy** to it.
