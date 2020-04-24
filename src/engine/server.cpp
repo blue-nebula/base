@@ -1575,7 +1575,6 @@ void setlocations(bool wanthome) {
     char* fhs_share_dir = NULL;
 
 #if not defined(WIN32) and not defined(__APPLE__)
-    // TODO: implement solution for macOS (or chdir into the data dir before running the executable)
     {
         // note: realpath allocates a buffer which needs to be free'd if NULL is passed as second parameter
         char* bin_path = realpath("/proc/self/exe", NULL);
@@ -1584,8 +1583,7 @@ void setlocations(bool wanthome) {
         fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
 
         if (fhs_share_dir == NULL) {
-            fprintf(stderr, "memory allocation failed\n");
-            exit(1);
+            fatal("memory allocation failed\n");
         }
 
         strncpy(fhs_share_dir, bin_dir, PATH_MAX - 1);
@@ -1603,13 +1601,12 @@ void setlocations(bool wanthome) {
 
         if (retval == 0 || retval == PATH_MAX) {
             // method failed, we just print a message and move on
-            fprintf(stderr, "failed to get own binary path\r\n");
+            fprintf(stderr, "warning: failed to get own binary path\r\n");
         } else {
             // try to truncate the string to the directory's name
             // TODO: conditionally use Windows 8+ method, this method has a strange seemingly-random 260 characters limit
             if (!PathRemoveFileSpec(bin_path)) {
-                fprintf(stderr, "failed to get own binary path\r\n");
-                exit(1);
+                fatal("failed to get own binary path\r\n");
             } else {
                 // allocate some space for the actual FHS-style path
                 fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
@@ -1629,8 +1626,7 @@ void setlocations(bool wanthome) {
             char* abs_bin_path = realpath(bin_path, NULL);
 
             if (abs_bin_path == NULL) {
-                fprintf(stderr, "readlink failed\n");
-                exit(1);
+                fatal("readlink failed\n");
             }
 
             char* bin_dir = dirname(abs_bin_path);
@@ -1638,9 +1634,8 @@ void setlocations(bool wanthome) {
             fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
 
             if (fhs_share_dir == NULL) {
-                fprintf(stderr, "memory allocation failed\n");
                 free(abs_bin_path);
-                exit(1);
+                fatal("memory allocation failed\n");
             }
 
             strncpy(fhs_share_dir, bin_dir, PATH_MAX - 1);
