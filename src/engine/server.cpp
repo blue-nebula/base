@@ -1578,6 +1578,12 @@ void setlocations(bool wanthome) {
         char* bin_dir = dirname(bin_path);
 
         fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
+
+        if (fhs_share_dir == NULL) {
+            fprintf(stderr, "memory allocation failed\n");
+            exit(1);
+        }
+
         strncpy(fhs_share_dir, bin_dir, PATH_MAX - 1);
         strncat(fhs_share_dir, "/../share/redeclipse-legacy/", PATH_MAX - 1 - strlen(fhs_share_dir));
 
