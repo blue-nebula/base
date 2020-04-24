@@ -9,7 +9,11 @@
 #include <shlwapi.h>
 #endif
 
-#if not defined(WIN32) and not defined(__APPLE__)
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
+#if not defined(WIN32)
 #include <libgen.h>
 #endif
 
@@ -1615,6 +1619,35 @@ void setlocations(bool wanthome) {
                 strncpy(fhs_share_dir, bin_path, PATH_MAX - 1);
                 strncat(fhs_share_dir, "\\..\\share\\redeclipse-legacy\\", PATH_MAX - 1 - strlen(fhs_share_dir));
             }
+        }
+    }
+#elif defined(__APPLE__)
+    {
+        uint32_t bin_path_size = PATH_MAX;
+        char bin_path[PATH_MAX];
+
+        if (_NSGetExecutablePath(bin_path, &bin_path_size) == 0) {
+            char* abs_bin_path = realpath(bin_path, NULL);
+
+            if (abs_bin_path == NULL) {
+                fprintf(stderr, "readlink failed\n");
+                exit(1);
+            }
+
+            char* bin_dir = dirname(abs_bin_path);
+
+            fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
+
+            if (fhs_share_dir == NULL) {
+                fprintf(stderr, "memory allocation failed\n");
+                free(abs_bin_path);
+                exit(1);
+            }
+
+            strncpy(fhs_share_dir, bin_dir, PATH_MAX - 1);
+            strncat(fhs_share_dir, "/../share/redeclipse-legacy/", PATH_MAX - 1 - strlen(fhs_share_dir));
+
+            free(abs_bin_path);
         }
     }
 #endif
