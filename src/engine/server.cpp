@@ -1597,20 +1597,18 @@ void setlocations(bool wanthome) {
     {
         // thankfully we don't have any symlinks stuff on Windows we have to care about
         // we should get away with simply calling some Windows API method
-        char* bin_path = (char*) calloc(PATH_MAX, sizeof(char));
+        char bin_path[PATH_MAX];
 
         unsigned long retval = GetModuleFileName(NULL, bin_path, PATH_MAX);
 
         if (retval == 0 || retval == PATH_MAX) {
             // method failed, we just print a message and move on
             fprintf(stderr, "failed to get own binary path\r\n");
-            free(bin_path);
         } else {
             // try to truncate the string to the directory's name
             // TODO: conditionally use Windows 8+ method, this method has a strange seemingly-random 260 characters limit
             if (!PathRemoveFileSpec(bin_path)) {
                 fprintf(stderr, "failed to get own binary path\r\n");
-                free(bin_path);
             } else {
                 // allocate some space for the actual FHS-style path
                 fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
