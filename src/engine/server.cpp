@@ -1609,6 +1609,7 @@ void setlocations(bool wanthome) {
             // TODO: conditionally use Windows 8+ method, this method has a strange seemingly-random 260 characters limit
             if (!PathRemoveFileSpec(bin_path)) {
                 fprintf(stderr, "failed to get own binary path\r\n");
+                exit(1);
             } else {
                 // allocate some space for the actual FHS-style path
                 fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
