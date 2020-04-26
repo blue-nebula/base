@@ -1,11 +1,10 @@
-# genkey is a rather small application
-file(GLOB genkey_sources
-    engine/genkey.cpp
-    shared/crypto.cpp
-)
+if(BUILD_GENKEY)
+    # genkey is a rather small application
+    file(GLOB genkey_sources
+        engine/genkey.cpp
+        shared/crypto.cpp
+    )
 
-# TODO: find out how to build genkey properly on macOS
-if(NOT APPLE)
     add_redeclipse_executable(genkey${BIN_SUFFIX} ${genkey_sources})
 
     target_link_libraries(genkey${BIN_SUFFIX} ZLIB::ZLIB)

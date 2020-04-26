@@ -19,11 +19,19 @@ find_package(SDL2_mixer REQUIRED)
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
 
+# override from outside or in the platform specific code to exclude targets from being built
+set(BUILD_CLIENT ON)
+set(BUILD_SERVER ON)
+set(BUILD_GENKEY ON)
+
 # platform specific code
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(BIN_SUFFIX "_linux")
 elseif(APPLE)
     set(BIN_SUFFIX "_osx")
+
+    # TODO: fix genkey on macOS
+    set(BUILD_GENKEY OFF)
 elseif(MINGW)
     set(BIN_SUFFIX "_windows")
 else()
@@ -86,9 +94,9 @@ endfunction()
 set(APPNAME "redeclipse-legacy")
 
 # the specific applications configuration is a bit complex, so it's been split into three separate CMake files
-include(cmake/client.cmake)
-include(cmake/server.cmake)
-include(cmake/genkey.cmake)
+include(cmake/build_client.cmake)
+include(cmake/build_server.cmake)
+include(cmake/build_genkey.cmake)
 
 # install config directory with the cubescript files (containing the menu definitions etc.)
 install(
