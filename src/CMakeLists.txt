@@ -90,7 +90,7 @@ include(cmake/client.cmake)
 include(cmake/server.cmake)
 include(cmake/genkey.cmake)
 
-# install config for cubescript files (containing the menu definitions etc.)
+# install config directory with the cubescript files (containing the menu definitions etc.)
 install(
     DIRECTORY ${PROJECT_SOURCE_DIR}/config
     DESTINATION share/redeclipse-legacy
@@ -108,60 +108,9 @@ else()
     )
 endif()
 
-# install desktop file
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/redeclipse-legacy.desktop.am
-    ${CMAKE_CURRENT_BINARY_DIR}/redeclipse-legacy.desktop
-    @ONLY
-)
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/redeclipse-legacy.desktop
-    DESTINATION share/applications
-)
-
-# TODO: install appstream data
-
-# install icons
-foreach(res IN ITEMS 16 32 48 64 128)
-    file(
-        COPY ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/redeclipse-legacy_x${res}.png
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/
-    )
-    file(RENAME
-        ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/redeclipse-legacy_x${res}.png
-        ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/redeclipse-legacy.png
-    )
-endforeach()
-install(
-    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/icons
-    DESTINATION share
-)
-
-# install bundled binaries
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    if(MINGW_PLATFORM)
-        message(STATUS "Building with MinGW cross toolchain, prefix: ${MINGW_PREFIX}")
-        set(WINDOWS_LIBRARY_PREFIX ${MINGW_PREFIX})
-    else()
-        # we only support x86_64/i686 architectures, so we can "guess" the prefixes
-        if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-            set(WINDOWS_LIBRARY_PREFIX x86_64-w64-mingw32)
-        elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-            set(WINDOWS_LIBRARY_PREFIX i686-w64-mingw32)
-        else()
-            message(FATAL_ERROR "Unknown platform, please re-run with -DWINDOWS_LIBRARY_PREFIX=...")
-        endif()
-        message(STATUS "Building for Windows without cross toolchain, guessing prefix ${WINDOWS_LIBRARY_PREFIX}")
-    endif()
-
-    message(STATUS "Installing Windows binaries into bin directory")
-    file(GLOB BUNDLED_LIBS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/bundled-libs/${WINDOWS_LIBRARY_PREFIX}/lib/*)
-    install(
-        FILES ${BUNDLED_LIBS_FILES}
-        DESTINATION bin
-    )
-endif()
-
+# install configs were moved into separate CMake files
+include(cmake/install_nix.cmake)
+include(cmake/install_win.cmake)
 
 # general CPack configuration
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_general.cmake)
