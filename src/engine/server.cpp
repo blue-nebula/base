@@ -1817,7 +1817,28 @@ void setverinfo(const char *bin)
 {
     setvar("versioncrc", crcfile(bin));
     const char *vbranch = getenv(sup_var("BRANCH"));
-    setsvar("versionbranch", vbranch);
+
+    static const char prefix[] = "legacy";
+
+    // trim branch after at most 12 characters
+    static const int max_vbranch_len = 12;
+    static const int versionbranch_len = sizeof(prefix) + max_vbranch_len;
+
+    // 1 extra char for termination plus 1 extra char for the dash we want to put in between our prefix and theß
+    // versionbranch
+    char* versionbranch = (char*) calloc(versionbranch_len + 2, sizeof(char));
+
+    // our buffer is known to be large enough to contain prefix, therefore we don't have to use strncpy
+    strcpy(versionbranch, prefix);
+
+    // if the env var is not empty, we append it to our prefix
+    if (vbranch != NULL) {
+        // here, the upper boundary of 12 characters needs to be applied
+        strcat(versionbranch, "-");
+        strncat(versionbranch, vbranch, max_vbranch_len);
+    }
+
+    setsvar("versionbranch", versionbranch);
 }
 
 volatile bool fatalsig = false;
