@@ -23,7 +23,7 @@ struct menu : guicb
         cgui = &g;
         cmenu = this;
         guipasses = passes;
-        if(!passes) guiactionon = false;
+        if(!passes) ui_action_on = false;
         int oldflags = identflags;
         if(world && !built_in) identflags |= IDF_WORLD;
         if(init_script) execute(init_script);
@@ -563,7 +563,7 @@ void ui_checkbox(char *name, char *var, float *on, float *off, char *onchange, i
 {
     if(!cgui) return;
     bool enabled = get_value_float(var) != *off, two = getfvarmax(var) == 2, next = two && get_value_float(var) == 1.0f;
-    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, enabled ? "checkboxon" : NULL, enabled && two && !next ? guicheckboxtwocolour : guicheckboxcolour);
+    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, enabled ? "checkboxon" : NULL, enabled && two && !next ? ui_color_checkbox_two : ui_color_checkbox);
     if(ret&GUI_UP) update_value(var, enabled ? (two && next ? 2.0f : *off) : (*on || *off ? *on : 1.0f), onchange);
     else if(ret&GUI_ROLLOVER)
     {
@@ -577,7 +577,7 @@ void ui_radiobutton(char *name, char *var, float *n, char *onchange, int *colour
 {
     if(!cgui) return;
     bool enabled = get_value_float(var) == *n;
-    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "radiobox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "radioboxon" : NULL, guiradioboxcolour);
+    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "radiobox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "radioboxon" : NULL, ui_color_radiobutton_box);
     if(ret&GUI_UP)
     {
         if(!enabled) update_value(var, *n, onchange);
@@ -595,7 +595,7 @@ void ui_bitfield(char *name, char *var, int *mask, char *onchange, int *colour)
     if(!cgui) return;
     int val = get_value_int(var);
     bool enabled = (val & *mask) != 0;
-    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "checkboxon" : NULL, guicheckboxcolour);
+    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "checkboxon" : NULL, ui_color_checkbox);
     if(ret&GUI_UP) update_value(var, enabled ? val & ~*mask : val | *mask, onchange);
     else if(ret&GUI_ROLLOVER)
     {
@@ -929,7 +929,7 @@ void menuprocess()
     }
 }
 
-void progressmenu()
+void menu_progress()
 {
     menu *m = menus.access("loading");
     if(m)
@@ -940,7 +940,7 @@ void progressmenu()
     }
 }
 
-void mainmenu()
+void menu_main()
 {
     if(!menustack.empty()) UI::addcb(menustack.last());
 }

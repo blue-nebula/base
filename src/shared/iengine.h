@@ -622,7 +622,7 @@ struct guicb
     virtual void gui(guient &g, bool firstpass) = 0;
 };
 
-extern char *guiskintex, *guiskinbordertex, *guioverlaytex, *guiexittex, *guihovertex;
+extern char *ui_skin_texture, *ui_skin_border_texture, *ui_overlay_texture, *ui_exit_texture, *ui_hover_texture;
 
 struct editor;
 

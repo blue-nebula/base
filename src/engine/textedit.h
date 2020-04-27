@@ -710,7 +710,7 @@ struct editor
             if(linewrap && height > FONTH) // line wrap indicator
             {
                 hudnotextureshader->set();
-                gle::colorf((guifieldbordercolour>>16)/255.f, ((guifieldbordercolour>>8)&0xFF)/255.f, (guifieldbordercolour&0xFF)/255.f, guifieldborderblend);
+                gle::colorf((ui_color_textfield_border >> 16) / 255.f, ((ui_color_textfield_border >> 8) & 0xFF) / 255.f, (ui_color_textfield_border & 0xFF) / 255.f, ui_blend_textfield_border);
                 gle::defvertex(2);
                 gle::begin(GL_TRIANGLE_STRIP);
                 gle::attribf(x, y+h+FONTH);
