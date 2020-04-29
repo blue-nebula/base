@@ -3,7 +3,30 @@
 cmake_minimum_required(VERSION 3.8)
 
 # set compile options
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
+set(COMMON_C_FLAGS "-Wall -fsigned-char")
+# note: "SQLite will not work correctly with the -ffast-math option of GCC" -> we'll only enable this flag for the C++ codebase
+# TODO: drop sqlite dependency
+set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math -fno-exceptions")
+
+if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+    message(STATUS "Release build detected, adding release flags")
+    set(COMMON_C_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer")
+endif()
+
+option(PEDANTIC "Enable pedantic mode")
+if(PEDANTIC)
+    message(STATUS "Enabling pedantic mode")
+    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+        set(COMMON_C_FLAGS "${ADDITIONAL_BUILD_FLAGS} -Wextra")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        set(COMMON_C_FLAGS "${ADDITIONAL_BUILD_FLAGS} -Wpedantic")
+    else()
+        message(FATAL_ERROR "Pedantic mode requested, but no configuration available for compiler identification '${CMAKE_CXX_COMPILER_ID}'")
+    endif()
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_C_FLAGS} ${COMMON_CXX_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_C_FLAGS}")
 
 # we use find_package instead of pkg_check_modules etc. so we do not depend on .pc files for libraries used across all platforms
 # this allows for easier cross-compiling with MinGW, as we can use the precompiled libraries
