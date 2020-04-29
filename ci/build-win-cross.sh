@@ -34,6 +34,8 @@ OLD_CWD=$(readlink -f .)
 
 pushd "$BUILD_DIR"
 
-cmake "$REPO_ROOT" -DCMAKE_TOOLCHAIN_FILE="$REPO_ROOT"/ci/x86_64-w64-mingw32.cmake
+# can be overwritten by the user
+BUILD_TYPE="${BUILD_TYPE:-Debug}"
+cmake "$REPO_ROOT" -DCMAKE_BUILD_TYPE="$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE="$REPO_ROOT"/ci/x86_64-w64-mingw32.cmake
 
 make -j"$NPROC"

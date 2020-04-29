@@ -6,7 +6,8 @@ git:
 
 matrix:
   include:
-    - name: Ubuntu xenial (x86_64)
+    - name: Ubuntu xenial (x86_64) debug
+      environment: BUILD_TYPE=Debug
       dist: xenial
       addons:
         apt:
@@ -18,7 +19,21 @@ matrix:
             - zlib1g-dev
       script: bash -xe ci/build-nix.sh
 
-    - name: macOS (x86_64)
+    - name: Ubuntu xenial (x86_64) release
+      environment: BUILD_TYPE=Release
+      dist: xenial
+      addons:
+        apt:
+          update: true
+          packages:
+            - libsdl2-dev
+            - libsdl2-image-dev
+            - libsdl2-mixer-dev
+            - zlib1g-dev
+      script: bash -xe ci/build-nix.sh
+
+    - name: macOS (x86_64) debug
+      environment: BUILD_TYPE=Debug
       os: osx
       addons:
         homebrew:
@@ -30,7 +45,8 @@ matrix:
           update: true
       script: bash -xe ci/build-mac.sh
 
-    - name: Windows (x86_64) cross (from Ubuntu bionic x86_64, MinGW-w64)
+    - name: Windows (x86_64) debug (crossbuild from Ubuntu bionic x86_64, MinGW-w64)
+      environment: BUILD_TYPE=Debug
       dist: bionic
       addons:
         apt:

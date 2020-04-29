@@ -19,6 +19,8 @@ OLD_CWD=$(realpath .)
 
 pushd "$BUILD_DIR"
 
-cmake "$REPO_ROOT"
+# can be overwritten by the user
+BUILD_TYPE="${BUILD_TYPE:-Debug}"
+cmake "$REPO_ROOT" -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 
 make -j$(nprocs)
