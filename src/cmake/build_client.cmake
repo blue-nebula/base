@@ -1,6 +1,6 @@
 if(BUILD_CLIENT)
     # the client depends on almost all the source files
-    file(GLOB client_sources engine/*.cpp game/*.cpp shared/*.cpp support/sqlite3.c)
+    file(GLOB client_sources engine/*.cpp game/*.cpp shared/*.cpp)
 
     # the client does not need genkey.cpp
     # to avoid warnings about duplicate main()s, it has to be removed from their source lists

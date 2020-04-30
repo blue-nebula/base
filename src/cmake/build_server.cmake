@@ -6,7 +6,6 @@ if(BUILD_SERVER)
         shared/stream.cpp
         shared/tools.cpp
         shared/zip.cpp
-        support/sqlite3.c
         engine/command.cpp
         engine/irc.cpp
         engine/master.cpp
