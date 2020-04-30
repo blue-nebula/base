@@ -87,7 +87,7 @@ namespace auth
 {
     int lastconnect = 0, lastregister = 0, quickcheck = 0;
     uint nextauthreq = 1;
-    bool hasauth = false, hasstats = false;
+    bool hasauth = false;
 
     clientinfo *findauth(uint id)
     {
@@ -284,7 +284,7 @@ namespace auth
 
     void serverauthfailed()
     {
-        hasauth = hasstats = false;
+        hasauth = false;
         conoutf("server auth request failed");
     }
 
@@ -294,11 +294,12 @@ namespace auth
         {
             case 's':
                 hasauth = true;
-                if(G(serverstats)) hasstats = true;
                 break;
             case 'b': case 'm': default: hasauth = true; break;
         }
-        conoutf("server auth succeeded (%s [%s])", hasstats ? "stats" : "basic", flags);
+        // there used to be a different handle for authed servers that supported stats called "stats"
+        // we dropped the stats system, so we now use non-stats value "basic" instead in this message
+        conoutf("server auth succeeded (basic [%s])", flags);
     }
 
     void authsucceeded(uint id, const char *name, const char *flags)
@@ -396,17 +397,6 @@ namespace auth
         else if(!strcmp(w[0], "echo")) { conoutf("master server reply: %s", w[1]); }
         else if(!strcmp(w[0], "failauth")) authfailed((uint)(atoi(w[1])));
         else if(!strcmp(w[0], "succauth")) authsucceeded((uint)(atoi(w[1])), w[2], w[3]);
-        else if(!strcmp(w[0], "authstats"))
-        {
-            clientinfo *ci = findauthhandle(w[1]);
-            if(ci)
-            {
-                ci->totalpoints = ci->localtotalpoints + atoi(w[2]);
-                ci->totalfrags = ci->localtotalfrags + atoi(w[3]);
-                ci->totaldeaths = ci->localtotaldeaths + atoi(w[4]);
-                sendf(-1, 1, "ri5", N_TOTALS, ci->clientnum, ci->totalpoints, ci->totalfrags, ci->totaldeaths);
-            }
-        }
         else if(!strcmp(w[0], "failserverauth")) serverauthfailed();
         else if(!strcmp(w[0], "succserverauth")) serverauthsucceeded(w[1], w[2]);
         else if(!strcmp(w[0], "chalauth")) authchallenged((uint)(atoi(w[1])), w[2]);
@@ -417,11 +407,6 @@ namespace auth
             versioning = 2;
             if(servcmd(2, w[1], w[2])) conoutf("master server variable synced: %s", w[1]);
             versioning = oldversion;
-        }
-        else if(!strcmp(w[0], "stats"))
-        {
-            if(!strcmp(w[1], "success")) srvoutf(-3, "\fystats success: %s", w[2]);
-            else if(!strcmp(w[1], "failure")) srvoutf(-3, "\frstats failure: %s", w[2]);
         }
         else loopj(ipinfo::SYNCTYPES) if(!strcmp(w[0], ipinfotypes[j]))
         {
@@ -450,7 +435,9 @@ namespace auth
         else
         {
             conoutf("Updating master server");
-            requestmasterf("server %d %s %d %s %d %s\n", serverport, *serverip ? serverip : "*", CUR_VERSION, escapestring(limitstring(G(serverdesc), MAXSDESCLEN+1)), G(serverstats), escapestring(versionbranch));
+            // the position of the 0 was used to signalize support for the global stats system, which has been removed
+            // to retain compatibility, we just send a 0, pretending it was simply disabled by the administrator
+            requestmasterf("server %d %s %d %s 0 %s\n", serverport, *serverip ? serverip : "*", CUR_VERSION, escapestring(limitstring(G(serverdesc), MAXSDESCLEN+1)), escapestring(versionbranch));
         }
         reqserverauth();
     }
@@ -483,7 +470,7 @@ namespace auth
     void masterdisconnected()
     {
         quickcheck = 0;
-        hasauth = hasstats = false;
+        hasauth = false;
         loopv(clients) if(clients[i]->authreq) authfailed(clients[i]);
         loopv(connects) if(connects[i]->authreq) authfailed(connects[i]);
     }
