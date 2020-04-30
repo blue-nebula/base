@@ -1529,12 +1529,10 @@ namespace server
     }
 
     bool checkvotes(bool force = false);
-    void sendstats(bool fromintermission = false);
     void startintermission(bool req = false)
     {
         if(gs_playing(gamestate))
         {
-            sendstats(true);
             setpause(false);
             timeremaining = 0;
             gamelimit = min(gamelimit, gamemillis);
@@ -2643,7 +2641,6 @@ namespace server
         }
         if(passed)
         {
-            sendstats();
             endmatch();
             if(best)
             {
@@ -2758,7 +2755,6 @@ namespace server
         ci->lastvote = totalmillis ? totalmillis : 1;
         if(hasveto)
         {
-            sendstats();
             endmatch();
             srvoutf(-3, "%s forced: \fs\fy%s\fS on \fs\fo%s\fS", colourname(ci), gamename(ci->modevote, ci->mutsvote), ci->mapvote);
             changemap(ci->mapvote, ci->modevote, ci->mutsvote);
@@ -3309,109 +3305,6 @@ namespace server
         return true;
     }
 
-    void sendstats(bool fromintermission)
-    {
-        if(G(serverstats) && auth::hasstats && !sentstats && gamemillis)
-        {
-            loopv(clients) if(clients[i]->actortype == A_PLAYER) savestatsscore(clients[i]);
-            bool worthy = false;
-            if(fromintermission) worthy = true;
-            else if(m_laptime(gamemode, mutators))
-            {
-                loopv(savedstatsscores) if(savedstatsscores[i].actortype == A_PLAYER) if(savedstatsscores[i].cptime > 0)
-                {
-                    worthy = true;
-                    break;
-                }
-            }
-            if(!worthy) return;
-
-            loopv(clients)
-            {
-                clients[i]->localtotalpoints -= clients[i]->points;
-                clients[i]->localtotalfrags -= clients[i]->frags;
-                clients[i]->localtotaldeaths -= clients[i]->deaths;
-            }
-
-            sentstats = true;
-            requestmasterf("stats begin\n");
-            int unique = 0;
-            vector<uint> seen;
-            loopv(savedstatsscores) if(savedstatsscores[i].actortype == A_PLAYER)
-            {
-                if((gamemillis / 1000 / 25) >= savedstatsscores[i].timeactive) continue;
-                if(savedstatsscores[i].handle[0])
-                {
-                    seen.add(savedstatsscores[i].ip);
-                    unique += 1;
-                }
-                else
-                {
-                    bool inseen = false;
-                    loopvj(seen) if(seen[j] == savedstatsscores[i].ip) inseen = true;
-                    if(!inseen)
-                    {
-                        seen.add(savedstatsscores[i].ip);
-                        unique += 1;
-                    }
-                }
-            }
-            requestmasterf("stats game %s %d %d %d %d %d\n", escapestring(smapname), gamemode, mutators, gamemillis/1000, unique, m_usetotals(gamemode, mutators) ? 1 : 0);
-            flushmasteroutput();
-            requestmasterf("stats server %s %s %d\n", escapestring(limitstring(G(serverdesc), MAXSDESCLEN+1)), versionstring, serverport);
-            flushmasteroutput();
-            loopi(numteams(gamemode, mutators))
-            {
-                int tp = m_team(gamemode, mutators) ? T_FIRST : T_NEUTRAL;
-                requestmasterf("stats team %d %d %s\n", i + tp, teamscore(i + tp).total, escapestring(TEAM(i + tp, name)));
-            }
-            flushmasteroutput();
-            loopv(savedstatsscores) if(savedstatsscores[i].actortype == A_PLAYER)
-            {
-                requestmasterf("stats player %s %s %d %d %d %d %d %d\n",
-                    escapestring(savedstatsscores[i].name), escapestring(savedstatsscores[i].handle),
-                    m_laptime(gamemode, mutators) ? savedstatsscores[i].cptime : savedstatsscores[i].points,
-                    savedstatsscores[i].timealive, savedstatsscores[i].frags, savedstatsscores[i].deaths, i,
-                    savedstatsscores[i].timeactive
-                );
-                flushmasteroutput();
-                loopj(W_MAX)
-                {
-                    weaponstats w = savedstatsscores[i].weapstats[j];
-                    requestmasterf("stats weapon %d %s %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
-                        i, escapestring(savedstatsscores[i].handle), weaptype[j].name, w.timewielded, w.timeloadout,
-                        w.damage1, w.frags1, w.hits1, w.flakhits1, w.shots1, w.flakshots1,
-                        w.damage2, w.frags2, w.hits2, w.flakhits2, w.shots2, w.flakshots2
-                    );
-                    flushmasteroutput();
-                }
-                loopvj(savedstatsscores[i].captures)
-                {
-                    requestmasterf("stats capture %d %s %d %d\n",
-                        i, escapestring(savedstatsscores[i].handle),
-                        savedstatsscores[i].captures[j].capturing, savedstatsscores[i].captures[j].captured);
-                    flushmasteroutput();
-                }
-                loopvj(savedstatsscores[i].bombings)
-                {
-                    requestmasterf("stats bombing %d %s %d %d\n",
-                        i, escapestring(savedstatsscores[i].handle),
-                        savedstatsscores[i].bombings[j].bombing, savedstatsscores[i].bombings[j].bombed);
-                    flushmasteroutput();
-                }
-                loopvj(savedstatsscores[i].ffarounds)
-                {
-                    requestmasterf("stats ffaround %d %s %d %d\n",
-                        i, escapestring(savedstatsscores[i].handle),
-                        savedstatsscores[i].ffarounds[j].round, (int)savedstatsscores[i].ffarounds[j].winner);
-                    flushmasteroutput();
-                }
-            }
-            requestmasterf("stats end\n");
-            flushmasteroutput();
-        }
-    }
-
     #include "capturemode.h"
     #include "defendmode.h"
     #include "bombermode.h"
@@ -3420,7 +3313,7 @@ namespace server
 
     void changemap(const char *name, int mode, int muts)
     {
-        hasgameinfo = shouldcheckvotes = firstblood = sentstats = false;
+        hasgameinfo = shouldcheckvotes = firstblood = false;
         mapgameinfo = -1;
         stopdemo();
         resetmapdata();
@@ -5354,7 +5247,6 @@ namespace server
         {
             if(m_demo(gamemode)) enddemoplayback();
         }
-        if(complete && ci->connected) sendstats();
         if(ci->connected)
         {
             if(reason != DISC_SHUTDOWN)

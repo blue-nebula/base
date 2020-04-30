@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.8)
 # set compile options
 set(COMMON_C_FLAGS "-Wall -fsigned-char")
 # note: "SQLite will not work correctly with the -ffast-math option of GCC" -> we'll only enable this flag for the C++ codebase
-# TODO: drop sqlite dependency
 set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math -fno-exceptions")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
@@ -61,12 +60,6 @@ else()
     message(WARNING "Unknown build platform")
     set(BIN_SUFFIX "_unknown")
 endif()
-
-# make sure sqlite3 is built with the correct flags
-file(GLOB sqlite3_cpp_path support/sqlite3.c)
-set_source_files_properties(support/sqlite3.c PROPERTIES
-    COMPILE_FLAGS "-DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION"
-)
 
 # import enet
 set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
