@@ -293,7 +293,7 @@ namespace hud
         
         // gamename
         uicenterlist(g, uifont(g, "emphasis", {
-            g.textf("^faMode: ^fw%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
+            g.textf("\faMode: \fw%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
         }));
         
         uilist(g, {
