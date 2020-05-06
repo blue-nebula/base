@@ -34,7 +34,7 @@ namespace hud
     VAR(IDF_PERSIST, scoresinfo, 0, 1, 1);
     VAR(IDF_PERSIST, scorehandles, 0, 1, 1);
 
-    VAR(IDF_PERSIST, scorepj, 0, 1, 1);
+    VAR(IDF_PERSIST, scorepj, 0, 0, 1);
     VAR(IDF_PERSIST, scoreping, 0, 1, 1);
     VAR(IDF_PERSIST, scoretimer, 0, 1, 2);
     VAR(IDF_PERSIST, scorepoints, 0, 1, 2);
@@ -45,7 +45,7 @@ namespace hud
     VAR(IDF_PERSIST, scoretotaldeaths, 0, 0, 1);
     VAR(IDF_PERSIST, scoreratios, 0, 4, 4); // 0 = off, 1 = dm only, 2 = always, 3 = total dm only, 4 = total always
     VAR(IDF_PERSIST, scorebalancescore, 0, 0, 1);
-    VAR(IDF_PERSIST, scoreclientnum, 0, 1, 1);
+    VAR(IDF_PERSIST, scoreclientnum, 0, 0, 1);
     VAR(IDF_PERSIST, scoretimestyle, 0, 3, 4);
     VAR(IDF_PERSIST, scoreracestyle, 0, 1, 4);
     VAR(IDF_PERSIST, scorebotinfo, 0, 0, 1);
