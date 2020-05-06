@@ -288,9 +288,16 @@ namespace hud
 
     void renderscoreboard(guient &g, bool firstpass)
     {
-        g.start(menustart, NULL, false, false, scorebgfx!=0);
+        g.start(menustart, NULL, false, false, scorebgfx != 0);
         int numgroups = groupplayers();
+        
+        // gamename
+        uicenterlist(g, uifont(g, "emphasis", {
+            g.textf("\faMode: \fw%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
+        }));
+        
         uilist(g, {
+            g.space(1);
             if(scoresideinfo)
             {
                 uicenterlist(g, {
@@ -299,45 +306,38 @@ namespace hud
                     g.pushlist();
                     g.space(0.25f);
                     uicenter(g, {
-                        uicenterlist(g, uicenterlist(g, {
-                            uicenterlist(g, uifont(g, "emphasis", g.textf("%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, *maptitle ? maptitle : mapname)));
-                            if(*mapauthor)
-                            {
-                                int len = strlen(mapauthor);
-                                uicenterlist(g, uifont(g, (len >= 24 ? (len >= 40 ? "tiny" : "little") : "reduced"), g.textf("by %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, mapauthor)));
-                            }
-                            uicenterlist(g, uifont(g, "little", {
-                                g.textf("\fy%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
-                                if(paused) g.text(", \fs\fopaused\fS", 0xFFFFFF);
-                                else if(m_play(game::gamemode) || client::demoplayback)
-                                {
-                                    int timecorrected = max(game::timeremaining*1000-((gs_playing(game::gamestate) ? lastmillis : totalmillis)-game::lasttimeremain), 0);
-                                    if(game::gamestate != G_S_PLAYING)
-                                        g.textf(", \fs\fc%s\fS, \fs%s%s\fS remain", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, gamestates[0][game::gamestate], gs_waiting(game::gamestate) ? "\fr" : (game::gamestate == G_S_OVERTIME ? "\fzoy" : "\fg"), timestr(timecorrected, scoretimestyle));
-                                    else if(m_mmvar(game::gamemode, game::mutators, timelimit)) g.textf(", \fs\fc%s\fS, \fs%s%s\fS remain", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, gamestates[0][game::gamestate], timecorrected > 60000 ? "\fg" : "\fzgy", timestr(timecorrected, scoretimestyle));
-                                }
-                            }));
-                            if(*connectname)
-                            {
-                                uicenterlist(g, uifont(g, "little", {
-                                    g.textf("\faon: \fw%s:[%d]", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, connectname, connectport);
-                                }));
-                                if(*serverdesc)
-                                {
-                                    uicenterlist(g, uifont(g, (strlen(serverdesc) >= 32 ? "tiny" : "little"), {
-                                        g.textf("\"\fs%s\fS\"", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, serverdesc);
-                                    }));
-                                }
-                            }
-                        }));
-                        if(scoreimage)
-                        {
-                            g.space(0.25f);
+                        uicenterlist(g, uilist(g, {
+                            // maptitle
                             uicenterlist(g, {
-                                g.image(NULL, scoreimagesize, true);
+                                if (*maptitle) {
+                                    int len = strlen(maptitle);
+                                    uifont(g, (len >= 24 ? (len >= 40 ? "big" : "emphasis") : "huge"), { g.textf("%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, maptitle); });
+                                } else {
+                                    int len = strlen(mapname);
+                                    uifont(g, (len >= 24 ? (len >= 40 ? "big" : "emphasis") : "huge"), { g.textf("%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, mapname); });
+                                }
                             });
-                        }
-                        g.space(0.25f);
+
+                            // map image
+                            if(scoreimage)
+                            {
+                                g.space(0.25f);
+                                uicenterlist(g, {
+                                    g.image(NULL, scoreimagesize, true);
+                                });
+                            }
+
+                            // mapauthor
+                            uicenterlist(g, {
+                                if (*mapauthor) {
+                                    int len = strlen(mapauthor);
+                                    
+                                    uifont(g, (len >= 24 ? (len >= 40 ? "tiny" : "little") : "reduced"), { g.textf("\faby %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, mapauthor); });
+                                }
+                            });
+                            g.space(0.25f);      
+                        }));
+
                         uicenterlist(g, uicenterlist(g, {
                             if(game::player1->quarantine)
                             {
@@ -380,23 +380,27 @@ namespace hud
                                         uifont(g, "little", {
                                             if(game::player1->state == CS_WAITING && lastmillis-game::player1->lastdeath >= 500)
                                                 uicenterlist(g, g.textf("Press \fs\fw\f{=3:waitmodeswitch}\fS to %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
+                                            /*
                                             if(m_loadout(game::gamemode, game::mutators))
                                                 uicenterlist(g, g.textf("Press \fs\fw\f{=showgui profile 2}\fS to \fs%s\fS loadout", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::player1->loadweap.empty() ? "\fzoyselect" : "change"));
                                             if(m_play(game::gamemode) && m_team(game::gamemode, game::mutators))
                                                 uicenterlist(g, g.textf("Press \fs\fw\f{=showgui team}\fS to change teams", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF));
+                                            */
                                         });
                                     }
                                 }
                                 else if(game::player1->state == CS_ALIVE)
                                 {
+                                    /*
                                     uifont(g, "default", uicenterlist(g, {
                                         if(m_team(game::gamemode, game::mutators))
                                             g.textf("Playing for team %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::colourteam(game::player1->team));
                                         else g.text("Playing free-for-all", 0xFFFFFF);
-                                    }));
+                                    }));*/
                                 }
                                 else if(game::player1->state == CS_SPECTATOR)
                                 {
+                                    /*
                                     uifont(g, "default", uicenterlist(g, {
                                         g.textf("You are %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "watching SpecTV" : "a spectator");
                                     }));
@@ -404,16 +408,16 @@ namespace hud
                                         uicenterlist(g, g.textf("Press \fs\fw\f{=1:spectator 0}\fS to join the game", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF));
                                         if(!m_edit(game::gamemode) && shownotices >= 2)
                                             uicenterlist(g, g.textf("Press \fs\fw\f{=1:specmodeswitch}\fS to %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
-                                    });
+                                    });*/
                                 }
 
                                 if(m_edit(game::gamemode) && (game::player1->state != CS_EDITING || shownotices >= 4))
                                     uicenterlist(g, uifont(g, "reduced", g.textf("Press \fs\fw\f{=1:edittoggle}\fS to %s editmode", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::player1->state != CS_EDITING ? "enter" : "exit")));
                             }
 
-                            uicenterlist(g, uifont(g, "little", g.textf("%s \fs\fw\f{=1:showscores}\fS to close this window", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, scoresoff ? "Release" : "Press")));
+                            //uicenterlist(g, uifont(g, "little", g.textf("%s \fs\fw\f{=1:showscores}\fS to close this window", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, scoresoff ? "Release" : "Press")));
                             uicenterlist(g, uifont(g, "tiny", g.text("Double-tap to keep the window open", 0xFFFFFF)));
-
+                            /*
                             if(m_play(game::gamemode) && game::player1->state != CS_SPECTATOR && (!gs_playing(game::gamestate) || scoresinfo))
                             {
                                 float ratio = game::player1->frags >= game::player1->deaths ? (game::player1->frags/float(max(game::player1->deaths, 1))) : -(game::player1->deaths/float(max(game::player1->frags, 1)));
@@ -424,6 +428,7 @@ namespace hud
                                         game::player1->totaldamage);
                                 }));
                             }
+                            */
                         }));
                     });
                     g.space(0.25f);
@@ -433,7 +438,26 @@ namespace hud
                 });
                 g.space(1);
             }
+
             uicenterlist(g, {
+                // show the gamemode and gamestate
+                /*
+                uilist(g, {
+                    g.textf("\fy%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
+
+                    if(paused) g.text(", \fs\fopaused\fS", 0xFFFFFF);
+                    else if(m_play(game::gamemode) || client::demoplayback)
+                    {
+                        int timecorrected = max(game::timeremaining * 1000-((gs_playing(game::gamestate) ? lastmillis : totalmillis)-game::lasttimeremain), 0);
+                        // display gamestate
+                        if (game::gamestate != G_S_PLAYING)
+                            g.textf(", \fs\fc%s\fS", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, gamestates[0][game::gamestate], gs_waiting(game::gamestate) ? "\fr" : (game::gamestate == G_S_OVERTIME ? "\fzoy" : "\fg"));
+                        else if (m_mmvar(game::gamemode, game::mutators, timelimit))
+                            g.textf(", \fs\fc%s\fS", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, gamestates[0][game::gamestate], timecorrected > 60000 ? "\fg" : "\fzgy");
+                    }
+                });
+                */
+
                 uicenter(g, {
                     int ngroup = numgroups;
                     if(scorespectators && !spectators.players.empty()) ngroup++;
@@ -453,6 +477,7 @@ namespace hud
                             b; \
                         } \
                     }
+
                     uifont(g, "reduced", {
                         float namepad = 0;
                         float handlepad = 0;
@@ -527,21 +552,21 @@ namespace hud
                                     g.space(0.15f);
                                     if(k == numgroups)
                                     {
-                                        g.text("spectators", 0xFFFFFF, spectatortex, colour);
+                                        g.text("Spectators", 0xFFFFFF, spectatortex, colour);
                                         g.spring();
                                     }
                                     else if(sg.team > 0 && m_team(game::gamemode, game::mutators))
                                     {
-                                        g.textf("team %s", 0xFFFFFF, teamtexname(sg.team), colour, -1, false, NULL, 0xFFFFFF, TEAM(sg.team, name));
+                                        g.textf("Team %s", 0xFFFFFF, teamtexname(sg.team), colour, -1, false, NULL, 0xFFFFFF, TEAM(sg.team, name));
                                         g.spring();
                                         if(m_defend(game::gamemode) && ((defendlimit && sg.total >= defendlimit) || sg.total == INT_MAX)) g.text("WINNER", 0xFFFFFF);
                                         else if(m_laptime(game::gamemode, game::mutators)) g.textf("%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, sg.total ? timestr(sg.total, scoreracestyle) : "\fadnf");
                                         else if(m_race(game::gamemode)) g.textf("%d %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, sg.total, sg.total != 1 ? "laps" : "lap");
-                                        else g.textf("%d %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, sg.total, sg.total != 1 ? "points" : "point");
+                                        else g.textf("%d %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, sg.total, sg.total != 1 ? "Points" : "Point");
                                     }
                                     else
                                     {
-                                        g.text("free-for-all", 0xFFFFFF, playertex, colour);
+                                        g.text("Free-For-All", 0xFFFFFF, playertex, colour);
                                         g.spring();
                                     }
                                     g.space(0.25f);
@@ -555,22 +580,22 @@ namespace hud
                                         uicenter(g, uipad(g, 0.25f, uicenterlist(g, g.textf("\f($priv%stex)", game::findcolour(o), NULL, 0, -1, false, NULL, 0xFFFFFF, server::privnamex(o->privilege, o->actortype, true)))));
                                     }));
                                 });
-
+                                // name
                                 uilist(g, {
                                     uilist(g, {
-                                        uicenter(g, uipad(g, namepad, uicenterlist(g, g.text("name", 0xFFFFFF))));
+                                        uicenter(g, uipad(g, namepad, uicenterlist(g, g.text("Name", 0xFFFFFF))));
                                     });
                                     loopscoregroup(uilist(g, {
                                         ownerbg;
                                         uicenter(g, uipad(g, 0.25f, uicenterlist(g, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, game::colourname(o, NULL, false, true, scorebgrows >= 2 || (scorehilight && o == game::player1) ? 0 : 3)))));
                                     }));
                                 });
-
+                                // points
                                 if(scorepoints >= (m_laptime(game::gamemode, game::mutators) ? 2 : 1))
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 1, g.text("points", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 1, g.text("Points", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
@@ -582,14 +607,14 @@ namespace hud
                                         }));
                                     });
                                 }
-
+                                // race timer
                                 if(m_race(game::gamemode))
                                 {
                                     if(scoretimer && (scoretimer >= 2 || m_laptime(game::gamemode, game::mutators)))
                                     {
                                         uilist(g, {
                                             uilist(g, {
-                                                uicenter(g, uipad(g, 4, g.text("best", 0xFFFFFF)));
+                                                uicenter(g, uipad(g, 4, g.text("Best", 0xFFFFFF)));
                                             });
                                             loopscoregroup(uilist(g, {
                                                 ownerbg;
@@ -598,12 +623,12 @@ namespace hud
                                         });
                                     }
                                 }
-
+                                // frags
                                 if(scorefrags >= (!m_dm(game::gamemode) ? 2 : 1))
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 1, g.text("frags", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 1, g.text("Frags", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
@@ -615,12 +640,12 @@ namespace hud
                                         }));
                                     });
                                 }
-
+                                // deaths
                                 if(scoredeaths >= (!m_dm(game::gamemode) ? 2 : 1))
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 1, g.text("deaths", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 1, g.text("Deaths", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
@@ -632,12 +657,12 @@ namespace hud
                                         }));
                                     });
                                 }
-
+                                // ratios
                                 if(scoreratios && (m_dm(game::gamemode) || scoreratios%2 == 0))
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 1, g.text("ratio", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 1, g.text("Ratio", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
@@ -652,12 +677,12 @@ namespace hud
                                         }));
                                     });
                                 }
-
+                                // balance score
                                 if(scorebalancescore)
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 2, g.text("balscore", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 2, g.text("Balscore", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
@@ -665,38 +690,39 @@ namespace hud
                                         }));
                                     });
                                 }
-
+                                // packet jumps
                                 if(scorepj)
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 2, g.text("pj", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 2, g.text("Pj", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
                                             uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->plag)));
-                                        }));
+                                        })); 
                                     });
                                 }
-
+                                // ping
                                 if(scoreping)
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 2, g.text("ping", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 2, g.text("Ping", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->ping)));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL,
+                                                                               0xFFFFFF, o->ping)));
                                         }));
                                     });
                                 }
-
+                                // client number
                                 if(scoreclientnum || (game::player1->privilege&PRIV_TYPE) >= PRIV_ELEVATED)
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                            uicenter(g, uipad(g, 1, g.text("cn", 0xFFFFFF)));
+                                            uicenter(g, uipad(g, 1, g.text("Cn", 0xFFFFFF)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
@@ -704,7 +730,7 @@ namespace hud
                                         }));
                                     });
                                 }
-
+                                // botinfo
                                 if(scorebotinfo && hasbots)
                                 {
                                     uilist(g, {
@@ -720,6 +746,7 @@ namespace hud
                                         }));
                                     });
                                 }
+                                // handle
                                 if(scorehandles && hashandle)
                                 {
                                     uilist(g, {
@@ -732,6 +759,7 @@ namespace hud
                                         }));
                                     });
                                 }
+                                // ip-info
                                 if(scoreipinfo && hasip)
                                 {
                                     uilist(g, {
@@ -744,6 +772,7 @@ namespace hud
                                         }));
                                     });
                                 }
+                                // host-info
                                 if(scorehostinfo && hashost)
                                 {
                                     uilist(g, {
@@ -754,8 +783,9 @@ namespace hud
                                             ownerbg;
                                             uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scorehost(o, true))));
                                         }));
-                                    });
+                                    }); 
                                 }
+                                // version info e.g. 1.6.0-mac64-legacy
                                 if(scoreverinfo && hasver)
                                 {
                                     uilist(g, {
@@ -768,6 +798,7 @@ namespace hud
                                         }));
                                     });
                                 }
+                                // icons
                                 if(scoreicons)
                                 {
                                     uilist(g, {
@@ -811,6 +842,24 @@ namespace hud
                 });
             });
         });
+
+        // show servername or serverip/port
+        uicenterlist(g, {
+            if(*serverdesc)
+            {
+                // servername
+                uifont(g, "normal", {
+                    g.textf("\faon: \fw%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, serverdesc);
+                });
+            } else {
+                // serverip/port
+                uifont(g, "big", {
+                    g.textf("\faon: \fw%s:[%d]", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, connectname, connectport);
+                });
+            }
+            
+        });
+
         g.end();
     }
 

@@ -673,22 +673,22 @@ extern void drawskybox(int farplane, bool limited);
 extern bool limitsky();
 
 // ui
-extern int mouseaction[2];
-extern bool guiactionon;
+extern int mouse_action[2];
+extern bool ui_action_on;
 
-extern int guilayoutpass, guicursortype, guiskinsize, guislidersize, guisepsize, guispacesize, guitooltipwidth, guistatuswidth,
-    guishadow, guiclicktab, guitabborder, guitextblend, guitextfade, guiscaletime, guiskinned, guibgcolour, guibordercolour,
-    guihovercolour, guistatusline, guitooltips, guitooltiptime, guitooltipfade, guitooltipcolour, guitooltipbordercolour, guitooltipborderskin,
-    guifieldbgcolour, guifieldbordercolour, guifieldactivecolour, guislidercolour, guisliderbordercolour, guisliderborderskin, guislidermarkcolour,
-    guislidermarkbordercolour, guislidermarkborderskin, guislideractivecolour, guiactivecolour, guicheckboxcolour, guicheckboxtwocolour, guiradioboxcolour;
-extern float guiscale, guibgblend, guiborderblend, guihoverscale, guihoverblend, guitooltipblend, guitooltipborderblend,
-    guifieldbgblend, guifieldborderblend, guifieldactiveblend, guisliderblend, guisliderborderblend, guislidermarkblend, guislidermarkborderblend,
-    guislideractiveblend;
-extern char *guiskintex, *guiskinbordertex, *guioverlaytex, *guiexittex, *guihovertex;
+extern int guilayoutpass, ui_cursor_type, ui_size_skin, ui_size_slider, ui_size_separator, ui_size_spacer, ui_width_tooltip, ui_width_status,
+    ui_shadow, ui_click_tab, ui_tab_border, ui_blend_text, ui_fade_text, ui_time_scale, ui_skinned, ui_color_background, ui_color_border,
+    ui_color_hover, ui_status_line, ui_tooltips, ui_time_tooltip, ui_fade_tooltip, ui_color_tooltip, ui_color_tooltip_border, ui_skin_tooltip_border,
+    ui_color_textfield_background, ui_color_textfield_border, ui_color_textfield_active, ui_color_slider, ui_color_slider_border, ui_skin_slider_border, ui_color_slider_mark,
+    ui_color_slider_mark_border, ui_skin_slider_mark_border, ui_color_slider_active, ui_color_active, ui_color_checkbox, ui_color_checkbox_two, ui_color_radiobutton_box;
+extern float ui_scale, ui_blend_background, ui_blend_border, ui_scale_hover, ui_blend_hover, ui_blend_tooltip, ui_blend_tooltip_border,
+    ui_blend_textfield_background, ui_blend_textfield_border, ui_blend_textfield_active, ui_blend_slider, ui_blend_slider_border, ui_blend_slider_mark, ui_blend_slider_mark_border,
+    ui_blend_slider_active;
+extern char *ui_skin_texture, *ui_skin_border_texture, *ui_overlay_texture, *ui_exit_texture, *ui_hover_texture;
 
-extern void progressmenu();
-extern void mainmenu();
-extern void texturemenu();
+extern void menu_progress();
+extern void menu_main();
+extern void menu_texture();
 extern bool menuactive();
 extern int cleargui(int n = 0, bool skip = true);
 
@@ -706,10 +706,10 @@ extern int cleargui(int n = 0, bool skip = true);
 #define uicenterlist(parent,body) uicenterlistv(parent, 1, body)
 
 // octaedit
-extern void replacetexcube(cube &c, int oldtex, int newtex);
+extern void replace_cube_texture(cube &c, int oldtex, int newtex);
 
 // skybox
-extern void loadsky(char *basename);
+extern void load_sky(char *basename);
 
 // main
 extern void setcaption(const char *text = "", const char *text2 = "");
