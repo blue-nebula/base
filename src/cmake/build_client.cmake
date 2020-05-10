@@ -12,11 +12,7 @@ if(BUILD_CLIENT)
     set(client_deps ZLIB::ZLIB SDL2::Main SDL2::Image SDL2::Mixer OpenGL::GL enet)
 
     # platform specific code
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(x11 x11 REQUIRED IMPORTED_TARGET)
-        list(APPEND client_deps PkgConfig::x11 rt)
-    elseif(APPLE)
+    if(APPLE)
         # build OS X specific Objective-C code
         file(GLOB mac_client_sources xcode/SDLmain.m xcode/macutils.mm xcode/ConsoleView.m)
 
@@ -26,8 +22,11 @@ if(BUILD_CLIENT)
             message(STATUS "osxcross build, building main.m for client")
             list(APPEND mac_client_sources xcode/main.m)
         endif()
-
         list(APPEND client_sources ${mac_client_sources})
+    elseif(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(x11 x11 REQUIRED IMPORTED_TARGET)
+        list(APPEND client_deps PkgConfig::x11 rt)
     endif()
 
     # finally, add the executable build configuration
