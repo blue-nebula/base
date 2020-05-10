@@ -1839,6 +1839,7 @@ void setverinfo(const char *bin)
     }
 
     setsvar("versionbranch", versionbranch);
+    free( versionbranch );
 }
 
 volatile bool fatalsig = false;
