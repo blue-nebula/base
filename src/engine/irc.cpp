@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+
 #include "engine.h"
 
 VAR(0, ircfilter, 0, 2, 2);

@@ -24,6 +24,9 @@
 // Legacy Team, each modification must be approved and will be done on a case-by-case
 // basis.
 
+#include <algorithm>
+using std::swap;
+
 #define GAMESERVER 1
 #include "game.h"
 #include "errno.h"

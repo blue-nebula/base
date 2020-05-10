@@ -1,6 +1,10 @@
 // world.cpp: core map management stuff
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
+
+#include <vector>
 
 mapz hdr;
 int worldscale;

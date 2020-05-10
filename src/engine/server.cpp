@@ -1,6 +1,9 @@
 // server.cpp: little more than enhanced multicaster
 // runs dedicated or as client coroutine
 
+#include <algorithm>
+using std::swap;
+
 #include "engine.h"
 #include <signal.h>
 

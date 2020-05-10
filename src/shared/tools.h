@@ -34,16 +34,6 @@ typedef unsigned long long int ullong;
 #define UNUSED
 #endif
 
-#ifdef swap
-#undef swap
-#endif
-template<class T>
-static inline void swap(T &a, T &b)
-{
-    T t = a;
-    a = b;
-    b = t;
-}
 #ifdef max
 #undef max
 #endif

@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+
 #include "engine.h"
 
 VAR(IDF_PERSIST, maxdynlights, 0, min(3, MAXDYNLIGHTS), MAXDYNLIGHTS);

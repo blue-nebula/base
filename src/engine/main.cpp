@@ -1,4 +1,6 @@
 // main.cpp: initialisation & main loop
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 #include <signal.h>

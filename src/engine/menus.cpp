@@ -1,4 +1,6 @@
 // menus.cpp: ingame menu system (also used for scores and serverlist)
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 

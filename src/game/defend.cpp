@@ -1,3 +1,5 @@
+#include <algorithm>
+using std::swap;
 #include "game.h"
 namespace defend
 {

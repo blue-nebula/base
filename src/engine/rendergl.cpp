@@ -1,4 +1,6 @@
 // rendergl.cpp: core opengl rendering stuff
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 

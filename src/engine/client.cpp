@@ -1,4 +1,6 @@
 // client.cpp, mostly network related client game code
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 

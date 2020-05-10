@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+#include <vector>
 #include "engine.h"
 
 editinfo *localedit = NULL;

@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+
 // Feedback on playing videos:
 //   quicktime - ok
 //   vlc - ok
