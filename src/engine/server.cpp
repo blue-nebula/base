@@ -1,6 +1,9 @@
 // server.cpp: little more than enhanced multicaster
 // runs dedicated or as client coroutine
 
+#include <algorithm>
+using std::swap;
+
 #include "engine.h"
 #include <signal.h>
 
@@ -1839,6 +1842,7 @@ void setverinfo(const char *bin)
     }
 
     setsvar("versionbranch", versionbranch);
+    free( versionbranch );
 }
 
 volatile bool fatalsig = false;

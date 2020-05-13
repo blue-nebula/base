@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+#include <vector>
 // worldio.cpp: loading & saving of maps
 
 #include "engine.h"

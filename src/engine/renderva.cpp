@@ -1,4 +1,6 @@
 // renderva.cpp: handles the occlusion and rendering of vertex arrays
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 

@@ -2,6 +2,7 @@
 
 #ifndef _TOOLS_H
 #define _TOOLS_H
+#include <utility>
 
 #ifdef NULL
 #undef NULL
@@ -33,21 +34,6 @@ typedef unsigned long long int ullong;
 #define UNUSED
 #endif
 
-inline void *operator new(size_t, void *p) { return p; }
-inline void *operator new[](size_t, void *p) { return p; }
-inline void operator delete(void *, void *) {}
-inline void operator delete[](void *, void *) {}
-
-#ifdef swap
-#undef swap
-#endif
-template<class T>
-static inline void swap(T &a, T &b)
-{
-    T t = a;
-    a = b;
-    b = t;
-}
 #ifdef max
 #undef max
 #endif

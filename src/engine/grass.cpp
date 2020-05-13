@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+
 #include "engine.h"
 
 VAR(IDF_PERSIST, grass, 0, 0, 1);

@@ -1,4 +1,6 @@
 // octarender.cpp: fill vertex arrays with different cube surfaces.
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 

@@ -1,0 +1,30 @@
+s!\<shrink( *0 *)!clear()!g
+s!\<shrink( *)!clear()!g
+s!\<setsize( *0 *)!clear()!g
+s!\<deletecontents( *)!clear()!g
+s!\<deletearrays( *)!clear()!g
+s!\<vector\>!std::&!g
+s!\<loopvk( *\([^,;()]*\) *)!for( size_t k = 0; k < \1.size(); ++k )!g
+s!\<loopvj( *\([^,;()]*\) *)!for( size_t j = 0; j < \1.size(); ++j )!g
+s!\<loopv( *\([^,;()]*\) *)!for( size_t i = 0; i < \1.size(); ++i )!g
+s!\<loopvrev( *\([^,;()]*\) *)!for( ssize_t i = \1.size() - 1; i >= 0; --i )!g
+s!\([][a-zA-Z0-9_.>-]*\)\.length()!\1.size()!g
+s!\([][a-zA-Z0-9_.>-]*\)\.getbuf()!\1.data()!g
+s!= *\([][a-zA-Z0-9_.>-]*\)\.add( *\([^,;()]*\) *)!= (\1.emplace_back( \2 ), \1.back())!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.add( *\([^,;()]*\) *)!\1.emplace_back( \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)->add( *\([^,;()]*\) *)!\1->emplace_back( \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.put( *\([^,;()]*\) *)!\1.emplace_back( \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.removeobj( *\([^,;()]*\) *)!\1.erase( std::remove( \1.begin(), \1.end(), \2 ), \1.end() )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.inrange( *\([^,;()]*\) *)!( 0 <= \2 \&\& \2 < \1.size() )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.remove( *\([^,;()]*\) *)!\1.erase( \1.begin() + \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.remove( *\([^,;()]*\), * \([^,;()]*\) *)!\1.erase( \1.begin() + \2, \1.begin() + \3 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.erase( *\([^,;()]*\) *)!\1.erase( \1.begin() + \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.insert( *\([^,;()]*\) *, *\([^,;()]*\) *)!\1.insert( \1.begin() + \2, \3 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.put( *\([^,;()]*\) *, *\([^,;()]*\) *)!\1.insert( \1.end(), \2, \2 + \3 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.shrink( *\([^,;()]*\) *)!\1.resize( \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.pad( *\([^,;()]*\) *)!(\1.resize( \2 ),\&\1.back()-\2)!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.setsize( *\([^,;()]*\) *)!\1.resize( \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.find( *\([^,;()]*\) *)!find( \1, \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.sort( *\([^,;()]*\) *)!std::sort( \1.begin(), \1.end(), \2 )!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.last()!\1.back()!g
+s!\([][a-zA-Z0-9_.>:-]*\)\.pop()!(\1.back(),\1.pop_back())!g

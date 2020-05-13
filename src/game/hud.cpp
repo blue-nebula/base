@@ -1,4 +1,8 @@
+#include <algorithm>
+using std::swap;
+#include <vector>
 #include "game.h"
+
 namespace hud
 {
     const int NUMSTATS = 11;

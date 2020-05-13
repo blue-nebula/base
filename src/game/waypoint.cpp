@@ -1,3 +1,5 @@
+#include <algorithm>
+using std::swap;
 #include "game.h"
 
 extern selinfo sel;

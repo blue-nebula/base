@@ -2,6 +2,8 @@
 // All physics computations and constants were invented on the fly and simply tweaked until
 // they "felt right", and have no basis in reality. Collision detection is simplistic but
 // very robust (uses discrete steps at fixed fps).
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 #include "mpr.h"

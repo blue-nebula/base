@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+
 #include "cube.h"
 
 ///////////////////////// cryptography /////////////////////////////////

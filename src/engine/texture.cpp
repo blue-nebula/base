@@ -1,5 +1,7 @@
 // texture.cpp: texture slot management
 
+#include <algorithm>
+using std::swap;
 #include "engine.h"
 #include "SDL_image.h"
 

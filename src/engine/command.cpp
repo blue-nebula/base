@@ -1,8 +1,9 @@
 // command.cpp: implements the parsing and execution of a tiny script language which
 // is largely backwards compatible with the quake console language.
 
+#include <vector>
+using std::swap;
 #include "engine.h"
-
 bool interactive = false;
 
 hashnameset<ident> idents; // contains ALL vars/commands/aliases
