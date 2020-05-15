@@ -143,6 +143,3 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_archive.cmake)
 
 # must be the last instruction
 include(CPack)
-
-add_executable(newstring newstring.cpp shared/static_string.h)
-target_compile_definitions(newstring PRIVATE -DSTANDALONE)
