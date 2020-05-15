@@ -4,8 +4,7 @@ cmake_minimum_required(VERSION 3.8)
 
 # set compile options
 set(COMMON_C_FLAGS "-Wall -fsigned-char")
-# note: "SQLite will not work correctly with the -ffast-math option of GCC" -> we'll only enable this flag for the C++ codebase
-set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math -fno-exceptions")
+set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     message(STATUS "Release build detected, adding release flags")
@@ -144,3 +143,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_archive.cmake)
 
 # must be the last instruction
 include(CPack)
+
+add_executable(newstring newstring.cpp shared/static_string.h)
+target_compile_definitions(newstring PRIVATE -DSTANDALONE)
