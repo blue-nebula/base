@@ -1,3 +1,5 @@
+#ifndef LENSFLARE_H
+#define LENSFLARE_H
 static struct flaretype
 {
     int type;             /* flaretex index, 0..5, -1 for 6+random shine */
@@ -238,3 +240,4 @@ struct flarerenderer : partrenderer
     particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) { return NULL; }
 };
 static flarerenderer flares("<grey>particles/lensflares", 128);
+#endif

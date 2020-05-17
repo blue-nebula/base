@@ -1,3 +1,5 @@
+#ifndef AI_H
+#define AI_H
 struct gameent;
 extern actors actor[];
 
@@ -356,3 +358,4 @@ namespace ai
 
     extern void scanchat(gameent *d, gameent *t, int flags, const char *text);
 };
+#endif

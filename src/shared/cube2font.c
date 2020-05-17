@@ -1,3 +1,5 @@
+#ifndef CUBE2FONT_C
+#define CUBE2FONT_C
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -554,3 +556,4 @@ int main(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
+#endif

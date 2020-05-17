@@ -1,3 +1,5 @@
+#ifndef LIGHTMAP_H
+#define LIGHTMAP_H
 #define LM_MINW 2
 #define LM_MINH 2
 #define LM_MAXW 128
@@ -143,3 +145,4 @@ extern void fixrotatedlightmaps();
 
 extern int lightmapping;
 
+#endif

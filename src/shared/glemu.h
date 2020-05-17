@@ -1,3 +1,5 @@
+#ifndef GLEMU_H
+#define GLEMU_H
 namespace gle
 {
     enum
@@ -178,3 +180,4 @@ namespace gle
     extern void cleanup();
 }
 
+#endif

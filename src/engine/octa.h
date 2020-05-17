@@ -1,3 +1,5 @@
+#ifndef OCTA_H
+#define OCTA_H
 // 6-directional octree heightfield map format
 
 struct elementset
@@ -339,3 +341,4 @@ enum
     GENFACEVERTSXY(x0,x1, y0,y1, z0,z1, c0,c1, r0,r1, d0,d1) \
     GENFACEVERTSZ(x0,x1, y0,y1, z0,z1, c0,c1, r0,r1, d0,d1)
 
+#endif
