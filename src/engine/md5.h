@@ -1,3 +1,5 @@
+#ifndef MD5_H
+#define MD5_H
 struct md5;
 
 struct md5joint
@@ -441,3 +443,4 @@ struct md5 : skelmodel, skelloader<md5>
 
 skelcommands<md5> md5commands;
 
+#endif

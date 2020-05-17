@@ -1,3 +1,5 @@
+#ifndef MD2_H
+#define MD2_H
 struct md2;
 
 float md2normaltable[256][3] =
@@ -239,3 +241,4 @@ struct md2 : vertmodel, vertloader<md2>
 
 vertcommands<md2> md2commands;
 
+#endif

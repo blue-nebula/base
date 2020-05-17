@@ -1,3 +1,5 @@
+#ifndef RAGDOLL_H
+#define RAGDOLL_H
 VAR(0, ragdolltimestepmin, 1, 10, 50);
 VAR(0, ragdolltimestepmax, 1, 20, 50);
 FVAR(0, ragdollrotfric, 0, 0.85f, 1);
@@ -602,3 +604,4 @@ vec rdcenter(dynent *d)
     if((d->type != ENT_PLAYER && d->type != ENT_AI) || !d->ragdoll || (d->state != CS_DEAD && d->state != CS_WAITING)) return d->physent::center();
     return d->ragdoll->center;
 }
+#endif

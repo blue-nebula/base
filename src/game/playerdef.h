@@ -1,3 +1,5 @@
+#ifndef PLAYERDEF_H
+#define PLAYERDEF_H
 #ifdef GAMESERVER
     #define APVAR(flags, name, mn, mx, w00, w01, w02, w03, w04) \
         GVAR(flags, player##name, mn, w00, mx); \
@@ -109,4 +111,5 @@
         extern char **actor_stat_##name[];
 #endif
     #define AA(t,name)         (*actor_stat_##name[t])
+#endif
 #endif

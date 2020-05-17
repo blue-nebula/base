@@ -1,3 +1,5 @@
+#ifndef SMD_H
+#define SMD_H
 struct smd;
 
 struct smdbone
@@ -469,3 +471,4 @@ static inline bool htcmp(const smd::smdmeshgroup::smdvertkey &k, int index)
 
 skelcommands<smd> smdcommands;
 
+#endif

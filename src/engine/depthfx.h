@@ -1,3 +1,5 @@
+#ifndef DEPTHFX_H
+#define DEPTHFX_H
 // eye space depth texture for soft particles, done at low res then blurred to prevent ugly jaggies
 VAR(IDF_PERSIST, depthfxfpscale, 1, 1<<12, 1<<16);
 VAR(IDF_PERSIST, depthfxscale, 1, 1<<6, 1<<8);
@@ -191,3 +193,4 @@ void drawdepthfxtex()
     depthfxtex.render(1<<depthfxsize, 1<<depthfxsize, blurdepthfx, blurdepthfxsigma/100.0f);
 }
 
+#endif

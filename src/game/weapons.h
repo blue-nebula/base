@@ -1,3 +1,5 @@
+#ifndef WEAPONS_H
+#define WEAPONS_H
 enum
 {
     W_CLAW = 0, W_PISTOL, W_OFFSET, // end of unselectable weapon set
@@ -970,4 +972,5 @@ VAR(0, weapidxloadout, 1, W_LOADOUT, -1);
 VAR(0, weapidxnum, 1, W_MAX, -1);
 #else
 extern weaptypes weaptype[];
+#endif
 #endif

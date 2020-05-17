@@ -1,3 +1,5 @@
+#ifndef BIH_H
+#define BIH_H
 struct BIH
 {
     struct node
@@ -77,3 +79,4 @@ struct BIH
 
 extern bool mmintersect(const extentity &e, const vec &o, const vec &ray, float maxdist, int mode, float &dist);
 
+#endif

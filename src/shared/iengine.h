@@ -1,3 +1,5 @@
+#ifndef IENGINE_H
+#define IENGINE_H
 // the interface the game uses to access the engine
 
 extern int verbose, curtime, lastmillis, totalmillis, timescale, paused;
@@ -706,3 +708,4 @@ enum // cube empty-space materials
     MAT_ALPHA  = 4 << MATF_FLAG_SHIFT,  // alpha blended
     MAT_HURT   = 8 << MATF_FLAG_SHIFT   // hurt at intervals
 };
+#endif

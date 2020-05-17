@@ -1,3 +1,5 @@
+#ifndef OBJ_H
+#define OBJ_H
 struct obj;
 
 struct obj : vertmodel, vertloader<obj>
@@ -209,3 +211,4 @@ struct obj : vertmodel, vertloader<obj>
 
 vertcommands<obj> objcommands;
 
+#endif

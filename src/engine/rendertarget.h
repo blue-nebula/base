@@ -1,3 +1,5 @@
+#ifndef RENDERTARGET_H
+#define RENDERTARGET_H
 extern int rtsharefb, rtscissor, blurtile;
 
 struct rendertarget
@@ -462,3 +464,4 @@ struct rendertarget
     }
 };
 
+#endif

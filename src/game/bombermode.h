@@ -1,3 +1,5 @@
+#ifndef BOMBERMODE_H
+#define BOMBERMODE_H
 struct bomberservmode : bomberstate, servmode
 {
     bool hasflaginfo, hasstarted;
@@ -395,3 +397,4 @@ struct bomberservmode : bomberstate, servmode
         return p;
     }
 } bombermode;
+#endif
