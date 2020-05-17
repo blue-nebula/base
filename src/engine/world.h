@@ -1,3 +1,5 @@
+#ifndef WORLD_H
+#define WORLD_H
 
 enum                            // hardcoded texture numbers
 {
@@ -136,3 +138,4 @@ enum
 
 struct vertex { vec pos; bvec4 norm; vec2 tc; svec2 lm; bvec4 tangent; };
 
+#endif

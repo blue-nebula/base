@@ -1,3 +1,5 @@
+#ifndef LIGHTNING_H
+#define LIGHTNING_H
 #define MAXLIGHTNINGSTEPS 64
 #define LIGHTNINGSTEP 8
 int lnjitterx[2][MAXLIGHTNINGSTEPS], lnjittery[2][MAXLIGHTNINGSTEPS];
@@ -137,3 +139,4 @@ struct lightningrenderer : sharedlistrenderer
     }
 };
 static lightningrenderer lightnings("<grey>particles/lightning"), lightzaps("<grey>particles/lightzap");
+#endif

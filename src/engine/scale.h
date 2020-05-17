@@ -119,4 +119,3 @@ static void FUNCNAME(scaletexture)(uchar * RESTRICT src, uint sw, uint sh, uint 
 #undef DEFPIXEL
 #undef PIXELOP
 #undef BPP
-

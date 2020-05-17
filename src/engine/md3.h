@@ -1,3 +1,5 @@
+#ifndef MD3_H
+#define MD3_H
 struct md3;
 
 struct md3frame
@@ -205,3 +207,4 @@ struct md3 : vertmodel, vertloader<md3>
 
 vertcommands<md3> md3commands;
 
+#endif

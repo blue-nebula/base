@@ -1,3 +1,5 @@
+#ifndef CAPTUREMODE_H
+#define CAPTUREMODE_H
 struct captureservmode : capturestate, servmode
 {
     bool hasflaginfo;
@@ -302,3 +304,4 @@ struct captureservmode : capturestate, servmode
         return p;
     }
 } capturemode;
+#endif

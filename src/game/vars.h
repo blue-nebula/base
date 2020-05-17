@@ -1,3 +1,5 @@
+#ifndef VARS_H
+#define VARS_H
 GVAR(IDF_WORLD, numplayers, 0, 4, MAXCLIENTS); // 0 = determine from number of spawns
 GVAR(IDF_WORLD, maxplayers, 0, 0, MAXCLIENTS); // 0 = numplayers*3
 GVAR(IDF_WORLD, mapbalance, 0, 0, 3); // switches teams for asymmetrical maps, 0 = off, 1 = ctf/dnc/bb, 2 = with team spawns, 3 = forced
@@ -606,3 +608,4 @@ GSVAR(0, obitobliterated, "was obliterated");
 GSVAR(0, obitheadless, "had their head caved in");
 GSVAR(0, obitsuicide, "suicided");
 GSVAR(0, obitkilled, "killed");
+#endif

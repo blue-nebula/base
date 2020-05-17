@@ -1,3 +1,5 @@
+#ifndef TEXTEDIT_H
+#define TEXTEDIT_H
 
 struct editline
 {
@@ -846,3 +848,4 @@ TEXTCOMMAND(textadd, "ss", (char *name, char *str), // loads into named editor i
     loopv(editors) if(!strcmp(editors[i]->name, name)) { e = editors[i]; break; }
     if(e && e->rendered) e->insert(str);
 });
+#endif

@@ -1,3 +1,5 @@
+#ifndef VERTMODEL_H
+#define VERTMODEL_H
 struct vertmodel : animmodel
 {
     struct vert { vec pos, norm; };
@@ -487,3 +489,4 @@ template<class MDL> struct vertcommands : modelcommands<MDL, struct MDL::vertmes
     }
 };
 
+#endif
