@@ -1041,6 +1041,7 @@ int main(int argc, char **argv)
     SDL_ShowCursor(SDL_FALSE);
     SDL_StopTextInput(); // workaround for spurious text-input events getting sent on first text input toggle?
 
+#ifdef NDEBUG
     signal(SIGINT, fatalsignal);
     signal(SIGILL, fatalsignal);
     signal(SIGABRT, fatalsignal);
@@ -1053,6 +1054,7 @@ int main(int argc, char **argv)
     signal(SIGKILL, fatalsignal);
     signal(SIGPIPE, fatalsignal);
     signal(SIGALRM, fatalsignal);
+#endif
 #endif
 
     conoutf("loading gl..");
