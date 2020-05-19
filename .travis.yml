@@ -7,7 +7,7 @@ git:
 matrix:
   include:
     - name: Ubuntu xenial (x86_64) debug
-      environment: BUILD_TYPE=Debug
+      env: BUILD_TYPE=Debug
       dist: xenial
       addons:
         apt:
@@ -20,7 +20,7 @@ matrix:
       script: bash -xe ci/build-nix.sh
 
     - name: Ubuntu xenial (x86_64) release
-      environment: BUILD_TYPE=Release
+      env: BUILD_TYPE=Release
       dist: xenial
       addons:
         apt:
@@ -33,7 +33,7 @@ matrix:
       script: bash -xe ci/build-nix.sh
 
     - name: macOS (x86_64) debug
-      environment: BUILD_TYPE=Debug
+      env: BUILD_TYPE=Debug
       os: osx
       addons:
         homebrew:
@@ -46,7 +46,7 @@ matrix:
       script: bash -xe ci/build-mac.sh
 
     - name: Windows (x86_64) debug (crossbuild from Ubuntu bionic x86_64, MinGW-w64)
-      environment: BUILD_TYPE=Debug
+      env: BUILD_TYPE=Debug
       dist: bionic
       addons:
         apt:
