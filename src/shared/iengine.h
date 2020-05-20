@@ -15,7 +15,7 @@ extern char *servermaster, *serverip;
 #define ifnserver(x) if(servertype < 3 && (x))
 #endif
 extern ENetAddress masteraddress;
-extern void fatal(const char *s, ...) PRINTFARGS(1, 2);
+[[noreturn]] extern void fatal(const char *s, ...) PRINTFARGS(1, 2);
 extern void console(int type, const char *s, ...) PRINTFARGS(2, 3);
 extern void conoutft(int type, const char *s, ...) PRINTFARGS(2, 3);
 extern void conoutf(const char *s, ...) PRINTFARGS(1, 2);
