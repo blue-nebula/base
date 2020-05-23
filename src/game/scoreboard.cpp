@@ -804,7 +804,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scoreversion(o))));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scoreversion(o, score_simplified_client_version))));
                                         }));
                                     });
                                 }
