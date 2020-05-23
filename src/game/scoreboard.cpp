@@ -281,10 +281,23 @@ namespace hud
         return d->hostip;
     }
 
-    const char *scoreversion(gameent *d)
+    const char *scoreversion(gameent *d, bool simplified = false)
     {
         static string verstr;
-        formatstring(verstr, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch);
+        char* branch = d->version.branch;
+        if (!branch) 
+        {
+            branch = "default";
+        }
+
+        if (!simplified)
+        { 
+            formatstring(verstr, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, branch);
+        }
+        else
+        {
+            formatstring(verstr, "%d.%d.%d %s", d->version.major, d->version.minor, d->version.patch, branch);
+        }
         return verstr;
     }
 
@@ -787,7 +800,7 @@ namespace hud
                                         }));
                                     }); 
                                 }
-                                // version info e.g. 1.6.0-mac64-legacy
+                                // platform and branch info e.g. 1.6.0-mac64-legacy
                                 if(scoreverinfo && hasver)
                                 {
                                     uilist(g, {
