@@ -284,19 +284,13 @@ namespace hud
     const char *scoreversion(gameent *d, bool simplified = false)
     {
         static string verstr;
-        char* branch = d->version.branch;
-        if (!branch) 
-        {
-            branch = "default";
-        }
-
         if (!simplified)
         { 
-            formatstring(verstr, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, branch);
+            formatstring(verstr, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch);
         }
         else
         {
-            formatstring(verstr, "%d.%d.%d %s", d->version.major, d->version.minor, d->version.patch, branch);
+            formatstring(verstr, "%d.%d.%d %s", d->version.major, d->version.minor, d->version.patch, d->version.branch);
         }
         return verstr;
     }
@@ -805,7 +799,7 @@ namespace hud
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                           uicenter(g, uipad(g, verpad, g.space(1); g.strut(1)));
+                                           uicenter(g, uipad(g, verpad, g.text("Client Version"); g.strut(1)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
