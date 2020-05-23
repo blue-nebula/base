@@ -43,6 +43,7 @@ namespace hud
     VAR(IDF_PERSIST, scorefrags, 0, 2, 2);
     VAR(IDF_PERSIST, scoredeaths, 0, 2, 2);
     VAR(IDF_PERSIST, scoretotalpoints, 0, 0, 1);
+    VAR(IDF_PERSIST, score_simplified_client_version, 0, 1, 1);
     VAR(IDF_PERSIST, scoretotalfrags, 0, 0, 1);
     VAR(IDF_PERSIST, scoretotaldeaths, 0, 0, 1);
     VAR(IDF_PERSIST, scoreratios, 0, 4, 4); // 0 = off, 1 = dm only, 2 = always, 3 = total dm only, 4 = total always
