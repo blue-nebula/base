@@ -38,6 +38,7 @@ matrix:
       addons:
         homebrew:
           packages:
+            - coreutils
             - sdl2
             - sdl2_image
             - sdl2_mixer
