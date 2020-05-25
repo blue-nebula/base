@@ -23,4 +23,4 @@ pushd "$BUILD_DIR"
 BUILD_TYPE="${BUILD_TYPE:-Debug}"
 cmake "$REPO_ROOT" -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 
-make -j$(nprocs)
+make -j$(nproc)
