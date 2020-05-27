@@ -591,7 +591,7 @@ namespace ai
     {
         if(shouldnavigate())
         {
-            navigate(game::player1);
+            navigate(&game::player1);
             loopv(players) if(players[i]) navigate(players[i]);
         }
         if(invalidatedwpcaches) clearwpcache(false);
@@ -681,7 +681,7 @@ namespace ai
         }
         if(cleared)
         {
-            player1->lastnode = -1;
+            player1.lastnode = -1;
             loopv(players) if(players[i]) players[i]->lastnode = -1;
             remapwaypoints();
             clearwpcache();
@@ -832,7 +832,7 @@ namespace ai
         }
         if(cleared)
         {
-            player1->lastnode = -1;
+            player1.lastnode = -1;
             remapwaypoints();
             clearwpcache();
         }
@@ -855,7 +855,7 @@ namespace ai
         }
         if(moved)
         {
-            player1->lastnode = -1;
+            player1.lastnode = -1;
             clearwpcache();
         }
     }

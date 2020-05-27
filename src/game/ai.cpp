@@ -240,7 +240,7 @@ namespace ai
         d->setvanity(vn);
 
         if(resetthisguy) projs::remove(d);
-        if(d->ownernum >= 0 && game::player1->clientnum == d->ownernum)
+        if(d->ownernum >= 0 && game::player1.clientnum == d->ownernum)
         {
             create(d);
             if(d->ai)
@@ -1704,8 +1704,8 @@ namespace ai
                      part_trace(w.o, v.o, 1, 1, 1, both ? showwaypointscolour : col);
                 }
             }
-            if(game::player1->state == CS_ALIVE && iswaypoint(game::player1->lastnode))
-                part_trace(game::player1->feetpos(), waypoints[game::player1->lastnode].o, 1, 1, 1, 0xFFFF00);
+            if(game::player1.state == CS_ALIVE && iswaypoint(game::player1.lastnode))
+                part_trace(game::player1.feetpos(), waypoints[game::player1.lastnode].o, 1, 1, 1, 0xFFFF00);
         }
     }
 

@@ -63,11 +63,11 @@ namespace weapons
         return n;
     }
 
-    ICOMMAND(0, weapslot, "i", (int *o), intret(slot(game::player1, *o >= 0 ? *o : game::player1->weapselect))); // -1 = weapselect slot
-    ICOMMAND(0, weapselect, "", (), intret(game::player1->weapselect));
-    ICOMMAND(0, ammo, "i", (int *n), intret(isweap(*n) ? game::player1->ammo[*n] : -1));
-    ICOMMAND(0, reloadweap, "i", (int *n), intret(isweap(*n) && w_reload(*n, m_weapon(game::player1->actortype, game::gamemode, game::mutators)) ? 1 : 0));
-    ICOMMAND(0, hasweap, "ii", (int *n, int *o), intret(isweap(*n) && game::player1->hasweap(*n, *o) ? 1 : 0));
+    ICOMMAND(0, weapslot, "i", (int *o), intret(slot(&game::player1, *o >= 0 ? *o : game::player1.weapselect))); // -1 = weapselect slot
+    ICOMMAND(0, weapselect, "", (), intret(game::player1.weapselect));
+    ICOMMAND(0, ammo, "i", (int *n), intret(isweap(*n) ? game::player1.ammo[*n] : -1));
+    ICOMMAND(0, reloadweap, "i", (int *n), intret(isweap(*n) && w_reload(*n, m_weapon(game::player1.actortype, game::gamemode, game::mutators)) ? 1 : 0));
+    ICOMMAND(0, hasweap, "ii", (int *n, int *o), intret(isweap(*n) && game::player1.hasweap(*n, *o) ? 1 : 0));
     ICOMMAND(0, getweap, "ii", (int *n, int *o), {
         if(isweap(*n)) switch(*o)
         {
@@ -114,7 +114,7 @@ namespace weapons
 
     bool weapreload(gameent *d, int weap, int load, int ammo, bool local)
     {
-        if(!gs_playing(game::gamestate) || (!local && (d == game::player1 || d->ai))) return false; // this can't be fixed until 1.5
+        if(!gs_playing(game::gamestate) || (!local && (d == &game::player1 || d->ai))) return false; // this can't be fixed until 1.5
         if(local)
         {
             if(!d->canreload(weap, m_weapon(d->actortype, game::gamemode, game::mutators), false, lastmillis))
@@ -184,7 +184,7 @@ namespace weapons
         }
         game::errorsnd(d);
     }
-    ICOMMAND(0, weapon, "ss", (char *a, char *b), weaponswitch(game::player1, *a ? parseint(a) : -1, *b ? parseint(b) : -1));
+    ICOMMAND(0, weapon, "ss", (char *a, char *b), weaponswitch(&game::player1, *a ? parseint(a) : -1, *b ? parseint(b) : -1));
 
     bool canuse(int weap)
     {
@@ -221,7 +221,7 @@ namespace weapons
 
     bool autoreload(gameent *d, int flags = 0)
     {
-        if(gs_playing(game::gamestate) && d == game::player1 && W2(d->weapselect, ammosub, WS(flags)) && d->canreload(d->weapselect, m_weapon(d->actortype, game::gamemode, game::mutators), false, lastmillis))
+        if(gs_playing(game::gamestate) && d == &game::player1 && W2(d->weapselect, ammosub, WS(flags)) && d->canreload(d->weapselect, m_weapon(d->actortype, game::gamemode, game::mutators), false, lastmillis))
         {
             bool noammo = d->ammo[d->weapselect] < W2(d->weapselect, ammosub, WS(flags)),
                  noattack = !d->action[AC_PRIMARY] && !d->action[AC_SECONDARY];

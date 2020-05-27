@@ -62,15 +62,15 @@ namespace physics
     #define imov(name,v,u,d,s,os) \
         void do##name(bool down) \
         { \
-            game::player1->s = down; \
-            int dir = game::player1->s ? d : (game::player1->os ? -(d) : 0); \
-            game::player1->v = dir; \
+            game::player1.s = down; \
+            int dir = game::player1.s ? d : (game::player1.os ? -(d) : 0); \
+            game::player1.v = dir; \
             if(down) \
             { \
-                if(allowimpulse(game::player1, A_A_DASH) && dashstyle && impulseaction&2 && last##v && lastdir##v && dir == lastdir##v && lastmillis-last##v < PHYSMILLIS) \
+                if(allowimpulse(&game::player1, A_A_DASH) && dashstyle && impulseaction&2 && last##v && lastdir##v && dir == lastdir##v && lastmillis-last##v < PHYSMILLIS) \
                 { \
-                    game::player1->action[AC_DASH] = true; \
-                    game::player1->actiontime[AC_DASH] = lastmillis; \
+                    game::player1.action[AC_DASH] = true; \
+                    game::player1.actiontime[AC_DASH] = lastmillis; \
                 } \
                 last##v = lastmillis; lastdir##v = dir; \
                 last##u = lastdir##u = 0; \
@@ -88,7 +88,7 @@ namespace physics
     {
         if(type < AC_TOTAL && type > -1)
         {
-            if(game::allowmove(game::player1))
+            if(game::allowmove(&game::player1))
             {
                 int style = 0, *last = NULL;
                 switch(type)
@@ -101,7 +101,7 @@ namespace physics
                 {
                     case 1:
                     {
-                        if(!down && game::player1->action[type])
+                        if(!down && game::player1.action[type])
                         {
                             if(*last && lastmillis-*last < PHYSMILLIS) return;
                             *last = lastmillis;
@@ -123,14 +123,14 @@ namespace physics
                     }
                     default: break;
                 }
-                if(down) game::player1->actiontime[type] = lastmillis;
-                else if(type == AC_CROUCH) game::player1->actiontime[type] = -lastmillis;
-                game::player1->action[type] = down;
+                if(down) game::player1.actiontime[type] = lastmillis;
+                else if(type == AC_CROUCH) game::player1.actiontime[type] = -lastmillis;
+                game::player1.action[type] = down;
             }
             else
             {
-                game::player1->action[type] = false;
-                if((type == AC_PRIMARY || type == AC_JUMP) && down) game::respawn(game::player1);
+                game::player1.action[type] = false;
+                if((type == AC_PRIMARY || type == AC_JUMP) && down) game::respawn(&game::player1);
             }
         }
     }
@@ -292,7 +292,7 @@ namespace physics
 
     float movevelocity(physent *d, bool floating)
     {
-        physent *pl = d->type == ENT_CAMERA ? game::player1 : d;
+        physent *pl = d->type == ENT_CAMERA ? &game::player1 : d;
         float vel = pl->speed;
         if(floating) vel *= floatspeed/100.0f;
         else

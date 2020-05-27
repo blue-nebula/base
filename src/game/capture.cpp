@@ -151,7 +151,7 @@ namespace capture
                 ty += draw_textf("Nearby: %s", tx, ty, int(FONTW*hud::noticepadx), int(FONTH*hud::noticepady), tr, tg, tb, int(255*blend), TEXT_CENTERED, -1, -1, 1, str);
                 popfont();
             }
-            if(game::focus == game::player1 && (!hasflags.empty() || !pickup.empty()))
+            if(game::focus == &game::player1 && (!hasflags.empty() || !pickup.empty()))
             {
                 pushfont("reduced");
                 ty += draw_textf("Press \fs\fw\f{=affinity}\fS to %s", tx, ty, int(FONTW*hud::noticepadx), int(FONTH*hud::noticepady), tr, tg, tb, int(255*blend), TEXT_CENTERED, -1, -1, 1, !hasflags.empty() ? "drop flags" : "pick up flags");
@@ -201,7 +201,7 @@ namespace capture
         {
             if(y-sy-size < m) break;
             capturestate::flag &f = st.flags[i];
-            bool headsup = hud::chkcond(hud::inventorygame, game::player1->state == CS_SPECTATOR || f.team == T_NEUTRAL || f.team == game::focus->team);
+            bool headsup = hud::chkcond(hud::inventorygame, game::player1.state == CS_SPECTATOR || f.team == T_NEUTRAL || f.team == game::focus->team);
             if(headsup || f.lastowner == game::focus)
             {
                 int millis = lastmillis-f.displaytime, colour = TEAM(f.team, colour);
@@ -302,7 +302,7 @@ namespace capture
             capturestate::flag &f = st.flags[i];
             vec pos = f.pos(true);
             float wait = f.droptime ? clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : ((m_ctf_protect(game::gamemode, game::mutators) && f.taketime && f.owner && f.owner->team != f.team) ? clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f) : 0.f),
-                  blend = (!f.owner && (!f.droptime || m_ctf_defend(game::gamemode, game::mutators)) && f.team == game::focus->team ? camera1->o.distrange(pos, enttype[AFFINITY].radius, enttype[AFFINITY].radius/8) : 1.f)*(f.owner && f.owner == game::focus ? (game::thirdpersonview(true) ? (f.owner != game::player1 ? followflagblend : thirdflagblend) : firstflagblend) : freeflagblend);
+                  blend = (!f.owner && (!f.droptime || m_ctf_defend(game::gamemode, game::mutators)) && f.team == game::focus->team ? camera1->o.distrange(pos, enttype[AFFINITY].radius, enttype[AFFINITY].radius/8) : 1.f)*(f.owner && f.owner == game::focus ? (game::thirdpersonview(true) ? (f.owner != &game::player1 ? followflagblend : thirdflagblend) : firstflagblend) : freeflagblend);
             vec effect = vec::hexcolor(TEAM(f.team, colour));
             int colour = effect.tohexcolor();
             if(wait > 0.5f)
@@ -574,7 +574,7 @@ namespace capture
     {
         gameent *d = NULL;
         int numdyn = game::numdynents();
-        loopj(numdyn) if(((d = (gameent *)game::iterdynents(j))) && d->state == CS_ALIVE && (d == game::player1 || d->ai)) dropaffinity(d);
+        loopj(numdyn) if(((d = (gameent *)game::iterdynents(j))) && d->state == CS_ALIVE && (d == &game::player1 || d->ai)) dropaffinity(d);
         loopv(st.flags)
         {
             capturestate::flag &f = st.flags[i];
@@ -582,14 +582,14 @@ namespace capture
             if(f.droptime)
             {
                 f.droploc = f.pos();
-                if(f.lastowner && (f.lastowner == game::player1 || f.lastowner->ai) && f.proj && (!f.movetime || totalmillis-f.movetime >= 40))
+                if(f.lastowner && (f.lastowner == &game::player1 || f.lastowner->ai) && f.proj && (!f.movetime || totalmillis-f.movetime >= 40))
                 {
                     f.inertia = f.proj->vel;
                     f.movetime = totalmillis-(totalmillis%40);
                     client::addmsg(N_MOVEAFFIN, "ri8", f.lastowner->clientnum, i, int(f.droploc.x*DMF), int(f.droploc.y*DMF), int(f.droploc.z*DMF), int(f.inertia.x*DMF), int(f.inertia.y*DMF), int(f.inertia.z*DMF));
                 }
             }
-            loopj(numdyn) if(((d = (gameent *)game::iterdynents(j))) && d->state == CS_ALIVE && (d == game::player1 || d->ai)) checkaffinity(d, i);
+            loopj(numdyn) if(((d = (gameent *)game::iterdynents(j))) && d->state == CS_ALIVE && (d == &game::player1 || d->ai)) checkaffinity(d, i);
         }
     }
 
