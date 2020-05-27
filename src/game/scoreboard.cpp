@@ -282,17 +282,10 @@ namespace hud
         return d->hostip;
     }
 
-    const char *scoreversion(gameent *d, bool simplified = false)
+    const char *scoreversion(gameent *d)
     {
         static string verstr;
-        if (!simplified)
-        { 
-            formatstring(verstr, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch);
-        }
-        else
-        {
-            formatstring(verstr, "%d.%d.%d %s", d->version.major, d->version.minor, d->version.patch, d->version.branch);
-        }
+        formatstring(verstr, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch);
         return verstr;
     }
 
@@ -804,7 +797,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scoreversion(o, score_simplified_client_version))));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scoreversion(o))));
                                         }));
                                     });
                                 }
