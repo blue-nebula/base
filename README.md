@@ -9,7 +9,7 @@ We thank the *Red Eclipse* developers for providing us with one of the (if not t
 
 ## Download the game
 
-The game has not officially been release yet. However, there are **beta-grade builds** available on our [release page](https://github.com/redeclipse-legacy/release/releases/tag/continuous).
+The game has not officially been release yet. However, there are **beta-grade builds** available on our [release page](https://github.com/blue-nebula/release/releases/tag/continuous).
 
 - For Linux, we recommend using our [AppImages](http://appimage.org/).
 - For Windows, we consider creating an installer later on. For now, you can download a `.zip` archive containing both the game and the data.
@@ -20,7 +20,7 @@ The builds are **fully compatible with Red Eclipse 1.5.8 to 1.6.0**.
 
 ## Get in touch
 
-This project is still very young. We provide an official chatroom on the [freenode IRC network](https://freenode.net/). Our channel is [`#re-legacy`](irc://chat.freenode.net/re-legacy) ([webchat](https://webchat.freenode.net/#re-legacy)).
+This project is still very young. We provide an official chatroom on the [freenode IRC network](https://freenode.net/). Our channel is [`#blue-nebula`](irc://chat.freenode.net/blue-nebula) ([webchat](https://webchat.freenode.net/#blue-nebula)).
 Please do not hesitate to get in touch with us!
 
 
