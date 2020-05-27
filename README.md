@@ -26,8 +26,6 @@ Please do not hesitate to get in touch with us!
 
 ## Current state of Blue Nebula
 
-Our goal is to ensure a strict distinction between Red Eclipse and our project.
-
 We already provide our own [master server](https://github.com/TheAssassin/python-masterserver) (which also re-hosts the entries on the official Red Eclipse master server) to which more Red Eclipse 1.6 servers are connected than on the official Red Eclipse instance. Check out our online server browser, [Redflare-Python](https://redflare.assassinate-you.net).
 
 Right now we are working on creating downloadable binaries, installers etc., as a first step in our journey to a standalone **Blue Nebula** game.
