@@ -3639,28 +3639,28 @@ namespace game
 
     void renderplayerpreview(int model, int color, int team, int weap, const char *vanity, float scale, float blend)
     {
-        static gameent *previewent = NULL;
-        if(!previewent)
+        static bool is_set = false;
+        static gameent previewent;
+        if(!is_set)
         {
-            previewent = new gameent;
-            previewent->state = CS_ALIVE;
-            previewent->physstate = PHYS_FLOOR;
-            previewent->spawnstate(G_DEATHMATCH, 0, -1, m_health(G_DEATHMATCH, 0, 0));
-            previewent->light.color = vec(1, 1, 1);
-            previewent->light.dir = vec(0, -1, 2).normalize();
-            loopi(W_MAX) previewent->ammo[i] = W(i, ammomax);
+            previewent.state = CS_ALIVE;
+            previewent.physstate = PHYS_FLOOR;
+            previewent.spawnstate(G_DEATHMATCH, 0, -1, m_health(G_DEATHMATCH, 0, 0));
+            previewent.light.color = vec(1, 1, 1);
+            previewent.light.dir = vec(0, -1, 2).normalize();
+            loopi(W_MAX) previewent.ammo[i] = W(i, ammomax);
         }
-        float height = previewent->height + previewent->aboveeye,
+        float height = previewent.height + previewent.aboveeye,
               zrad = height/2;
-        vec2 xyrad = vec2(previewent->xradius, previewent->yradius).max(height/4);
-        previewent->o = calcmodelpreviewpos(vec(xyrad, zrad), previewent->yaw).addz(previewent->height - zrad);
-        previewent->colour = color;
-        previewent->model = model;
-        previewent->team = clamp(team, 0, int(T_MULTI));
-        previewent->weapselect = clamp(weap, 0, W_ALL-1);
-        previewent->setvanity(vanity);
-        previewent->light.millis = -1;
-        renderplayer(previewent, 1, blend, scale);
+        vec2 xyrad = vec2(previewent.xradius, previewent.yradius).max(height/4);
+        previewent.o = calcmodelpreviewpos(vec(xyrad, zrad), previewent.yaw).addz(previewent.height - zrad);
+        previewent.colour = color;
+        previewent.model = model;
+        previewent.team = clamp(team, 0, int(T_MULTI));
+        previewent.weapselect = clamp(weap, 0, W_ALL-1);
+        previewent.setvanity(vanity);
+        previewent.light.millis = -1;
+        renderplayer(&previewent, 1, blend, scale);
     }
 
     bool clientoption(char *arg) { return false; }
