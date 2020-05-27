@@ -794,7 +794,7 @@ ICOMMAND(0, textfocus, "siss", (char *name, int *mode, char *initval, char *pare
     else if(editors.length() > 0) result(editors.last()->name);
 );
 TEXTCOMMAND(textprev, "", (), editors.insert(0, top); editors.pop();); // return to the previous editor
-TEXTCOMMAND(textmode, "i", (int *m), // (1= keep while focused, 2= keep while used in gui, 3= keep forever (i.e. until mode changes)) topmost editor, return current setting if no args
+TEXTCOMMAND(ui_textmode, "i", (int *m), // (1= keep while focused, 2= keep while used in gui, 3= keep forever (i.e. until mode changes)) topmost editor, return current setting if no args
     if(*m) top->mode = *m;
     else intret(top->mode);
 );
@@ -812,7 +812,7 @@ TEXTCOMMAND(textload, "s", (char *file), // loads into the topmost editor, retur
     }
     else if(top->filename) result(top->filename);
 );
-TEXTCOMMAND(textinit, "sss", (char *name, char *file, char *initval), // loads into named editor if no file assigned and editor has been rendered
+TEXTCOMMAND(ui_textinit, "sss", (char *name, char *file, char *initval), // loads into named editor if no file assigned and editor has been rendered
 {
     char *f = identflags&IDF_WORLD ? NULL : file;
     editor *e = NULL;
