@@ -1,8 +1,6 @@
-# Red Eclipse Legacy
+# Blue Nebula
 
-![](doc/readme-welcome.png)
-
-**Red Eclipse Legacy** (work-in-progress title) is a fork of [Red Eclipse 1](https://redeclipse.net). While the *Red Eclipse* team have moved their game on to another engine for their latest release, 2.0, this also meant a total conversion of the gameplay, in our opinion sacrificing some of the best aspects.
+**Blue Nebula** is a fork of [Red Eclipse 1](https://redeclipse.net). While the *Red Eclipse* team have moved their game on to another engine for their latest release, 2.0, this also meant a total conversion of the gameplay, in our opinion sacrificing some of the best aspects.
 
 Therefore, a group of eager community members have started to fork off *Red Eclipse* from the last 1.x series release, setting up the necessary infrastructure to (re-)establish a community around *Red Eclipse* 1.5+.
 
@@ -11,7 +9,7 @@ We thank the *Red Eclipse* developers for providing us with one of the (if not t
 
 ## Download the game
 
-The game has not officially been release yet. However, there are **beta-grade builds** available on our [release page](https://github.com/redeclipse-legacy/release/releases/tag/continuous).
+The game has not officially been release yet. However, there are **beta-grade builds** available on our [release page](https://github.com/blue-nebula/release/releases/tag/continuous).
 
 - For Linux, we recommend using our [AppImages](http://appimage.org/).
 - For Windows, we consider creating an installer later on. For now, you can download a `.zip` archive containing both the game and the data.
@@ -22,19 +20,15 @@ The builds are **fully compatible with Red Eclipse 1.5.8 to 1.6.0**.
 
 ## Get in touch
 
-This project is still very young. We provide an official chatroom on the [freenode IRC network](https://freenode.net/). Our channel is [`#re-legacy`](irc://chat.freenode.net/re-legacy) ([webchat](https://webchat.freenode.net/#re-legacy)).
+This project is still very young. We provide an official chatroom on the [freenode IRC network](https://freenode.net/). Our channel is [`#blue-nebula`](irc://chat.freenode.net/blue-nebula) ([webchat](https://webchat.freenode.net/#blue-nebula)).
 Please do not hesitate to get in touch with us!
 
 
-## Current state of Red Eclipse Legacy
-
-Our goal is to ensure a strict distinction between Red Eclipse and our project. We do want to allow for a coexistance on people's computers for example. Therefore we also try to adjust the game's branding and append **Legacy** to it.
+## Current state of Blue Nebula
 
 We already provide our own [master server](https://github.com/TheAssassin/python-masterserver) (which also re-hosts the entries on the official Red Eclipse master server) to which more Red Eclipse 1.6 servers are connected than on the official Red Eclipse instance. Check out our online server browser, [Redflare-Python](https://redflare.assassinate-you.net).
 
-Right now we are working on creating downloadable binaries, installers etc., as a first step in our journey to a standalone **Red Eclipse Legacy** game.
-
-The title **Red Eclipse Legacy** is only a work-in-progress one; we might change it later on.
+Right now we are working on creating downloadable binaries, installers etc., as a first step in our journey to a standalone **Blue Nebula** game.
 
 
 -------
