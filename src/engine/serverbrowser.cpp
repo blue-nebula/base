@@ -254,8 +254,8 @@ ICOMMAND(0, addserver, "siissss", (char *n, int *p, int *r, char *d, char *h, ch
 VAR(IDF_PERSIST, searchlan, 0, 0, 1);
 VAR(IDF_PERSIST, maxservpings, 0, 10, 1000);
 VAR(IDF_PERSIST, serverupdateinterval, 0, 15, VAR_MAX);
-VAR(IDF_PERSIST, serverbrowser_show_priority, 0, 0, 1);
 VAR(IDF_PERSIST, serverbrowser_show_server_platform_and_branch, 0, 0, 1);
+VAR(IDF_PERSIST, show_server_priority, 0, 0, 1);
 VAR(IDF_PERSIST, show_server_sort_options, 0, 0, 1);
 VAR(IDF_PERSIST, serverdecay, 0, 20, VAR_MAX);
 VAR(0, serverwaiting, 1, serverinfo::WAITING, 0);
