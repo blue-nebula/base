@@ -8,7 +8,7 @@ struct vec2
     union
     {
         struct { float x, y; };
-        float v[2];
+        float v[2] = { 0.f, 0.f };
     };
 
     vec2() {}
