@@ -1256,12 +1256,12 @@ namespace client
                 if(oldval)
                 {
                     conoutft(CON_EVENT, "\fy%s set \fs\fc%s\fS to \fs\fc%s\fS (was: \fs\fc%s\fS)", d ? game::colourname(d) : (connected(false) ? "the server" : "you"), cmd, val, oldval);
-                    if(needfreeoldval) delete[] oldval;
                 }
                 else conoutft(CON_EVENT, "\fy%s set \fs\fc%s\fS to \fs\fc%s\fS", d ? game::colourname(d) : (connected(false) ? "the server" : "you"), cmd, val);
             }
         }
         else if(verbose) conoutft(CON_EVENT, "\fr%s sent unknown command: \fc%s", d ? game::colourname(d) : "the server", cmd);
+        if(needfreeoldval) delete[] oldval;
     }
 
     bool sendcmd(int nargs, const char *cmd, const char *arg)
