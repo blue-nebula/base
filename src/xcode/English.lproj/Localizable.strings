@@ -1,4 +1,4 @@
-/* note ':s' becomes 'redeclipse' */
+/* note ':s' becomes 'blue-nebula' */
 
 /* tabs */
 "Main" = "Main";
@@ -23,4 +23,4 @@
 "FileAlertMesg" = "Can only load files that are within the :s/packages/ folder. Do you want to show this folder?";
 
 /* for MOD convenience */
-"forumURL" = "http://www.redeclipse.net/forum";
+"forumURL" = "https://go.blue-nebula.org/forum";

@@ -5,9 +5,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>redeclipse</string>
+	<string>blue-nebula</string>
 	<key>CFBundleIconFile</key>
-	<string>redeclipse</string>
+	<string>blue-nebula</string>
 	<key>CFBundleIdentifier</key>
 	<string></string>
 	<key>CFBundleInfoDictionaryVersion</key>
