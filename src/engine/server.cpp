@@ -1572,7 +1572,7 @@ void trytofindocta(bool fallback)
  * @param wanthome use data in executing user's home directory
  */
 void setlocations(bool wanthome) {
-    // first, we check if our new FHS-like directory in .../bin/../share/redeclipse exists
+    // first, we check if our new FHS-like directory in .../bin/../share/blue-nebula exists
     // we do this relative to the main binary (therefore argv0 needs to be passed) in order to be able to relocate
     // the entire install tree (which is very handy, e.g., for distribution as an AppImage)
     char* fhs_share_dir = NULL;
@@ -1590,7 +1590,7 @@ void setlocations(bool wanthome) {
         }
 
         strncpy(fhs_share_dir, bin_dir, PATH_MAX - 1);
-        strncat(fhs_share_dir, "/../share/redeclipse-legacy/", PATH_MAX - 1 - strlen(fhs_share_dir));
+        strncat(fhs_share_dir, "/../share/blue-nebula/", PATH_MAX - 1 - strlen(fhs_share_dir));
 
         free(bin_path);
     }
@@ -1616,7 +1616,7 @@ void setlocations(bool wanthome) {
 
                 // concatenate binary's directory with the expected path where to find the data
                 strncpy(fhs_share_dir, bin_path, PATH_MAX - 1);
-                strncat(fhs_share_dir, "\\..\\share\\redeclipse-legacy\\", PATH_MAX - 1 - strlen(fhs_share_dir));
+                strncat(fhs_share_dir, "\\..\\share\\blue-nebula\\", PATH_MAX - 1 - strlen(fhs_share_dir));
             }
         }
     }
@@ -1642,7 +1642,7 @@ void setlocations(bool wanthome) {
             }
 
             strncpy(fhs_share_dir, bin_dir, PATH_MAX - 1);
-            strncat(fhs_share_dir, "/../share/redeclipse-legacy/", PATH_MAX - 1 - strlen(fhs_share_dir));
+            strncat(fhs_share_dir, "/../share/blue-nebula/", PATH_MAX - 1 - strlen(fhs_share_dir));
 
             free(abs_bin_path);
         }
@@ -1821,7 +1821,7 @@ void setverinfo(const char *bin)
     setvar("versioncrc", crcfile(bin));
     const char *vbranch = getenv(sup_var("BRANCH"));
 
-    static const char prefix[] = "legacy";
+    static const char prefix[] = "blue";
 
     // trim branch after at most 12 characters
     static const int max_vbranch_len = 12;

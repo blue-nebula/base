@@ -2,29 +2,28 @@
 #define AUTH_H
 // WARNING: Before modifying this file, please read our Guidelines
 // This file can be found in the distribution under: ./docs/guidelines.txt
-// Or at: http://redeclipse.net/wiki/Multiplayer_Guidelines
+// Or at: http://go.blue-nebula.org/multiplayer-guidelines
 //
-// The Red Eclipse Legacy Team provides the re.assassinate-you.net master server
-// for the benefit of the Red Eclipse Legacy Community.
+// The Blue Nebula Team provides the master.blue-nebula.org master server
+// for the benefit of the Blue Nebula Community.
 // We impose a general set of guidelines
-// for any server/user which connects to the re.assassinate-you.net master server.
+// for any server/user which connects to the master.blue-nebula.org master server.
 // The team reserves the right to block any attempt to connect to the master
 // server at their discretion. Access to services provided by the project are
 // considered to be a privilege, not a right.
 
-// These guidelines are imposed to ensure the integrity of both the Red Eclipse
-// Legacy game, and its community. If you do not agree to these terms,
-// you should not connect to the re.assassinate-you.net master server, or any
+// These guidelines are imposed to ensure the integrity of both the Blue Nebula game,
+// and its community. If you do not agree to these terms,
+// you should not connect to the master.blue-nebula.org master server, or any
 // servers which are connected to it. These guidelines are not designed to limit
 // your opinion or freedoms granted to you by the open source licenses employed
 // by the project, nor do they cover usage of the game in either offline play or
-// on servers which are not connected to the Red Eclipse Legacy master.
+// on servers which are not connected to the Blue Nebula master.
 
 // If you have questions or comments regarding these guidelines please contact
-// the Red Eclipse Legacy Team. Any person seeking to modify their game or server
-// for use on the master server should first seek permission from the Red Eclipse
-// Legacy Team, each modification must be approved and will be done on a case-by-case
-// basis.
+// the Blue Nebula Team. Any person seeking to modify their game or server
+// for use on the master server should first seek permission from the Blue Nebula Team,
+// each modification must be approved and will be done on a case-by-case basis.
 
 void hashpassword(int cn, int sessionid, const char *pwd, char *result, int maxlen)
 {

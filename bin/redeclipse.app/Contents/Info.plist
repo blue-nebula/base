@@ -5,15 +5,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleName</key>
-	<string>Red Eclipse Legacy</string>
+	<string>Blue Nebula</string>
 	<key>CFBundleDisplayName</key>
-	<string>Red Eclipse</string>
+	<string>Blue Nebula</string>
 	<key>CFBundleIdentifier</key>
-	<string>net.redeclipse-legacy.game</string>
+	<string>net.blue-nebula.game</string>
 	<key>CFBundleExecutable</key>
-	<string>redeclipse</string>
+	<string>blue-nebula</string>
 	<key>CFBundleIconFile</key>
-	<string>redeclipse</string>
+	<string>blue-nebula</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -27,6 +27,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.5.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>(C) 2009-2020 Red Eclipse Legacy Team, Quinton Reeves, Lee Salzman, under the ZLIB License</string>
+	<string>(C) 2020 Blue Nebula Team, 2009-2017 Red Eclipse Team, Quinton Reeves, Lee Salzman, under the ZLIB License</string>
 </dict>
 </plist>
