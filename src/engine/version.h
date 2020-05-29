@@ -8,7 +8,7 @@
 #define VERSION_UNAME "blue-nebula"
 #define VERSION_VNAME "BLUE_NEBULA"
 #define VERSION_RELEASE "Sunset Edition"
-#define VERSION_URL "https://blue-nebula.org/"
+#define VERSION_URL "https://blue-nebula.org"
 // TODO: fix copyright note
 #define VERSION_COPY "2009-2020"
 #define VERSION_DESC "A fun-filled new take on the first-person arena shooter, featuring a unique parkour system."
