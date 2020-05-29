@@ -787,7 +787,7 @@ namespace hud
                                         }));
                                     }); 
                                 }
-                                // version info e.g. 1.6.0-mac64-legacy
+                                // version info e.g. 1.6.0-mac64-nebula
                                 if(scoreverinfo && hasver)
                                 {
                                     uilist(g, {
