@@ -1,3 +1,5 @@
+#ifndef COMMAND_H
+#define COMMAND_H
 // script binding functionality
 
 enum { VAL_NULL = 0, VAL_INT, VAL_FLOAT, VAL_STR, VAL_ANY, VAL_CODE, VAL_MACRO, VAL_IDENT };
@@ -443,4 +445,5 @@ extern char *limitstring(const char *str, size_t len);
 #define GSVARN(flags, name, global, cur) extern char *name
 #define GSVAR(flags, name, cur) extern char *name
 #define GSVARF(flags, name, cur, svbody, ccbody) extern char *name
+#endif
 #endif

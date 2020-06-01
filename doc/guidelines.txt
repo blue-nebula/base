@@ -1,23 +1,23 @@
-GUIDELINES FOR CONNECTING TO THE RED ECLIPSE MASTER SERVER
+GUIDELINES FOR CONNECTING TO THE BLUE NEBULA MASTER SERVER
 
-The Red Eclipse Team provides the re.assassinate-you.net master server for the
-benefit of the Red Eclipse Community. We impose a general set of guidelines
-for any server/user which connects to the re.assassinate-you.net master server.
+The Blue Nebula Team provides the master.blue-nebula.org master server for the
+benefit of the Blue Nebula Community. We impose a general set of guidelines
+for any server/user which connects to the master.blue-nebula.org master server.
 The team reserves the right to block any attempt to connect to the master
 server at their discretion. Access to services provided by the project are
 considered to be a privilege, not a right.
 
-These guidelines are imposed to ensure the integrity of both the Red Eclipse
+These guidelines are imposed to ensure the integrity of both the Blue Nebula
 game, and its community. If you do not agree to these terms, you should not
-connect to the re.assassinate-you.net master server, or any servers which are
+connect to the master.blue-nebula.org master server, or any servers which are
 connected to it. These guidelines are not designed to limit your opinion or
 freedoms granted to you by the open source licenses employed by the project,
 nor do they cover usage of the game in either offline play or on servers
-which are not connected to the Red Eclipse master.
+which are not connected to the Blue Nebula master server.
 
 If you have questions or comments regarding these guidelines please contact
-the Red Eclipse Team. Any person seeking to modify their game or server for
-use on the master server should first seek permission from the Red Eclipse
+the Blue Nebula Team. Any person seeking to modify their game or server for
+use on the master server should first seek permission from the Blue Nebula
 Team, each modification must be approved and will be done on a case-by-case
 basis.
 
@@ -42,10 +42,10 @@ basis.
     as by setting its damage output to 0), is not allowed.
 
 * If the source code of the server is modified substantially you must contact
-  the Red Eclipse Team to check that the changes are permitted.
+  the Blue Nebula Team to check that the changes are permitted.
 
 * The server must honour the auth system, allowing global bans and grant the
-  correct access by the Red Eclipse Team, or moderators assigned by them.
+  correct access by the Blue Nebula Team, or moderators assigned by them.
 
 * The server must not advertise or otherwise spam messages excessively.
 
@@ -82,7 +82,7 @@ basis.
 
 * Failure to adhere to a request by a moderator to follow the rules can result
   in an immediate ban, without warning, possibly from the master server and
-  all Red Eclipse servers listed on it.
+  all Blue Nebula servers listed on it.
 
 
     Guidelines for Moderators
@@ -98,7 +98,7 @@ basis.
 
 * If a moderator believes that any behaviour not covered by this document
   should result in disciplinary action, and they have the support of their
-  peers, they should contact the Red Eclipse Team immediately to propose an
+  peers, they should contact the Blue Nebula Team immediately to propose an
   amendment.
 
 * Failure by a moderator to follow or uphold the rules may result in their
@@ -107,6 +107,7 @@ basis.
 
     Attribution
 
-This text is Copyright (C) 2011-2017, the Red Eclipse Team
-and is available under a Creative Commons Attribution-ShareAlike 3.0 Unported
-License <http://creativecommons.org/licenses/by-sa/3.0/>
+This text is Copyright (C) 2020, the Blue Nebula team, and 2011-2017, the
+Red Eclipse Team, and is available under a
+Creative Commons Attribution-ShareAlike 3.0 Unported License
+<http://creativecommons.org/licenses/by-sa/3.0/>

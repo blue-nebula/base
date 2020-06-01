@@ -1,3 +1,5 @@
+#ifndef IQM_H
+#define IQM_H
 struct iqm;
 
 struct iqmheader
@@ -418,3 +420,4 @@ struct iqm : skelmodel, skelloader<iqm>
 
 skelcommands<iqm> iqmcommands;
 
+#endif

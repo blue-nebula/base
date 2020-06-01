@@ -1,3 +1,5 @@
+#ifndef EXPLOSION_H
+#define EXPLOSION_H
 namespace sphere
 {
     struct vert
@@ -242,3 +244,4 @@ struct explosionrenderer : sharedlistrenderer
 static explosionrenderer explosions("<grey>particles/explosion"),
     shockwaves("<grey>particles/solid"), shockballs("<grey>particles/shockball");
 
+#endif

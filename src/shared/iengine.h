@@ -1,3 +1,5 @@
+#ifndef IENGINE_H
+#define IENGINE_H
 // the interface the game uses to access the engine
 
 extern int verbose, curtime, lastmillis, totalmillis, timescale, paused;
@@ -622,7 +624,7 @@ struct guicb
     virtual void gui(guient &g, bool firstpass) = 0;
 };
 
-extern char *guiskintex, *guiskinbordertex, *guioverlaytex, *guiexittex, *guihovertex;
+extern char *ui_skin_texture, *ui_skin_border_texture, *ui_overlay_texture, *ui_exit_texture, *ui_hover_texture;
 
 struct editor;
 
@@ -706,3 +708,4 @@ enum // cube empty-space materials
     MAT_ALPHA  = 4 << MATF_FLAG_SHIFT,  // alpha blended
     MAT_HURT   = 8 << MATF_FLAG_SHIFT   // hurt at intervals
 };
+#endif

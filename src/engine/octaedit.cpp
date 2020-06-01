@@ -1,3 +1,6 @@
+#include <algorithm>
+using std::swap;
+#include <vector>
 #include "engine.h"
 
 editinfo *localedit = NULL;
@@ -2545,10 +2548,10 @@ COMMAND(0, getseltex, "");
 ICOMMAND(0, getreptex, "", (), { if(!noedit()) intret(vslots.inrange(reptex) ? reptex : -1); });
 COMMAND(0, gettexname, "ii");
 
-void replacetexcube(cube &c, int oldtex, int newtex)
+void replace_cube_texture(cube &c, int oldtex, int newtex)
 {
     loopi(6) if(oldtex < 0 || c.texture[i] == oldtex) c.texture[i] = newtex;
-    if(c.children) loopi(8) replacetexcube(c.children[i], oldtex, newtex);
+    if(c.children) loopi(8) replace_cube_texture(c.children[i], oldtex, newtex);
 }
 
 void mpreplacetex(int oldtex, int newtex, bool insel, selinfo &sel, bool local)
@@ -2556,11 +2559,11 @@ void mpreplacetex(int oldtex, int newtex, bool insel, selinfo &sel, bool local)
     if(local) client::edittrigger(sel, EDIT_REPLACE, oldtex, newtex, insel ? 1 : 0);
     if(insel)
     {
-        loopselxyz(replacetexcube(c, oldtex, newtex));
+        loopselxyz(replace_cube_texture(c, oldtex, newtex));
     }
     else
     {
-        loopi(8) replacetexcube(worldroot[i], oldtex, newtex);
+        loopi(8) replace_cube_texture(worldroot[i], oldtex, newtex);
     }
     allchanged();
 }
@@ -2825,13 +2828,13 @@ struct texturegui : guicb
         g.start(menustart, NULL, true);
         uilist(g, {
             g.space(2);
-            if(g.button("\fgauto apply", 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, autoapplytexgui ? "checkboxon" : NULL, guicheckboxcolour)&GUI_UP)
+            if(g.button("\fgauto apply", 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, autoapplytexgui ? "checkboxon" : NULL, ui_color_checkbox) & GUI_UP)
                 autoapplytexgui = autoapplytexgui ? 0 : 1;
             g.space(2);
-            if(g.button("\fgauto preview", 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, autopreviewtexgui ? "checkboxon" : NULL, guicheckboxcolour)&GUI_UP)
+            if(g.button("\fgauto preview", 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, autopreviewtexgui ? "checkboxon" : NULL, ui_color_checkbox) & GUI_UP)
                 autopreviewtexgui = autopreviewtexgui ? 0 : 1;
             g.space(2);
-            if(g.button("\fgauto close", 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, autoclosetexgui ? "checkboxon" : NULL, autoclosetexgui > 1 ? guicheckboxtwocolour : guicheckboxcolour)&GUI_UP)
+            if(g.button("\fgauto close", 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, autoclosetexgui ? "checkboxon" : NULL, autoclosetexgui > 1 ? ui_color_checkbox_two : ui_color_checkbox) & GUI_UP)
                 autoclosetexgui = autoclosetexgui ? (autoclosetexgui > 1 ? 0 : 2) : 1;
             g.space(2);
             if(g.button("\foreset order", 0xFFFFFF, NULL)&GUI_UP)
@@ -2951,7 +2954,7 @@ struct texturegui : guicb
     }
 } gui;
 
-void texturemenu() { gui.show(); }
+void menu_texture() { gui.show(); }
 bool closetexgui() { if(gui.menuon) { gui.menuon = false; return true; } return false; }
 
 void showtexgui(int *n)

@@ -4,12 +4,17 @@ cmake_minimum_required(VERSION 3.8)
 
 # set compile options
 set(COMMON_C_FLAGS "-Wall -fsigned-char")
-# note: "SQLite will not work correctly with the -ffast-math option of GCC" -> we'll only enable this flag for the C++ codebase
-set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math -fno-exceptions")
+set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math -fexceptions")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     message(STATUS "Release build detected, adding release flags")
-    set(COMMON_C_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer")
+    set(COMMON_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fomit-frame-pointer -fstack-protector-all -fpic -fpie -D_FORTIFY_SOURCE=2")
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(COMMON_C_FLAGS "${ADDITIONAL_BUILD_FLAGS} -D_GLIBCXX_ASSERTIONS")
+    endif()
+    # TODO: "-Wl,-pie" and LTO
+    # Add RELRO, disable lazy binding, reject underlinking and use PIE
+    set(CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -Wl,-z,defs -pie")
 endif()
 
 option(PEDANTIC "Enable pedantic mode")
@@ -24,8 +29,25 @@ if(PEDANTIC)
     endif()
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_C_FLAGS} ${COMMON_CXX_FLAGS}")
+option(HARDENED "Enable hardening options")
+if(HARDENED)
+    message(STATUS "Enabling hardening options")
+    if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+        set(COMMON_C_FLAGS "${ADDITIONAL_BUILD_FLAGS} -fstack-clash-protection")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10)
+            set(COMMON_C_FLAGS "${ADDITIONAL_BUILD_FLAGS} -fstack-clash-protection -fsanitize=safe-stack -mretpoline -mspeculative-load-hardening -mlvi-cfi")
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=safe-stack -mspeculative-load-hardening -mlvi-cfi")
+        else()
+            message(FATAL_ERROR "Stack clash protection and LVI mitigation availible from Clang 11 onwards, installed version is '${CMAKE_CXX_COMPILER_VERSION}'")
+        endif()
+    else()
+        message(FATAL_ERROR "Additional hardening options requested, but no configuration available for compiler identification '${CMAKE_CXX_COMPILER_ID}'")
+    endif()
+endif()
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_C_FLAGS} ${COMMON_CXX_FLAGS}")
 
 # we use find_package instead of pkg_check_modules etc. so we do not depend on .pc files for libraries used across all platforms
 # this allows for easier cross-compiling with MinGW, as we can use the precompiled libraries
@@ -71,7 +93,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/engine
     ${CMAKE_CURRENT_SOURCE_DIR}/game
     ${CMAKE_CURRENT_SOURCE_DIR}/shared
-    ${CMAKE_CURRENT_SOURCE_DIR}/support
 )
 
 # include the headers for the libraries bundled in ../bin
@@ -81,7 +102,7 @@ endif()
 
 # most executables share some of their configuration
 # therefore we define our own function to add and configure them
-function(add_redeclipse_executable target)
+function(add_blue_nebula_executable target)
     add_executable(${target} ${ARGN})
 
     set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
@@ -102,12 +123,12 @@ endfunction()
 
 function(add_windows_rc_file target)
     if(MINGW OR WIN32)
-        target_sources(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/redeclipse.rc)
+        target_sources(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/blue-nebula.rc)
     endif()
 endfunction()
 
 # APPNAME is the name of the executable -- determines the executable names and is also needed in configure_file below
-set(APPNAME "redeclipse-legacy")
+set(APPNAME "blue-nebula")
 
 # the specific applications configuration is a bit complex, so it's been split into three separate CMake files
 include(cmake/build_client.cmake)
@@ -117,7 +138,7 @@ include(cmake/build_genkey.cmake)
 # install config directory with the cubescript files (containing the menu definitions etc.)
 install(
     DIRECTORY ${PROJECT_SOURCE_DIR}/config
-    DESTINATION share/redeclipse-legacy
+    DESTINATION share/blue-nebula
 )
 
 # install config for data files
@@ -127,7 +148,7 @@ if(SKIP_INSTALL_DATA)
 else()
     install(
         DIRECTORY ${PROJECT_SOURCE_DIR}/data
-        DESTINATION share/redeclipse-legacy
+        DESTINATION share/blue-nebula
         PATTERN ".git*" EXCLUDE
     )
 endif()

@@ -1,4 +1,8 @@
+#include <algorithm>
+using std::swap;
+#include <vector>
 #include "game.h"
+
 namespace hud
 {
     const int NUMSTATS = 11;
@@ -892,7 +896,7 @@ namespace hud
             case POINTER_RELATIVE: return pointertex;
             case POINTER_GUI:
             {
-                switch(guicursortype)
+                switch(ui_cursor_type)
                 {
                     case 2: return guicursorinputtex; break;
                     case 1: return guicursorhovertex; break;
@@ -1361,7 +1365,7 @@ namespace hud
         }
         else
         {
-            if(guicursortype == 2)
+            if(ui_cursor_type == 2)
             {
                 cy -= cs/2;
                 cx -= cs/2;

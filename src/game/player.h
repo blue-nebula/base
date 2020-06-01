@@ -1,3 +1,5 @@
+#ifndef PLAYER_H
+#define PLAYER_H
 struct actors
 {
     int type;
@@ -241,4 +243,5 @@ struct vanity
 vector<vanity> vanities;
 #else
 extern vector<vanity> vanities;
+#endif
 #endif

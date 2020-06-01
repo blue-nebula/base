@@ -1,3 +1,5 @@
+#ifndef GAMEMODE_H
+#define GAMEMODE_H
 enum
 {
     G_DEMO = 0, G_EDITMODE, G_DEATHMATCH, G_CAPTURE, G_DEFEND, G_BOMBER, G_RACE, G_MAX,
@@ -447,4 +449,5 @@ VAR(0, mutsbitgsp1, 1, (1<<G_M_GSP1), -1);
 VAR(0, mutsbitgsp2, 1, (1<<G_M_GSP2), -1);
 VAR(0, mutsbitgsp3, 1, (1<<G_M_GSP3), -1);
 VAR(0, mutsbitall, 1, G_M_ALL, -1);
+#endif
 #endif

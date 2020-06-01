@@ -1,3 +1,5 @@
+#ifndef TEAMDEF_H
+#define TEAMDEF_H
 #ifdef GAMESERVER
     #define TPVAR(flags, name, mn, mx, w00, w01, w02, w03, w04, w05) \
         GVAR(flags, teamneutral##name, mn, w00, mx); \
@@ -126,4 +128,5 @@
 #endif
     #define TEAM(team,name)         (*team_stat_##name[team])
     #define TEAMSTR(a,team,attr)    defformatstring(a, "%s%s", teamnames[team], #attr)
+#endif
 #endif

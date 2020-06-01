@@ -1,3 +1,5 @@
+#include <algorithm>
+using std::swap;
 #include "engine.h"
 
 VAR(0, oqdynent, 0, 1, 1);

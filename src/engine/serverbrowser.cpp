@@ -1,4 +1,6 @@
 // serverbrowser.cpp: eihrul's concurrent resolver, and server browser window management
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 #include "SDL_thread.h"

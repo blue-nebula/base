@@ -1,3 +1,5 @@
+#ifndef AIMAN_H
+#define AIMAN_H
 // server-side ai manager
 namespace aiman
 {
@@ -425,3 +427,4 @@ namespace aiman
         else clearai();
     }
 }
+#endif

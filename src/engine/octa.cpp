@@ -1,4 +1,6 @@
 // core world management routines
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 

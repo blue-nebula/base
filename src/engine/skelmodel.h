@@ -1,3 +1,5 @@
+#ifndef SKELMODEL_H
+#define SKELMODEL_H
 VAR(IDF_PERSIST, gpuskel, 0, 1, 1);
 
 VAR(0, maxskelanimdata, 1, 192, 0);
@@ -1853,3 +1855,4 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
     }
 };
 
+#endif

@@ -1,3 +1,5 @@
+#ifndef WEAPDEF_H
+#define WEAPDEF_H
 #ifdef GAMESERVER
     #define WPVAR(flags, name, mn, mx, w00, w01, w02, w03, w04, w05, w06, w07, w08, w09, w10, w11, w12) \
         GVAR(flags, claw##name, mn, w00, mx); \
@@ -472,3 +474,4 @@
 #define WF(c,w,v,s) (c ? W2(w, flak##v, s) : W2(w, v, s))
 #define WS(flags)  (flags&HIT_ALT)
 #define WK(flags)  (flags&HIT_FLAK)
+#endif

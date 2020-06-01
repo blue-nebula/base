@@ -1,3 +1,5 @@
+#ifndef ANIMMODEL_H
+#define ANIMMODEL_H
 VARF(IDF_PERSIST, envmapmodels, 0, 1, 1, preloadmodelshaders(true));
 VARF(IDF_PERSIST, bumpmodels, 0, 1, 1, preloadmodelshaders(true));
 VAR(IDF_PERSIST, fullbrightmodels, 0, 0, 200);
@@ -1603,3 +1605,4 @@ template<class MDL, class MESH> struct modelcommands
     }
 };
 
+#endif

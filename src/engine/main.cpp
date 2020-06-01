@@ -1,4 +1,6 @@
 // main.cpp: initialisation & main loop
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 #include <signal.h>
@@ -86,7 +88,6 @@ extern void cleargamma();
 
 void cleanup()
 {
-    recorder::stop();
     cleanupserver();
     SDL_ShowCursor(SDL_TRUE);
     SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -427,7 +428,6 @@ void resetgl()
     extern void cleanreflections();
     extern void cleanupglare();
     extern void cleanupdepthfx();
-    recorder::cleanup();
     cleanupva();
     cleanupparticles();
     cleanupdecals();
@@ -677,7 +677,6 @@ void checkinput()
 
 void swapbuffers(bool overlay)
 {
-    recorder::capture(overlay);
     gle::disable();
     SDL_GL_SwapWindow(screen);
 }
@@ -923,15 +922,15 @@ int main(int argc, char **argv)
     char *initscript = NULL;
     initing = INIT_RESET;
 
-    // redeclipse:// URI support
+    // bluenebula:// URI support
     // examples:
-    // redeclipse://password@hostname:port
-    // redeclipse://hostname:port
-    // redeclipse://hostname
+    // bluenebula://password@hostname:port
+    // bluenebula://hostname:port
+    // bluenebula://hostname
     // (password and port are optional)
-    const char reprotoprefix[] = "redeclipse://";
-    const int reprotolen = sizeof(reprotoprefix) - 1;
-    char *reprotoarg = NULL;
+    const char blue_nebula_protocol_prefix[] = "bluenebula://";
+    const int blue_nebula_protocol_length = sizeof(blue_nebula_protocol_prefix) - 1;
+    char *blue_nebula_protocol_arg = NULL;
     char *connectstr = NULL;
     char *connectpassword = NULL;
     char *connecthost = NULL;
@@ -980,11 +979,11 @@ int main(int argc, char **argv)
                 break;
         }
 
-        // will only parse the first argument that is possibly a redeclipse:// URL argument and ignore any following
-        else if(!strncmp(argv[i], reprotoprefix, reprotolen) && !reprotoarg)
+        // will only parse the first argument that is possibly a bluenebula:// URL argument and ignore any following
+        else if(!strncmp(argv[i], blue_nebula_protocol_prefix, blue_nebula_protocol_length) && !blue_nebula_protocol_arg)
         {
-            reprotoarg = newstring(argv[i]);
-            connectstr = newstring(reprotoarg + reprotolen);
+            blue_nebula_protocol_arg = newstring(argv[i]);
+            connectstr = newstring(blue_nebula_protocol_arg + blue_nebula_protocol_length);
 
             // check if there's actually text after the protocol prefix
             if(!*connectstr) continue;
@@ -1103,10 +1102,10 @@ int main(int argc, char **argv)
     localconnect(false);
     resetfps();
 
-    if(reprotoarg)
+    if(blue_nebula_protocol_arg)
     {
         if(connecthost && *connecthost) connectserv(connecthost, connectport, connectpassword);
-        else conoutf("\frmalformed commandline argument: %s", reprotoarg);
+        else conoutf("\frmalformed commandline argument: %s", blue_nebula_protocol_arg);
     }
 
     // housekeeping
@@ -1115,10 +1114,10 @@ int main(int argc, char **argv)
         delete[] connectstr;
         connectstr = NULL;
     }
-    if(reprotoarg)
+    if(blue_nebula_protocol_arg)
     {
-        delete[] reprotoarg;
-        reprotoarg = NULL;
+        delete[] blue_nebula_protocol_arg;
+        blue_nebula_protocol_arg = NULL;
     }
 
     for(int frameloops = 0; ; frameloops = frameloops >= INT_MAX-1 ? MAXFPSHISTORY+1 : frameloops+1)

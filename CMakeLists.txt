@@ -6,6 +6,12 @@ if(POLICY CMP0053)
     cmake_policy(SET CMP0053 NEW)
 endif()
 
-project("Red Eclipse Legacy" C CXX)
+project("Blue Nebula" C CXX)
+
+# require at least C++14 and C11
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(src)

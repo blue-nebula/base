@@ -1,3 +1,7 @@
+#include <algorithm>
+using std::swap;
+
+#include <vector>
 #include "engine.h"
 
 extern vec hitsurface;

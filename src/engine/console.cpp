@@ -1,4 +1,6 @@
 // console.cpp: the console buffer, its display, and command line control
+#include <algorithm>
+using std::swap;
 
 #include "engine.h"
 

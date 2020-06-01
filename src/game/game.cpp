@@ -1,5 +1,9 @@
+#include <algorithm>
+using std::swap;
+#include <vector>
 #define GAMEWORLD 1
 #include "game.h"
+
 namespace game
 {
     int nextmode = G_EDITMODE, nextmuts = 0, gamestate = G_S_WAITING, gamemode = G_EDITMODE, mutators = 0, maptime = 0, timeremaining = 0, lasttimeremain = 0,
