@@ -5,7 +5,7 @@ if(BUILD_GENKEY)
         shared/crypto.cpp
     )
 
-    add_redeclipse_executable(genkey${BIN_SUFFIX} ${genkey_sources})
+    add_blue_nebula_executable(genkey${BIN_SUFFIX} ${genkey_sources})
 
     target_link_libraries(genkey${BIN_SUFFIX} ZLIB::ZLIB)
 

@@ -1,8 +1,10 @@
-THE RED ECLIPSE LICENSE
+THE BLUE NEBULA LICENSE
 
-Red Eclipse is based on Cube Engine 2, both of which are covered under the ZLIB
-license, you may use the source code so long as you obey this license.
+Blue Nebula is based on Red Eclipse and Cube Engine 2, both of which are
+covered under the ZLIB license, you may use the source code so long as you
+obey this license.
 
+    Blue Nebula, Copyright (C) 2020, Blue Nebula team
     Red Eclipse, Copyright (C) 2009-2017 Quinton Reeves, Lee Salzman
     Cube Engine 2, Copyright (C) 2001-2017 Wouter van Oortmerssen, Lee Salzman,
         Mike Dysart, Robert Pointon, and Quinton Reeves
@@ -28,19 +30,20 @@ is however compatible with the above license for all practical purposes.
 
 Content included in the game (maps, textures, sounds, models etc.) is NOT
 covered by this license, and may have individual copyrights and distribution
-restrictions (see individual readmes), note that all content in Red Eclipse
+restrictions (see individual readmes), note that all content in Blue Nebula
 is intended to be "open source" friendly.
 
 In the absence of an explicit license, content is considered to be covered by
 the CC-BY-SA license, either version 3.0 or (at your option) any later version,
-you may use the content in Red Eclipse so long as you obey individual
+you may use the content in Blue Nebula so long as you obey individual
 licensing criteria.
 
+    Blue Nebula, Copyright (C) 2020, Blue Nebula Team
     Red Eclipse, Copyright (C) 2009-2017 Red Eclipse Team
     Creative Commons Attribution ShareAlike 3.0+ License (CC-BY-SA)
     See cc-by-sa.txt or http://creativecommons.org/licenses/by-sa/3.0/
 
-For a license breakdown of all content in Red Eclipse, see all-licenses.txt.
+For a license breakdown of all content in Blue Nebula, see all-licenses.txt.
 
-The use of trademarks unique to the Red Eclipse project are in addition
-governed by the Red Eclipse Mark Policy (see trademark.txt).
+The use of trademarks unique to the Blue Nebula project are in addition
+governed by the Blue Nebula Mark Policy (see trademark.txt).

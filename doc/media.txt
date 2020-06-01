@@ -1,13 +1,13 @@
-The following is a summary list of Red Eclipse in the media and on the
-internet; it is not intended to be a comprehensive guide. If you are
+The following is a summary list of Blue Nebula and Red Eclipse, the
+project it was forked from, in the media and on the internet;
+it is not intended to be a comprehensive guide. If you are
 looking to collect bits and pieces for use in your own media, it is
-appreciated if you focus on what makes Red Eclipse unique, rather than
+appreciated if you focus on what makes Blue Nebula unique, rather than
 using any comparisons to other games.
 
 Regards,
-Quinton "quin" Reeves
-Lead Developer, Red Eclipse
-http://redeclipse.net/
+Blue Nebula Team
+https://blue-nebula.org
 
 
 = Press and Blogs =

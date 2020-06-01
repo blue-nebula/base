@@ -3,7 +3,7 @@
 set -e
 set -x
 
-BUILD_DIR=$(mktemp -d redeclipse-legacy-build-XXXXXX)
+BUILD_DIR=$(mktemp -d blue-nebula-build-XXXXXX)
 
 cleanup () {
     if [ -d "$BUILD_DIR" ]; then
@@ -23,4 +23,4 @@ pushd "$BUILD_DIR"
 BUILD_TYPE="${BUILD_TYPE:-Debug}"
 cmake "$REPO_ROOT" -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 
-make -j$(nprocs)
+make -j$(nproc)

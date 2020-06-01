@@ -7,8 +7,8 @@
 set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
 
 # global options
-set(CPACK_PACKAGE_CONTACT "Red Eclipse Legacy Team")
-set(CPACK_PACKAGE_HOMEPAGE "https://github.com/redeclipse-legacy")
+set(CPACK_PACKAGE_CONTACT "Blue Nebula Team")
+set(CPACK_PACKAGE_HOMEPAGE "https://blue-nebula.org")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
 #set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
 
@@ -21,6 +21,6 @@ execute_process(
 )
 
 # CMake composes file names using a <package_name>-<package_version>-<platform>.<ext> scheme
-set(CPACK_PACKAGE_NAME redeclipse-legacy)
+set(CPACK_PACKAGE_NAME blue-nebula)
 set(CPACK_PACKAGE_VERSION ${_CPACK_VERSION})
 

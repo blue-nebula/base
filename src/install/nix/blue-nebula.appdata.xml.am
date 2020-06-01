@@ -5,10 +5,10 @@
   <project_license>Zlib and CC-BY-SA-3.0+</project_license>
   <description>
     <p>
-      Red Eclipse is a fun-filled new take on the first person arena shooter,
+      Blue Nebula is a fun-filled new take on the first person arena shooter,
       built as a total conversion of Cube Engine 2, which lends itself toward
       a balanced gameplay, with a general theme of agility in a variety of
-      environments.
+      environments. It features a unique parkour movement system.
     </p>
     <ul>
       <li>Cross-platform multiplayer</li>
@@ -17,21 +17,21 @@
       <li>Builtin editor lets you create your own maps cooperatively online</li>
     </ul>
   </description>
-  <url type="homepage">http://redeclipse.net/</url>
+  <url type="homepage">https://blue-nebula.org</url>
   <screenshots>
     <screenshot type="default">
-      <image>http://redeclipse.net/bits/images/053.jpg</image>
+      <image>https://go.blue-nebula.org/appstream-screenshot-1.jpg</image>
       <caption>Posing with fire on the map venus</caption>
     </screenshot>
     <screenshot>
-      <image>http://redeclipse.net/bits/images/045.jpg</image>
+      <image>https://go.blue-nebula.org/appstream-screenshot-2.jpg</image>
       <caption>Mine fireworks on the map vault</caption>
     </screenshot>
     <screenshot>
-      <image>http://redeclipse.net/bits/images/019.jpg</image>
+      <image>https://go.blue-nebula.org/appstream-screenshot-3.jpg</image>
       <caption>Overlooking friendly fire on the map cutec</caption>
     </screenshot>
   </screenshots>
-  <developer_name>Red Eclipse Legacy Team</developer_name>
-  <url type="bugtracker">https://github.com/redeclipse-legacy/base/issues</url>
+  <developer_name>Blue Nebula Team</developer_name>
+  <url type="bugtracker">https://go.blue-nebula.org/issues</url>
 </component>
