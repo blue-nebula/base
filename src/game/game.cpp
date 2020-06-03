@@ -3205,7 +3205,7 @@ namespace game
                 if(d->conopen) t = textureload(hud::chattex, 3);
                 else if(m_team(gamemode, mutators) && (hud::numteamkills() >= teamkillwarn || aboveheadteam&(d->team != focus->team ? 2 : 1)))
                     t = textureload(hud::teamtexname(d->team), 3);
-                if(!m_team(gamemode, mutators) || d->team != focus->team)
+                if((!m_team(gamemode, mutators) || d->team != focus->team) && (!d->conopen)) // only display the dominating/dominated icon if the player isn't chatting atm
                 {
                     if(d->dominating.find(focus) >= 0)
                     {
