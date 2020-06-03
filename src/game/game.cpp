@@ -3209,12 +3209,18 @@ namespace game
                 {
                     if(d->dominating.find(focus) >= 0)
                     {
-                        t = textureload(hud::dominatingtex, 3);
+                    	if (!d->conopen) // if the player is chatting chat the symbol will pulsate
+                    	{
+                        	t = textureload(hud::dominatingtex, 3);
+                    	}
                         colour = pulsecols[PULSE_DISCO][clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)];
                     }
                     else if(d->dominated.find(focus) >= 0)
                     {
-                        t = textureload(hud::dominatedtex, 3);
+                    	if (!d->conopen) // if the player is chatting the chat symbol will pulsate
+                    	{
+                    		t = textureload(hud::dominatedtex, 3);
+                    	}
                         colour = pulsecols[PULSE_DISCO][clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)];
                     }
                 }
