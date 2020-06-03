@@ -225,6 +225,7 @@ namespace hud
     VAR(IDF_PERSIST, crosshairweapons, 0, 0, 3); // 0 = off, &1 = crosshair-specific weapons, &2 = also appy colour
     VAR(IDF_PERSIST|IDF_HEX, crosshaircolor_normal, -1, 0xFFFFFF, 0xFFFFFF);
     VAR(IDF_PERSIST|IDF_HEX, crosshaircolor_zoom, -1, 0xFFFFFF, 0xFFFFFF);
+    VAR(IDF_PERSIST|IDF_HEX, crosshaircolor_hit, -1, 0xFFFFFF, 0xFFFFFF);
     FVAR(IDF_PERSIST, crosshairsize, 0, 0.03f, 1000);
     VAR(IDF_PERSIST, crosshairhitspeed, 0, 500, VAR_MAX);
     FVAR(IDF_PERSIST, crosshairblend, 0, 0.75f, 1);
