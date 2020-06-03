@@ -3,6 +3,7 @@
 using std::swap;
 
 #include "engine.h"
+#include "game.h"
 
 reversequeue<cline, MAXCONLINES> conlines;
 
@@ -774,69 +775,107 @@ COMMANDN(0, listcomplete, addlistcomplete, "ss");
 
 void complete(char *s, const char *cmdprefix)
 {
-    char *start = s;
-    if(cmdprefix)
+
+    char* name = strrchr(s, '@');
+
+    if (name) // autocomplete name
     {
-        int cmdlen = strlen(cmdprefix);
-        if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, BIGSTRLEN);
-        start = &s[cmdlen];
-    }
-    const char chrlist[7] = { ';', '(', ')', '[', ']', '\"', '$', };
-    bool variable = false;
-    loopi(7)
-    {
-        char *semi = strrchr(start, chrlist[i]);
-        if(semi)
+        name++; // this will remove the @ at the start
+        printf("This will complete a name '%s'\n", name);
+
+        // loop through all players
+        loopv(game::players) if(game::players[i])
         {
-            start = semi+1;
-            if(chrlist[i] == '$') variable = true;
+            // get the playername
+            char* player_name = game::players[i]->name;
+            
+            // check if the playername fits the input
+            bool fits = strncmp(name, player_name, strlen(name)) == 0;
+
+            // replace the input with the playername
+            if (fits) 
+            {
+                // remove everything to the @ from s
+                int s_len = strlen(s);
+                s[s_len - strlen(name) - 1] = 0;
+
+                // add player_name to s and return
+                strncat(s, player_name, strlen(player_name));
+                return;
+            }
         }
+
     }
-    while(*start == ' ') start++;
-    if(!start[0]) return;
-    if(start-s != completeoffset || !completesize)
+    else // autocomplete command
     {
-        completeoffset = start-s;
-        completesize = (int)strlen(start);
-        lastcomplete[0] = '\0';
-    }
-    filesval *f = NULL;
-    if(completesize)
-    {
-        char *end = strchr(start, ' ');
-        if(end) f = completions.find(stringslice(start, end), NULL);
-    }
-    const char *nextcomplete = NULL;
-    int prefixlen = start-s;
-    if(f) // complete using filenames
-    {
-        int commandsize = strchr(start, ' ')+1-start;
-        prefixlen += commandsize;
-        f->update();
-        loopv(f->files)
+        char *start = s;
+
+        if(cmdprefix)
         {
-            if(strncmp(f->files[i], &start[commandsize], completesize-commandsize)==0 &&
-                strcmp(f->files[i], lastcomplete) > 0 && (!nextcomplete || strcmp(f->files[i], nextcomplete) < 0))
-                nextcomplete = f->files[i];
+            int cmdlen = strlen(cmdprefix);
+            if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, BIGSTRLEN);
+            start = &s[cmdlen];
+            printf("start: %i\n", *start);
         }
-    }
-    else // complete using command names
-    {
-        enumerate(idents, ident, id,
-            if((variable ? id.type == ID_VAR || id.type == ID_SVAR || id.type == ID_FVAR || id.type == ID_ALIAS: id.flags&IDF_COMPLETE) && strncmp(id.name, start, completesize)==0 &&
-               strcmp(id.name, lastcomplete) > 0 && (!nextcomplete || strcmp(id.name, nextcomplete) < 0))
-                nextcomplete = id.name;
-        );
-    }
-    if(nextcomplete)
-    {
-        copystring(&s[prefixlen], nextcomplete, BIGSTRLEN-prefixlen);
-        copystring(lastcomplete, nextcomplete, BIGSTRLEN);
-    }
-    else
-    {
-        if((int)strlen(start) > completesize) start[completesize] = '\0';
-        completesize = 0;
+        
+
+        const char chrlist[7] = { ';', '(', ')', '[', ']', '\"', '$', };
+        bool variable = false;
+        loopi(7)
+        {
+            char *semi = strrchr(start, chrlist[i]);
+            if(semi)
+            {
+                start = semi+1;
+                if(chrlist[i] == '$') variable = true;
+            }
+        }
+        while(*start == ' ') start++;
+        if(!start[0]) return;
+        if(start-s != completeoffset || !completesize)
+        {
+            completeoffset = start-s;
+            completesize = (int)strlen(start);
+            lastcomplete[0] = '\0';
+        }
+        filesval *f = NULL;
+        if(completesize)
+        {
+            char *end = strchr(start, ' ');
+            if(end) f = completions.find(stringslice(start, end), NULL);
+        }
+        const char *nextcomplete = NULL;
+        int prefixlen = start-s;
+        if(f) // complete using filenames
+        {
+            int commandsize = strchr(start, ' ')+1-start;
+            prefixlen += commandsize;
+            f->update();
+            loopv(f->files)
+            {
+                if(strncmp(f->files[i], &start[commandsize], completesize-commandsize)==0 &&
+                    strcmp(f->files[i], lastcomplete) > 0 && (!nextcomplete || strcmp(f->files[i], nextcomplete) < 0))
+                    nextcomplete = f->files[i];
+            }
+        }
+        else // complete using command names
+        {
+            enumerate(idents, ident, id,
+                if((variable ? id.type == ID_VAR || id.type == ID_SVAR || id.type == ID_FVAR || id.type == ID_ALIAS: id.flags&IDF_COMPLETE) && strncmp(id.name, start, completesize)==0 &&
+                strcmp(id.name, lastcomplete) > 0 && (!nextcomplete || strcmp(id.name, nextcomplete) < 0))
+                    nextcomplete = id.name;
+            );
+        }
+        if(nextcomplete)
+        {
+            copystring(&s[prefixlen], nextcomplete, BIGSTRLEN-prefixlen);
+            copystring(lastcomplete, nextcomplete, BIGSTRLEN);
+        }
+        else
+        {
+            if((int)strlen(start) > completesize) start[completesize] = '\0';
+            completesize = 0;
+        }
     }
 }
 
@@ -990,6 +1029,7 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
         }
         histpos = history.length();
         inputcommand(NULL);
+
         if(h)
         {
             interactive = true;
