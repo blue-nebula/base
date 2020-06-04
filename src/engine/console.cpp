@@ -784,9 +784,19 @@ void complete(char *s, const char *cmdprefix)
         int name_len = strlen(name);
         printf("This will complete a name '%s'\n", name);
 
-        // loop through all players (excluding bots)
-        loopv(game::players) if(game::players[i] && !(game::players[i]->actortype == 1))
+        // loop through all players
+        for (auto i = 0; i < game::players.length(); i++)
         {
+            if (!game::players[i])
+            {
+                break;
+            }
+
+            // exclude bots
+            if (game::players[i]->actortype == ENT_AI) 
+            {
+                continue;
+            }
             // get the playername
             char* player_name = game::players[i]->name;
 
