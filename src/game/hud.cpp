@@ -1317,15 +1317,10 @@ namespace hud
         vec c(1, 1, 1);
         if(game::focus->state == CS_ALIVE && index >= POINTER_HAIR)
         {
-            // pointer color
-            if(crosshairweapons&2) // if you selected an option that includes the weapon specific crosshair color in the menu
+            bool use_custom_crosshair_colors = !crosshairweapons&2;
+            if (use_custom_crosshair_color)
             {
-                // set c to the color of the currently selected weapon
-                c = vec::hexcolor(W(game::focus->weapselect, colour));
-            } 
-            else 
-            {
-                if (index == POINTER_TEAM) // the player is pointing at a teammate
+                if (index == POINTER_TEAM)
                 {
                     c = vec::hexcolor(crosshaircolor_team);
                 } 
@@ -1337,6 +1332,10 @@ namespace hud
                 {
                     c = vec::hexcolor(crosshaircolor_normal);
                 }
+            }
+            else
+            {
+                c = vec::hexcolor(W(game::focus->weapselect, colour));
             }
 
             
@@ -1370,7 +1369,7 @@ namespace hud
         int cx = int(hudwidth*cursorx), cy = int(hudheight*cursory);
         if(index != POINTER_GUI)
         {
-            bool hit = false; // will be set to true when the player has recently hit someone
+            bool hit = false;
             vec color_hit(1, 1, 1);
 
             if(index > POINTER_GUI)
@@ -1390,10 +1389,11 @@ namespace hud
                     }
                     else
                     {
-                        if (!(crosshairweapons&2)) // if the player has enabled custom crosshair colors
+                        if (use_custom_crosshair_colors)
                         {
                             color_hit = vec::hexcolor(crosshaircolor_hit);
-                            c = color_hit; // so the default crosshair will also have the hit color
+                            // so the default crosshair will also have the hit color
+                            c = color_hit;
                         }
                         else
                         {
