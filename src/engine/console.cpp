@@ -815,7 +815,6 @@ void complete(char *s, const char *cmdprefix)
             int cmdlen = strlen(cmdprefix);
             if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, BIGSTRLEN);
             start = &s[cmdlen];
-            printf("start: %i\n", *start);
         }
         
 
