@@ -13,6 +13,8 @@ char *commandaction = NULL, *commandicon = NULL;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1, CF_MESSAGE = 1<<2 };
 int commandflags = 0, commandpos = -1, commandcolour = 0;
 
+void complete(char* s, size_t s_size, const char* cmdprefix);
+
 void conline(int type, const char *sf, int n)
 {
     char *buf = conlines.length() >= MAXCONLINES ? conlines.remove().cref : newstring("", BIGSTRLEN-1);
@@ -534,7 +536,7 @@ bool consolekey(int code, bool isdown)
             case SDLK_TAB:
                 if(commandflags&CF_COMPLETE)
                 {
-                    complete(commandbuf, commandflags&CF_EXECUTE ? "/" : NULL);
+                    complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
                     if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
                 }
                 break;
@@ -773,7 +775,7 @@ void addlistcomplete(char *command, char *list)
 COMMANDN(0, complete, addfilecomplete, "sss");
 COMMANDN(0, listcomplete, addlistcomplete, "ss");
 
-void complete(char *s, const char *cmdprefix)
+void complete(char *s, size_t s_size, const char *cmdprefix)
 {
 
     char* name = strrchr(s, '@');
@@ -808,7 +810,7 @@ void complete(char *s, const char *cmdprefix)
                 int player_name_len = strlen(player_name);
 
                 // add player_name to s and return
-                strncat(s, player_name, BIGSTRLEN - s_len - name_len - 1 - player_name_len);
+                strncat(s, player_name, s_size - s_len - name_len - 1 - player_name_len);
                 return;
             }
         }
@@ -819,7 +821,7 @@ void complete(char *s, const char *cmdprefix)
     if(cmdprefix)
     {
         int cmdlen = strlen(cmdprefix);
-        if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, BIGSTRLEN);
+        if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, s_size);
         start = &s[cmdlen];
     }
     
@@ -873,8 +875,8 @@ void complete(char *s, const char *cmdprefix)
     }
     if(nextcomplete)
     {
-        copystring(&s[prefixlen], nextcomplete, BIGSTRLEN-prefixlen);
-        copystring(lastcomplete, nextcomplete, BIGSTRLEN);
+        copystring(&s[prefixlen], nextcomplete, s_size-prefixlen);
+        copystring(lastcomplete, nextcomplete, s_size);
     }
     else
     {
