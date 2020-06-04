@@ -781,6 +781,7 @@ void complete(char *s, const char *cmdprefix)
     if (name) // autocomplete name
     {
         name++; // this will remove the @ at the start
+        int name_len = strlen(name);
         printf("This will complete a name '%s'\n", name);
 
         // loop through all players (excluding bots)
@@ -790,7 +791,7 @@ void complete(char *s, const char *cmdprefix)
             char* player_name = game::players[i]->name;
 
             // check if the playername fits the input
-            bool fits = strncmp(name, player_name, strlen(name)) == 0;
+            bool fits = strncmp(name, player_name, name_len) == 0;
 
             // replace the input with the playername
             if (fits) 
