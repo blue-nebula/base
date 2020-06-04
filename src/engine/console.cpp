@@ -783,12 +783,12 @@ void complete(char *s, const char *cmdprefix)
         name++; // this will remove the @ at the start
         printf("This will complete a name '%s'\n", name);
 
-        // loop through all players
-        loopv(game::players) if(game::players[i])
+        // loop through all players (excluding bots)
+        loopv(game::players) if(game::players[i] && !(game::players[i]->actortype == 1))
         {
             // get the playername
             char* player_name = game::players[i]->name;
-            
+
             // check if the playername fits the input
             bool fits = strncmp(name, player_name, strlen(name)) == 0;
 
