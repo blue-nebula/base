@@ -782,7 +782,6 @@ void complete(char *s, const char *cmdprefix)
     {
         name++; // this will remove the @ at the start
         int name_len = strlen(name);
-        printf("This will complete a name '%s'\n", name);
 
         // loop through all players
         for (auto i = 0; i < game::players.length(); i++)
