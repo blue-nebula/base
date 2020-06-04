@@ -804,77 +804,74 @@ void complete(char *s, const char *cmdprefix)
                 return;
             }
         }
-
+        return;
     }
-    else // autocomplete command
+    char *start = s;
+
+    if(cmdprefix)
     {
-        char *start = s;
+        int cmdlen = strlen(cmdprefix);
+        if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, BIGSTRLEN);
+        start = &s[cmdlen];
+    }
+    
 
-        if(cmdprefix)
+    const char chrlist[7] = { ';', '(', ')', '[', ']', '\"', '$', };
+    bool variable = false;
+    loopi(7)
+    {
+        char *semi = strrchr(start, chrlist[i]);
+        if(semi)
         {
-            int cmdlen = strlen(cmdprefix);
-            if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, BIGSTRLEN);
-            start = &s[cmdlen];
+            start = semi+1;
+            if(chrlist[i] == '$') variable = true;
         }
-        
-
-        const char chrlist[7] = { ';', '(', ')', '[', ']', '\"', '$', };
-        bool variable = false;
-        loopi(7)
+    }
+    while(*start == ' ') start++;
+    if(!start[0]) return;
+    if(start-s != completeoffset || !completesize)
+    {
+        completeoffset = start-s;
+        completesize = (int)strlen(start);
+        lastcomplete[0] = '\0';
+    }
+    filesval *f = NULL;
+    if(completesize)
+    {
+        char *end = strchr(start, ' ');
+        if(end) f = completions.find(stringslice(start, end), NULL);
+    }
+    const char *nextcomplete = NULL;
+    int prefixlen = start-s;
+    if(f) // complete using filenames
+    {
+        int commandsize = strchr(start, ' ')+1-start;
+        prefixlen += commandsize;
+        f->update();
+        loopv(f->files)
         {
-            char *semi = strrchr(start, chrlist[i]);
-            if(semi)
-            {
-                start = semi+1;
-                if(chrlist[i] == '$') variable = true;
-            }
+            if(strncmp(f->files[i], &start[commandsize], completesize-commandsize)==0 &&
+                strcmp(f->files[i], lastcomplete) > 0 && (!nextcomplete || strcmp(f->files[i], nextcomplete) < 0))
+                nextcomplete = f->files[i];
         }
-        while(*start == ' ') start++;
-        if(!start[0]) return;
-        if(start-s != completeoffset || !completesize)
-        {
-            completeoffset = start-s;
-            completesize = (int)strlen(start);
-            lastcomplete[0] = '\0';
-        }
-        filesval *f = NULL;
-        if(completesize)
-        {
-            char *end = strchr(start, ' ');
-            if(end) f = completions.find(stringslice(start, end), NULL);
-        }
-        const char *nextcomplete = NULL;
-        int prefixlen = start-s;
-        if(f) // complete using filenames
-        {
-            int commandsize = strchr(start, ' ')+1-start;
-            prefixlen += commandsize;
-            f->update();
-            loopv(f->files)
-            {
-                if(strncmp(f->files[i], &start[commandsize], completesize-commandsize)==0 &&
-                    strcmp(f->files[i], lastcomplete) > 0 && (!nextcomplete || strcmp(f->files[i], nextcomplete) < 0))
-                    nextcomplete = f->files[i];
-            }
-        }
-        else // complete using command names
-        {
-            enumerate(idents, ident, id,
-                if((variable ? id.type == ID_VAR || id.type == ID_SVAR || id.type == ID_FVAR || id.type == ID_ALIAS: id.flags&IDF_COMPLETE) && strncmp(id.name, start, completesize)==0 &&
-                strcmp(id.name, lastcomplete) > 0 && (!nextcomplete || strcmp(id.name, nextcomplete) < 0))
-                    nextcomplete = id.name;
-            );
-        }
-        if(nextcomplete)
-        {
-            copystring(&s[prefixlen], nextcomplete, BIGSTRLEN-prefixlen);
-            copystring(lastcomplete, nextcomplete, BIGSTRLEN);
-        }
-        else
-        {
-            if((int)strlen(start) > completesize) start[completesize] = '\0';
-            completesize = 0;
-        }
+    }
+    else // complete using command names
+    {
+        enumerate(idents, ident, id,
+            if((variable ? id.type == ID_VAR || id.type == ID_SVAR || id.type == ID_FVAR || id.type == ID_ALIAS: id.flags&IDF_COMPLETE) && strncmp(id.name, start, completesize)==0 &&
+            strcmp(id.name, lastcomplete) > 0 && (!nextcomplete || strcmp(id.name, nextcomplete) < 0))
+                nextcomplete = id.name;
+        );
+    }
+    if(nextcomplete)
+    {
+        copystring(&s[prefixlen], nextcomplete, BIGSTRLEN-prefixlen);
+        copystring(lastcomplete, nextcomplete, BIGSTRLEN);
+    }
+    else
+    {
+        if((int)strlen(start) > completesize) start[completesize] = '\0';
+        completesize = 0;
     }
 }
 
