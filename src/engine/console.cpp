@@ -782,17 +782,13 @@ void complete(char *s, const char *cmdprefix)
     {
         name++; // this will remove the @ at the start
         int name_len = strlen(name);
+        printf("%i players", game::players.length());
 
         // loop through all players
         for (auto i = 0; i < game::players.length(); i++)
         {
-            if (!game::players[i])
-            {
-                break;
-            }
-
             // exclude bots
-            if (game::players[i]->actortype == ENT_AI) 
+            if (!game::players[i] || (game::players[i]->actortype == ENT_AI)) 
             {
                 continue;
             }
@@ -809,8 +805,10 @@ void complete(char *s, const char *cmdprefix)
                 int s_len = strlen(s);
                 s[s_len - name_len - 1] = 0;
 
+                int player_name_len = strlen(player_name);
+
                 // add player_name to s and return
-                strncat(s, player_name, strlen(player_name));
+                strncat(s, player_name, BIGSTRLEN - s_len - name_len - 1 - player_name_len);
                 return;
             }
         }
