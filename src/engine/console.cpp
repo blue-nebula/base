@@ -798,7 +798,7 @@ void complete(char *s, const char *cmdprefix)
             {
                 // remove everything to the @ from s
                 int s_len = strlen(s);
-                s[s_len - strlen(name) - 1] = 0;
+                s[s_len - name_len - 1] = 0;
 
                 // add player_name to s and return
                 strncat(s, player_name, strlen(player_name));
