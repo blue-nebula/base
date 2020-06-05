@@ -1325,11 +1325,11 @@ namespace hud
                 {
                     c = vec::hexcolor(crosshaircolorteam);
                 } 
-                else if (index == POINTER_ZOOM) // the player is in zoom
+                else if (index == POINTER_ZOOM)
                 {
                     c = vec::hexcolor(crosshaircolorzoom);
                 }
-                else // default, (support for hit pointer is below)
+                else
                 {
                     c = vec::hexcolor(crosshaircolornormal);
                 }
