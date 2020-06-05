@@ -1318,7 +1318,7 @@ namespace hud
         if(game::focus->state == CS_ALIVE && index >= POINTER_HAIR)
         {
             bool use_custom_crosshair_colors = !crosshairweapons&2;
-            if (use_custom_crosshair_color)
+            if (use_custom_crosshair_colors)
             {
                 if (index == POINTER_TEAM)
                 {
