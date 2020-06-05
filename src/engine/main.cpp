@@ -1041,19 +1041,23 @@ int main(int argc, char **argv)
     SDL_ShowCursor(SDL_FALSE);
     SDL_StopTextInput(); // workaround for spurious text-input events getting sent on first text input toggle?
 
-    signal(SIGINT, fatalsignal);
-    signal(SIGILL, fatalsignal);
-    signal(SIGABRT, fatalsignal);
-    signal(SIGFPE, fatalsignal);
-    signal(SIGSEGV, fatalsignal);
-    signal(SIGTERM, shutdownsignal);
-#if !defined(WIN32) && !defined(__APPLE__)
-    signal(SIGHUP, reloadsignal);
-    signal(SIGQUIT, fatalsignal);
-    signal(SIGKILL, fatalsignal);
-    signal(SIGPIPE, fatalsignal);
-    signal(SIGALRM, fatalsignal);
-#endif
+    // signal handlers are not needed during debugging; they just confuse the debugger
+    #ifdef NDEBUG
+        signal(SIGINT, fatalsignal);
+        signal(SIGILL, fatalsignal);
+        signal(SIGABRT, fatalsignal);
+        signal(SIGFPE, fatalsignal);
+        signal(SIGSEGV, fatalsignal);
+        signal(SIGTERM, shutdownsignal);
+
+        #if !defined(WIN32) && !defined(__APPLE__)
+            signal(SIGHUP, reloadsignal);
+            signal(SIGQUIT, fatalsignal);
+            signal(SIGKILL, fatalsignal);
+            signal(SIGPIPE, fatalsignal);
+            signal(SIGALRM, fatalsignal);
+        #endif
+    #endif
 
     conoutf("loading gl..");
     gl_checkextensions();

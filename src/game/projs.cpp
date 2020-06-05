@@ -1862,7 +1862,7 @@ namespace projs
                     proj.o = orig; // continues below
                 }
             }
-            if(proj.projtype == PRJ_SHOT && (WF(WK(proj.flags), proj.weap, grab, WS(proj.flags))&(d ? 2 : 1)) && (proj.owner == game::player1 || proj.owner->ai) && proj.owner->state == CS_ALIVE && (d || fabs(proj.norm.z) <= impulseparkournorm) && physics::canimpulse(proj.owner, A_A_PARKOUR, true))
+            if(proj.projtype == PRJ_SHOT && (WF(WK(proj.flags), proj.weap, grab, WS(proj.flags))&(d ? 2 : 1)) && (proj.owner == &game::player1 || proj.owner->ai) && proj.owner->state == CS_ALIVE && (d || fabs(proj.norm.z) <= impulseparkournorm) && physics::canimpulse(proj.owner, A_A_PARKOUR, true))
             {
                 gameent *e = (gameent *)proj.owner;
                 vec keepvel = vec(e->vel).add(e->falling);
@@ -1871,7 +1871,7 @@ namespace projs
                 if(mag > 0)
                 {
                     float yaw = e->yaw, pitch = 89.9f;
-                    switch(e == game::player1 ? (d ? physics::grabplayerstyle : physics::grabstyle) : (d ? 3 : 2))
+                    switch(e == &game::player1 ? (d ? physics::grabplayerstyle : physics::grabstyle) : (d ? 3 : 2))
                     {
                         case 0: pitch = e->pitch; break;
                         case 1: pitch = -e->pitch; break;

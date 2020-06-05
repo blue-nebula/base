@@ -1378,7 +1378,7 @@ namespace hud
     {
         int index = POINTER_NONE;
         if(hasinput()) index = !hasinput(true) || commandmillis > 0 ? POINTER_NONE : POINTER_GUI;
-        else if(!showhud || !showcrosshair || game::focus->state == CS_DEAD || !gs_playing(game::gamestate) || client::waiting() || (game::thirdpersonview(true) && game::focus != game::player1))
+        else if(!showhud || !showcrosshair || game::focus->state == CS_DEAD || !gs_playing(game::gamestate) || client::waiting() || (game::thirdpersonview(true) && game::focus != &game::player1))
             index = POINTER_NONE;
         else if(game::focus->state == CS_EDITING) index = POINTER_EDIT;
         else if(game::focus->state >= CS_SPECTATOR) index = POINTER_SPEC;
@@ -1415,7 +1415,7 @@ namespace hud
 
     bool showname()
     {
-        if(game::focus != game::player1)
+        if(game::focus != &game::player1)
         {
             if(game::thirdpersonview(true) && game::aboveheadnames >= 2) return false;
             return true;
@@ -1462,19 +1462,19 @@ namespace hud
         popfont();
 
         pushfont("default");
-        if(game::player1->quarantine)
+        if(game::player1.quarantine)
         {
             ty += draw_textf("You are \fzoyQUARANTINED", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1);
             ty += draw_textf("Please await instructions from a moderator", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1)+FONTH/3;
         }
-        else if(game::player1->state == CS_SPECTATOR)
+        else if(game::player1.state == CS_SPECTATOR)
             ty += draw_textf("[ %s ]", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, specviewname())+FONTH/3;
-        else if(game::player1->state == CS_WAITING && showname())
+        else if(game::player1.state == CS_WAITING && showname())
             ty += draw_textf("[ %s ]", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, game::colourname(game::focus))+FONTH/3;
 
         if(gs_playing(game::gamestate))
         {
-            gameent *target = game::player1->state != CS_SPECTATOR ? game::player1 : game::focus;
+            gameent *target = game::player1.state != CS_SPECTATOR ? &game::player1 : game::focus;
             if(target->state == CS_DEAD || target->state == CS_WAITING)
             {
                 int delay = target->respawnwait(lastmillis, m_delay(target->actortype, game::gamemode, game::mutators, target->team));
@@ -1498,8 +1498,8 @@ namespace hud
                                 break;
                         }
                     }
-                    else if(delay) ty += draw_textf("%s: Down for \fs\fy%s\fS", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, target == game::player1 && target->state == CS_WAITING ? "Please Wait" : "Fragged", timestr(delay));
-                    else if(target == game::player1 && target->state == CS_WAITING && m_play(game::gamemode) && maxalive > 0 && maxalivequeue)
+                    else if(delay) ty += draw_textf("%s: Down for \fs\fy%s\fS", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, target == &game::player1 && target->state == CS_WAITING ? "Please Wait" : "Fragged", timestr(delay));
+                    else if(target == &game::player1 && target->state == CS_WAITING && m_play(game::gamemode) && maxalive > 0 && maxalivequeue)
                     {
                         switch(target->queuepos)
                         {
@@ -1514,7 +1514,7 @@ namespace hud
                                 break;
                         }
                     }
-                    if(target == game::player1 && target->state != CS_WAITING && shownotices >= 2 && lastmillis-target->lastdeath >= 500)
+                    if(target == &game::player1 && target->state != CS_WAITING && shownotices >= 2 && lastmillis-target->lastdeath >= 500)
                     {
                         pushfont("little");
                         ty += draw_textf("Press \fs\fw\f{=primary}\fS to enter respawn queue", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1);
@@ -1524,7 +1524,7 @@ namespace hud
                 else
                 {
                     ty += draw_textf("Ready to respawn", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1);
-                    if(target == game::player1 && target->state != CS_WAITING && shownotices >= 2)
+                    if(target == &game::player1 && target->state != CS_WAITING && shownotices >= 2)
                     {
                         pushfont("little");
                         ty += draw_textf("Press \fs\fw\f{=primary}\fS to respawn now", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1);
@@ -1539,7 +1539,7 @@ namespace hud
                 }
                 if(shownotices >= 2)
                 {
-                    if(target == game::player1 && !client::demoplayback)
+                    if(target == &game::player1 && !client::demoplayback)
                     {
                         if(target->state == CS_WAITING && shownotices >= 2)
                         {
@@ -1570,7 +1570,7 @@ namespace hud
                     ty += draw_textf("%s", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, target->obit);
                     popfont();
                 }
-                if(target == game::player1 && shownotices >= 2 && game::allowmove(target))
+                if(target == &game::player1 && shownotices >= 2 && game::allowmove(target))
                 {
                     pushfont("emphasis");
                     static vector<actitem> actitems;
@@ -1646,7 +1646,7 @@ namespace hud
                 }
             }
 
-            if(game::player1->state == CS_SPECTATOR)
+            if(game::player1.state == CS_SPECTATOR)
             {
                 pushfont("little");
                 if(!client::demoplayback)
@@ -2224,7 +2224,7 @@ namespace hud
                     }
                     if(force || self || chkcond(radarplayernames, !game::tvmode()))
                     {
-                        drawblip(tex, 1, w, h, size*(i ? radarplayersize : radarplayerhintsize), fade*(i ? radarplayerblend : radarplayerhintblend), style, d->o, colour[i], "tiny", "%s", d != game::player1 ? game::colourname(d) : "you");
+                        drawblip(tex, 1, w, h, size*(i ? radarplayersize : radarplayerhintsize), fade*(i ? radarplayerblend : radarplayerhintblend), style, d->o, colour[i], "tiny", "%s", d != &game::player1 ? game::colourname(d) : "you");
                         continue;
                     }
                 }
@@ -3017,7 +3017,7 @@ namespace hud
                     sy += drawitem(chattex, x, y-sy, s, 0, false, true, gr, gg, gb, fade);
                 }
             }
-            if(inventoryinput&(game::focus != game::player1 ? 2 : 1))
+            if(inventoryinput&(game::focus != &game::player1 ? 2 : 1))
             {
                 static const char *actionnames[AC_TOTAL] = {
                     "shoot1", "shoot2", "reload", "use", "jump", "walk", "crouch", "special", "drop", "affinity"
@@ -3046,7 +3046,7 @@ namespace hud
         }
         else
         {
-            int st = interm ? CS_WAITING : game::player1->state;
+            int st = interm ? CS_WAITING : game::player1.state;
             const char *state = "", *tex = "";
             switch(st)
             {
@@ -3161,7 +3161,7 @@ namespace hud
                 cy[1] -= draw_textf("ond:%d va:%d gl:%d(%d) oq:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, allocnodes*8, allocva, curstats[4], curstats[5], curstats[6]);
                 cy[1] -= draw_textf("wtr:%dk(%d%%) wvt:%dk(%d%%) evt:%dk eva:%dk", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, wtris/1024, curstats[0], wverts/1024, curstats[1], curstats[2], curstats[3]);
                 cy[1] -= draw_textf("ents:%d(%d) wp:%d lm:%d rp:%d pvs:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, entities::ents.length(), entgroup.length(), ai::waypoints.length(), lightmaps.length(), curstats[7], getnumviewcells());
-                if(game::player1->state == CS_EDITING)
+                if(game::player1.state == CS_EDITING)
                 {
                     cy[1] -= draw_textf("cube:%s%d corner:%d orient:%d grid:%d%s", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1,
                             selchildcount<0 ? "1/" : "", abs(selchildcount), sel.corner, sel.orient, sel.grid, showmat && selchildmat > 0 ? getmaterialdesc(selchildmat, " mat:") : "");
@@ -3176,7 +3176,7 @@ namespace hud
         }
         if(!minimal(showinventory, true)) return left;
         float fade = blend*inventoryblend;
-        bool interm = !gs_playing(game::gamestate) && game::tvmode() && game::focus == game::player1;
+        bool interm = !gs_playing(game::gamestate) && game::tvmode() && game::focus == &game::player1;
         loopi(2) switch(i)
         {
             case 0:
@@ -3190,7 +3190,7 @@ namespace hud
             case 1:
             {
                 int cm = top+edge;
-                if(!radardisabled && !m_hard(game::gamemode, game::mutators) && radartype() == 3 && !hasinput(true) && (game::focus->state == CS_EDITING ? showeditradar >= 1 : chkcond(showradar, !game::tvmode() || (game::focus != game::player1 && radartype() == 3))))
+                if(!radardisabled && !m_hard(game::gamemode, game::mutators) && radartype() == 3 && !hasinput(true) && (game::focus->state == CS_EDITING ? showeditradar >= 1 : chkcond(showradar, !game::tvmode() || (game::focus != &game::player1 && radartype() == 3))))
                     cm += int(max(w, h)/2*radarcorner*2)+cr;
                 if(inventorydate)
                     cm += drawitemtextx(cx[i], cm, 0, (inventorybg ? TEXT_SKIN : 0)|TEXT_RIGHT_JUSTIFY, inventorydateskew, "huge", fade, "%s", gettime(currenttime, inventorydateformat))+cr;
@@ -3209,7 +3209,7 @@ namespace hud
                 if(texpaneltimer) break;
                 if(m_play(game::gamemode))
                 {
-                    int count = game::player1->state == CS_SPECTATOR ? inventoryscorespec : inventoryscore;
+                    int count = game::player1.state == CS_SPECTATOR ? inventoryscorespec : inventoryscore;
                     if(count && ((cc = drawscore(cx[i], cm, csr, (h-edge*2)/2, fade, count)) > 0)) cm += cc+cr;
                 }
                 if((cc = drawselection(cx[i], cy[i], csr, cm, fade)) > 0) cy[i] -= cc+cr;
@@ -3423,19 +3423,19 @@ namespace hud
         }
         if(gs_playing(game::gamestate))
         {
-            bool third = game::thirdpersonview(true) && game::focus != game::player1;
+            bool third = game::thirdpersonview(true) && game::focus != &game::player1;
             if(game::focus->state == CS_ALIVE && game::inzoom()) drawzoom(w, h);
             if(showdamage && !third)
             {
                 if(burntime && game::focus->state == CS_ALIVE) drawfire(w, h, top, bottom, fade);
                 drawdamage(w, h, top, bottom, fade);
             }
-            if(teamhurthud&2 && teamhurttime && m_team(game::gamemode, game::mutators) && game::focus == game::player1 && game::player1->lastteamhit >= 0 && lastmillis-game::player1->lastteamhit <= teamhurttime)
+            if(teamhurthud&2 && teamhurttime && m_team(game::gamemode, game::mutators) && game::focus == &game::player1 && game::player1.lastteamhit >= 0 && lastmillis-game::player1.lastteamhit <= teamhurttime)
             {
                 vec targ;
                 bool hasbound = false;
                 int dist = teamhurtdist ? teamhurtdist : getworldsize();
-                loopv(game::players) if(game::players[i] && game::players[i]->team == game::player1->team)
+                loopv(game::players) if(game::players[i] && game::players[i]->team == game::player1.team)
                 {
                     if(game::players[i]->lastteamhit < 0 || lastmillis-game::players[i]->lastteamhit > teamhurttime) continue;
                     if(!getsight(camera1->o, camera1->yaw, camera1->pitch, game::players[i]->o, targ, dist, curfov, fovy)) continue;
@@ -3455,10 +3455,10 @@ namespace hud
                     }
                 }
             }
-            if(!radardisabled && !hasinput(true) && (game::focus->state == CS_EDITING ? showeditradar >= 1 : chkcond(showradar, !game::tvmode() || (game::focus != game::player1 && radartype() == 3))))
+            if(!radardisabled && !hasinput(true) && (game::focus->state == CS_EDITING ? showeditradar >= 1 : chkcond(showradar, !game::tvmode() || (game::focus != &game::player1 && radartype() == 3))))
                 drawradar(w, h, fade);
         }
-        drawspecborder(w, h, !gs_playing(game::gamestate) || game::player1->state == CS_SPECTATOR ? BORDER_SPEC : (game::player1->state == CS_WAITING ? BORDER_WAIT : (game::player1->state == CS_WAITING ? BORDER_EDIT : BORDER_PLAY)), top, bottom);
+        drawspecborder(w, h, !gs_playing(game::gamestate) || game::player1.state == CS_SPECTATOR ? BORDER_SPEC : (game::player1.state == CS_WAITING ? BORDER_WAIT : (game::player1.state == CS_WAITING ? BORDER_EDIT : BORDER_PLAY)), top, bottom);
         return drawinventory(w, h, edge, top, bottom, fade);
     }
 
@@ -3504,7 +3504,7 @@ namespace hud
                     float a = game::lasttvchg ? (lastmillis-game::lasttvchg <= tvmodefade ? float(lastmillis-game::lasttvchg)/float(tvmodefade) : 1.f) : 0.f;
                     loopi(3) if(a < colour[i]) colour[i] *= a;
                 }
-                if(game::focus == game::player1 || !game::thirdpersonview(true))
+                if(game::focus == &game::player1 || !game::thirdpersonview(true))
                 {
                     if(spawnfade && game::focus->state == CS_ALIVE && game::focus->lastspawn && lastmillis-game::focus->lastspawn <= spawnfade)
                     {
@@ -3550,7 +3550,7 @@ namespace hud
                 left += drawheadsup(hudwidth, hudheight, edge, top, bottom, fade);
                 if(showevents && !texpaneltimer && !game::tvmode() && !client::waiting() && !hasinput(false)) drawevents(fade);
             }
-            else if(gs_playing(game::gamestate) && game::focus == game::player1 && game::focus->state == CS_ALIVE && game::inzoom())
+            else if(gs_playing(game::gamestate) && game::focus == &game::player1 && game::focus->state == CS_ALIVE && game::inzoom())
                 drawzoom(hudwidth, hudheight);
         }
         drawconsole(showconsole < 2 || noview ? 0 : 1, hudwidth, hudheight, edge*2, edge+top, hudwidth-edge*2, consolefade);

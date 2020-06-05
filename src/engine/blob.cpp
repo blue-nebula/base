@@ -23,9 +23,14 @@ enum
 struct blobinfo
 {
     vec o;
-    float radius;
-    int millis;
-    ushort startindex, endindex, startvert, endvert, next, flags;
+    float radius        = 0.f;
+    int millis          = 0;
+    uint16_t startindex = 0;
+    uint16_t endindex   = 0;
+    uint16_t startvert  = 0;
+    uint16_t endvert    = 0;
+    uint16_t next       = 0;
+    uint16_t flags      = 0;
 };
 
 struct blobvert
@@ -118,7 +123,6 @@ struct blobrenderer
         memset(cache, 0xFF, cachesize * sizeof(ushort));
         maxblobs = tris/2;
         blobs = new blobinfo[maxblobs];
-        memset(blobs, 0, maxblobs * sizeof(blobinfo));
         maxindexes = tris*3 + 3;
         availindexes = maxindexes - 3;
         indexes = new ushort[maxindexes];

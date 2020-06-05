@@ -38,6 +38,14 @@ struct lightmapworker
     void cleanupthread();
 
     static int work(void *data);
+
+    void reset_ray()
+    {
+        for( size_t i = 0; i < (LM_MAXW + 4)*(LM_MAXH + 4); ++i )
+        {
+            raydata[i] = { 0.f, 0.f };
+        }
+    }
 };
 
 struct lightmapinfo
@@ -744,7 +752,7 @@ static bool generatelightmap(lightmapworker *w, float lpu, const lerpvert *lv, i
         offsets1[i] = vec(xstep1).mul(aacoords[i][0]).add(vec(ystep1).mul(aacoords[i][1]));
         offsets2[i] = vec(xstep2).mul(aacoords[i][0]).add(vec(ystep2).mul(aacoords[i][1]));
     }
-    if((w->type&LM_TYPE) == LM_BUMPMAP0) memset(w->raydata, 0, (LM_MAXW + 4)*(LM_MAXH + 4)*sizeof(vec));
+    if((w->type&LM_TYPE) == LM_BUMPMAP0) w->reset_ray();
 
     origin1.sub(vec(ystep1).add(xstep1).mul(blurlms));
     origin2.sub(vec(ystep2).add(xstep2).mul(blurlms));
