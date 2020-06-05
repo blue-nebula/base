@@ -1934,23 +1934,26 @@ int main(int argc, char **argv)
     if(enet_initialize()<0) fatal("Unable to initialise network module");
     atexit(enet_deinitialize);
 
-#ifdef NDEBUG
-    signal(SIGINT, fatalsignal);
-    signal(SIGILL, fatalsignal);
-    signal(SIGABRT, fatalsignal);
-    signal(SIGFPE, fatalsignal);
-    signal(SIGSEGV, fatalsignal);
-    signal(SIGTERM, shutdownsignal);
-    signal(SIGINT, fatalsignal);
-#if !defined(WIN32) && !defined(__APPLE__)
-    signal(SIGHUP, reloadsignal);
-    signal(SIGQUIT, fatalsignal);
-    signal(SIGKILL, fatalsignal);
-    signal(SIGPIPE, fatalsignal);
-    signal(SIGALRM, fatalsignal);
-    signal(SIGSTOP, fatalsignal);
-#endif
-#endif
+    // signal handlers are not needed during debugging; they just confuse the debugger
+    #ifdef NDEBUG
+        signal(SIGINT, fatalsignal);
+        signal(SIGILL, fatalsignal);
+        signal(SIGABRT, fatalsignal);
+        signal(SIGFPE, fatalsignal);
+        signal(SIGSEGV, fatalsignal);
+        signal(SIGTERM, shutdownsignal);
+        signal(SIGINT, fatalsignal);
+
+        #if !defined(WIN32) && !defined(__APPLE__)
+            signal(SIGHUP, reloadsignal);
+            signal(SIGQUIT, fatalsignal);
+            signal(SIGKILL, fatalsignal);
+            signal(SIGPIPE, fatalsignal);
+            signal(SIGALRM, fatalsignal);
+            signal(SIGSTOP, fatalsignal);
+        #endif
+    #endif
+
     enet_time_set(0);
     initgame();
     trytofindocta();
