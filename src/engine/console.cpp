@@ -780,11 +780,12 @@ void complete(char *s, size_t s_size, const char *cmdprefix)
 
     char* name = strrchr(s, '@');
 
-    if (name) // autocomplete name
+    if (name)
     {
-        name++; // this will remove the @ at the start
+        // remove the @ at the start
+        name++;
+
         int name_len = strlen(name);
-        printf("%i players", game::players.length());
 
         // loop through all players
         for (auto i = 0; i < game::players.length(); i++)
