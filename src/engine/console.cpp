@@ -3,6 +3,7 @@
 using std::swap;
 
 #include "engine.h"
+#include "game.h"
 
 reversequeue<cline, MAXCONLINES> conlines;
 
@@ -11,6 +12,8 @@ bigstring commandbuf;
 char *commandaction = NULL, *commandicon = NULL;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1, CF_MESSAGE = 1<<2 };
 int commandflags = 0, commandpos = -1, commandcolour = 0;
+
+void complete(char* s, size_t s_size, const char* cmdprefix);
 
 void conline(int type, const char *sf, int n)
 {
@@ -533,7 +536,7 @@ bool consolekey(int code, bool isdown)
             case SDLK_TAB:
                 if(commandflags&CF_COMPLETE)
                 {
-                    complete(commandbuf, commandflags&CF_EXECUTE ? "/" : NULL);
+                    complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
                     if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
                 }
                 break;
@@ -772,15 +775,58 @@ void addlistcomplete(char *command, char *list)
 COMMANDN(0, complete, addfilecomplete, "sss");
 COMMANDN(0, listcomplete, addlistcomplete, "ss");
 
-void complete(char *s, const char *cmdprefix)
+void complete(char *s, size_t s_size, const char *cmdprefix)
 {
+
+    char* name = strrchr(s, '@');
+
+    if (name)
+    {
+        // remove the @ at the start
+        name++;
+
+        int name_len = strlen(name);
+
+        // loop through all players
+        for (auto i = 0; i < game::players.length(); i++)
+        {
+            // exclude bots
+            if (!game::players[i] || (game::players[i]->actortype == ENT_AI)) 
+            {
+                continue;
+            }
+            // get the playername
+            char* player_name = game::players[i]->name;
+
+            // check if the playername fits the input
+            bool fits = strncmp(name, player_name, name_len) == 0;
+
+            // replace the input with the playername
+            if (fits) 
+            {
+                // remove everything to the @ from s
+                int s_len = strlen(s);
+                s[s_len - name_len - 1] = 0;
+
+                int player_name_len = strlen(player_name);
+
+                // add player_name to s and return
+                strncat(s, player_name, s_size - s_len - name_len - 1 - player_name_len);
+                return;
+            }
+        }
+        return;
+    }
     char *start = s;
+
     if(cmdprefix)
     {
         int cmdlen = strlen(cmdprefix);
-        if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, BIGSTRLEN);
+        if(strncmp(s, cmdprefix, cmdlen)) prependstring(s, cmdprefix, s_size);
         start = &s[cmdlen];
     }
+    
+
     const char chrlist[7] = { ';', '(', ')', '[', ']', '\"', '$', };
     bool variable = false;
     loopi(7)
@@ -824,14 +870,14 @@ void complete(char *s, const char *cmdprefix)
     {
         enumerate(idents, ident, id,
             if((variable ? id.type == ID_VAR || id.type == ID_SVAR || id.type == ID_FVAR || id.type == ID_ALIAS: id.flags&IDF_COMPLETE) && strncmp(id.name, start, completesize)==0 &&
-               strcmp(id.name, lastcomplete) > 0 && (!nextcomplete || strcmp(id.name, nextcomplete) < 0))
+            strcmp(id.name, lastcomplete) > 0 && (!nextcomplete || strcmp(id.name, nextcomplete) < 0))
                 nextcomplete = id.name;
         );
     }
     if(nextcomplete)
     {
-        copystring(&s[prefixlen], nextcomplete, BIGSTRLEN-prefixlen);
-        copystring(lastcomplete, nextcomplete, BIGSTRLEN);
+        copystring(&s[prefixlen], nextcomplete, s_size-prefixlen);
+        copystring(lastcomplete, nextcomplete, s_size);
     }
     else
     {
@@ -990,6 +1036,7 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
         }
         histpos = history.length();
         inputcommand(NULL);
+
         if(h)
         {
             interactive = true;
