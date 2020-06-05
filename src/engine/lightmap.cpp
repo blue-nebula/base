@@ -38,7 +38,8 @@ struct lightmapworker
     void cleanupthread();
 
     static int work(void *data);
-    void reset_ray( void )
+
+    void reset_ray()
     {
         for( size_t i = 0; i < (LM_MAXW + 4)*(LM_MAXH + 4); ++i )
         {
