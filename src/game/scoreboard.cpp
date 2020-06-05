@@ -792,7 +792,7 @@ namespace hud
                                 {
                                     uilist(g, {
                                         uilist(g, {
-                                           uicenter(g, uipad(g, verpad, g.space(1); g.strut(1)));
+                                           uicenter(g, uipad(g, verpad, g.text("Client Version"); g.strut(1)));
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
