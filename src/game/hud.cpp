@@ -1312,12 +1312,13 @@ namespace hud
 
     void drawpointer(int w, int h, int index)
     {
+        bool use_custom_crosshair_colors = (crosshairweapons & 2) == 0;
         int cs = int((index == POINTER_GUI ? cursorsize : crosshairsize)*hudsize);
         float fade = index == POINTER_GUI ? cursorblend : crosshairblend;
         vec c(1, 1, 1);
         if(game::focus->state == CS_ALIVE && index >= POINTER_HAIR)
         {
-            bool use_custom_crosshair_colors = (crosshairweapons & 2) == 0;
+            
             if (use_custom_crosshair_colors)
             {
                 if (index == POINTER_TEAM)
