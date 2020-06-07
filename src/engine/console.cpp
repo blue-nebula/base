@@ -18,18 +18,22 @@ void complete(char* s, size_t s_size, const char* cmdprefix);
 
 void conline(int type, const char *sf, int n)
 {
+    // prevent that chat and console from 'scrolling' if user not at the bottom
+    if ((hud::chatpos != 0) && (hud::chatpos < hud::max_chatpos()))
+    {
+        hud::chatpos++;
+    }
+    if ((hud::consolepos != 0) && (hud::consolepos < hud::max_consolepos()))
+    {
+        hud::consolepos++;
+    }
+
     bool add_to_chatlines = type >= CON_CHAT;
 
     auto* lines = &conlines;
     int maxlines = MAXCONLINES;
     if (add_to_chatlines)
     {
-        // prevent that chat is 'scrolling' if user not at the bottom
-        if ((hud::chatpos != 0) && (hud::chatpos < chatlines.length() - (hud::get_chatconsize() + hud::get_chatconoverflow())))
-        {
-            hud::chatpos++;
-        }
-
         lines = &chatlines;
         maxlines = MAXCHATLINES;
     }
@@ -514,6 +518,35 @@ bool consoleinput(const char *str, int len)
     return true;
 }
 
+VAR(IDF_PERSIST, scrollchat, 0, 1, 1);
+VAR(IDF_PERSIST, scrollconsole, 0, 0, 1);
+
+void scrolldown_chat_console(int lines)
+{
+    if (hud::chatpos > 0 && scrollchat)
+    {
+        hud::chatpos = max(0, hud::chatpos - lines);
+    }
+    if (hud::consolepos > 0 && scrollconsole)
+    {
+        hud::consolepos = max(0, hud::consolepos - lines);
+    }
+}
+
+void scrollup_chat_console(int lines)
+{
+    int max_chatpos = hud::max_chatpos();
+    int max_consolepos = hud::max_consolepos();
+    if (hud::chatpos < max_chatpos && scrollchat)
+    {
+        hud::chatpos = min(max_chatpos, hud::chatpos + lines);
+    }
+    if (hud::consolepos < max_consolepos && scrollconsole)
+    {
+        hud::consolepos = min(max_consolepos, hud::consolepos + lines);
+    }   
+}
+
 bool consolekey(int code, bool isdown)
 {
     if(commandmillis < 0) return false;
@@ -600,29 +633,16 @@ bool consolekey(int code, bool isdown)
                 }
                 break;
             case -5:
-                if (hud::chatpos > 0)
-                {
-                    hud::chatpos--;
-                }
+                scrolldown_chat_console(1);
                 break;
             case SDLK_PAGEDOWN:
-                if (hud::chatpos > 0)
-                {
-                    hud::chatpos = max(0, hud::chatpos - 5);
-                }
+                scrolldown_chat_console(5);
                 break;
             case -4:
-                if (hud::chatpos < chatlines.length() - (hud::get_chatconsize() + hud::get_chatconoverflow())) 
-                {
-                    hud::chatpos++;
-                }
+                scrollup_chat_console(1);
                 break;
             case SDLK_PAGEUP:
-                int max_chatpos = chatlines.length() - (hud::get_chatconsize() + hud::get_chatconoverflow());
-                if (hud::chatpos < max_chatpos)
-                {
-                    hud::chatpos = min(max_chatpos, hud::chatpos + 5);
-                }
+                scrollup_chat_console(5);
                 break;
         }
     }
@@ -655,6 +675,7 @@ bool consolekey(int code, bool isdown)
             }
 
             hud::chatpos = 0;
+            hud::consolepos = 0;
         }
         // close console if either escape or any mouse button is pressed (excluding mousewheel)
         else if (code == SDLK_ESCAPE || (code < 0 && code > -4)) 
@@ -663,6 +684,7 @@ bool consolekey(int code, bool isdown)
             inputcommand(NULL);
 
             hud::chatpos = 0;
+            hud::consolepos = 0;
         }
     }
 

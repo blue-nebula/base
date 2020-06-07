@@ -6,6 +6,7 @@ using std::swap;
 namespace hud
 {
     int chatpos = 0;
+    int consolepos = 0;
 
     const int NUMSTATS = 11;
     int damageresidue = 0, hudwidth = 0, hudheight = 0, lastteam = 0, laststats = 0, prevstats[NUMSTATS] = {0}, curstats[NUMSTATS] = {0};
@@ -700,13 +701,14 @@ namespace hud
         result(list.getbuf());
     });
 
-    int get_chatconoverflow()
+    int max_chatpos()
     {
-        return chatconoverflow;
+        return chatlines.length() - (chatconsize + chatconoverflow);
     }
-    int get_chatconsize()
+
+    int max_consolepos()
     {
-        return chatconsize;
+        return conlines.length() - (consize + conoverflow);
     }
 
     bool needminimap() { return true; }
@@ -1781,7 +1783,6 @@ namespace hud
 
             for (auto j = chatpos; j < chatpos + min(numo, chatlines.length() - chatpos); j++)
             {
-
                 int len = !full && chatlines[j].type > CON_CHAT ? chatcontime / 2 : chatcontime;
                 if (full || totalmillis - chatlines[j].reftime <= len + chatconfade)
                 {
@@ -1831,8 +1832,17 @@ namespace hud
             if((showconsole && showhud) || commandmillis > 0)
             {
                 int numl = consize, numo = consize+conoverflow;
-                loopvj(conlines) if(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
+                //loopvj(conlines) if(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
+                for (int j = consolepos; j < consolepos + min(numo, conlines.length() - consolepos); j++)
                 {
+                    if (type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
+                    {
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
                     int len = conlines[j].type >= CON_CHAT ? (!full && conlines[j].type > CON_CHAT ? chatcontime/2 : chatcontime) : (!full && conlines[j].type < CON_IMPORTANT ? contime/2 : contime),
                         fadelen = conlines[j].type >= CON_CHAT ? chatconfade : confade;
                     if(conskip ? j>=conskip-1 || j>=conlines.length()-numl : full || totalmillis-conlines[j].reftime <= len+fadelen)

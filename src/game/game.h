@@ -1684,8 +1684,9 @@ namespace hud
     extern int drawscore(int x, int y, int s, int m, float blend, int count);
     extern void cleanup();
     extern int chatpos;
-    extern int get_chatconoverflow();
-    extern int get_chatconsize();
+    extern int consolepos;
+    extern int max_consolepos();
+    extern int max_chatpos();
 }
 
 enum { CTONE_TEAM = 0, CTONE_TONE, CTONE_TEAMED, CTONE_ALONE, CTONE_MIXED, CTONE_TMIX, CTONE_AMIX, CTONE_MAX };
