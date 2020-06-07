@@ -600,17 +600,28 @@ bool consolekey(int code, bool isdown)
                 }
                 break;
             case -5:
-            case SDLK_PAGEDOWN:
                 if (hud::chatpos > 0)
                 {
                     hud::chatpos--;
                 }
                 break;
+            case SDLK_PAGEDOWN:
+                if (hud::chatpos > 0)
+                {
+                    hud::chatpos = max(0, hud::chatpos - 5);
+                }
+                break;
             case -4:
-            case SDLK_PAGEUP:
                 if (hud::chatpos < chatlines.length() - (hud::get_chatconsize() + hud::get_chatconoverflow())) 
                 {
                     hud::chatpos++;
+                }
+                break;
+            case SDLK_PAGEUP:
+                int max_chatpos = chatlines.length() - (hud::get_chatconsize() + hud::get_chatconoverflow());
+                if (hud::chatpos < max_chatpos)
+                {
+                    hud::chatpos = min(max_chatpos, hud::chatpos + 5);
                 }
                 break;
         }
