@@ -600,12 +600,14 @@ bool consolekey(int code, bool isdown)
                 }
                 break;
             case -5:
+            case SDLK_PAGEDOWN:
                 if (hud::chatpos > 0)
                 {
                     hud::chatpos--;
                 }
                 break;
             case -4:
+            case SDLK_PAGEUP:
                 if (hud::chatpos < chatlines.length() - (hud::get_chatconsize() + hud::get_chatconoverflow())) 
                 {
                     hud::chatpos++;
