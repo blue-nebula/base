@@ -525,11 +525,11 @@ void scrolldown_chat_console(int lines)
 {
     if (hud::chatpos > 0 && scrollchat)
     {
-        hud::chatpos = max(0, hud::chatpos - lines);
+        hud::chatpos = std::max(0, hud::chatpos - lines);
     }
     if (hud::consolepos > 0 && scrollconsole)
     {
-        hud::consolepos = max(0, hud::consolepos - lines);
+        hud::consolepos = std::max(0, hud::consolepos - lines);
     }
 }
 
@@ -539,11 +539,11 @@ void scrollup_chat_console(int lines)
     int max_consolepos = hud::max_consolepos();
     if (hud::chatpos < max_chatpos && scrollchat)
     {
-        hud::chatpos = min(max_chatpos, hud::chatpos + lines);
+        hud::chatpos = std::min(max_chatpos, hud::chatpos + lines);
     }
     if (hud::consolepos < max_consolepos && scrollconsole)
     {
-        hud::consolepos = min(max_consolepos, hud::consolepos + lines);
+        hud::consolepos = std::min(max_consolepos, hud::consolepos + lines);
     }   
 }
 
