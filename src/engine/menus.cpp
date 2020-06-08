@@ -11,6 +11,19 @@ struct menu;
 static guient *cgui = NULL;
 static menu *cmenu = NULL;
 
+SVAR(IDF_PERSIST, customcompassentryname1, "");
+SVAR(IDF_PERSIST, customcompassentryname2, "");
+SVAR(IDF_PERSIST, customcompassentryname3, "");
+SVAR(IDF_PERSIST, customcompassentryname4, "");
+SVAR(IDF_PERSIST, customcompassentryname5, "");
+SVAR(IDF_PERSIST, customcompassentryname6, "");
+SVAR(IDF_PERSIST, customcompassentryaction1, "");
+SVAR(IDF_PERSIST, customcompassentryaction2, "");
+SVAR(IDF_PERSIST, customcompassentryaction3, "");
+SVAR(IDF_PERSIST, customcompassentryaction4, "");
+SVAR(IDF_PERSIST, customcompassentryaction5, "");
+SVAR(IDF_PERSIST, customcompassentryaction6, "");
+
 struct menu : guicb
 {
     char *name, *header;
@@ -663,6 +676,11 @@ void ui_list(uint *contents)
     cgui->poplist();
 }
 
+void ui_execute(char* contents)
+{
+    execute(contents);
+}
+
 void newgui(char *name, char *contents, char *initscript)
 {
     menu *m = menus.access(name);
@@ -737,6 +755,7 @@ COMMAND(0, ui_tooltip, "si");
 COMMAND(0, ui_textfield, "sisbisisi");
 COMMAND(0, ui_keyfield, "sisbissi");
 COMMAND(0, ui_editor, "siiibisss");
+COMMAND(0, ui_execute , "s");
 
 ICOMMAND(0, guicount, "", (), intret(menustack.length()));
 ICOMMAND(0, ui_font_width, "s", (char * font), intret(ui_font_width(font)));
