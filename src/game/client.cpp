@@ -1,3 +1,5 @@
+#include <vector>
+#include <string>
 #include <algorithm>
 using std::swap;
 #include "game.h"
@@ -398,11 +400,10 @@ namespace client
 
     void updateserversort()
     {
-        vector<char *> styles;
+        std::vector<std::string> styles;
         explodelist(serversort, styles, SINFO_MAX);
-        serversortstyles.setsize(0);
-        loopv(styles) serversortstyles.add(parseint(styles[i]));
-        styles.deletearrays();
+        serversortstyles.clear();
+        for( size_t i = 0; i < styles.size(); ++i ) serversortstyles.emplace_back(parseint(styles[i].data()));
     }
 
     void getvitem(gameent *d, int n, int v)
@@ -471,15 +472,16 @@ namespace client
         vector<int> items;
         if(list && *list)
         {
-            vector<char *> chunk;
-            explodelist(list, chunk);
-            loopv(chunk)
+            std::vector<std::string> chunks;
+            explodelist(list, chunks);
+            for( std::string const& chunk : chunks )
             {
-                if(!chunk[i] || !*chunk[i] || !isnumeric(*chunk[i])) continue;
-                int v = parseint(chunk[i]);
-                items.add(v >= W_OFFSET && v < W_ITEM ? v : 0);
+                if( isnumeric( chunk.front() ) )
+                {
+                    int v = parseint( chunk.data() );
+                    items.emplace_back( v >= W_OFFSET && v < W_ITEM ? v : 0 );
+                }
             }
-            chunk.deletearrays();
         }
         game::player1.loadweap.shrink(0);
         loopv(items) if(game::player1.loadweap.find(items[i]) < 0)
@@ -496,15 +498,16 @@ namespace client
         vector<int> items;
         if(list && *list)
         {
-            vector<char *> chunk;
-            explodelist(list, chunk);
-            loopv(chunk)
+            std::vector<std::string> chunks;
+            explodelist(list, chunks);
+            for( std::string const& chunk : chunks )
             {
-                if(!chunk[i] || !*chunk[i] || !isnumeric(*chunk[i])) continue;
-                int v = parseint(chunk[i]);
-                items.add(v ? 1 : 0);
+                if( isnumeric( chunk.front() ) )
+                {
+                    int v = parseint( chunk.data() );
+                    items.emplace_back( v >= W_OFFSET && v < W_ITEM ? v : 0 );
+                }
             }
-            chunk.deletearrays();
         }
         game::player1.randweap.shrink(0);
         loopv(items)

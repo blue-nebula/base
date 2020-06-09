@@ -1,3 +1,5 @@
+#include <vector>
+#include <string>
 #include <algorithm>
 using std::swap;
 #include "game.h"
@@ -21,14 +23,14 @@ namespace weapons
     vector<int> weaplist;
     void buildweaplist(const char *str)
     {
-        vector<char *> list;
+        std::vector<std::string> list;
         explodelist(str, list);
         weaplist.shrink(0);
         loopv(list)
         {
             int weap = -1;
-            if(isnumeric(list[i][0])) weap = atoi(list[i]);
-            else loopj(W_ALL) if(!strcasecmp(weaptype[j].name, list[i]))
+            if(isnumeric(list[i][0])) weap = atoi(list[i].data());
+            else loopj(W_ALL) if(!strcasecmp(weaptype[j].name, list[i].data()))
             {
                 weap = j;
                 break;
@@ -36,7 +38,6 @@ namespace weapons
             if(isweap(weap) && weaplist.find(weap) < 0)
                 weaplist.add(weap);
         }
-        list.deletearrays();
         loopi(W_ALL) if(weaplist.find(i) < 0) weaplist.add(i); // make sure all weapons have a slot
         changedkeys = lastmillis;
     }
