@@ -1,12 +1,15 @@
 #include <algorithm>
 using std::swap;
 #include <vector>
+#include <ctime>
 #include "game.h"
 
 namespace hud
 {
     const int NUMSTATS = 11;
     int damageresidue = 0, hudwidth = 0, hudheight = 0, lastteam = 0, laststats = 0, prevstats[NUMSTATS] = {0}, curstats[NUMSTATS] = {0};
+    std::time_t time_now = time(0);
+    struct tm* system_time = localtime(&time_now);
 
     #include "compass.h"
     vector<int> teamkills;
@@ -39,6 +42,7 @@ namespace hud
     VAR(IDF_PERSIST, showloadingversion, 0, 1, 1);
     VAR(IDF_PERSIST, showloadingurl, 0, 1, 1);
 
+    VAR(IDF_PERSIST, showsystemtime, 0, 0, 1);
     VAR(IDF_PERSIST, showfps, 0, 0, 3);
     VAR(IDF_PERSIST, showstats, 0, 1, 2);
     VAR(IDF_PERSIST, statrate, 0, 200, 1000);
@@ -3155,6 +3159,14 @@ namespace hud
                         cy[1] -= draw_textf("+%d-%d range", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, maxfps, curstats[9], curstats[10]);
                     default: break;
                 }
+            }
+            if (showsystemtime)
+            {
+                time_now = time(0);
+                system_time = localtime(&time_now);
+                pushfont("console");
+                cy[1] -= draw_textf("%d:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, system_time->tm_hour, system_time->tm_min);
+                popfont();
             }
             if(showstats >= (m_edit(game::gamemode) ? 1 : 2))
             {
