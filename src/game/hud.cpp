@@ -7,7 +7,7 @@ namespace hud
 {
     const int NUMSTATS = 11;
     int damageresidue = 0, hudwidth = 0, hudheight = 0, lastteam = 0, laststats = 0, prevstats[NUMSTATS] = {0}, curstats[NUMSTATS] = {0};
-    struct tm* system_time = NULL;
+    char const* system_time = "00:00";
 
     #include "compass.h"
     vector<int> teamkills;
@@ -3163,10 +3163,10 @@ namespace hud
                     default: break;
                 }
             }
-            if (showsystemtime && system_time != NULL)
+            if (showsystemtime)
             {
                 pushfont("console");
-                cy[1] -= draw_textf("%d:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, system_time->tm_hour, system_time->tm_min);
+                cy[1] -= draw_textf("%s", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, system_time);
                 popfont();
             }
             if(showstats >= (m_edit(game::gamemode) ? 1 : 2))
@@ -3421,9 +3421,9 @@ namespace hud
         if(showloadingversion) y -= draw_textf("%s v%s-%s%d-%s (%s)", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionname, versionstring, versionplatname, versionarch, versionbranch, versionrelease);
         if(showloadingurl && *versionurl) y -= draw_textf("%s", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionurl);
         
-        if (showsystemtime && system_time != NULL) 
+        if (showsystemtime) 
         {
-            y -= draw_textf("%d:%d", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, system_time->tm_hour, system_time->tm_min);
+            y -= draw_textf("%s", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, system_time);
         }
         
         popfont();

@@ -2,8 +2,8 @@
 #define __GAME_H__
 
 #include "engine.h"
-#include <ctime>
-#include <chrono>
+#include <time.h>
+#include <locale.h>
 
 #define VERSION_GAMEID "fps"
 #define VERSION_GAME 230
@@ -1685,7 +1685,7 @@ namespace hud
     extern int raceinventory(int x, int y, int s, float blend);
     extern int drawscore(int x, int y, int s, int m, float blend, int count);
     extern void cleanup();
-    extern struct tm* system_time;
+    extern char const* system_time;
     extern bool show_system_time();
 }
 
