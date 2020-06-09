@@ -521,6 +521,7 @@ bool consolekey(int code, bool isdown)
                         commandbuf[0] = 0;
                     }
                 }
+                
 
                 int len = (int)commandbuf_len, i = commandpos>=0 ? commandpos : len;
                 if(i<1) break;
