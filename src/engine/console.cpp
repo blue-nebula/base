@@ -12,7 +12,6 @@ bigstring commandbuf;
 char *commandaction = NULL, *commandicon = NULL;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1, CF_MESSAGE = 1<<2 };
 int commandflags = 0, commandpos = -1, commandcolour = 0;
-bool holding_alt = false;
 
 void complete(char* s, size_t s_size, const char* cmdprefix);
 
@@ -510,7 +509,7 @@ bool consolekey(int code, bool isdown)
                 size_t commandbuf_len = strlen(commandbuf);
 
                 // when holding alt, remove the entire last word
-                if (holding_alt)
+                if (SDL_GetModState() & KMOD_ALT)
                 {
                     char* last_word = strrchr(commandbuf, ' ');
                     if (last_word != NULL)
@@ -655,9 +654,6 @@ void processkey(int code, bool isdown)
             break;
         case SDLK_NUMLOCKCLEAR:
             if(!isdown) numlockon = numlocked();
-            break;
-        case SDLK_LALT:
-            holding_alt = isdown;
             break;
         default: break;
     }
