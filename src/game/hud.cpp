@@ -1,15 +1,13 @@
 #include <algorithm>
 using std::swap;
 #include <vector>
-#include <ctime>
 #include "game.h"
 
 namespace hud
 {
     const int NUMSTATS = 11;
     int damageresidue = 0, hudwidth = 0, hudheight = 0, lastteam = 0, laststats = 0, prevstats[NUMSTATS] = {0}, curstats[NUMSTATS] = {0};
-    std::time_t time_now = time(0);
-    struct tm* system_time = localtime(&time_now);
+    struct tm* system_time = NULL;
 
     #include "compass.h"
     vector<int> teamkills;
@@ -701,6 +699,11 @@ namespace hud
         list.add('\0');
         result(list.getbuf());
     });
+
+    bool show_system_time()
+    {
+        return showsystemtime;
+    }
 
     bool needminimap() { return true; }
 
@@ -3160,10 +3163,8 @@ namespace hud
                     default: break;
                 }
             }
-            if (showsystemtime)
+            if (showsystemtime && system_time != NULL)
             {
-                time_now = time(0);
-                system_time = localtime(&time_now);
                 pushfont("console");
                 cy[1] -= draw_textf("%d:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, system_time->tm_hour, system_time->tm_min);
                 popfont();
@@ -3420,7 +3421,7 @@ namespace hud
         if(showloadingversion) y -= draw_textf("%s v%s-%s%d-%s (%s)", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionname, versionstring, versionplatname, versionarch, versionbranch, versionrelease);
         if(showloadingurl && *versionurl) y -= draw_textf("%s", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionurl);
         
-        if (showsystemtime) 
+        if (showsystemtime && system_time != NULL) 
         {
             y -= draw_textf("%d:%d", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, system_time->tm_hour, system_time->tm_min);
         }

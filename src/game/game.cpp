@@ -2809,6 +2809,12 @@ namespace game
 
     void updateworld()      // main game update loop
     {
+        if (hud::show_system_time())
+        {
+            std::time_t time_now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            hud::system_time = localtime(&time_now);
+        }
+
         if(connected())
         {
             if(!curtime || !client::isready)
