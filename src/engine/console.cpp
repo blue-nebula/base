@@ -508,6 +508,7 @@ bool consolekey(int code, bool isdown)
             case SDLK_BACKSPACE:
             {
                 size_t commandbuf_len = strlen(commandbuf);
+                // when holding alt, remove the entire last word
                 if (holding_alt)
                 {
                     char* last_word = strrchr(commandbuf, ' ');
