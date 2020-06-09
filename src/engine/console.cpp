@@ -512,16 +512,20 @@ bool consolekey(int code, bool isdown)
                 if (holding_alt)
                 {
                     char* last_word = strrchr(commandbuf, ' ');
-                    if (last_word)
+                    if (last_word != NULL)
                     {
-                        commandbuf[(commandbuf_len - strlen(last_word))] = 0;
+                        // add 1 to the len to only remove the word without the space, as this will be removed later
+                        size_t new_len = (last_word - commandbuf) + 1;
+                        commandbuf[new_len] = '\0';
+                        commandbuf_len = new_len;
                     }
                     else
                     {
-                        commandbuf[0] = 0;
+                        commandbuf[0] = '\0';
+                        commandbuf_len = 0;
                     }
                 }
-                
+
 
                 int len = (int)commandbuf_len, i = commandpos>=0 ? commandpos : len;
                 if(i<1) break;
