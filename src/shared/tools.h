@@ -3,6 +3,7 @@
 #ifndef _TOOLS_H
 #define _TOOLS_H
 #include <utility>
+#include <vector>
 
 #ifdef NULL
 #undef NULL
@@ -215,12 +216,12 @@ inline char *newstring(size_t l)                { return new char[l+1]; }
 inline char *newstring(const char *s, size_t l) { return copystring(newstring(l), s, l+1); }
 inline char *newstring(const char *s)           { if(!s) s = ""; size_t l = strlen(s); char *d = newstring(l); memcpy(d, s, l+1); return d; }
 
-#define loopv(v)    for(int i = 0; i<(v).length(); i++)
-#define loopvj(v)   for(int j = 0; j<(v).length(); j++)
-#define loopvk(v)   for(int k = 0; k<(v).length(); k++)
-#define loopvrev(v) for(int i = (v).length()-1; i>=0; i--)
-#define loopvjrev(v) for(int j = (v).length()-1; j>=0; j--)
-#define loopvkrev(v) for(int k = (v).length()-1; k>=0; k--)
+#define loopv(v)     for(decltype((v).size()) i = 0; i<(v).size(); i++)
+#define loopvj(v)    for(decltype((v).size()) j = 0; j<(v).size(); j++)
+#define loopvk(v)    for(decltype((v).size()) k = 0; k<(v).size(); k++)
+#define loopvrev(v)  for(decltype((v).size()-1) i = (v).size()-1; i>=0; i--)
+#define loopvjrev(v) for(decltype((v).size()-1) j = (v).size()-1; j>=0; j--)
+#define loopvkrev(v) for(decltype((v).size()-1) k = (v).size()-1; k>=0; k--)
 
 template <class T>
 struct databuf
@@ -234,6 +235,31 @@ struct databuf
     T *buf;
     int len, maxlen;
     uchar flags;
+
+    int size() const
+    {
+        return length();
+    }
+
+    T const* data( void ) const
+    {
+        return buf;
+    }
+
+    T * data( void )
+    {
+        return buf;
+    }
+
+    T const& back( void ) const
+    {
+        return buf + len;
+    }
+
+    T * back( void )
+    {
+        return buf + len;
+    }
 
     databuf() : buf(NULL), len(0), maxlen(0), flags(0) {}
 
@@ -567,11 +593,105 @@ static inline bool htcmp(GLuint x, GLuint y)
 
 template <class T> struct vector
 {
+private:
     static const int MINSIZE = 8;
 
     T *buf;
     int alen, ulen;
+public:
+    //some std::vector like interfaces
+    void insert(T* position, T const* start, T const* end )
+    {
+        insert( position - buf, start, end - start );
+    }
 
+    void resize( int sz )
+    {
+        reserve( sz - ulen );
+        setsize( sz );
+    }
+
+    T* data( void )
+    {
+        return buf;
+    }
+
+    T const* data( void ) const
+    {
+        return buf;
+    }
+
+    void clear( void )
+    {
+        setsize( 0 );
+    }
+
+    T * begin( void )
+    {
+        return buf;
+    }
+
+    T * end( void )
+    {
+        return buf + length();
+    }
+
+    T const* begin( void ) const
+    {
+        return buf;
+    }
+
+    T const* end( void ) const
+    {
+        return buf + length();
+    }
+
+    int size( void ) const
+    {
+        return length();
+    }
+
+    void erase( T const* it )
+    {
+        remove( it - buf );
+    }
+
+    void erase( T const* start, T const* end )
+    {
+        remove( start - buf, end - buf );
+    }
+
+    void pop_back( void )
+    {
+        pop();
+    }
+
+    void emplace_back( T && el )
+    {
+        add( el );
+    }
+
+    void emplace_back( void )
+    {
+        add();
+    }
+
+    void emplace_back( T const& el )
+    {
+        add( el );
+    }
+
+    T const& back( void ) const
+    {
+        return buf[length() - 1];
+    }
+
+    T& back( void )
+    {
+        return buf[length() - 1];
+    }
+
+    // older API
     vector() : buf(NULL), alen(0), ulen(0)
     {
     }
@@ -852,9 +972,42 @@ template <class T> struct vector
 
 template <class T> struct smallvector
 {
+private:
     T *buf;
     int len;
+public:
+    //some std::vector like interfaces
+    T * begin( void )
+    {
+        return buf;
+    }
 
+    T * end( void )
+    {
+        return buf + length();
+    }
+
+    T const* begin( void ) const
+    {
+        return buf;
+    }
+
+    T const* end( void ) const
+    {
+        return buf + length();
+    }
+
+    int size() const
+    {
+        return length();
+    }
+
+    void emplace_back( T const& el )
+    {
+        put( el );
+    }
+
+    // old API
     smallvector() : buf(NULL), len(0)
     {
     }
@@ -921,6 +1074,24 @@ template <class T> struct smallvector
         if(i >= len) return;
         if(isclass<T>::yes) for(int j = i; j < len; j++) buf[j].~T();
         growbuf(i);
+    }
+
+    void erase( T const* it )
+    {
+        remove( it - buf );
+    }
+
+    void clear( void )
+    {
+        return setsize( 0 );
+    }
+    T* data( void )
+    {
+        return buf;
+    }
+    void resize(int i)
+    {
+        setsize( i );
     }
 
     void setsize(int i)
@@ -1254,6 +1425,7 @@ template <class T, int SIZE> struct queue
 
     void clear() { head = tail = len = 0; }
 
+    int size() const { return len; }
     int length() const { return len; }
     bool empty() const { return !len; }
     bool full() const { return len == SIZE; }
