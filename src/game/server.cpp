@@ -24,6 +24,8 @@
 // each modification must be approved and will be done on a case-by-case basis.
 
 #include <algorithm>
+#include <vector>
+#include <string>
 using std::swap;
 
 #define GAMESERVER 1
@@ -1058,29 +1060,33 @@ namespace server
             if(!map || !*map) map = choosemap(suggest, mode, muts, G(rotatemaps), true);
             else if(strchr(map, ' '))
             {
-                static string defaultmap;
-                defaultmap[0] = '\0';
-                vector<char *> maps;
+                static std::string defaultmap;
+                std::vector<std::string> maps;
                 explodelist(map, maps);
                 if(*sv_previousmaps)
                 {
-                    vector<char *> prev;
+                    std::vector<std::string> prev;
                     explodelist(sv_previousmaps, prev);
-                    loopvj(prev) loopvrev(maps) if(strcmp(prev[j], maps[i]))
+                    for( size_t j = 0; j < prev.size(); ++j )
                     {
-                        delete[] maps[i];
-                        maps.remove(i);
-                        if(maps.length() <= 1) break;
+                        for( ssize_t i = maps.size() - 1; i >= 0; --i )
+                        {
+                            if( strcmp( prev[j].data(), maps[i].data() ) )
+                            {
+                                maps.erase( maps.begin() + i );
+                                if(maps.size() <= 1) break;
+                            }
+                        }
                     }
-                    prev.deletearrays();
+                    prev.clear();
                 }
                 if(!maps.empty())
                 {
-                    int r = rnd(maps.length());
-                    copystring(defaultmap, maps[r]);
+                    int r = rnd(maps.size());
+                    defaultmap = maps[r];
                 }
-                maps.deletearrays();
-                map = *defaultmap ? defaultmap : choosemap(suggest, mode, muts, G(rotatemaps), true);
+                maps.clear();
+                map = !defaultmap.empty() ? defaultmap.data() : choosemap(suggest, mode, muts, G(rotatemaps), true);
             }
         }
         return map && *map ? map : "maps/untitled";
@@ -3373,32 +3379,33 @@ namespace server
 
         if(!demoplayback && m_play(gamemode) && numclients())
         {
-            vector<char> buf;
-            buf.put(smapname, strlen(smapname));
+            std::vector<char> buf;
+            buf.insert( buf.end(), smapname, smapname + strlen(smapname));
             if(*sv_previousmaps && G(maphistory))
             {
-                vector<char *> prev;
+                std::vector<std::string> prev;
                 explodelist(sv_previousmaps, prev);
-                loopvrev(prev) if(!strcmp(prev[i], smapname))
+                for( ssize_t i = prev.size() - 1; i >= 0; --i )
                 {
-                    delete[] prev[i];
-                    prev.remove(i);
+                    if(!strcmp(prev[i].data(), smapname))
+                    {
+                        prev.erase( prev.begin() + i );
+                    }
                 }
-                while(prev.length() >= G(maphistory))
+                while(prev.size() >= G(maphistory))
                 {
-                    int last = prev.length()-1;
-                    delete[] prev[last];
-                    prev.remove(last);
+                    int last = prev.size()-1;
+                    prev.erase( prev.begin() + last );
                 }
-                loopv(prev)
+                for( auto const& prev_str : prev )
                 {
-                    buf.add(' ');
-                    buf.put(prev[i], strlen(prev[i]));
+                    buf.emplace_back( ' ' );
+                    buf.insert( buf.end(), std::begin( prev_str ), std::end( prev_str ) );
                 }
-                prev.deletearrays();
+                prev.clear();
             }
-            buf.add(0);
-            const char *str = buf.getbuf();
+            buf.emplace_back( 0 );
+            const char *str = buf.data();
             if(*str) setmods(sv_previousmaps, str);
         }
         else setmods(sv_previousmaps, "");
