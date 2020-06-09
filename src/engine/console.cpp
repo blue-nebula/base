@@ -512,6 +512,7 @@ bool consolekey(int code, bool isdown)
                 if (SDL_GetModState() & KMOD_ALT)
                 {
                     char* last_word = strrchr(commandbuf, ' ');
+
                     if (last_word != NULL)
                     {
                         // the code following this block will remove another character anyway
@@ -526,7 +527,6 @@ bool consolekey(int code, bool isdown)
                         commandbuf_len = 0;
                     }
                 }
-
 
                 int len = (int)commandbuf_len, i = commandpos>=0 ? commandpos : len;
                 if(i<1) break;
