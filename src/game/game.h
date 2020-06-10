@@ -2,8 +2,6 @@
 #define __GAME_H__
 
 #include "engine.h"
-#include <time.h>
-#include <locale.h>
 
 #define VERSION_GAMEID "fps"
 #define VERSION_GAME 230
