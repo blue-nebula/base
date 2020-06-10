@@ -4,6 +4,7 @@ using std::swap;
 
 #include "engine.h"
 #include <signal.h>
+#include <locale.h>
 
 string caption = "";
 

@@ -3,8 +3,6 @@
 
 #include "version.h"
 #include "cube.h"
-#include <locale.h>
-#include <time.h>
 
 extern int version, versioning, versionmajor, versionminor, versionpatch, versionplatform, versionarch, versionisserver, versioncrc;
 extern char *versionstring, *versionname, *versionuname, *versionvname, *versionrelease, *versionurl, *versionmaster, *versionplatname, *versionplatlongname, *versionbranch;
