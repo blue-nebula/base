@@ -594,10 +594,11 @@ static inline bool htcmp(GLuint x, GLuint y)
 template <class T> struct vector
 {
 private:
-    static const int MINSIZE = 8;
+    static const int MINSIZE = 8; // 1st allocation minimal size?
 
     T *buf;
-    int alen, ulen;
+    int alen; // allocated memory
+    int ulen; // used memory
 public:
     //some std::vector like interfaces
     void insert(T* position, T const* start, T const* end )
