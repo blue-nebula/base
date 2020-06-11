@@ -2384,7 +2384,7 @@ namespace hud
     {
         if(!m_hard(game::gamemode, game::mutators) || G(radarhardaffinity))
         {
-            if(radartype() == 3) // right-corner radar
+            if(radartype() == 3) // minimap radar
             {
                 vec pos = vec(camera1->o).sub(minimapcenter).mul(minimapscale).add(0.5f), dir(camera1->yaw*RAD, 0.f);
                 float scale = radarrange(), size = max(w, h)/2, s = size*radarcorner, x = w-s*2, y = 0, q = s*2*radarcorneroffset, r = s-q;
