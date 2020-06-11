@@ -253,12 +253,12 @@ struct databuf
 
     T const& back( void ) const
     {
-        return buf + len;
+        return buf[length() - 1];
     }
 
     T * back( void )
     {
-        return buf + len;
+        return buf[length() - 1];
     }
 
     databuf() : buf(NULL), len(0), maxlen(0), flags(0) {}
