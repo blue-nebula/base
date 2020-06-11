@@ -666,11 +666,6 @@ public:
         pop();
     }
 
-    void emplace_back( T && el )
-    {
-        add( el );
-    }
-
     void emplace_back( void )
     {
         add();
