@@ -1,5 +1,6 @@
 #include <algorithm>
 using std::swap;
+#include <vector>
 #include "game.h"
 
 namespace client
@@ -919,17 +920,17 @@ namespace client
     ICOMMAND(0, clearexcepts, "", (), addmsg(N_CLRCONTROL, "ri", ipinfo::EXCEPT));
 
     vector<char *> ignores;
-    vector<gameent*> ignored_players;
+    std::vector<gameent*> ignored_players;
     void ignore(int cn)
     {
         gameent *d = game::getclient(cn);
         if(!d || d == &game::player1) return;
         if(!strcmp(d->hostip, "*"))
         {
-            if (ignored_players.find(d) < 0)
+            if (std::find(ignored_players.begin(), ignored_players.end(), d) != ignored_players.end())
             {
                 conoutft(CON_EVENT, "\foIgnore will only be reset when you disconnect from this server, host information is private");
-                ignored_players.add(d);
+                ignored_players.push_back(d);
             }
             else 
             {
@@ -953,14 +954,14 @@ namespace client
         if(!d) return;
         if(!strcmp(d->hostip, "*"))
         {
-            if (ignored_players.find(d) < 0)
+            if (std::find(ignored_players.begin(), ignored_players.end(), d) != ignored_players.end())
             {
                 conoutft(CON_EVENT, "\fyYou are not ignoring %s", game::colourname(d));
             }
             else
             {
                 conoutft(CON_EVENT, "\fyStopped ignoring %s", game::colourname(d));
-                ignored_players.removeobj(d);
+                ignored_players.erase(std::remove( ignored_players.begin(), ignored_players.end(), d));
             }
             return;
         }
@@ -983,7 +984,7 @@ namespace client
 
         if (!strcmp(d->hostip, "*"))
         {
-            return ignored_players.find(d) >= 0;
+            return (std::find(ignored_players.begin(), ignored_players.end(), d) != ignored_players.end());
         }
 
         return ignores.find(d->hostip) >= 0;
@@ -1068,10 +1069,11 @@ namespace client
 
     void gamedisconnect(int clean)
     {
-        for (int i = 0; i < ignored_players.length(); i++)
+        /*for (int i = 0; i < ignored_players.length(); i++)
         {
             ignored_players.pop();
-        }
+        }*/
+        ignored_players.clear();
 
         if(editmode) toggleedit();
         remote = isready = sendplayerinfo = sendgameinfo = sendcrcinfo = false;
