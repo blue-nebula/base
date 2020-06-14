@@ -4,6 +4,7 @@ using std::swap;
 
 #include "engine.h"
 #include <signal.h>
+#include <locale.h>
 
 string caption = "";
 
@@ -911,6 +912,7 @@ int main(int argc, char **argv)
     #endif
     #endif
 
+    setlocale( LC_ALL, "" );
     currenttime = time(NULL); // initialise
     clocktime = mktime(gmtime(&currenttime));
     clockoffset = currenttime-clocktime;

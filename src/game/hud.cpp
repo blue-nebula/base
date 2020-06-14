@@ -7,6 +7,7 @@ namespace hud
 {
     const int NUMSTATS = 11;
     int damageresidue = 0, hudwidth = 0, hudheight = 0, lastteam = 0, laststats = 0, prevstats[NUMSTATS] = {0}, curstats[NUMSTATS] = {0};
+    char const* system_time = "00:00";
 
     #include "compass.h"
     vector<int> teamkills;
@@ -39,6 +40,7 @@ namespace hud
     VAR(IDF_PERSIST, showloadingversion, 0, 1, 1);
     VAR(IDF_PERSIST, showloadingurl, 0, 1, 1);
 
+    VAR(IDF_PERSIST, showsystemtime, 0, 0, 1);
     VAR(IDF_PERSIST, showfps, 0, 0, 3);
     VAR(IDF_PERSIST, showstats, 0, 1, 2);
     VAR(IDF_PERSIST, statrate, 0, 200, 1000);
@@ -697,6 +699,11 @@ namespace hud
         list.add('\0');
         result(list.getbuf());
     });
+
+    bool show_system_time()
+    {
+        return showsystemtime;
+    }
 
     bool needminimap() { return true; }
 
@@ -3156,6 +3163,12 @@ namespace hud
                     default: break;
                 }
             }
+            if (showsystemtime)
+            {
+                pushfont("console");
+                cy[1] -= draw_textf("%s", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, system_time);
+                popfont();
+            }
             if(showstats >= (m_edit(game::gamemode) ? 1 : 2))
             {
                 cy[1] -= draw_textf("ond:%d va:%d gl:%d(%d) oq:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, allocnodes*8, allocva, curstats[4], curstats[5], curstats[6]);
@@ -3403,9 +3416,16 @@ namespace hud
             else y -= draw_textf("%s", FONTH*7/2, y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_UP, -1, -1, 1, *ptitle ? ptitle : "please wait...");
         }
         y = h-bottom-FONTH/2;
+        
         if(showloadinggpu) y -= draw_textf("%s (%s v%s)", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, gfxrenderer, gfxvendor, gfxversion);
         if(showloadingversion) y -= draw_textf("%s v%s-%s%d-%s (%s)", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionname, versionstring, versionplatname, versionarch, versionbranch, versionrelease);
         if(showloadingurl && *versionurl) y -= draw_textf("%s", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionurl);
+        
+        if (showsystemtime) 
+        {
+            y -= draw_textf("%s", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, system_time);
+        }
+        
         popfont();
     }
 

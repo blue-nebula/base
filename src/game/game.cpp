@@ -2809,6 +2809,11 @@ namespace game
 
     void updateworld()      // main game update loop
     {
+        if (hud::show_system_time())
+        {
+            hud::system_time = gettime(currenttime, "%H:%M");
+        }
+
         if(connected())
         {
             if(!curtime || !client::isready)
