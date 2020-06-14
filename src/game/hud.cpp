@@ -7,7 +7,7 @@ namespace hud
 {
     const int NUMSTATS = 11;
     int damageresidue = 0, hudwidth = 0, hudheight = 0, lastteam = 0, laststats = 0, prevstats[NUMSTATS] = {0}, curstats[NUMSTATS] = {0};
-    char const* system_time = "00:00";
+    char const* system_time = nullptr;
 
     #include "compass.h"
     vector<int> teamkills;
