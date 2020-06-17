@@ -3460,4 +3460,35 @@ namespace client
         }
     }
     ICOMMAND(0, getserver, "bbb", (int *server, int *prop, int *idx, int *numargs), getservers(*server, *prop, *idx));
+
+    ICOMMAND(0, get_server_count, "", (), getservers(-1, -1, -1));
+    ICOMMAND(0, getserver_status, "b", (int* server), getservers(*server, 0, 0));
+    ICOMMAND(0, getserver_name, "b", (int* server), getservers(*server, 0, 1));
+    ICOMMAND(0, getserver_port, "b", (int* server), getservers(*server, 0, 2));
+    ICOMMAND(0, getserver_title, "b", (int* server), getservers(*server, 0, 3));
+    ICOMMAND(0, getserver_map_name, "b", (int* server), getservers(*server, 0, 4));
+    ICOMMAND(0, getserver_player_count, "b", (int* server), getservers(*server, 0, 5));
+    ICOMMAND(0, getserver_ping, "b", (int* server), getservers(*server, 0, 6));
+    ICOMMAND(0, getserver_last, "b", (int* server), getservers(*server, 0, 7));
+    ICOMMAND(0, getserver_handle, "b", (int* server), getservers(*server, 0, 8));
+    ICOMMAND(0, getserver_flags, "b", (int* server), getservers(*server, 0, 9));
+    ICOMMAND(0, getserver_version_branch, "b", (int* server), getservers(*server, 0, 10));
+    ICOMMAND(0, getserver_priority, "b", (int* server), getservers(*server, 0, 11));
+    ICOMMAND(0, getserver_attribute_count, "b", (int* server), getservers(*server, 1, -1));
+    ICOMMAND(0, getserver_game_version, "b", (int* server), getservers(*server, 1, 0));
+    ICOMMAND(0, getserver_game_mode, "b", (int* server), getservers(*server, 1, 1));
+    ICOMMAND(0, getserver_game_mutators, "b", (int* server), getservers(*server, 1, 2));
+    ICOMMAND(0, getserver_game_time, "b", (int* server), getservers(*server, 1, 3));
+    ICOMMAND(0, getserver_max_players, "b", (int* server), getservers(*server, 1, 4));
+    ICOMMAND(0, getserver_mstr, "b", (int* server), getservers(*server, 1, 5));
+    ICOMMAND(0, getserver_variables, "b", (int* server), getservers(*server, 1, 6));
+    ICOMMAND(0, getserver_modifications, "b", (int* server), getservers(*server, 1, 7));
+    ICOMMAND(0, getserver_version_major, "b", (int* server), getservers(*server, 1, 8));
+    ICOMMAND(0, getserver_version_minor, "b", (int* server), getservers(*server, 1, 9));
+    ICOMMAND(0, getserver_version_patch, "b", (int* server), getservers(*server, 1, 10));
+    ICOMMAND(0, getserver_version_server, "b", (int* server), getservers(*server, 1, 11));
+    ICOMMAND(0, getserver_version_a, "b", (int* server), getservers(*server, 1, 12));
+    ICOMMAND(0, getserver_game_st, "b", (int* server), getservers(*server, 1, 13));
+    ICOMMAND(0, getserver_game_tl, "b", (int* server), getservers(*server, 1, 14));
+
 }
