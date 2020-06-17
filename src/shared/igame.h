@@ -4,7 +4,7 @@ namespace entities
 {
     extern int numattrs(int type);
     extern int triggertime(extentity &e);
-    extern void editent(int i);
+    extern void editent(int i, bool local = true);
     extern void readent(stream *g, int mtype, int mver, char *gid, int gver, int id);
     extern void writeent(stream *g, int id);
     extern void remapents(vector<int> &idxs);
