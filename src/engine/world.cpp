@@ -1183,5 +1183,6 @@ void mpeditent(int i, const vec &o, int type, attrvector &attr, bool local)
         e.attrs.add(0, max(entities::numattrs(e.type), min(attr.length(), MAXENTATTRS)) - e.attrs.length());
         loopk(min(attr.length(), e.attrs.length())) e.attrs[k] = attr[k];
         addentity(i);
+        entities::editent(i, false);
     }
 }
