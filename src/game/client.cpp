@@ -1170,7 +1170,7 @@ namespace client
             conoutft(CON_CHAT, "%s", line);
             if (playmentionedsound && (strstr(text, game::player1.name) != NULL))
             {
-                playsound(S_PING, f->o, f, 0, -1, -1, -1, &f->cschan);
+                playsound(S_MENTIONED, f->o, f, 0, -1, -1, -1, &f->cschan);
             }
             else
             {
