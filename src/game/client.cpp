@@ -1168,16 +1168,14 @@ namespace client
         if((!(flags&SAY_TEAM) || f->team == game::player1.team) && (!(flags&SAY_WHISPER) || f == &game::player1 || t == &game::player1))
         {
             conoutft(CON_CHAT, "%s", line);
+
             if (playmentionedsound && (strstr(text, game::player1.name) != NULL))
             {
                 playsound(S_MENTIONED, f->o, f, 0, -1, -1, -1, &f->cschan);
             }
-            else
+            else if (snd >= 0 && !issound(f->cschan))
             {
-                if(snd >= 0 && !issound(f->cschan)) 
-                {
-                    playsound(snd, f->o, f, snd != S_CHAT ? 0 : SND_DIRECT, -1, -1, -1, &f->cschan);
-                }
+                playsound(snd, f->o, f, snd != S_CHAT ? 0 : SND_DIRECT, -1, -1, -1, &f->cschan);
             }
         }
         ai::scanchat(f, t, flags, text);
