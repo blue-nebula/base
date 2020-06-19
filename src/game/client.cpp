@@ -19,6 +19,7 @@ namespace client
     VAR(IDF_PERSIST, showservervariables, 0, 0, 1); // determines if variables set by the server are printed to the console
     VAR(IDF_PERSIST, showmapvotes, 0, 1, 3); // shows map votes, 1 = only mid-game (not intermision), 2 = at all times, 3 = verbose
     VAR(IDF_PERSIST, hideincompatibleservers, 0, 0, 1);
+    VAR(IDF_PERSIST, playmentionedsound, 0, 0, 1);
 
     VAR(IDF_PERSIST, checkpointannounce, 0, 5, 7); // 0 = never, &1 = active players, &2 = all players, &4 = all players in gauntlet
     VAR(IDF_PERSIST, checkpointannouncefilter, 0, CP_ALL, CP_ALL); // which checkpoint types to announce for
@@ -1167,7 +1168,15 @@ namespace client
         if((!(flags&SAY_TEAM) || f->team == game::player1.team) && (!(flags&SAY_WHISPER) || f == &game::player1 || t == &game::player1))
         {
             conoutft(CON_CHAT, "%s", line);
-            if(snd >= 0 && !issound(f->cschan)) playsound(snd, f->o, f, snd != S_CHAT ? 0 : SND_DIRECT, -1, -1, -1, &f->cschan);
+
+            if (playmentionedsound && (strstr(text, game::player1.name) != NULL))
+            {
+                playsound(S_MENTIONED, f->o, f, 0, -1, -1, -1, &f->cschan);
+            }
+            else if (snd >= 0 && !issound(f->cschan))
+            {
+                playsound(snd, f->o, f, snd != S_CHAT ? 0 : SND_DIRECT, -1, -1, -1, &f->cschan);
+            }
         }
         ai::scanchat(f, t, flags, text);
     }
