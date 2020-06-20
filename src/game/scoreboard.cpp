@@ -853,7 +853,7 @@ namespace hud
                 uifont(g, "normal", {
                     g.textf("\faon: \fw%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, serverdesc);
                 });
-            } else if (connectname != nullptr && connectport != 0){
+            } else {
                 // serverip/port
                 uifont(g, "big", {
                     g.textf("\faon: \fw%s:[%d]", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, connectname, connectport);
