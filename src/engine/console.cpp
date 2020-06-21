@@ -506,29 +506,7 @@ bool consolekey(int code, bool isdown)
 
             case SDLK_BACKSPACE:
             {
-                size_t commandbuf_len = strlen(commandbuf);
-
-                // when holding alt, remove the entire last word
-                if (SDL_GetModState() & KMOD_ALT)
-                {
-                    char* last_word = strrchr(commandbuf, ' ');
-
-                    if (last_word != NULL)
-                    {
-                        // the code following this block will remove another character anyway
-                        // therefore, we add 1 and let that code remove the space then
-                        size_t new_len = (last_word - commandbuf) + 1;
-                        commandbuf[new_len] = '\0';
-                        commandbuf_len = new_len;
-                    }
-                    else
-                    {
-                        commandbuf[0] = '\0';
-                        commandbuf_len = 0;
-                    }
-                }
-
-                int len = (int)commandbuf_len, i = commandpos>=0 ? commandpos : len;
+                int len = (int)strlen(commandbuf), i = commandpos>=0 ? commandpos : len;
                 if(i<1) break;
                 memmove(&commandbuf[i-1], &commandbuf[i], len - i + 1);
                 resetcomplete();
@@ -629,7 +607,6 @@ void processtextinput(const char *str, int len)
         return; \
     } \
 }
-
 void processkey(int code, bool isdown)
 {
     switch(code)
