@@ -535,12 +535,12 @@ void scrolldown_chat_console(int lines)
 
 void scrollup_chat_console(int lines)
 {
-    int max_chatpos = hud::max_chatpos();
-    int max_consolepos = hud::max_consolepos();
+    const int max_chatpos = hud::max_chatpos();
     if (hud::chatpos < max_chatpos && scrollchat)
     {
         hud::chatpos = std::min(max_chatpos, hud::chatpos + lines);
     }
+    const int max_consolepos = hud::max_consolepos();
     if (hud::consolepos < max_consolepos && scrollconsole)
     {
         hud::consolepos = std::min(max_consolepos, hud::consolepos + lines);
