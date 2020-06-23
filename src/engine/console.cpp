@@ -29,7 +29,6 @@ void conline(int type, const char *sf, int n)
     }
 
     bool add_to_chatlines = type >= CON_CHAT;
-
     auto* lines = &conlines;
     int maxlines = MAXCONLINES;
     if (add_to_chatlines)
