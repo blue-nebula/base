@@ -53,29 +53,31 @@ void conline(int type, const char *sf, int n)
         loopj(2)
         {
             int off = n + j;
-            if (lines->inrange(off))
+            if (!lines->inrange(off))
             {
-                if (add_to_chatlines)
-                {
-                    if (j) 
-                    { 
-                        concatstring(chatlines[off].cref, "\fs", BIGSTRLEN);
-                    }
-                    else 
-                    {
-                        prependstring(chatlines[off].cref, "\fS", BIGSTRLEN);
-                    }
+		continue;
+	    }
+
+            if (add_to_chatlines)
+            {
+            	if (j) 
+               	{ 
+                    concatstring(chatlines[off].cref, "\fs", BIGSTRLEN);
                 }
-                else
+                else 
                 {
-                    if (j) 
-                    { 
-                        concatstring(conlines[off].cref, "\fs", BIGSTRLEN);
-                    }
-                    else 
-                    {
-                        prependstring(conlines[off].cref, "\fS", BIGSTRLEN);
-                    }
+                    prependstring(chatlines[off].cref, "\fS", BIGSTRLEN);
+                }
+            }
+            else
+            {
+                if (j) 
+                { 
+                    concatstring(conlines[off].cref, "\fs", BIGSTRLEN);
+                }
+                else 
+                {
+                    prependstring(conlines[off].cref, "\fS", BIGSTRLEN);
                 }
             }
         }
