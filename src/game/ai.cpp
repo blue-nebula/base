@@ -78,13 +78,17 @@ namespace ai
         return false;
     }
 
-    bool canshoot(gameent *d, gameent *e, bool alt = true)
+    bool canshoot(gameent *self, gameent *target, bool alt = true)
     {
-        if(isweap(d->weapselect) && weaprange(d, d->weapselect, alt, e->o.squaredist(d->o)))
+        if(isweap(self->weapselect) && weaprange(self, self->weapselect, alt, target->o.squaredist(self->o)))
         {
+            vec useless; //"used" to store the intersection
             int prot = m_protect(game::gamemode, game::mutators);
-            if((d->actortype >= A_ENEMY || !d->protect(lastmillis, prot)) && targetable(d, e, true))
-                return d->canshoot(d->weapselect, alt ? HIT_ALT : 0, m_weapon(d->actortype, game::gamemode, game::mutators), lastmillis, (1<<W_S_RELOAD));
+            if((self->actortype >= A_ENEMY || !self->protect(lastmillis, prot))
+								&& targetable(self, target, true)
+								&& ( target->ai == nullptr || getsight( self->o, self->yaw, self->pitch, target->o, useless, target->ai->views[2], target->ai->views[0], target->ai->views[1] ) )
+								)
+                return self->canshoot(self->weapselect, alt ? HIT_ALT : 0, m_weapon(self->actortype, game::gamemode, game::mutators), lastmillis, (1<<W_S_RELOAD));
         }
         return false;
     }
