@@ -3,7 +3,9 @@
 using std::swap;
 
 #include "engine.h"
+#include "iengine.h"
 #include "SDL_thread.h"
+#include "serverinfo.hpp"
 
 struct resolverthread
 {
@@ -218,35 +220,13 @@ int connectwithtimeout(ENetSocket sock, const char *hostname, const ENetAddress 
 }
 
 vector<serverinfo *> servers;
-bool sortedservers = true;
 ENetSocket pingsock = ENET_SOCKET_NULL;
 int lastinfo = 0;
 
-static serverinfo *newserver(const char *name, int port = SERVER_PORT, int priority = 0, const char *desc = NULL, const char *handle = NULL, const char *flags = NULL, const char *branch = NULL, uint ip = ENET_HOST_ANY)
-{
-    serverinfo *si = new serverinfo(ip, port, priority);
-
-    if(name) copystring(si->name, name);
-    else if(ip == ENET_HOST_ANY || enet_address_get_host_ip(&si->address, si->name, sizeof(si->name)) < 0)
-    {
-        delete si;
-        return NULL;
-    }
-    if(desc && *desc) copystring(si->sdesc, desc, MAXSDESCLEN+1);
-    if(handle && *handle) copystring(si->authhandle, handle);
-    if(flags && *flags) copystring(si->flags, flags);
-    if(branch && *branch) copystring(si->branch, branch, MAXBRANCHLEN+1);
-
-    servers.add(si);
-    sortedservers = false;
-
-    return si;
-}
-
 void addserver(const char *name, int port, int priority, const char *desc, const char *handle, const char *flags, const char *branch)
 {
-    loopv(servers) if(!strcmp(servers[i]->name, name) && servers[i]->port == port) return;
-    if(newserver(name, port, priority, desc, handle, flags, branch) && verbose >= 2)
+    loopv(servers) if( servers[i]->is_same( name, port ) ) return;
+    if(serverinfo::newserver(name, port, priority, desc, handle, flags, branch) && verbose >= 2)
         conoutf("added server %s (%d) [%s]", name, port, desc);
 }
 ICOMMAND(0, addserver, "siissss", (char *n, int *p, int *r, char *d, char *h, char *f, char *b), addserver(n, *p > 0 ? *p : SERVER_PORT, *r >= 0 ? *r : 0, d, h, f, b));
@@ -273,23 +253,20 @@ void pingservers()
         enet_socket_set_option(pingsock, ENET_SOCKOPT_NONBLOCK, 1);
         enet_socket_set_option(pingsock, ENET_SOCKOPT_BROADCAST, 1);
     }
-    ENetBuffer buf;
+    int tmp_millis = totalmillis;
     uchar ping[MAXTRANS];
+    ENetBuffer buf = { ping, 0 };
     ucharbuf p(ping, sizeof(ping));
     putint(p, totalmillis ? totalmillis : 1);
+    buf.dataLength = p.length();
 
     static int lastping = 0;
-    if(lastping >= servers.length()) lastping = 0;
-    loopi(maxservpings ? min(servers.length(), maxservpings) : servers.length())
+    auto num_servers = servers.size();
+    if(lastping >= num_servers) lastping = 0;
+    loopi(maxservpings ? min(num_servers, maxservpings) : num_servers)
     {
-        serverinfo &si = *servers[lastping];
-        if(++lastping >= servers.length()) lastping = 0;
-        if(si.address.host == ENET_HOST_ANY) continue;
-        buf.data = ping;
-        buf.dataLength = p.length();
-        enet_socket_send(pingsock, &si.address, &buf, 1);
-
-        si.checkdecay(serverdecay*1000);
+        if(++lastping >= num_servers) lastping = 0;
+        servers[lastping]->ping( pingsock, serverdecay, tmp_millis );
     }
 
     if(searchlan && serverlanport)
@@ -297,8 +274,6 @@ void pingservers()
         ENetAddress address;
         address.host = ENET_HOST_BROADCAST;
         address.port = serverlanport;
-        buf.data = ping;
-        buf.dataLength = p.length();
         enet_socket_send(pingsock, &address, &buf, 1);
     }
     lastinfo = totalmillis;
@@ -309,12 +284,9 @@ void checkresolver()
     int resolving = 0;
     loopv(servers)
     {
-        serverinfo &si = *servers[i];
-        if(si.resolved == serverinfo::RESOLVED) continue;
-        if(si.address.host == ENET_HOST_ANY)
+        if( servers[i]->need_resolve( resolving ) )
         {
-            if(si.resolved == serverinfo::UNRESOLVED) { si.resolved = serverinfo::RESOLVING; resolverquery(si.name); }
-            resolving++;
+            resolverquery(servers[i]->name());
         }
     }
     if(!resolving) return;
@@ -326,18 +298,15 @@ void checkresolver()
         if(!resolvercheck(&name, &addr)) break;
         loopv(servers)
         {
-            serverinfo &si = *servers[i];
-            if(name == si.name)
+            if( servers[i]->validate_resolve( name, addr ) )
             {
-                si.resolved = serverinfo::RESOLVED;
-                si.address.host = addr.host;
                 break;
             }
         }
     }
 }
 
-static int lastreset = 0;
+int lastreset = 0;
 
 void checkpings()
 {
@@ -346,7 +315,6 @@ void checkpings()
     ENetBuffer buf;
     ENetAddress addr;
     uchar ping[MAXTRANS];
-    char text[MAXTRANS];
     buf.data = ping;
     buf.dataLength = sizeof(ping);
     while(enet_socket_wait(pingsock, &events, 0) >= 0 && events)
@@ -354,46 +322,19 @@ void checkpings()
         int len = enet_socket_receive(pingsock, &addr, &buf, 1);
         if(len <= 0) return;
         serverinfo *si = NULL;
-        loopv(servers) if(addr.host == servers[i]->address.host && addr.port == servers[i]->address.port) { si = servers[i]; break; }
-        if(!si && searchlan) si = newserver(NULL, addr.port-1, 1, NULL, NULL, NULL, NULL, addr.host);
+        loopv(servers)
+        {
+            if( servers[i]->is_same( addr ) )
+            {
+                si = servers[i];
+                break;
+            }
+        }
+        if(!si && searchlan) si = serverinfo::newserver(NULL, addr.port-1, 1, NULL, NULL, NULL, NULL, addr.host);
         if(!si) continue;
-        ucharbuf p(ping, len);
-        int millis = getint(p), rtt = clamp(totalmillis - millis, 0, min(serverdecay*1000, totalmillis));
-        if(millis >= lastreset && rtt < serverdecay*1000) si->addping(rtt, millis);
-        si->lastinfo = totalmillis;
-        si->numplayers = getint(p);
-        int numattr = getint(p);
-        si->attr.shrink(0);
-        loopj(numattr) si->attr.add(getint(p));
-        int gver = si->attr.empty() ? 0 : si->attr[0];
-        getstring(text, p);
-        filterstring(si->map, text, false);
-        getstring(text, p);
-        filterstring(si->sdesc, text, true, true, true, false, MAXSDESCLEN+1);
-        si->players.deletearrays();
-        si->handles.deletearrays();
-        if(gver >= 227)
-        {
-            getstring(text, p);
-            filterstring(si->branch, text, true, true, true, false, MAXBRANCHLEN+1);
-        }
-        loopi(si->numplayers)
-        {
-            if(p.overread()) break;
-            getstring(text, p);
-            si->players.add(newstring(text));
-        }
-        if(gver >= 225) loopi(si->numplayers)
-        {
-            if(p.overread()) break;
-            getstring(text, p);
-            si->handles.add(newstring(text));
-        }
-        sortedservers = false;
+        si->update( buf.dataLength, buf.data, serverdecay, totalmillis, lastreset );
     }
 }
-
-static inline int serverinfocompare(serverinfo *a, serverinfo *b) { return client::servercompare(a, b) < 0; }
 
 void refreshservers()
 {
@@ -402,7 +343,6 @@ void refreshservers()
     if(totalmillis - lastrefresh > 1000)
     {
         loopv(servers) servers[i]->reset();
-        sortedservers = false;
         lastreset = totalmillis;
     }
     lastrefresh = totalmillis;
@@ -480,11 +420,7 @@ void retrieveservers(vector<char> &data)
 
 void sortservers()
 {
-    if(!sortedservers)
-    {
-        servers.sort(serverinfocompare);
-        sortedservers = true;
-    }
+    serverinfo::sort(servers);
 }
 COMMAND(0, sortservers, "");
 
@@ -526,8 +462,32 @@ void writeservercfg()
     f->printf("// servers which are connected to or queried get added here automatically\n\n");
     loopv(servers)
     {
-        serverinfo *s = servers[i];
-        f->printf("addserver %s %d %d %s %s %s %s\n", s->name, s->port, s->priority, escapestring(s->sdesc[0] ? s->sdesc : s->name), escapestring(s->authhandle), escapestring(s->flags), escapestring(s->branch));
+        servers[i]->writecfg( *f );
     }
     delete f;
 }
+
+VAR(IDF_PERSIST, hideincompatibleservers, 0, 0, 1);
+void getservers(int server, int prop, int idx)
+{
+    if(server < 0)
+    {
+        // this codes does not really hide stuff, it _removes_ stuff
+        if (hideincompatibleservers)
+        {
+            //servers.erase( std::remove_if(), servers.end()); refuses to work here, dunno why
+            //so for now let's keep the waste
+            vector<serverinfo *> servers_new;
+            std::copy_if( servers.begin(), servers.end(),
+                std::back_inserter( servers_new ),serverinfo::server_compatible );
+            servers = servers_new;
+        }
+
+        intret(servers.length());
+    }
+    else if(servers.inrange(server))
+    {
+        servers[server]->cube_get_property( prop, idx );
+    }
+}
+ICOMMAND(0, getserver, "bbb", (int *server, int *prop, int *idx, int *numargs), getservers(*server, *prop, *idx));

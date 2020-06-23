@@ -44,10 +44,8 @@ namespace client
     extern int state();
     extern int otherclients(bool self = false, bool nospec = false);
     extern int numplayers();
-    extern int servercompare(serverinfo *a, serverinfo *b);
     extern const char *getname();
     extern bool sendcmd(int nargs, const char *cmd, const char *arg);
-    extern int serverstat(serverinfo* a);
 }
 
 namespace hud
