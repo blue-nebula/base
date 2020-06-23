@@ -1835,10 +1835,7 @@ namespace hud
                 //loopvj(conlines) if(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
                 for (int j = consolepos; j < consolepos + min(numo, conlines.length() - consolepos); j++)
                 {
-                    if (type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
-                    {
-                    }
-                    else
+                    if (!(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0)))
                     {
                         continue;
                     }
