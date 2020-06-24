@@ -532,6 +532,28 @@ namespace game
     }
     ICOMMAND(0, iszooming, "", (), intret(inzoom() ? 1 : 0));
 
+    // Get the progress of the zoom in the interval [0, 1], where 0 is no zoom and 1 is full zoom.
+    float zoomratio(gameent *d)
+    {
+        int frame = lastmillis - lastzoom;
+
+        int cookzoom = W(d->weapselect, cookzoom);
+
+        float ratio = 1.f;
+        if (cookzoom > 0 && frame <= cookzoom) {
+            ratio = frame / float(W(d->weapselect, cookzoom));
+        }
+
+        ratio = clamp(ratio, 0.f, 1.f);
+
+        if(zooming) {
+            return ratio;
+        }
+        else {
+            return 1.f - ratio;
+        }
+    }
+
     void resetsway()
     {
         swaydir = swaypush = vec(0, 0, 0);
@@ -1007,14 +1029,7 @@ namespace game
 
             if(d == focus && inzoom())
             {
-                int frame = lastmillis-lastzoom;
-
-                float pc = 1.f;
-                if (W(d->weapselect, cookzoom) > 0 && frame <= W(d->weapselect, cookzoom)) {
-                    pc = frame / float(W(d->weapselect, cookzoom));
-                }
-
-                total *= zooming ? 1.f-pc : pc;
+                total *= 1.f - zoomratio(d);
             }
         }
         else if(d->state == CS_EDITING) total *= playereditblend;
@@ -2145,19 +2160,13 @@ namespace game
         {
             checkzoom();
 
-            int frame = lastmillis-lastzoom;
-            float zoom = W(game::focus->weapselect, cookzoommax)-((W(game::focus->weapselect, cookzoommax)-W(game::focus->weapselect, cookzoommin))/float(zoomlevels)*zoomlevel);
+            int cookzoommax = W(game::focus->weapselect, cookzoommax);
+            int cookzoommin = W(game::focus->weapselect, cookzoommin);
+
+            float zoom = cookzoommax - ((cookzoommax - cookzoommin) / float(zoomlevels) * zoomlevel);
             float diff = float(fov()-zoom);
 
-            float amt = 1.f;
-            if (W(focus->weapselect, cookzoom) > 0 && frame < W(focus->weapselect, cookzoom)) {
-                amt = clamp(frame / float(W(focus->weapselect, cookzoom)), 0.f, 1.f);
-            }
-
-            if(!zooming)
-                amt = 1.f-amt;
-
-            curfov = fov()-(amt*diff);
+            curfov = fov() - (zoomratio(focus) * diff);
         }
         else curfov = float(fov());
     }
@@ -2316,16 +2325,7 @@ namespace game
             float scale = 1;
             if(gameent::is(d) && d == focus && inzoom())
             {
-                gameent *e = (gameent *)d;
-
-                int frame = lastmillis-lastzoom;
-
-                float pc = 1.f;
-                if (W(e->weapselect, cookzoom) > 0 && frame <= W(e->weapselect, cookzoom)) {
-                    pc = frame / float(W(e->weapselect, cookzoom));
-                }
-
-                scale *= zooming ? 1.f-pc : pc;
+                scale *= 1.f - zoomratio((gameent *)d);
             }
             if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
@@ -2775,14 +2775,7 @@ namespace game
             float scale = 1;
             if(d == focus && inzoom())
             {
-                int frame = lastmillis-lastzoom;
-
-                float pc = 1.f;
-                if (frame <= W(d->weapselect, cookzoom) && W(d->weapselect, cookzoom) > 0) {
-                    pc = frame / float(W(d->weapselect, cookzoom));
-                }
-
-                scale *= zooming ? 1.f-pc : pc;
+                scale *= 1.f - zoomratio(d);
             }
             if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)

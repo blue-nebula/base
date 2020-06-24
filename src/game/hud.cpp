@@ -1322,14 +1322,11 @@ namespace hud
             if(crosshairweapons&2) c = vec::hexcolor(W(game::focus->weapselect, colour));
             if(index == POINTER_ZOOM && game::inzoom())
             {
-                int frame = lastmillis-game::lastzoom, off = int(zoomcrosshairsize*hudsize)-cs;
-                float amt = 1.f;
-                if (W(game::focus->weapselect, cookzoom) > 0 && frame < W(game::focus->weapselect, cookzoom)) {
-                    amt = clamp(frame / float(W(game::focus->weapselect, cookzoom)), 0.f, 1.f);
-                }
-                if(!game::zooming) amt = 1.f-amt;
-                cs += int(off*amt);
-                fade += (zoomcrosshairblend-fade)*amt;
+                int off = int(zoomcrosshairsize*hudsize)-cs;
+                // Focused zoom ratio
+                float zr = game::zoomratio(game::focus);
+                cs += int(off * zr);
+                fade += (zoomcrosshairblend - fade) * zr;
             }
             if(crosshairtone) skewcolour(c.r, c.g, c.b, crosshairtone);
             int heal = m_health(game::gamemode, game::mutators, game::focus->actortype);
@@ -3297,12 +3294,7 @@ namespace hud
     void drawzoom(int w, int h)
     {
         Texture *t = textureload(zoomtex, 3);
-        int frame = lastmillis-game::lastzoom;
-        float pc = 1.f;
-        if (W(game::focus->weapselect, cookzoom) > 0 && frame <= W(game::focus->weapselect, cookzoom)) {
-            pc = frame / float(W(game::focus->weapselect, cookzoom));
-        }
-        if(!game::zooming) pc = 1.f-pc;
+        float pc = game::zoomratio(game::focus);
         int x = 0, y = 0, c = 0;
         if(w > h)
         {
