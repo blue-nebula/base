@@ -248,8 +248,8 @@ WPVARM(IDF_GAMEMOD,  cooktime, 0, VAR_MAX,
     0,          0,          0,          0,          0,          0,          0,          0,          0,          3000,       0,          0,          0,
     0,          0,          0,          0,          0,          0,          2000,       0,          650,        3000,       0,          0,          0
 );
-WPVAR(IDF_GAMEMOD,  cookzoom, 0, VAR_MAX,
-    0,          0,          0,          0,          0,          0,          0,          0,          650,        0,          0,          0,          0
+WPVAR(IDF_GAMEMOD,  cookzoom, 1, VAR_MAX,
+    1,          1,          1,          1,          1,          1,          1,          1,          650,        1,          1,          1,          1
 );
 WPFVAR(IDF_GAMEMOD,  cookzoommin, 1, 150,
     10,         10,         10,         10,         10,         10,         10,         10,         10,         10,         10,         10,         10
