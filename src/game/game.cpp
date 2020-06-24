@@ -1010,7 +1010,7 @@ namespace game
                 int frame = lastmillis-lastzoom;
 
                 float pc = 1.f;
-                if (W(focus->weapselect, cookzoom) > 0 && frame <= W(d->weapselect, cookzoom)) {
+                if (W(d->weapselect, cookzoom) > 0 && frame <= W(d->weapselect, cookzoom)) {
                     pc = frame / float(W(d->weapselect, cookzoom));
                 }
 
@@ -2321,7 +2321,7 @@ namespace game
                 int frame = lastmillis-lastzoom;
 
                 float pc = 1.f;
-                if (W(focus->weapselect, cookzoom) > 0 && frame <= W(e->weapselect, cookzoom)) {
+                if (W(e->weapselect, cookzoom) > 0 && frame <= W(e->weapselect, cookzoom)) {
                     pc = frame / float(W(e->weapselect, cookzoom));
                 }
 

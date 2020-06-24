@@ -1323,7 +1323,10 @@ namespace hud
             if(index == POINTER_ZOOM && game::inzoom())
             {
                 int frame = lastmillis-game::lastzoom, off = int(zoomcrosshairsize*hudsize)-cs;
-                float amt = frame <= W(game::focus->weapselect, cookzoom) ? clamp(float(frame)/float(W(game::focus->weapselect, cookzoom)), 0.f, 1.f) : 1.f;
+                float amt = 1.f;
+                if (W(game::focus->weapselect, cookzoom) > 0 && frame < W(game::focus->weapselect, cookzoom)) {
+                    amt = clamp(frame / float(W(game::focus->weapselect, cookzoom)), 0.f, 1.f);
+                }
                 if(!game::zooming) amt = 1.f-amt;
                 cs += int(off*amt);
                 fade += (zoomcrosshairblend-fade)*amt;
@@ -3144,11 +3147,11 @@ namespace hud
                 memcpy(prevstats, curstats, sizeof(prevstats));
                 laststats = totalmillis-(totalmillis%statrate);
             }
-            
+
             int nextstats[NUMSTATS] = {
                 vtris*100/max(wtris, 1), vverts*100/max(wverts, 1), xtraverts/1024, xtravertsva/1024, glde, gbatches, getnumqueries(), rplanes, curfps, bestfpsdiff, worstfpsdiff
             };
-            
+
             loopi(NUMSTATS) if(prevstats[i] == curstats[i]) curstats[i] = nextstats[i];
 
             pushfont("consub");
@@ -3201,10 +3204,10 @@ namespace hud
 
         if(!minimal(showinventory, true))
             return left;
-        
+
         float fade = blend*inventoryblend;
         bool interm = !gs_playing(game::gamestate) && game::tvmode() && game::focus == &game::player1;
-        
+
         loopi(2) switch(i)
         {
             case 0:
@@ -3295,7 +3298,10 @@ namespace hud
     {
         Texture *t = textureload(zoomtex, 3);
         int frame = lastmillis-game::lastzoom;
-        float pc = frame <= W(game::focus->weapselect, cookzoom) ? float(frame)/float(W(game::focus->weapselect, cookzoom)) : 1.f;
+        float pc = 1.f;
+        if (W(game::focus->weapselect, cookzoom) > 0 && frame <= W(game::focus->weapselect, cookzoom)) {
+            pc = frame / float(W(game::focus->weapselect, cookzoom));
+        }
         if(!game::zooming) pc = 1.f-pc;
         int x = 0, y = 0, c = 0;
         if(w > h)
