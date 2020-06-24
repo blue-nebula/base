@@ -1324,7 +1324,7 @@ namespace hud
             {
                 int off = int(zoomcrosshairsize*hudsize)-cs;
                 // Focused zoom ratio
-                float zr = game::zoom_ratio(game::focus);
+                float zr = game::zoom_ratio();
                 cs += int(off * zr);
                 fade += (zoomcrosshairblend - fade) * zr;
             }
@@ -3294,7 +3294,7 @@ namespace hud
     void drawzoom(int w, int h)
     {
         Texture *t = textureload(zoomtex, 3);
-        float pc = game::zoom_ratio(game::focus);
+        float pc = game::zoom_ratio();
         int x = 0, y = 0, c = 0;
         if(w > h)
         {

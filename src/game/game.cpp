@@ -533,13 +533,13 @@ namespace game
     ICOMMAND(0, iszooming, "", (), intret(inzoom() ? 1 : 0));
 
     // Get the progress ratio of the zoom in the interval [0, 1], where 0 is no zoom and 1 is full zoom.
-    float zoom_ratio(gameent *d)
+    float zoom_ratio()
     {
         // Time since the last zoom state change.
         int frame = lastmillis - lastzoom;
 
         // Time for the weapon to change zoom state.
-        int cookzoom = W(d->weapselect, cookzoom);
+        int cookzoom = W(focus->weapselect, cookzoom);
 
         // Calculate how far along the zoom state change is.
         // A cookzoom of 0 means there is instant state change, which is always a completed ratio of 1.
@@ -1039,7 +1039,7 @@ namespace game
             // Scale opacity by the zoom-out ratio so that the player becomes transparent while zoomed and opaque while not zoomed.
             if(d == focus && inzoom())
             {
-                total *= 1.f - zoom_ratio(d);
+                total *= 1.f - zoom_ratio();
             }
         }
         else if(d->state == CS_EDITING) total *= playereditblend;
@@ -2176,7 +2176,7 @@ namespace game
             float zoom = cookzoommax - ((cookzoommax - cookzoommin) / float(zoomlevels) * zoomlevel);
             float diff = float(fov()-zoom);
 
-            curfov = fov() - (zoom_ratio(focus) * diff);
+            curfov = fov() - (zoom_ratio() * diff);
         }
         else curfov = float(fov());
     }
@@ -2335,7 +2335,7 @@ namespace game
             float scale = 1;
             if(gameent::is(d) && d == focus && inzoom())
             {
-                scale *= 1.f - zoom_ratio((gameent *)d);
+                scale *= 1.f - zoom_ratio();
             }
             if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
@@ -2785,7 +2785,7 @@ namespace game
             float scale = 1;
             if(d == focus && inzoom())
             {
-                scale *= 1.f - zoom_ratio(d);
+                scale *= 1.f - zoom_ratio();
             }
             if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
