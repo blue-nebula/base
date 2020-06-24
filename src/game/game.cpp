@@ -528,9 +528,7 @@ namespace game
 
     bool inzoom()
     {
-        if(lastzoom && (zooming || lastmillis-lastzoom <= W(focus->weapselect, cookzoom)))
-            return true;
-        return false;
+        return lastzoom && (zooming || lastmillis - lastzoom <= W(focus->weapselect, cookzoom));
     }
     ICOMMAND(0, iszooming, "", (), intret(inzoom() ? 1 : 0));
 
