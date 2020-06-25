@@ -528,11 +528,40 @@ namespace game
 
     bool inzoom()
     {
-        if(lastzoom && (zooming || lastmillis-lastzoom <= W(focus->weapselect, cookzoom)))
-            return true;
-        return false;
+        return lastzoom && (zooming || lastmillis - lastzoom <= W(focus->weapselect, cookzoom));
     }
     ICOMMAND(0, iszooming, "", (), intret(inzoom() ? 1 : 0));
+
+    // Get the progress ratio of the zoom in the interval [0, 1], where 0 is no zoom and 1 is full zoom.
+    float zoom_ratio()
+    {
+        // Time since the last zoom state change.
+        int frame = lastmillis - lastzoom;
+
+        // Time for the weapon to change zoom state.
+        int cookzoom = W(focus->weapselect, cookzoom);
+
+        // Calculate how far along the zoom state change is.
+        // A cookzoom of 0 means there is instant state change, which is always a completed ratio of 1.
+        float ratio = 1.f;
+        if (cookzoom > 0)
+        {
+            // Calculate the ratio of the zoom state change and clamp it in the interval [0, 1] since progress beyond either point is redundant.
+            ratio = clamp(frame / static_cast<float>(cookzoom), 0.f, 1.f);
+        }
+
+        // Return the zoom state chage ratio converted to the zoom in ratio.
+        // If zooming/zoomed, then return the zoom state change ratio as is.
+        if(zooming)
+        {
+            return ratio;
+        }
+        // If not zooming (that is, zooming out) return the opposite ratio which is the ratio of zooming in.
+        else
+        {
+            return 1.f - ratio;
+        }
+    }
 
     void resetsway()
     {
@@ -1006,11 +1035,11 @@ namespace game
             if(d == focus && third) total *= camera1->o.dist(d->o)/(d != &player1 ? followdist : thirdpersondist);
             int prot = m_protect(gamemode, mutators), millis = d->protect(lastmillis, prot); // protect returns time left
             if(millis > 0) total *= 1.f-(float(millis)/float(prot));
+
+            // Scale opacity by the zoom-out ratio so that the player becomes transparent while zoomed and opaque while not zoomed.
             if(d == focus && inzoom())
             {
-                int frame = lastmillis-lastzoom;
-                float pc = frame <= W(d->weapselect, cookzoom) ? (frame)/float(W(d->weapselect, cookzoom)) : 1.f;
-                total *= zooming ? 1.f-pc : pc;
+                total *= 1.f - zoom_ratio();
             }
         }
         else if(d->state == CS_EDITING) total *= playereditblend;
@@ -2140,11 +2169,14 @@ namespace game
         if(inzoom())
         {
             checkzoom();
-            int frame = lastmillis-lastzoom;
-            float zoom = W(game::focus->weapselect, cookzoommax)-((W(game::focus->weapselect, cookzoommax)-W(game::focus->weapselect, cookzoommin))/float(zoomlevels)*zoomlevel),
-                  diff = float(fov()-zoom), amt = frame < W(focus->weapselect, cookzoom) ? clamp(frame/float(W(focus->weapselect, cookzoom)), 0.f, 1.f) : 1.f;
-            if(!zooming) amt = 1.f-amt;
-            curfov = fov()-(amt*diff);
+
+            int cookzoommax = W(game::focus->weapselect, cookzoommax);
+            int cookzoommin = W(game::focus->weapselect, cookzoommin);
+
+            float zoom = cookzoommax - ((cookzoommax - cookzoommin) / float(zoomlevels) * zoomlevel);
+            float diff = float(fov()-zoom);
+
+            curfov = fov() - (zoom_ratio() * diff);
         }
         else curfov = float(fov());
     }
@@ -2303,10 +2335,7 @@ namespace game
             float scale = 1;
             if(gameent::is(d) && d == focus && inzoom())
             {
-                gameent *e = (gameent *)d;
-                int frame = lastmillis-lastzoom;
-                float pc = frame <= W(e->weapselect, cookzoom) ? (frame)/float(W(e->weapselect, cookzoom)) : 1.f;
-                scale *= zooming ? 1.f-pc : pc;
+                scale *= 1.f - zoom_ratio();
             }
             if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
@@ -2756,9 +2785,7 @@ namespace game
             float scale = 1;
             if(d == focus && inzoom())
             {
-                int frame = lastmillis-lastzoom;
-                float pc = frame <= W(d->weapselect, cookzoom) ? (frame)/float(W(d->weapselect, cookzoom)) : 1.f;
-                scale *= zooming ? 1.f-pc : pc;
+                scale *= 1.f - zoom_ratio();
             }
             if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)

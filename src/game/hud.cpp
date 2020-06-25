@@ -42,6 +42,7 @@ namespace hud
     VAR(IDF_PERSIST, showloadingversion, 0, 1, 1);
     VAR(IDF_PERSIST, showloadingurl, 0, 1, 1);
 
+    VAR(IDF_PERSIST, showsystemtime, 0, 0, 1);
     VAR(IDF_PERSIST, showfps, 0, 0, 3);
     VAR(IDF_PERSIST, showstats, 0, 1, 2);
     VAR(IDF_PERSIST, statrate, 0, 200, 1000);
@@ -710,6 +711,11 @@ namespace hud
     {
         return conlines.length() - (consize + conoverflow);
     }
+  
+    const char* get_system_time_formatted()
+    {
+        return gettime(currenttime, "%H:%M");
+    }
 
     bool needminimap() { return true; }
 
@@ -1329,11 +1335,11 @@ namespace hud
             if(crosshairweapons&2) c = vec::hexcolor(W(game::focus->weapselect, colour));
             if(index == POINTER_ZOOM && game::inzoom())
             {
-                int frame = lastmillis-game::lastzoom, off = int(zoomcrosshairsize*hudsize)-cs;
-                float amt = frame <= W(game::focus->weapselect, cookzoom) ? clamp(float(frame)/float(W(game::focus->weapselect, cookzoom)), 0.f, 1.f) : 1.f;
-                if(!game::zooming) amt = 1.f-amt;
-                cs += int(off*amt);
-                fade += (zoomcrosshairblend-fade)*amt;
+                int off = int(zoomcrosshairsize*hudsize)-cs;
+                // Focused zoom ratio
+                float zr = game::zoom_ratio();
+                cs += int(off * zr);
+                fade += (zoomcrosshairblend - fade) * zr;
             }
             if(crosshairtone) skewcolour(c.r, c.g, c.b, crosshairtone);
             int heal = m_health(game::gamemode, game::mutators, game::focus->actortype);
@@ -3158,6 +3164,7 @@ namespace hud
     {
         int cx[2] = { edge, w-edge }, cy[2] = { h-edge-bottom, h-edge-bottom }, left = edge,
             csl = int(inventoryleft*w), csr = int(inventoryright*w), cr = edge/2, cc = 0, bf = blend*255, bs = (w-edge*2)/2;
+
         if(!texpaneltimer)
         {
             if(totalmillis-laststats >= statrate)
@@ -3165,16 +3172,21 @@ namespace hud
                 memcpy(prevstats, curstats, sizeof(prevstats));
                 laststats = totalmillis-(totalmillis%statrate);
             }
+
             int nextstats[NUMSTATS] = {
                 vtris*100/max(wtris, 1), vverts*100/max(wverts, 1), xtraverts/1024, xtravertsva/1024, glde, gbatches, getnumqueries(), rplanes, curfps, bestfpsdiff, worstfpsdiff
             };
+
             loopi(NUMSTATS) if(prevstats[i] == curstats[i]) curstats[i] = nextstats[i];
+
             pushfont("consub");
+
             if(showfps)
             {
                 pushfont("console");
                 cy[1] -= draw_textf("%d fps", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, curstats[8]);
                 popfont();
+
                 switch(showfps)
                 {
                     case 3:
@@ -3184,27 +3196,43 @@ namespace hud
                     default: break;
                 }
             }
+
+            if (showsystemtime)
+            {
+                pushfont("console");
+                cy[1] -= draw_textf("%s", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, get_system_time_formatted());
+                popfont();
+            }
+
             if(showstats >= (m_edit(game::gamemode) ? 1 : 2))
             {
                 cy[1] -= draw_textf("ond:%d va:%d gl:%d(%d) oq:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, allocnodes*8, allocva, curstats[4], curstats[5], curstats[6]);
                 cy[1] -= draw_textf("wtr:%dk(%d%%) wvt:%dk(%d%%) evt:%dk eva:%dk", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, wtris/1024, curstats[0], wverts/1024, curstats[1], curstats[2], curstats[3]);
                 cy[1] -= draw_textf("ents:%d(%d) wp:%d lm:%d rp:%d pvs:%d", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, entities::ents.length(), entgroup.length(), ai::waypoints.length(), lightmaps.length(), curstats[7], getnumviewcells());
+
                 if(game::player1.state == CS_EDITING)
                 {
                     cy[1] -= draw_textf("cube:%s%d corner:%d orient:%d grid:%d%s", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1,
                             selchildcount<0 ? "1/" : "", abs(selchildcount), sel.corner, sel.orient, sel.grid, showmat && selchildmat > 0 ? getmaterialdesc(selchildmat, " mat:") : "");
+
                     cy[1] -= draw_textf("sel:%d,%d,%d %d,%d,%d (%d,%d,%d,%d)", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1,
                             sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z,
                                 sel.cx, sel.cxs, sel.cy, sel.cys);
                 }
+
                 cy[1] -= draw_textf("pos:%.2f,%.2f,%.2f yaw:%.2f pitch:%.2f", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1,
                         camera1->o.x, camera1->o.y, camera1->o.z, camera1->yaw, camera1->pitch);
             }
+
             popfont();
         }
-        if(!minimal(showinventory, true)) return left;
+
+        if(!minimal(showinventory, true))
+            return left;
+
         float fade = blend*inventoryblend;
         bool interm = !gs_playing(game::gamestate) && game::tvmode() && game::focus == &game::player1;
+
         loopi(2) switch(i)
         {
             case 0:
@@ -3215,6 +3243,7 @@ namespace hud
                 if(found) left += csl;
                 break;
             }
+
             case 1:
             {
                 int cm = top+edge;
@@ -3249,8 +3278,10 @@ namespace hud
                 }
                 break;
             }
+
             default: break;
         }
+
         return left;
     }
 
@@ -3291,9 +3322,7 @@ namespace hud
     void drawzoom(int w, int h)
     {
         Texture *t = textureload(zoomtex, 3);
-        int frame = lastmillis-game::lastzoom;
-        float pc = frame <= W(game::focus->weapselect, cookzoom) ? float(frame)/float(W(game::focus->weapselect, cookzoom)) : 1.f;
-        if(!game::zooming) pc = 1.f-pc;
+        float pc = game::zoom_ratio();
         int x = 0, y = 0, c = 0;
         if(w > h)
         {
@@ -3431,9 +3460,16 @@ namespace hud
             else y -= draw_textf("%s", FONTH*7/2, y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_UP, -1, -1, 1, *ptitle ? ptitle : "please wait...");
         }
         y = h-bottom-FONTH/2;
+
         if(showloadinggpu) y -= draw_textf("%s (%s v%s)", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, gfxrenderer, gfxvendor, gfxversion);
         if(showloadingversion) y -= draw_textf("%s v%s-%s%d-%s (%s)", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionname, versionstring, versionplatname, versionarch, versionbranch, versionrelease);
         if(showloadingurl && *versionurl) y -= draw_textf("%s", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, versionurl);
+
+        if (showsystemtime)
+        {
+            y -= draw_textf("%s", w-FONTH, y, 0, 0, 255, 255, 255, 255, TEXT_RIGHT_UP, -1, -1, 1, get_system_time_formatted());
+        }
+
         popfont();
     }
 
