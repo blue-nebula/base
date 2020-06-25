@@ -519,7 +519,9 @@ bool consoleinput(const char *str, int len)
     return true;
 }
 
+// toggles ability to scroll through chat
 VAR(IDF_PERSIST, scrollchat, 0, 1, 1);
+// toggles ability to scroll through console
 VAR(IDF_PERSIST, scrollconsole, 0, 0, 1);
 
 void scrolldown_chat_console(int lines)
