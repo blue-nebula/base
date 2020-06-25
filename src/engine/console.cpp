@@ -524,11 +524,12 @@ VAR(IDF_PERSIST, scrollconsole, 0, 0, 1);
 
 void scrolldown_chat_console(int lines)
 {
-    if (hud::chatpos > 0 && scrollchat)
+    if (scrollchat)
     {
         hud::chatpos = std::max(0, hud::chatpos - lines);
     }
-    if (hud::consolepos > 0 && scrollconsole)
+
+    if (scrollconsole)
     {
         hud::consolepos = std::max(0, hud::consolepos - lines);
     }
@@ -537,12 +538,12 @@ void scrolldown_chat_console(int lines)
 void scrollup_chat_console(int lines)
 {
     const int max_chatpos = hud::max_chatpos();
-    if (hud::chatpos < max_chatpos && scrollchat)
+    if (scrollchat)
     {
         hud::chatpos = std::min(max_chatpos, hud::chatpos + lines);
     }
     const int max_consolepos = hud::max_consolepos();
-    if (hud::consolepos < max_consolepos && scrollconsole)
+    if (scrollconsole)
     {
         hud::consolepos = std::min(max_consolepos, hud::consolepos + lines);
     }   
