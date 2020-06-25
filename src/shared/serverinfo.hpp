@@ -1,6 +1,9 @@
 #ifndef SERVERINFO_HPP
 #define SERVERINFO_HPP
 
+#include <vector>
+#include <string>
+
 #include "defs.hpp"
 
 struct serverinfo;
