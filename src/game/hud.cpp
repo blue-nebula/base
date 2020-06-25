@@ -1832,7 +1832,7 @@ namespace hud
             if((showconsole && showhud) || commandmillis > 0)
             {
                 int numl = consize, numo = consize+conoverflow;
-                //loopvj(conlines) if(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
+
                 for (int j = consolepos; j < consolepos + min(numo, conlines.length() - consolepos); j++)
                 {
                     if (!(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0)))
