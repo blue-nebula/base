@@ -145,7 +145,7 @@ int serverinfo::compare( serverinfo const& other, SINFO style, bool reverse ) co
 {
     int ac = 0;
     int bc = 0;
-    int index = 0;
+    size_t index = 0;
     int comp  = 0;
     switch(style)
     {
@@ -295,7 +295,7 @@ void serverinfo::cube_get_property( int prop, int idx )
             {
                 intret(attr.size());
             }
-            else if( idx < attr.size())
+            else if( static_cast<size_t>( idx ) < attr.size())
             {
                 intret(attr[idx]);
             }
@@ -306,7 +306,7 @@ void serverinfo::cube_get_property( int prop, int idx )
                 intret(players.size());
                 return;
             }
-            if( idx < players.size())
+            if( static_cast<size_t>( idx ) < players.size())
             {
                 result(players[idx].data());
             }
@@ -317,7 +317,7 @@ void serverinfo::cube_get_property( int prop, int idx )
                 intret(handles.size());
                 return;
             }
-            if( idx < handles.size())
+            if( static_cast<size_t>( idx ) < handles.size())
             {
                 result(handles[idx].data());
             }
