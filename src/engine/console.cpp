@@ -818,23 +818,22 @@ void complete(char *s, size_t s_size, const char *cmdprefix)
             {
                 continue;
             }
-            // get the playername
-            char* player_name = game::players[i]->name;
-
             // check if the playername fits the input
-            bool fits = strncmp(name, player_name, name_len) == 0;
+            bool fits = strncmp(name, game::players[i]->name, name_len) == 0;
 
             // replace the input with the playername
             if (fits) 
             {
+                const char* formatted_playername = game::colourname(game::players[i]);
+
                 // remove everything to the @ from s
                 int s_len = strlen(s);
                 s[s_len - name_len - 1] = 0;
 
-                int player_name_len = strlen(player_name);
+                int player_name_len = strlen(formatted_playername);
 
                 // add player_name to s and return
-                strncat(s, player_name, s_size - s_len - name_len - 1 - player_name_len);
+                strncat(s, formatted_playername, s_size - s_len - name_len - 1 - player_name_len);
                 return;
             }
         }
