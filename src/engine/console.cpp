@@ -1,5 +1,6 @@
 // console.cpp: the console buffer, its display, and command line control
 #include <algorithm>
+#include <string>
 using std::swap;
 
 #include "engine.h"
@@ -824,16 +825,14 @@ void complete(char *s, size_t s_size, const char *cmdprefix)
             // replace the input with the playername
             if (fits) 
             {
-                const char* formatted_playername = game::colourname(game::players[i]);
+                std::string formatted_playername = game::colourname(game::players[i]);
 
                 // remove everything to the @ from s
                 int s_len = strlen(s);
                 s[s_len - name_len - 1] = 0;
 
-                int player_name_len = strlen(formatted_playername);
-
                 // add player_name to s and return
-                strncat(s, formatted_playername, s_size - s_len - name_len - 1 - player_name_len);
+                strncat(s, formatted_playername.c_str(), s_size - s_len - name_len - 1 - formatted_playername.length());
                 return;
             }
         }
