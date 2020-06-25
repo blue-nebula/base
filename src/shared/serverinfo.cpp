@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <assert.h>
 #include <limits.h>
+#include <stdio.h>
+
 #include <zlib.h>
 #include <SDL.h>
 #include <enet/enet.h>
