@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <limits.h>
 #include <zlib.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <enet/enet.h>
 
 #ifndef STANDALONE
