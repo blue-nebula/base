@@ -438,7 +438,7 @@ void serverinfo::ping( ENetSocket& sock, int serverdecay, int millis )
     ucharbuf ubuf( ping, sizeof( ping ) );
     putint( ubuf, millis ? millis : 1 );
 #ifdef WIN32
-    ENetBuffer buf = { static_cast<size_t>( ubuf.length() ), buf };
+    ENetBuffer buf = { static_cast<size_t>( ubuf.length() ), ping };
 #else
     ENetBuffer buf = { ping, static_cast<size_t>( ubuf.length() ) };
 #endif
