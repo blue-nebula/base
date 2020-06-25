@@ -54,13 +54,13 @@ void conline(int type, const char *sf, int n)
             int off = n + j;
             if (!lines->inrange(off))
             {
-		continue;
-	    }
+                continue;
+            }
 
             if (add_to_chatlines)
-            {
-            	if (j) 
-               	{ 
+            {   
+                if (j)
+                {
                     concatstring(chatlines[off].cref, "\fs", BIGSTRLEN);
                 }
                 else 
