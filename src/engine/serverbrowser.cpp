@@ -255,7 +255,15 @@ void pingservers()
     }
     int tmp_millis = totalmillis;
     uchar ping[MAXTRANS];
+    // ENet is crappy enough to invert it's members depending on
+    // target OS.
+    // This does also imply that this "efficient" library wastes 25%
+    // bytes in alignment on windows for this structure.
+#ifdef WIN32
+    ENetBuffer buf = { 0, ping };
+#else
     ENetBuffer buf = { ping, 0 };
+#endif
     ucharbuf p(ping, sizeof(ping));
     putint(p, totalmillis ? totalmillis : 1);
     buf.dataLength = p.length();
