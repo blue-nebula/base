@@ -435,7 +435,11 @@ void serverinfo::ping( ENetSocket& sock, int serverdecay, int millis )
     uchar ping[12];
     ucharbuf ubuf( ping, sizeof( ping ) );
     putint( ubuf, millis ? millis : 1 );
+#ifdef WIN32
+    ENetBuffer buf = { static_cast<size_t>( ubuf.length() ), buf };
+#else
     ENetBuffer buf = { ping, static_cast<size_t>( ubuf.length() ) };
+#endif
     enet_socket_send( sock, &m_address, &buf, 1 );
     if(lastping >= 0 && millis - lastping >= serverdecay * 1000)
     {
