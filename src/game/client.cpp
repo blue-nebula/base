@@ -929,11 +929,11 @@ namespace client
         if(!strcmp(d->hostip, "*"))
         {
             if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
-	    {
-	        conoutft(CON_EVENT, "\fralready ignoring %s", game::colourname(d));
-	    }
-	    else
-	    {
+        {
+            conoutft(CON_EVENT, "\fralready ignoring %s", game::colourname(d));
+        }
+        else
+        {
                 conoutft(CON_EVENT, "\fy%s will be ignored until they or you leave the round, host information is private", game::colourname(d));
                 ignored_cns.push_back(cn);
             }
@@ -956,12 +956,12 @@ namespace client
         if(!strcmp(d->hostip, "*"))
         {
             if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
-	    {
-		conoutft(CON_EVENT, "\fyStopped ignoring %s", game::colourname(d));
-                ignored_cns.erase(std::remove(ignored_cns.begin(), ignored_cns.end(), cn));
-	    }
-	    else
-	    {
+        {
+            conoutft(CON_EVENT, "\fyStopped ignoring %s", game::colourname(d));
+            ignored_cns.erase(std::remove(ignored_cns.begin(), ignored_cns.end(), cn));
+        }
+        else
+        {
                 conoutft(CON_EVENT, "\fyYou are not ignoring %s", game::colourname(d));
             }
             return;
