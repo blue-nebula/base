@@ -291,6 +291,99 @@ namespace client
     }
     ICOMMAND(0, writevars, "sii", (char *name, int *all, int *sv), if(!(identflags&IDF_WORLD)) writegamevars(name, *all!=0, *sv!=0));
 
+    void write_weapon_vars(const char* weapon_name, const char* file_name, bool all = false, bool server = false)
+    {
+        if (!weapon_name || !*weapon_name)
+        {
+            conoutft(CON_EVENT, "\frNo weapon name specified");
+            return;
+        }
+        
+        if (!file_name || !*file_name)
+        {
+            conoutft(CON_EVENT, "\fmNo filename specified, using 'vars.cfg'");
+            file_name = "vars.cfg";
+        }
+        
+        stream* file_stream = openfile(file_name, "w");
+        if (!file_stream) 
+        {
+            conoutft(CON_EVENT, "\frFailed to open file");
+            return;
+        }
+        
+        vector<ident*> identifiers;
+        enumerate(idents, ident, identifier, identifiers.add(&identifier));
+        identifiers.sortname();
+        
+        for (int i = 0; i < identifiers.length(); i++)
+        {
+            ident& identifier = *identifiers[i];
+            
+            // skip if identifier is not client sided or readonly,
+            // a worldvar or doesn't start with the weapon_name
+            if ( !(identifier.flags & IDF_CLIENT)
+               || (identifier.flags & IDF_READONLY)
+               || (identifier.flags & IDF_WORLD)
+               || (strncmp(identifier.name, weapon_name, strlen(identifier.name)) == 0))
+            {
+                continue;
+            }
+            
+            switch (identifier.type)
+            {
+                case ID_VAR:
+                    if (*identifier.storage.i == identifier.def.i)
+                    {
+                        if (all) { file_stream->printf("// "); }
+                        else     { break; }
+                    }        
+                    if (server) 
+                    {
+                        file_stream->printf("sv_");
+                    }
+                    
+                    file_stream->printf("%s %s\n", escapeid(identifier), intstr(&identifier));
+                    break;
+                case ID_FVAR:
+                    if (*identifier.storage.f == identifier.def.f)
+                    {
+                        if (all) { file_stream->printf("// "); }
+                        else     { break; }
+                    }
+                
+                    if (server) 
+                    {
+                        file_stream->printf("sv_");
+                    }
+                    
+                    file_stream->printf("%s %s\n", escapeid(identifier), floatstr(*identifier.storage.f));
+                    break;
+                case ID_SVAR:
+                    if (!strcmp(*identifier.storage.s, identifier.def.s))
+                    {
+                        if (all) { file_stream->printf("// "); }
+                        else     { break; }
+                    }
+                    
+                    if (server) 
+                    {
+                        file_stream->printf("sv_");
+                    }
+                    
+                    file_stream->printf("%s %s\n", escapeid(identifier), escapestring(*identifier.storage.s));
+                    break;
+            }
+            
+        }
+        delete file_stream;
+        conoutft(CON_EVENT, "\fgSuccessfully exported \fb%s \fgconfig into file \fy%s", weapon_name, file_name);
+        
+    }
+    
+    ICOMMAND(0, writeweapvars, "ssii", (char* weapon_name, char* file_name, int* all, int* sv), if (!(identflags & IDF_WORLD)) write_weapon_vars(weapon_name, file_name, *all != 0, *sv != 0));
+
+
     void writegamevarsinfo(const char *name)
     {
         if(!name || !*name) name = "varsinfo.txt";
