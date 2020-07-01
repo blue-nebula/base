@@ -2099,7 +2099,7 @@ namespace hud
             gle::defvertex(2);
             gle::deftexcoord0();
             gle::begin(GL_TRIANGLE_STRIP);
-            if(style != 2 && radarbliprotate)
+            if(style != 2 && radarbliprotate && rotate)
             {
                 vec2 o(loc.x, loc.y);
                 loopk(4)
@@ -2199,6 +2199,11 @@ namespace hud
             }
             colour[1] = vec::hexcolor(game::getcolour(d, game::playerovertone, game::playerovertonelevel));
             const char *tex = isdominated ? dominatedtex : (killer || self ? arrowtex : playerbliptex);
+            if (d->conopen) 
+            {
+                tex = chattex; 
+            }
+            
             float fade = (force || killer || self || dominated ? 1.f : clamp(1.f-(dist/float(radarrange())), isdominated ? 0.25f : 0.f, 1.f))*blend, size = killer || self ? 1.5f : (isdominated ? 1.25f : 1.f);
             if(!self && (d->state == CS_DEAD || d->state == CS_WAITING))
             {
