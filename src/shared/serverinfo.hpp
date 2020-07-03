@@ -66,7 +66,7 @@ enum SSTAT
 };
 
 // values returned when trying to join a server?
-// used in attr[5]
+// used in m_attr[5]
 enum MM
 {
     MM_OPEN    ,
@@ -88,41 +88,36 @@ struct serverinfo
 
 private:
     // list of player/spectators names
-    std::vector<std::string> players;
-
-    std::vector<std::string> handles;
+    std::vector<std::string> m_players;
+    // authentification per player
+    std::vector<std::string> m_handles;
 
     // various server attributes, see cube_get_property() for what I know
-    std::vector<int> attr;
+    std::vector<int> m_attr;
     // server's UDP/TCP/IP informations
     ENetAddress m_address;
     // description as seen in serverbrowser
-    string sdesc;
+    string m_sdesc;
 
-    string flags;
-    string branch;
-    string authhandle;
+    string m_flags;
+    string m_branch;
+    string m_authhandle;
 
     // probably the IP or domain name
     string m_name;
     // name of current map
-    string map;
+    string m_map;
 
-    int lastping;
-    int nextping;
-    int pings[MAXPINGS];
-    int lastinfo;
+    int m_lastping;
+    int m_nextping;
+    int m_pings[MAXPINGS];
+    int m_lastinfo;
 
     // UDP? port number, probably redundant with m_address
-    int port;
+    int m_port;
 
-    int priority;
+    int m_priority;
     int m_ping;
-
-    // number of players
-    // don't know why not just using players.size().
-    // Maybe because it does not includes the number of spectators?
-    int numplayers;
 
     // name resolution state.
     enum
@@ -130,10 +125,10 @@ private:
         UNRESOLVED,
         RESOLVING,
         RESOLVED
-    } resolved;
+    } m_resolved;
 
     // is "servers" sorted?
-    static bool sortedservers;
+    static bool s_sortedservers;
 
     const char* description( void ) const;
     void clearpings();
@@ -177,7 +172,7 @@ public:
     // if property > 0:
     //   if index < 0: returns the size of requested array
     //   if index > array.size(): do nothing
-    //   if property == 1: returns attr[index] (integer)
+    //   if property == 1: returns m_attr[index] (integer)
     //   if property == 2: returns players[index] (result?)
     //   if property == 3: returns handles[index] (result?)
     // if propert == 1:
@@ -188,7 +183,7 @@ public:
     //   if index ==  4: returns map played (result)
     //   if index ==  5: returns number of players (integer)
     //   if index ==  6: returns ping? Guess it's roundtrip time? (integer)
-    //   if index ==  7: returns lastinfo? guess it's time of last update? (integer)
+    //   if index ==  7: returns m_lastinfo? guess it's time of last update? (integer)
     //   if index ==  8: returns authhandle?? (result)
     //   if index ==  9: returns flags??  (result)
     //   if index == 10: returns branch?? (resull)

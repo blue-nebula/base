@@ -28,36 +28,35 @@ void serverinfo::clearpings()
     m_ping = WAITING;
     loopk(MAXPINGS)
     {
-        pings[k] = WAITING;
+        m_pings[k] = WAITING;
     }
-    nextping = 0;
-    lastping = lastinfo = -1;
+    m_nextping = 0;
+    m_lastping = m_lastinfo = -1;
 }
 
 void serverinfo::cleanup()
 {
     clearpings();
-    attr.clear();
-    players.clear();
-    handles.clear();
-    numplayers = 0;
+    m_attr.clear();
+    m_players.clear();
+    m_handles.clear();
 }
 
 void serverinfo::addping(int rtt, int millis)
 {
-    if(millis >= lastping)
+    if(millis >= m_lastping)
     {
-        lastping = -1;
+        m_lastping = -1;
     }
-    pings[nextping] = rtt;
-    nextping = (nextping+1)%MAXPINGS;
+    m_pings[m_nextping] = rtt;
+    m_nextping = (m_nextping+1)%MAXPINGS;
     int numpings = 0;
     int totalpings = 0;
     loopk(MAXPINGS)
     {
-        if(pings[k] != WAITING)
+        if(m_pings[k] != WAITING)
         {
-            totalpings += pings[k];
+            totalpings += m_pings[k];
             numpings++;
         }
     }
@@ -67,39 +66,39 @@ void serverinfo::addping(int rtt, int millis)
 // return description if not empty, name otherwise.
 const char* serverinfo::description( void ) const
 {
-    return sdesc[0] ? sdesc : m_name;
+    return m_sdesc[0] ? m_sdesc : m_name;
 }
 
 // returns protocol version
 //
 // -1 if server still have no informations
-// 0x7FFF if server uses VERSION_GAME on attr[0] (for older protocol compat?)
-// attr[0] clamped in range [0,0x7FFE]
+// 0x7FFF if server uses VERSION_GAME on m_attr[0] (for older protocol compat?)
+// m_attr[0] clamped in range [0,0x7FFE]
 int serverinfo::protocol_version( void ) const
 {
     if( false
         || m_address.host == ENET_HOST_ANY
         || m_ping >= serverinfo::WAITING
-        || attr.empty()
+        || m_attr.empty()
       )
     {
         return -1;
     }
-    return attr[0] == VERSION_GAME ? 0x7fff : clamp( attr[0], 0, 0x7FFF - 1 );
+    return m_attr[0] == VERSION_GAME ? 0x7fff : clamp( m_attr[0], 0, 0x7FFF - 1 );
 }
 
 // return "status" of server, aka: can it be joined
 SSTAT serverinfo::server_status( void ) const
 {
-    if( attr.size() > 4 && numplayers >= attr[4] )
+    if( m_attr.size() > 4 && m_players.size() >= m_attr[4] )
     {
         return SSTAT_FULL;
     }
-    if(attr.size() <= 5)
+    if(m_attr.size() <= 5)
     {
         return SSTAT_UNKNOWN;
     }
-    switch(attr[5])
+    switch(m_attr[5])
     {
         case MM_LOCKED:
             return SSTAT_LOCKED;
@@ -114,9 +113,9 @@ SSTAT serverinfo::server_status( void ) const
 // start of public methods definitions
 
 serverinfo::serverinfo(uint ip, int port, int priority)
- : port(port), priority(priority), numplayers(0), resolved(ip==ENET_HOST_ANY ? UNRESOLVED : RESOLVED)
+ : m_port(port), m_priority(priority), m_resolved(ip==ENET_HOST_ANY ? UNRESOLVED : RESOLVED)
 {
-    m_name[0] = map[0] = sdesc[0] = authhandle[0] = flags[0] = branch[0] = '\0';
+    m_name[0] = m_map[0] = m_sdesc[0] = m_authhandle[0] = m_flags[0] = m_branch[0] = '\0';
     m_address.host = ip;
     m_address.port = port+1;
     clearpings();
@@ -129,8 +128,8 @@ serverinfo::~serverinfo()
 
 void serverinfo::reset()
 {
-    lastping = lastinfo = -1;
-    sortedservers = false;
+    m_lastping = m_lastinfo = -1;
+    s_sortedservers = false;
 }
 
 int serverinfo::compare( serverinfo const& other, int style, bool reverse ) const
@@ -152,13 +151,13 @@ int serverinfo::compare( serverinfo const& other, SINFO style, bool reverse ) co
     switch(style)
     {
         case SINFO_DESC:
-            if( ( comp = strcmp(sdesc, other.sdesc) ) )
+            if( ( comp = strcmp(m_sdesc, other.m_sdesc) ) )
             {
                 return reverse ? 0 - comp: comp ;
             }
             return 0;
         case SINFO_MAP:
-            if( ( comp = strcmp(map, other.map) ) )
+            if( ( comp = strcmp(m_map, other.m_map) ) )
             {
                 return reverse ? 0 - comp : comp;
             }
@@ -179,16 +178,16 @@ int serverinfo::compare( serverinfo const& other, SINFO style, bool reverse ) co
             bc = other.server_status();
             break;
         case SINFO_NUMPLRS:
-            ac = numplayers;
-            bc = other.numplayers;
+            ac = m_players.size();
+            bc = other.m_players.size();
             break;
         case SINFO_PING:
             ac = m_ping;
             bc = other.m_ping;
             break;
         case SINFO_PRIO:
-            ac = priority;
-            bc = other.priority;
+            ac = m_priority;
+            bc = other.m_priority;
             break;
         default:
             assert( false && "unknown style" );
@@ -196,8 +195,8 @@ int serverinfo::compare( serverinfo const& other, SINFO style, bool reverse ) co
     }
     if( index != 0 )
     {
-        ac =       attr.size() > index ?       attr[index] : 0;
-        bc = other.attr.size() > index ? other.attr[index] : 0;
+        ac =       m_attr.size() > index ?       m_attr[index] : 0;
+        bc = other.m_attr.size() > index ? other.m_attr[index] : 0;
     }
 
     if( ac == bc )
@@ -261,67 +260,67 @@ void serverinfo::cube_get_property( int prop, int idx )
                     result(m_name);
                     break;
                 case 2:
-                    intret(port);
+                    intret(m_port);
                     break;
                 case 3:
                     result(description());
                     break;
                 case 4:
-                    result(map);
+                    result(m_map);
                     break;
                 case 5:
-                    intret(numplayers);
+                    intret(m_players.size());
                     break;
                 case 6:
                     intret(m_ping);
                     break;
                 case 7:
-                    intret(lastinfo);
+                    intret(m_lastinfo);
                     break;
                 case 8:
-                    result(authhandle);
+                    result(m_authhandle);
                     break;
                 case 9:
-                    result(flags);
+                    result(m_flags);
                     break;
                 case 10:
-                    result(branch);
+                    result(m_branch);
                     break;
                 case 11:
-                    intret(priority);
+                    intret(m_priority);
                     break;
             }
             return;
         case 1:
             if(idx < 0)
             {
-                intret(attr.size());
+                intret(m_attr.size());
             }
-            else if( static_cast<size_t>( idx ) < attr.size())
+            else if( static_cast<size_t>( idx ) < m_attr.size())
             {
-                intret(attr[idx]);
+                intret(m_attr[idx]);
             }
             break;
         case 2:
             if(idx < 0)
             {
-                intret(players.size());
+                intret(m_players.size());
                 return;
             }
-            if( static_cast<size_t>( idx ) < players.size())
+            if( static_cast<size_t>( idx ) < m_players.size())
             {
-                result(players[idx].data());
+                result(m_players[idx].data());
             }
             return;
         case 3:
             if(idx < 0)
             {
-                intret(handles.size());
+                intret(m_handles.size());
                 return;
             }
-            if( static_cast<size_t>( idx ) < handles.size())
+            if( static_cast<size_t>( idx ) < m_handles.size())
             {
-                result(handles[idx].data());
+                result(m_handles[idx].data());
             }
             return;
     }
@@ -330,11 +329,11 @@ void serverinfo::cube_get_property( int prop, int idx )
 void serverinfo::writecfg( stream& file ) const
 {
     file.printf("addserver %s %d %d %s %s %s %s\n",
-        m_name, port, priority,
+        m_name, m_port, m_priority,
         escapestring(description()),
-        escapestring(authhandle),
-        escapestring(flags),
-        escapestring(branch)
+        escapestring(m_authhandle),
+        escapestring(m_flags),
+        escapestring(m_branch)
     );
 }
 
@@ -349,25 +348,25 @@ void serverinfo::update( size_t len, void const* data, int serverdecay, int tota
     {
         addping(rtt, millis);
     }
-    lastinfo = totalmillis;
-    numplayers = getint(p);
+    m_lastinfo = totalmillis;
+    auto numplayers = getint(p);
     int numattr = getint(p);
-    attr.clear();
+    m_attr.clear();
     loopj(numattr)
     {
-        attr.emplace_back(getint(p));
+        m_attr.emplace_back(getint(p));
     }
-    int gver = attr.empty() ? 0 : attr[0];
+    int gver = m_attr.empty() ? 0 : m_attr[0];
     getstring(text, p);
-    filterstring(map, text, false, true, true, false, sizeof( map ));
+    filterstring(m_map, text, false, true, true, false, sizeof( m_map ));
     getstring(text, p);
-    filterstring(sdesc, text, true, true, true, false, MAXSDESCLEN+1);
-    players.clear();
-    handles.clear();
+    filterstring(m_sdesc, text, true, true, true, false, MAXSDESCLEN+1);
+    m_players.clear();
+    m_handles.clear();
     if(gver >= 227)
     {
         getstring(text, p);
-        filterstring(branch, text, true, true, true, false, MAXBRANCHLEN+1);
+        filterstring(m_branch, text, true, true, true, false, MAXBRANCHLEN+1);
     }
     loopi(numplayers)
     {
@@ -376,7 +375,7 @@ void serverinfo::update( size_t len, void const* data, int serverdecay, int tota
             break;
         }
         getstring(text, p);
-        players.emplace_back(newstring(text));
+        m_players.emplace_back(newstring(text));
     }
     if(gver >= 225)
     {
@@ -387,10 +386,10 @@ void serverinfo::update( size_t len, void const* data, int serverdecay, int tota
                 break;
             }
             getstring(text, p);
-            handles.emplace_back(newstring(text));
+            m_handles.emplace_back(newstring(text));
         }
     }
-    sortedservers = false;
+    s_sortedservers = false;
 }
 
 bool serverinfo::validate_resolve( char const* name, ENetAddress const& addr )
@@ -399,20 +398,20 @@ bool serverinfo::validate_resolve( char const* name, ENetAddress const& addr )
     {
         return false;
     }
-    resolved = serverinfo::RESOLVED;
+    m_resolved = serverinfo::RESOLVED;
     m_address.host = addr.host;
     return true;
 }
 
 bool serverinfo::need_resolve( int& resolving )
 {
-    if( resolved == RESOLVED || m_address.host != ENET_HOST_ANY )
+    if( m_resolved == RESOLVED || m_address.host != ENET_HOST_ANY )
     {
         return false;
     }
-    int ret = resolved == UNRESOLVED;
+    int ret = m_resolved == UNRESOLVED;
     ++resolving;
-    resolved = RESOLVING;
+    m_resolved = RESOLVING;
     return ret;
 }
 
@@ -423,7 +422,7 @@ bool serverinfo::is_same( ENetAddress const& addr ) const
 
 bool serverinfo::is_same( char const* oname, int oport ) const
 {
-    return 0 == strcmp( m_name, oname ) && port == oport;
+    return 0 == strcmp( m_name, oname ) && m_port == oport;
 }
 
 void serverinfo::ping( ENetSocket& sock, int serverdecay, int millis )
@@ -443,13 +442,13 @@ void serverinfo::ping( ENetSocket& sock, int serverdecay, int millis )
     ENetBuffer buf = { ping, static_cast<size_t>( ubuf.length() ) };
 #endif
     enet_socket_send( sock, &m_address, &buf, 1 );
-    if(lastping >= 0 && millis - lastping >= serverdecay * 1000)
+    if(m_lastping >= 0 && millis - m_lastping >= serverdecay * 1000)
     {
         cleanup();
     }
-    if(lastping < 0)
+    if(m_lastping < 0)
     {
-        lastping = millis ? millis : 1;
+        m_lastping = millis ? millis : 1;
     }
 }
 
@@ -470,39 +469,39 @@ serverinfo *serverinfo::newserver(const char *name, int port, int priority, cons
     }
     if(desc && *desc)
     {
-        copystring(si->sdesc, desc, MAXSDESCLEN+1);
+        copystring(si->m_sdesc, desc, MAXSDESCLEN+1);
     }
     if(handle && *handle)
     {
-        copystring(si->authhandle, handle);
+        copystring(si->m_authhandle, handle);
     }
     if(flags && *flags)
     {
-        copystring(si->flags, flags);
+        copystring(si->m_flags, flags);
     }
     if(branch && *branch)
     {
-        copystring(si->branch, branch, MAXBRANCHLEN+1);
+        copystring(si->m_branch, branch, MAXBRANCHLEN+1);
     }
 
     servers.emplace_back( si );
-    sortedservers = false;
+    s_sortedservers = false;
 
     return si;
 }
 
 bool serverinfo::server_compatible( serverinfo const* si )
 {
-    return si->attr.empty() || si->attr[0] == server::getver(1);
+    return si->m_attr.empty() || si->m_attr[0] == server::getver(1);
 }
 
 void serverinfo::sort( vector<serverinfo*> &servers )
 {
-    if( !sortedservers )
+    if( !s_sortedservers )
     {
         std::sort( servers.begin(), servers.end(), client::serverinfocompare );
-        sortedservers = true;
+        s_sortedservers = true;
     }
 }
 
-bool serverinfo::sortedservers = false;
+bool serverinfo::s_sortedservers = false;
