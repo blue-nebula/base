@@ -87,7 +87,7 @@ namespace capture
                     }
                     else if(f.owner || f.droptime) tex = hud::alerttex;
                 }
-                if(hud::radaraffinitynames > (arrow ? 0 : 1)) hud::drawblip(tex, arrow ? 3 : 2, w, h, size, fade, arrow ? 0 : -1, pos, colour, "little", "\f[%d]%s", TEAM(f.team, colour), k ? "flag" : "base");
+                if(hud::radaraffinitynames > (arrow ? 0 : 1)) hud::drawblip(tex, arrow ? 3 : 2, w, h, size, fade, arrow ? 0 : -1, pos, colour, "little", true, "\f[%d]%s", TEAM(f.team, colour), k ? "flag" : "base");
                 else hud::drawblip(tex, arrow ? 3 : 2, w, h, size, fade, arrow ? 0 : -1, pos, colour);
             }
         }

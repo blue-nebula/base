@@ -1662,7 +1662,7 @@ namespace hud
     extern void drawpointer(int w, int h, int index);
     extern int numteamkills();
     extern int radarrange();
-    extern void drawblip(const char *tex, float area, int w, int h, float s, float blend, int style, const vec &pos, const vec &colour = vec(1, 1, 1), const char *font = "reduced", const char *text = NULL, ...);
+    extern void drawblip(const char *tex, float area, int w, int h, float s, float blend, int style, const vec &pos, const vec &colour = vec(1, 1, 1), const char *font = "reduced", bool rotate = true, const char *text = NULL, ...);
     extern int drawprogress(int x, int y, float start, float length, float size, bool left, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, const char *font = NULL, const char *text = NULL, ...);
     extern int drawitembar(int x, int y, float size, bool left, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, float amt = 1, int type = 0);
     extern int drawitem(const char *tex, int x, int y, float size, float sub = 0, bool bg = true, bool left = false, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, const char *font = NULL, const char *text = NULL, ...);
