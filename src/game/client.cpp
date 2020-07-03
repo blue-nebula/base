@@ -3399,33 +3399,8 @@ namespace client
 
     void getservers(int server, int prop, int idx)
     {
-        if(server < 0) 
+        if(server < 0)
         {
-            if (hideincompatibleservers)
-            {
-                vector<serverinfo *> servers_new;
-                for (int i = 0; i < servers.length(); i++)
-                {
-                    serverinfo* si = servers[i];
-                    // check that the server is compatible
-                    if (si->attr.inrange(0))
-                    {
-                        if (si->attr[0] == server::getver(1))
-                        {
-                            servers_new.add(servers[i]);
-                        }
-                    }
-                    else
-                    {
-                        if (client::serverstat(si) != 2)
-                        {
-                            servers_new.add(servers[i]);
-                        }
-                    }
-                }
-                servers = servers_new;
-            }
-
             intret(servers.length());
         }
         else if(servers.inrange(server))
