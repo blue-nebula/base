@@ -926,14 +926,14 @@ namespace client
     {
         gameent *d = game::getclient(cn);
         if(!d || d == &game::player1) return;
-        if(!strcmp(d->hostip, "*"))
-        {
-            if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
-        {
-            conoutft(CON_EVENT, "\fralready ignoring %s", game::colourname(d));
-        }
-        else
-        {
+            if(!strcmp(d->hostip, "*"))
+            {
+                if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
+            {
+                conoutft(CON_EVENT, "\fralready ignoring %s", game::colourname(d));
+            }
+            else
+            {
                 conoutft(CON_EVENT, "\fy%s will be ignored until they or you leave the round, host information is private", game::colourname(d));
                 ignored_cns.push_back(cn);
             }
