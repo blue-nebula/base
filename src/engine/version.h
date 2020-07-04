@@ -15,5 +15,5 @@
 
 #define LAN_PORT 28799
 #define MASTER_PORT 28800
-#define SERVER_PORT 28801
+#include "defs.hpp"
 #endif

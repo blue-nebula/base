@@ -593,6 +593,7 @@ static inline bool htcmp(GLuint x, GLuint y)
 
 template <class T> struct vector
 {
+    typedef T value_type;
 private:
     static const int MINSIZE = 8; // 1st allocation minimal size?
 
@@ -670,6 +671,11 @@ public:
     void emplace_back( void )
     {
         add();
+    }
+
+    void push_back( T const& el )
+    {
+        add( el );
     }
 
     void emplace_back( T const& el )

@@ -1,0 +1,9 @@
+This file list hints that hope to make it easier to understand the small variables naming.
+It's only guess, and any addition to it could help future people (including self).
+
+* ac, bc: a_compare, b_compare. Holds temp vars for further comparison.
+    _ found in serverinfo context
+* amt: amount
+    _ found in cookzoom context
+* pc: percent
+    _ found in cookzoom context

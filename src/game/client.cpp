@@ -1,6 +1,7 @@
 #include <algorithm>
 using std::swap;
 #include "game.h"
+#include "serverinfo.hpp"
 
 namespace client
 {
@@ -18,7 +19,6 @@ namespace client
     VAR(IDF_PERSIST, showteamchange, 0, 1, 2); // 0 = never show, 1 = show only when switching between, 2 = show when entering match too
     VAR(IDF_PERSIST, showservervariables, 0, 0, 1); // determines if variables set by the server are printed to the console
     VAR(IDF_PERSIST, showmapvotes, 0, 1, 3); // shows map votes, 1 = only mid-game (not intermision), 2 = at all times, 3 = verbose
-    VAR(IDF_PERSIST, hideincompatibleservers, 0, 0, 1);
     VAR(IDF_PERSIST, playmentionedsound, 0, 0, 1);
 
     VAR(IDF_PERSIST, checkpointannounce, 0, 5, 7); // 0 = never, &1 = active players, &2 = all players, &4 = all players in gauntlet
@@ -3240,56 +3240,18 @@ namespace client
         }
     }
 
-    int serverstat(serverinfo *a)
+    bool serverinfocompare(serverinfo const*a, serverinfo const*b)
     {
-        if(a->attr.length() > 4 && a->numplayers >= a->attr[4])
+        int comp = a->version_compare( *b );
+        if( comp != 0 )
         {
-            return SSTAT_FULL;
-        }
-        else if(a->attr.length() > 5) switch(a->attr[5])
-        {
-            case MM_LOCKED:
-            {
-                return SSTAT_LOCKED;
-            }
-            case MM_PRIVATE:
-            case MM_PASSWORD:
-            {
-                return SSTAT_PRIVATE;
-            }
-            default:
-            {
-                return SSTAT_OPEN;
-            }
-        }
-        return SSTAT_UNKNOWN;
-    }
-
-    int servercompare(serverinfo *a, serverinfo *b)
-    {
-        int ac = 0, bc = 0;
-        if(a->address.host == ENET_HOST_ANY || a->ping >= serverinfo::WAITING || a->attr.empty()) ac = -1;
-        else ac = a->attr[0] == VERSION_GAME ? 0x7FFF : clamp(a->attr[0], 0, 0x7FFF-1);
-        if(b->address.host == ENET_HOST_ANY || b->ping >= serverinfo::WAITING || b->attr.empty()) bc = -1;
-        else bc = b->attr[0] == VERSION_GAME ? 0x7FFF : clamp(b->attr[0], 0, 0x7FFF-1);
-        if(ac > bc) return -1;
-        if(ac < bc) return 1;
-
-        #define retcp(c) { int cv = (c); if(cv) { return reverse ? -cv : cv; } }
-        #define retsw(c,d,e) { \
-            int cv = (c), dv = (d); \
-            if(cv != dv) \
-            { \
-                if((e) != reverse ? cv < dv : cv > dv) return -1; \
-                if((e) != reverse ? cv > dv : cv < dv) return 1; \
-            } \
+            return comp < 0;
         }
 
         if(serversortstyles.empty()) updateserversort();
         loopv(serversortstyles)
         {
             int style = serversortstyles[i];
-            serverinfo *aa = a, *ab = b;
             bool reverse = false;
             if(style < 0)
             {
@@ -3297,85 +3259,10 @@ namespace client
                 reverse = true;
             }
 
-            switch(style)
-            {
-                case SINFO_STATUS:
-                {
-                    retsw(serverstat(aa), serverstat(ab), true);
-                    break;
-                }
-                case SINFO_DESC:
-                {
-                    retcp(strcmp(aa->sdesc, ab->sdesc));
-                    break;
-                }
-                case SINFO_MODE:
-                {
-                    if(aa->attr.length() > 1) ac = aa->attr[1];
-                    else ac = 0;
-
-                    if(ab->attr.length() > 1) bc = ab->attr[1];
-                    else bc = 0;
-
-                    retsw(ac, bc, true);
-                }
-                case SINFO_MUTS:
-                {
-                    if(aa->attr.length() > 2) ac = aa->attr[2];
-                    else ac = 0;
-
-                    if(ab->attr.length() > 2) bc = ab->attr[2];
-                    else bc = 0;
-
-                    retsw(ac, bc, true);
-                    break;
-                }
-                case SINFO_MAP:
-                {
-                    retcp(strcmp(aa->map, ab->map));
-                    break;
-                }
-                case SINFO_TIME:
-                {
-                    if(aa->attr.length() > 3) ac = aa->attr[3];
-                    else ac = 0;
-
-                    if(ab->attr.length() > 3) bc = ab->attr[3];
-                    else bc = 0;
-
-                    retsw(ac, bc, false);
-                    break;
-                }
-                case SINFO_NUMPLRS:
-                {
-                    retsw(aa->numplayers, ab->numplayers, false);
-                    break;
-                }
-                case SINFO_MAXPLRS:
-                {
-                    if(aa->attr.length() > 4) ac = aa->attr[4];
-                    else ac = 0;
-
-                    if(ab->attr.length() > 4) bc = ab->attr[4];
-                    else bc = 0;
-
-                    retsw(ac, bc, false);
-                    break;
-                }
-                case SINFO_PING:
-                {
-                    retsw(aa->ping, ab->ping, true);
-                    break;
-                }
-                case SINFO_PRIO:
-                {
-                    retsw(aa->priority, ab->priority, false);
-                    break;
-                }
-                default: break;
-            }
+            comp = a->compare(*b, style, reverse);
+            if( comp != 0 ) return comp < 0;
         }
-        return strcmp(a->name, b->name);
+        return strcmp( a->name(), b->name() ) < 0;
     }
 
     void parsepacketclient(int chan, packetbuf &p)  // processes any updates from the server
@@ -3396,77 +3283,4 @@ namespace client
                 break;
         }
     }
-
-    void getservers(int server, int prop, int idx)
-    {
-        if(server < 0) 
-        {
-            if (hideincompatibleservers)
-            {
-                vector<serverinfo *> servers_new;
-                for (int i = 0; i < servers.length(); i++)
-                {
-                    serverinfo* si = servers[i];
-                    // check that the server is compatible
-                    if (si->attr.inrange(0))
-                    {
-                        if (si->attr[0] == server::getver(1))
-                        {
-                            servers_new.add(servers[i]);
-                        }
-                    }
-                    else
-                    {
-                        if (client::serverstat(si) != 2)
-                        {
-                            servers_new.add(servers[i]);
-                        }
-                    }
-                }
-                servers = servers_new;
-            }
-
-            intret(servers.length());
-        }
-        else if(servers.inrange(server))
-        {
-            serverinfo *si = servers[server];
-
-            if(prop < 0) intret(4);
-            else switch(prop)
-            {
-                case 0:
-                    if(idx < 0) intret(11);
-                    else switch(idx)
-                    {
-                        case 0: intret(serverstat(si)); break;
-                        case 1: result(si->name); break;
-                        case 2: intret(si->port); break;
-                        case 3: result(si->sdesc[0] ? si->sdesc : si->name); break;
-                        case 4: result(si->map); break;
-                        case 5: intret(si->numplayers); break;
-                        case 6: intret(si->ping); break;
-                        case 7: intret(si->lastinfo); break;
-                        case 8: result(si->authhandle); break;
-                        case 9: result(si->flags); break;
-                        case 10: result(si->branch); break;
-                        case 11: intret(si->priority); break;
-                    }
-                    break;
-                case 1:
-                    if(idx < 0) intret(si->attr.length());
-                    else if(si->attr.inrange(idx)) intret(si->attr[idx]);
-                    break;
-                case 2:
-                    if(idx < 0) intret(si->players.length());
-                    else if(si->players.inrange(idx)) result(si->players[idx]);
-                    break;
-                case 3:
-                    if(idx < 0) intret(si->handles.length());
-                    else if(si->handles.inrange(idx)) result(si->handles[idx]);
-                    break;
-            }
-        }
-    }
-    ICOMMAND(0, getserver, "bbb", (int *server, int *prop, int *idx, int *numargs), getservers(*server, *prop, *idx));
 }
