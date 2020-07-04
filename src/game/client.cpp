@@ -926,9 +926,9 @@ namespace client
     {
         gameent *d = game::getclient(cn);
         if(!d || d == &game::player1) return;
-            if(!strcmp(d->hostip, "*"))
-            {
-                if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
+        if(!strcmp(d->hostip, "*"))
+        {
+            if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
             {
                 conoutft(CON_EVENT, "\fralready ignoring %s", game::colourname(d));
             }
