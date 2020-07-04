@@ -956,12 +956,12 @@ namespace client
         if(!strcmp(d->hostip, "*"))
         {
             if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
-        {
-            conoutft(CON_EVENT, "\fyStopped ignoring %s", game::colourname(d));
-            ignored_cns.erase(std::remove(ignored_cns.begin(), ignored_cns.end(), cn));
-        }
-        else
-        {
+            {
+                conoutft(CON_EVENT, "\fyStopped ignoring %s", game::colourname(d));
+                ignored_cns.erase(std::remove(ignored_cns.begin(), ignored_cns.end(), cn));
+            }
+            else
+            {
                 conoutft(CON_EVENT, "\fyYou are not ignoring %s", game::colourname(d));
             }
             return;
