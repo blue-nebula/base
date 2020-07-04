@@ -2359,7 +2359,7 @@ namespace client
                     // unignore disconnecting players to prevent unintentionally ignore the next player
                     // that get's this cn assigned
                     if (std::find(ignored_cns.begin(), ignored_cns.end(), lcn) != ignored_cns.end())
-	                {
+                    {
                         std::string player_name = "Player No. " + std::to_string(lcn);
                         if (d)
                         {
