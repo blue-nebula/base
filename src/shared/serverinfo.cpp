@@ -202,16 +202,16 @@ int serverinfo::compare( serverinfo const& other, SINFO style, bool reverse ) co
     if( ac == bc )
     {
         return 0;
-        bool higher_is_better = style != SINFO_NUMPLRS && style != SINFO_PRIO;
-        if( higher_is_better != reverse ? ac < bc : ac > bc )
-        {
-            return -1;
-        }
-        if( higher_is_better != reverse ? ac > bc : ac < bc )
-        {
-            return  1;
-        }
-    }
+		}
+		bool higher_is_better = style != SINFO_NUMPLRS && style != SINFO_PRIO;
+		if( higher_is_better != reverse ? ac < bc : ac > bc )
+		{
+			return -1;
+		}
+		if( higher_is_better != reverse ? ac > bc : ac < bc )
+		{
+			return  1;
+		}
     return 0;
 }
 
