@@ -18,7 +18,6 @@ namespace client
     VAR(IDF_PERSIST, showteamchange, 0, 1, 2); // 0 = never show, 1 = show only when switching between, 2 = show when entering match too
     VAR(IDF_PERSIST, showservervariables, 0, 0, 1); // determines if variables set by the server are printed to the console
     VAR(IDF_PERSIST, showmapvotes, 0, 1, 3); // shows map votes, 1 = only mid-game (not intermision), 2 = at all times, 3 = verbose
-    VAR(IDF_PERSIST, hideincompatibleservers, 0, 0, 1);
     VAR(IDF_PERSIST, playmentionedsound, 0, 0, 1);
 
     VAR(IDF_PERSIST, checkpointannounce, 0, 5, 7); // 0 = never, &1 = active players, &2 = all players, &4 = all players in gauntlet
@@ -3399,33 +3398,8 @@ namespace client
 
     void getservers(int server, int prop, int idx)
     {
-        if(server < 0) 
+        if(server < 0)
         {
-            if (hideincompatibleservers)
-            {
-                vector<serverinfo *> servers_new;
-                for (int i = 0; i < servers.length(); i++)
-                {
-                    serverinfo* si = servers[i];
-                    // check that the server is compatible
-                    if (si->attr.inrange(0))
-                    {
-                        if (si->attr[0] == server::getver(1))
-                        {
-                            servers_new.add(servers[i]);
-                        }
-                    }
-                    else
-                    {
-                        if (client::serverstat(si) != 2)
-                        {
-                            servers_new.add(servers[i]);
-                        }
-                    }
-                }
-                servers = servers_new;
-            }
-
             intret(servers.length());
         }
         else if(servers.inrange(server))
