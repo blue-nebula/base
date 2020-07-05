@@ -291,6 +291,9 @@ namespace client
     }
     ICOMMAND(0, writevars, "sii", (char *name, int *all, int *sv), if(!(identflags&IDF_WORLD)) writegamevars(name, *all!=0, *sv!=0));
 
+    // write_weapon_vars, saves the current variables for a specific weapon to a config file inside the folder
+    // bool all = every variable will be written with default values commented out, if false, only changed variables will be written
+    // bool server = variables are prefixed with sv_
     void write_weapon_vars(const char* weapon_name, const char* file_name, bool all = false, bool server = false)
     {
         if (!weapon_name || !*weapon_name)
