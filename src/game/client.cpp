@@ -1,5 +1,6 @@
 #include <algorithm>
 using std::swap;
+#include <string>
 #include "game.h"
 
 namespace client
@@ -247,18 +248,31 @@ namespace client
 
     void writegamevars(const char *name, bool all = false, bool server = false, const char* weapon_name = "")
     {
-        if(!name || !*name) name = "vars.cfg";
-        stream *f = openfile(name, "w");
-        if(!f) return;
+        if (!name || !*name) name = "vars.cfg";
+
+        stream* f = openfile(name, "w");
+        // if we fail to open a file stream, stop and print error message
+        if (!f) {
+            conoutft(CON_EVENT, "\frFailed to open filestream for file: \fb%s \fr. Variables have not been saved.", name);
+            return;
+        }
 
         bool export_weapon = weapon_name != "";
         vector<ident *> ids;
         enumerate(idents, ident, id, ids.add(&id));
+
+        // sort the identifiers so the output file will be alphabetically sorted
         ids.sortname();
-        loopv(ids)
+
+        for (size_t i = 0; i < ids.size(); i++)
         {
             ident &id = *ids[i];
 
+            // do not save the variable if:
+            // it's not a client sided variable
+            // it's readonly
+            // it's a world variable
+            // or if we export a weapon and it the variablename doesn't start with the weapon name
             if (   !(id.flags & IDF_CLIENT)
                 || (id.flags & IDF_READONLY)
                 || (id.flags & IDF_WORLD)
@@ -267,41 +281,40 @@ namespace client
                 continue;
             }
 
-            switch(id.type)
+            bool value_changed = false;
+            std::string write_value = "";
+
+            switch (id.type)
             {
                 case ID_VAR:
-                    if(*id.storage.i == id.def.i)
-                    {
-                        if(all) f->printf("// ");
-                        else break;
-                    }
-                    if(server) f->printf("sv_");
-                    f->printf("%s %s\n", escapeid(id), intstr(&id));
+                    value_changed = *id.storage.i != id.def.i;
+                    write_value   = intstr(&id);
                     break;
                 case ID_FVAR:
-                    if(*id.storage.f == id.def.f)
-                    {
-                        if(all) f->printf("// ");
-                        else break;
-                    }
-                    if(server) f->printf("sv_");
-                    f->printf("%s %s\n", escapeid(id), floatstr(*id.storage.f));
+                    value_changed = *id.storage.f != id.def.f;
+                    write_value   = floatstr(*id.storage.f);
                     break;
                 case ID_SVAR:
-                    if(!strcmp(*id.storage.s, id.def.s))
-                    {
-                        if(all) f->printf("// ");
-                        else break;
-                    }
-                    if(server) f->printf("sv_");
-                    f->printf("%s %s\n", escapeid(id), escapestring(*id.storage.s));
+                    value_changed = *id.storage.s != id.def.s;
+                    write_value   = escapestring(*id.storage.s);
                     break;
             }
+
+            // if the value didn't change, but we write all variables, comment the line out
+            if (!value_changed && all) {
+                f->printf("// ");
+            }
+
+            // prefix the variable with "sv_", so the file can be used as config for servers
+            if (server) {
+                f->printf("sv_");
+            }
+
+            f->printf("%s %s\n", escapeid(id), write_value.c_str());
         }
         delete f;
 
-        if (export_weapon)
-        {
+        if (export_weapon) {
             conoutft(CON_EVENT, "\fgSuccessfully exported \fb%s \fgconfig into file \fy%s", weapon_name, name);
         }
     }
