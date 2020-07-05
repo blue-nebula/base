@@ -328,7 +328,7 @@ namespace client
             if ( !(identifier.flags & IDF_CLIENT)
                || (identifier.flags & IDF_READONLY)
                || (identifier.flags & IDF_WORLD)
-               || (strncmp(identifier.name, weapon_name, strlen(identifier.name)) == 0))
+               || (strncmp(identifier.name, weapon_name, strlen(weapon_name)) != 0))
             {
                 continue;
             }
