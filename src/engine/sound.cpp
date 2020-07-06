@@ -20,8 +20,8 @@ struct soundsample
     }
 };
 
-soundslot::soundslot() : vol(255), maxrad(-1), minrad(-1), name(NULL) {}
-soundslot::~soundslot() { DELETEA(name); }
+soundslot::soundslot() : vol(255), maxrad(-1), minrad(-1), name("") {}
+soundslot::~soundslot() { }
 
 sound::sound() : hook(NULL) { reset(); }
 sound::~sound() {}
@@ -49,7 +49,7 @@ bool nosound = true, changedvol = false, canmusic = false;
 Mix_Music *music = NULL;
 SDL_RWops *musicrw = NULL;
 stream *musicstream = NULL;
-char *musicfile = NULL, *musicdonecmd = NULL;
+std::string musicfile = "", musicdonecmd = "";
 int musictime = -1, musicdonetime = -1;
 
 VARF(IDF_PERSIST, mastervol, 0, 255, 255, changedvol = true; if(!music && musicvol > 0 && mastervol > 0) smartmusic(true));
@@ -105,13 +105,12 @@ void stopmusic(bool docmd)
     }
     if(musicrw) { SDL_FreeRW(musicrw); musicrw = NULL; }
     DELETEP(musicstream);
-    DELETEA(musicfile);
-    if(musicdonecmd != NULL)
+    musicfile = "";
+    if(!musicdonecmd.empty())
     {
-        char *cmd = musicdonecmd;
-        musicdonecmd = NULL;
-        if(docmd) execute(cmd);
-        delete[] cmd;
+        std::string cmd = musicdonecmd;
+        musicdonecmd = "";
+        if(docmd) execute(cmd.c_str());
     }
     musicdonetime = -1;
 }
@@ -164,7 +163,7 @@ void getsounds(bool mapsnd, int idx, int prop)
             case 0: intret(soundset[idx].vol); break;
             case 1: intret(soundset[idx].maxrad); break;
             case 2: intret(soundset[idx].minrad); break;
-            case 3: result(soundset[idx].name); break;
+            case 3: result(soundset[idx].name.c_str()); break;
             default: break;
         }
     }
@@ -204,16 +203,16 @@ void getcursounds(int idx, int prop)
 }
 ICOMMAND(0, getcursound, "bb", (int *n, int *p), getcursounds(*n, *p));
 
-Mix_Music *loadmusic(const char *name)
+Mix_Music *loadmusic(std::string name)
 {
-    if(!musicstream) musicstream = openzipfile(name, "rb");
+    if(!musicstream) musicstream = openzipfile(name.c_str(), "rb");
     if(musicstream)
     {
         if(!musicrw) musicrw = musicstream->rwops();
         if(!musicrw) DELETEP(musicstream);
     }
     if(musicrw) music = Mix_LoadMUSType_RW(musicrw, MUS_NONE, 0);
-    else music = Mix_LoadMUS(findfile(name, "rb"));
+    else music = Mix_LoadMUS(findfile(name.c_str(), "rb"));
     if(!music)
     {
         if(musicrw) { SDL_FreeRW(musicrw); musicrw = NULL; }
@@ -222,38 +221,49 @@ Mix_Music *loadmusic(const char *name)
     return music;
 }
 
-bool playmusic(const char *name, const char *cmd)
+bool playmusic(std::string name, std::string cmd)
 {
     if(nosound) return false;
 
     stopmusic(false);
 
-    if(*name)
+    if (!name.empty())
     {
-        string buf;
-        const char *dirs[] = { "", "sounds/" }, *exts[] = { "", ".wav", ".ogg" };
-        bool found = false;
-        loopi(sizeof(dirs)/sizeof(dirs[0]))
+        std::string relative_path;
+        std::string dirs[] = { "", "sounds/" };
+        std::string exts[] = { "", ".wav", ".ogg" };
+        for (auto dir : dirs)
         {
-            loopk(sizeof(exts)/sizeof(exts[0]))
+            for (auto ext : exts)
             {
-                formatstring(buf, "%s%s%s", dirs[i], name, exts[k]);
-                if(loadmusic(buf))
+                relative_path = dir + name + ext;
+                if (loadmusic(relative_path) != nullptr)
                 {
-                    DELETEA(musicfile);
-                    DELETEA(musicdonecmd);
-                    musicfile = newstring(name);
-                    if(cmd && *cmd) musicdonecmd = newstring(cmd);
+                    musicfile = name;
+
+                    if (!cmd.empty()) {
+                        musicdonecmd = cmd;
+                    } else {
+                        // clear the previous musicdonecmd
+                        musicdonecmd = "";
+                    }
                     musicdonetime = -1;
-                    if(musicfadein) Mix_FadeInMusic(music, cmd && *cmd ? 0 : -1, musicfadein);
-                    else Mix_PlayMusic(music, cmd && *cmd ? 0 : -1);
-                    Mix_VolumeMusic(int((mastervol/255.f)*(musicvol/255.f)*MIX_MAX_VOLUME));
-                    changedvol = found = true;
+
+                    if (musicfadein) {
+                        Mix_FadeInMusic(music, cmd.empty() ? -1 : 0, musicfadein);
+                    } else {
+                        Mix_PlayMusic(music, cmd.empty() ? -1 : 0);
+                    }
+
+                    Mix_VolumeMusic(int((mastervol / 255.f) * (musicvol / 255.f) * MIX_MAX_VOLUME));
+                    changedvol = true;
                     return true;
                 }
             }
         }
-        if(!music) conoutf("\frcould not play music: %s", name);
+
+        // if the function didn't return true earlier, we know that the music couldn't be played
+        conoutf("\fCcould not play music: %s", name.c_str());
     }
     return false;
 }
@@ -286,7 +296,7 @@ void smartmusic(bool cond, bool init)
 {
     if(init) canmusic = true;
     if(!canmusic || nosound || !mastervol || !musicvol || (!cond && Mix_PlayingMusic()) || !*titlemusic) return;
-    if(!playingmusic() || (cond && strcmp(musicfile, titlemusic))) playmusic(titlemusic);
+    if(!playingmusic() || (cond && musicfile == titlemusic)) playmusic(titlemusic);
     else
     {
         Mix_VolumeMusic(int((mastervol/255.f)*(musicvol/255.f)*MIX_MAX_VOLUME));
@@ -294,12 +304,6 @@ void smartmusic(bool cond, bool init)
     }
 }
 ICOMMAND(0, smartmusic, "i", (int *a), smartmusic(*a));
-
-int findsound(const char *name, int vol, std::map<const int, soundslot>& soundset)
-{
-    loopv(soundset) if(!strcmp(soundset[i].name, name) && (!vol || soundset[i].vol == vol)) return i;
-    return -1;
-}
 
 static Mix_Chunk *loadwav(const char *name)
 {
@@ -442,7 +446,7 @@ int registersound(std::string name, int volume, int max_radius, int min_radius, 
     }
     else
     {
-        printf("Loaded sound %d: %s\n", index, soundset[index].name);
+        printf("Loaded sound %d: %s\n", index, soundset[index].name.c_str());
     }
 
     return soundset.size() - 1;
@@ -617,7 +621,7 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
             return -1;
         }
         soundslot *slot = &soundset[n];
-        if(!oldhook || !issound(*oldhook) || (n != sounds[*oldhook].slotnum && strcmp(slot->name, gamesounds[sounds[*oldhook].slotnum].name)))
+        if(!oldhook || !issound(*oldhook) || (n != sounds[*oldhook].slotnum && slot->name == gamesounds[sounds[*oldhook].slotnum].name))
             oldhook = NULL;
 
         vec o = d ? game::camerapos(d) : pos;
@@ -684,20 +688,19 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
                 return chan;
             }
             else if(verbose >= 2)
-                conoutf("\frcannot play sound %d (%s): %s", n, slot->name, Mix_GetError());
+                conoutf("\frcannot play sound %d (%s): %s", n, slot->name.c_str(), Mix_GetError());
         }
         else if(verbose >= 4)
-        {
-            // only show this error message if it's a mapsound since we are intentionally
-            // not loading sounds for some weapons e.g. S_W_BOUNCE2 or S_W_EXTINGUISH
-            if (flags & SND_MAP) {
                 conoutf("culled sound %d (%d)", n, cvol);
-            }
-        }
+
     }
     else if(n > 0)
     {
-        conoutf("\frunregistered sound: %d", n);
+        // only show this error message if it's a mapsound since we are intentionally
+        // not loading sounds for some weapons e.g. S_W_BOUNCE2 or S_W_EXTINGUISH
+        if (flags & SND_MAP) {
+            conoutf("\frunregistered sound: %d", n);
+        }
     }
     if(oldhook && issound(*oldhook)) removesound(*oldhook);
     return -1;
@@ -719,42 +722,57 @@ void removetrackedsounds(physent *d)
 void resetsound()
 {
     clearchanges(CHANGE_SOUND);
-    if(!nosound)
-    {
-        loopv(sounds) removesound(i);
-        enumerate(soundsamples, soundsample, s, s.cleanup());
-        if(music)
-        {
+
+    if (!nosound) {
+        for (int i = 0; i < sounds.length(); i++) {
+            removesound(i);
+        }
+
+        enumerate(soundsamples, soundsample, sample, sample.cleanup());
+
+        // Stop playing music
+        if (music) {
             Mix_HaltMusic();
             Mix_FreeMusic(music);
         }
-        if(musicstream) musicstream->seek(0, SEEK_SET);
+
+        if (musicstream) {
+            musicstream->seek(0, SEEK_SET);
+        }
         Mix_CloseAudio();
         nosound = true;
     }
+
     initsound();
-    if(nosound)
+
+    if (nosound)
     {
-        DELETEA(musicfile);
-        DELETEA(musicdonecmd);
-        music = NULL;
+        musicfile = "";
+        musicdonecmd = "";
+        music = nullptr;
         soundsamples.clear();
         gamesounds.clear();
         mapsounds.clear();
         return;
     }
+
     rehash(true);
-    if(music && loadmusic(musicfile))
+
+    if (music && loadmusic(musicfile.c_str()))
     {
-        if(musicfadein) Mix_FadeInMusic(music, musicdonecmd ? 0 : -1, musicfadein);
-        else Mix_PlayMusic(music, musicdonecmd ? 0 : -1);
-        Mix_VolumeMusic(int((mastervol/255.f)*(musicvol/255.f)*MIX_MAX_VOLUME));
+        if (musicfadein) {
+            Mix_FadeInMusic(music, musicdonecmd.empty() ? -1 : 0, musicfadein);
+        } else {
+            Mix_PlayMusic(music, musicdonecmd.empty() ? -1 : 0);
+        }
+
+        Mix_VolumeMusic(int((mastervol / 255.f) * (musicvol / 255.f) * MIX_MAX_VOLUME));
         changedvol = true;
     }
     else
     {
-        DELETEA(musicfile);
-        DELETEA(musicdonecmd);
+        musicfile = "";
+        musicdonecmd = "";
     }
 }
 

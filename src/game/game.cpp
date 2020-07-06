@@ -1,6 +1,7 @@
 #include <algorithm>
 using std::swap;
 #include <vector>
+#include <string>
 #define GAMEWORLD 1
 #include "game.h"
 
@@ -3188,20 +3189,21 @@ namespace game
                 if(type == 6) smartmusic(true);
                 else
                 {
-                    defformatstring(musicfile, "%s", mapmusic);
-                    if(*musicdir && (type == 2 || type == 5 || ((type == 1 || type == 4) && (!*musicfile || !fileexists(findfile(musicfile, "r"), "r")))))
+                    //defformatstring(musicfile, "%s", mapmusic);
+                    std::string musicfile = mapmusic;
+                    if(*musicdir && (type == 2 || type == 5 || ((type == 1 || type == 4) && (musicfile.empty() || !fileexists(findfile(musicfile.c_str(), "r"), "r")))))
                     {
                         vector<char *> files;
                         listfiles(musicdir, NULL, files);
                         while(!files.empty())
                         {
                             int r = rnd(files.length());
-                            formatstring(musicfile, "%s/%s", musicdir, files[r]);
-                            if(files[r][0] != '.' && strcmp(files[r], "readme.txt") && playmusic(musicfile, type >= 4 ? "music" : NULL)) break;
+                            musicfile = musicdir + std::string("/") + files[r];
+                            if(files[r][0] != '.' && strcmp(files[r], "readme.txt") && playmusic(musicfile, type >= 4 ? "music" : "")) break;
                             else files.remove(r);
                         }
                     }
-                    else if(*musicfile) playmusic(musicfile, type >= 4 ? "music" : NULL);
+                    else if(!musicfile.empty()) playmusic(musicfile, type >= 4 ? "music" : "");
                 }
             }
             player1.conopen = commandmillis > 0 || hud::hasinput(true);
