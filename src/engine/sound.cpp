@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <string>
+#include <map>
 using std::swap;
 #include "engine.h"
 #include "SDL_mixer.h"
@@ -40,7 +42,7 @@ void sound::reset()
 }
 
 hashnameset<soundsample> soundsamples;
-vector<soundslot> gamesounds, mapsounds;
+std::map<const int, soundslot> gamesounds, mapsounds;
 vector<sound> sounds;
 
 bool nosound = true, changedvol = false, canmusic = false;
@@ -132,7 +134,7 @@ void stopsound()
     clearsound();
     enumerate(soundsamples, soundsample, s, s.cleanup());
     soundsamples.clear();
-    gamesounds.setsize(0);
+    gamesounds.clear();
     closemumble();
     Mix_CloseAudio();
     nosound = true;
@@ -147,14 +149,14 @@ void removesound(int c)
 void clearsound()
 {
     loopv(sounds) removesound(i);
-    mapsounds.setsize(0);
+    mapsounds.clear(); // could introduce problems
 }
 
 void getsounds(bool mapsnd, int idx, int prop)
 {
-    vector<soundslot> &soundset = mapsnd ? mapsounds : gamesounds;
-    if(idx < 0) intret(soundset.length());
-    else if(soundset.inrange(idx))
+    std::map<const int, soundslot>& soundset = mapsnd ? mapsounds : gamesounds;
+    if(idx < 0) intret(soundset.size());
+    else if(soundset.find(idx) != soundset.end())
     {
         if(prop < 0) intret(4);
         else switch(prop)
@@ -293,7 +295,7 @@ void smartmusic(bool cond, bool init)
 }
 ICOMMAND(0, smartmusic, "i", (int *a), smartmusic(*a));
 
-int findsound(const char *name, int vol, vector<soundslot> &soundset)
+int findsound(const char *name, int vol, std::map<const int, soundslot>& soundset)
 {
     loopv(soundset) if(!strcmp(soundset[i].name, name) && (!vol || soundset[i].vol == vol)) return i;
     return -1;
@@ -317,85 +319,142 @@ static Mix_Chunk *loadwav(const char *name)
     return c;
 }
 
-int addsound(const char *name, int vol, int maxrad, int minrad, int value, vector<soundslot> &soundset)
+int registersound(std::string name, int volume, int max_radius, int min_radius, int value, int index, bool is_map_sound)
 {
-    if(vol <= 0 || vol >= 255) vol = 255;
-    if(maxrad <= 0) maxrad = -1;
-    if(minrad < 0) minrad = -1;
-    if(value == 1)
-    {
-        loopv(soundset)
+    if (index == -1) {
+        // don't register game sounds when no index is specified, as game sounds are not dynamic but fixed
+        if (!is_map_sound) {
+            return -1;
+        }
+        else
         {
-            soundslot &slot = soundset[i];
-            if(slot.vol == vol && slot.maxrad == maxrad && slot.minrad == minrad && !strcmp(slot.name, name))
+            // map sounds will be registered in order, since they're dynamically loaded
+            index = int(mapsounds.size());
+        }
+    }
+
+    std::map<const int, soundslot>& soundset = is_map_sound ? mapsounds : gamesounds;
+
+    if (volume <= 0 || volume >= 255) { volume = 255;    }
+    if (max_radius <= 0) {              max_radius = -1; }
+    min_radius = std::max(-1, min_radius);
+
+    if (value == 1)
+    {
+        // if the sound has already been loaded, return its index
+        for (size_t i = 0; i < soundset.size(); i++)
+        {
+            soundslot& slot = soundset[i];
+            if (   slot.vol == volume
+                && slot.maxrad == max_radius
+                && slot.minrad == min_radius
+                && slot.name == name.c_str())
+            {
                 return i;
+            }
         }
     }
-    if(!strcmp(name, "<none>"))
+
+    // the sound has not been added yet, let's create a new instance
+    soundset[index]        = soundslot();
+    soundset[index].name   = newstring(name.c_str());
+    soundset[index].vol    = volume;
+    soundset[index].maxrad = max_radius;
+    soundset[index].minrad = min_radius;
+
+    // just used for weapons that don't have certain sound effects, e.g. some weapons don't have a zoom sound
+    // so we don't create an offset inside the vector, we have to fill those places with some
+    // placeholders
+    if (name == "<none>")
     {
-        soundslot &slot = soundset.add();
-        slot.name = newstring(name);
-        slot.vol = 0;
-        slot.maxrad = slot.minrad = -1;
-        return soundset.length()-1;
+        printf("Do not load %d\n", index);
+        return soundset.size() - 1;
     }
-    soundsample *sample = NULL;
-    #define loadsound(req) \
-    { \
-        if(!(sample = soundsamples.access(req))) \
-        { \
-            char *n = newstring(req); \
-            sample = &soundsamples[n]; \
-            sample->name = n; \
-            sample->sound = NULL; \
-        } \
-        if(!sample->sound) \
-        { \
-            string buf; \
-            const char *dirs[] = { "", "sounds/" }, *exts[] = { "", ".wav", ".ogg" }; \
-            bool found = false; \
-            loopi(sizeof(dirs)/sizeof(dirs[0])) \
-            { \
-                loopk(sizeof(exts)/sizeof(exts[0])) \
-                { \
-                    formatstring(buf, "%s%s%s", dirs[i], sample->name, exts[k]); \
-                    if((sample->sound = loadwav(buf)) != NULL) found = true; \
-                    if(found) break; \
-                } \
-                if(found) break; \
-            } \
-        } \
-    }
-    string sam;
-    loopi(value > 1 ? 2 : 1)
+
+    // load the actual samples here
+    std::string sample_name;
+    soundsample* sample = nullptr;
+    int i = 1;
+    int loaded_samples = 0;
+
+    // naming scheme is: shell.ogg, shell2.ogg, shell3.ogg, shell4.ogg
+    // the values would be name: "shell" and value: 4
+    // so the first element has to always be loaded, that's why do...while
+    // after that just go on counting up 'til we reach the value and load all sounds we find on our way
+    do
     {
-        if(value > 1 && !i) formatstring(sam, "%s1", name);
-        else copystring(sam, name);
-        loadsound(sam);
-        if(!sample->sound)
+        // if the value is 1 (the first entry) just use the normal name since there is no such thing as shell1.ogg,
+        // but rather shell.ogg and then it continues with shell2.ogg (that's why we start counting from 1)
+        if (i == 1) { sample_name = name;
+        } else {      sample_name = name + std::to_string(i);  }
+
+        if (!(sample = soundsamples.access(sample_name.c_str())))
         {
-            if(value < 2 || i) conoutf("\frfailed to load sample: %s", name);
+            // copy the sample_name because the class soundsample uses char* instead of std::string
+            char* s_name = newstring(sample_name.c_str());
+
+            sample = &soundsamples[s_name];
+            sample->name = s_name;
+            sample->sound = nullptr;
         }
-        else break;
+
+        // if the sample isn't already loaded, load it
+        if (!sample->sound)
+        {
+            std::string relative_path;
+            std::string dirs[] = { "", "sounds/" };
+            std::string exts[] = { "", ".wav", ".ogg" };
+            bool found = false;
+
+            for (auto dir : dirs)
+            {
+                for (auto ext : exts)
+                {
+                    relative_path = dir + sample_name + ext;
+
+                    sample->sound = loadwav(relative_path.c_str());
+                    // if we can load the sample, set found to true and the exit the loop
+                    if (sample->sound != nullptr)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                // if we found the entry previously, quit the loop
+                if (found) { break; }
+            }
+        }
+
+        // check if the sample is set now
+        if (sample->sound != nullptr)
+        {
+            soundset[index].samples.add(sample);
+            loaded_samples++;
+        }
+
+        i++;
     }
-    soundslot &slot = soundset.add();
-    slot.name = newstring(name);
-    slot.vol = vol;
-    slot.maxrad = maxrad; // use these values if none are supplied when playing
-    slot.minrad = minrad;
-    slot.samples.add(sample);
-    if(value > 1) loopi(value-1)
+    while (i <= value);
+
+    if (loaded_samples < value)
     {
-        formatstring(sam, "%s%d", name, i+2);
-        loadsound(sam);
-        if(!sample->sound) conoutf("\frfailed to load sample: %s", sam);
-        else slot.samples.add(sample);
+        printf("Failed to load %d sample %s\n", (value - loaded_samples), name.c_str());
     }
-    return soundset.length()-1;
+    else
+    {
+        printf("Loaded sound %d: %s\n", index, soundset[index].name);
+    }
+
+    return soundset.size() - 1;
 }
 
-ICOMMAND(0, registersound, "sissi", (char *n, int *v, char *w, char *x, int *u), intret(addsound(n, *v, *w ? parseint(w) : -1, *x ? parseint(x) : -1, *u, gamesounds)));
-ICOMMAND(0, mapsound, "sissi", (char *n, int *v, char *w, char *x, int *u), intret(addsound(n, *v, *w ? parseint(w) : -1, *x ? parseint(x) : -1, *u, mapsounds)));
+void add_game_sound(int index, std::string name, int volume, int max_radius, int min_radius, int value)
+{
+    registersound(name, volume, max_radius, min_radius, value, index, false);
+}
+
+ICOMMAND(0, registersound, "sissi", (char *n, int *v, char *w, char *x, int *u), intret(registersound(n, *v, *w ? parseint(w) : -1, *x ? parseint(x) : -1, *u, -1, false)));
+ICOMMAND(0, mapsound, "sissi", (char *n, int *v, char *w, char *x, int *u), intret(registersound(n, *v, *w ? parseint(w) : -1, *x ? parseint(x) : -1, *u, -1, true)));
 
 void calcvol(int flags, int vol, int slotvol, int maxrad, int minrad, const vec &pos, int *curvol, int *curpan, bool liquid)
 {
@@ -473,8 +532,8 @@ void updatesounds()
             updatesound(i);
             continue;
         }
-        vector<soundslot> &soundset = s.flags&SND_MAP ? mapsounds : gamesounds;
-        while(!s.buffer.empty() && (!soundset.inrange(s.buffer[0]) || soundset[s.buffer[0]].samples.empty() || !soundset[s.buffer[0]].vol)) s.buffer.remove(0);
+        std::map<const int, soundslot>& soundset = s.flags&SND_MAP ? mapsounds : gamesounds;
+        while(!s.buffer.empty() && (soundset.find(s.buffer[0]) == soundset.end() || soundset[s.buffer[0]].samples.empty() || !soundset[s.buffer[0]].vol)) s.buffer.remove(0);
         if(!s.buffer.empty())
         {
             int n = s.buffer[0], chan = -1;
@@ -543,9 +602,9 @@ void updatesounds()
 int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad, int minrad, int *hook, int ends, int *oldhook)
 {
     if(nosound || !mastervol || !soundvol || ((flags&SND_MAP || n >= S_GAMESPECIFIC) && client::waiting(true)) || (!d && !insideworld(pos))) return -1;
-    vector<soundslot> &soundset = flags&SND_MAP ? mapsounds : gamesounds;
+    std::map<const int, soundslot>& soundset = flags&SND_MAP ? mapsounds : gamesounds;
 
-    if(soundset.inrange(n))
+    if(soundset.find(n) != soundset.end())
     {
         if(hook && issound(*hook) && flags&SND_BUFFER)
         {
@@ -627,9 +686,19 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
             else if(verbose >= 2)
                 conoutf("\frcannot play sound %d (%s): %s", n, slot->name, Mix_GetError());
         }
-        else if(verbose >= 4) conoutf("culled sound %d (%d)", n, cvol);
+        else if(verbose >= 4)
+        {
+            // only show this error message if it's a mapsound since we are intentionally
+            // not loading sounds for some weapons e.g. S_W_BOUNCE2 or S_W_EXTINGUISH
+            if (flags & SND_MAP) {
+                conoutf("culled sound %d (%d)", n, cvol);
+            }
+        }
     }
-    else if(n > 0) conoutf("\frunregistered sound: %d", n);
+    else if(n > 0)
+    {
+        conoutf("\frunregistered sound: %d", n);
+    }
     if(oldhook && issound(*oldhook)) removesound(*oldhook);
     return -1;
 }
@@ -669,9 +738,9 @@ void resetsound()
         DELETEA(musicfile);
         DELETEA(musicdonecmd);
         music = NULL;
-        gamesounds.setsize(0);
-        mapsounds.setsize(0);
         soundsamples.clear();
+        gamesounds.clear();
+        mapsounds.clear();
         return;
     }
     rehash(true);

@@ -1,3 +1,6 @@
+#include <string>
+#include <map>
+
 enum
 {
     S_GUIPRESS = 0, S_GUIBACK, S_GUIACT,
@@ -60,7 +63,7 @@ struct sound
 
 extern bool nosound;
 extern int mastervol, soundvol, musicvol;
-extern vector<soundslot> gamesounds, mapsounds;
+extern std::map<const int, soundslot> gamesounds, mapsounds;
 extern vector<sound> sounds;
 
 #define issound(c) (sounds.inrange(c) && sounds[c].valid())
@@ -72,7 +75,7 @@ extern bool playingmusic(bool check = true);
 extern void smartmusic(bool cond, bool init = false);
 extern void musicdone(bool docmd);
 extern void updatesounds();
-extern int addsound(const char *name, int vol, int maxrad, int minrad, int value, vector<soundslot> &soundset);
+extern void add_game_sound(int index, std::string name, int volume = 0, int max_radius = 0, int min_radius = 0, int value = 0);
 extern void removesound(int c);
 extern void clearsound();
 extern int playsound(int n, const vec &pos, physent *d = NULL, int flags = 0, int vol = -1, int maxrad = -1, int minrad = -1, int *hook = NULL, int ends = 0, int *oldhook = NULL);
