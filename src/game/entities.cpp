@@ -300,7 +300,7 @@ namespace entities
             }
             case MAPSOUND:
             {
-                if(mapsounds.inrange(attr[0]))
+                if(mapsounds.find(attr[0]) != mapsounds.end())
                 {
                     int samples = mapsounds[attr[0]].samples.length();
                     defformatstring(ds, "%s (%d %s)", mapsounds[attr[0]].name, samples, samples == 1 ? "sample" : "samples");
@@ -1164,7 +1164,7 @@ namespace entities
                         f.lastemit = e.lastemit;
                         if(e.type == TRIGGER) f.setspawned(TRIGSTATE(e.spawned(), e.attrs[4]));
                         else if(local) commit = true;
-                        if(mapsounds.inrange(f.attrs[0]) && !issound(f.schan))
+                        if(mapsounds.find(f.attrs[0]) != mapsounds.end() && !issound(f.schan))
                         {
                             int flags = SND_MAP;
                             loopk(SND_LAST) if(f.attrs[4]&(1<<k)) flags |= 1<<k;
@@ -2210,7 +2210,7 @@ namespace entities
         loopi(lastent(MAPSOUND))
         {
             gameentity &e = *(gameentity *)ents[i];
-            if(e.type == MAPSOUND && e.links.empty() && mapsounds.inrange(e.attrs[0]) && !issound(e.schan))
+            if(e.type == MAPSOUND && e.links.empty() && mapsounds.find(e.attrs[0]) != mapsounds.end() && !issound(e.schan))
             {
                 int flags = SND_MAP|SND_LOOP; // ambient sounds loop
                 loopk(SND_LAST)  if(e.attrs[4]&(1<<k)) flags |= 1<<k;
