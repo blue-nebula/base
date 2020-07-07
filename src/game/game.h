@@ -16,6 +16,7 @@
 #define DNF 1000.0f // for normalized vectors
 #define DVELF 1.0f // for playerspeed based velocity vectors
 
+// to add a new game sound, just put the "identifier" in here and then register the sound in the function load_game_sounds() (in game.cpp)
 enum
 {
     S_JUMP = S_GAMESPECIFIC, S_IMPULSE, S_LAND, S_FOOTSTEP, S_SWIMSTEP, S_PAIN, S_DEATH,
@@ -29,6 +30,8 @@ enum
     S_V_SPREE, S_V_SPREE2, S_V_SPREE3, S_V_SPREE4, S_V_MULTI, S_V_MULTI2, S_V_MULTI3,
     S_V_REVENGE, S_V_DOMINATE, S_V_FIRSTBLOOD, S_V_BREAKER,
     S_V_YOUWIN, S_V_YOULOSE, S_V_DRAW, S_V_FRAGGED, S_V_BALWARN, S_V_BALALERT,
+    S_VL_ARGH, S_VL_LUCKYSHOT, S_VL_NICESHOT, S_VL_BOOM, S_VL_DAMNIT, S_VL_HAHA, S_VL_SUCKIT, S_VL_PZAP,
+    S_VL_YES, S_VL_SORRY, S_VL_NO, S_VL_NOPROBLEM, S_VL_GOGOGO, S_VL_HANGON, S_VL_THANKS,
     S_GAME
 };
 
@@ -1707,7 +1710,6 @@ namespace game
     };
     extern avatarent avatarmodel, bodymodel;
 
-    extern void load_game_sounds();
     extern void vanityreset();
     extern void vanitybuild(gameent *d);
     extern const char *vanityfname(gameent *d, int n, bool proj = false);
@@ -1778,6 +1780,7 @@ namespace entities
     extern void render();
     extern void update();
 }
+
 #endif
 #include "capture.h"
 #include "defend.h"

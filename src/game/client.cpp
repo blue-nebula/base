@@ -1,6 +1,7 @@
 #include <algorithm>
 using std::swap;
 #include "game.h"
+#include "voicelines.h"
 
 namespace client
 {
@@ -1155,14 +1156,12 @@ namespace client
         else formatstring(line, "\fw<%s> %s", name, msg);
 
         int snd = S_CHAT;
-        ident *wid = idents.access(flags&SAY_ACTION ? "on_action" : "on_text");
-        if(wid && wid->type == ID_ALIAS && wid->getstr()[0])
+        if (voicelines::voiceline_list.size() > 0)
         {
-            defformatbigstring(act, "%s %d %d %s %s %s",
-                flags&SAY_ACTION ? "on_action" : "on_text", f->clientnum, flags&SAY_TEAM ? 1 : 0,
-                escapestring(game::colourname(f)), escapestring(text), escapestring(line));
-            int ret = execute(act);
-            if(ret > 0) snd = ret;
+            int voiceline = voicelines::try_get_voiceline_sound(text);
+            if (voiceline > 0) {
+                snd = voiceline;
+            }
         }
         if((!(flags&SAY_TEAM) || f->team == game::player1.team) && (!(flags&SAY_WHISPER) || f == &game::player1 || t == &game::player1))
         {

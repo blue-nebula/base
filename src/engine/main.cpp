@@ -1083,6 +1083,7 @@ int main(int argc, char **argv)
     conoutf("loading config..");
     progress(0, "loading config..");
     rehash(false);
+    game::load_game_sounds();
     smartmusic(true, true);
 
     conoutf("loading required data..");

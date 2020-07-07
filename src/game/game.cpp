@@ -4,6 +4,7 @@ using std::swap;
 #include <string>
 #define GAMEWORLD 1
 #include "game.h"
+#include "voicelines.h"
 
 namespace game
 {
@@ -682,7 +683,11 @@ namespace game
         add_game_sound(WSND(W_MELEE, S_W_BOUNCE )       , "sounds/weapons/ricochet"     ,  36,  80);
         add_game_sound(WSND(W_MELEE, S_W_BOUNCE2)       , "sounds/weapons/ricochet"     ,  36,  80);
 
-
+        // load voicelines (to add new ones, add an entry to voiceline_list in voicelines.cpp)
+        for (auto voiceline : voicelines::voiceline_list)
+        {
+            add_game_sound(voiceline.first, voiceline.second.path, 255, 512, 8, voiceline.second.sound_variants);
+        }
     }
     ICOMMAND(0, loadgamesounds, "", (), load_game_sounds());
 
