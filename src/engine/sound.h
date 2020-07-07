@@ -37,7 +37,7 @@ struct soundslot
 {
     vector<soundsample *> samples;
     int vol, maxrad, minrad;
-    char *name;
+    std::string name;
 
     soundslot();
     ~soundslot();
@@ -70,7 +70,7 @@ extern vector<sound> sounds;
 
 extern void initsound();
 extern void stopsound();
-extern bool playmusic(const char *name, const char *cmd = NULL);
+extern bool playmusic(std::string name, std::string cmd = "");
 extern bool playingmusic(bool check = true);
 extern void smartmusic(bool cond, bool init = false);
 extern void musicdone(bool docmd);

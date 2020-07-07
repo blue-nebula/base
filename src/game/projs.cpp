@@ -1186,7 +1186,7 @@ namespace projs
                 {
                     if(issound(d->wschan) && (sounds[d->wschan].slotnum == WSNDF(weap, false) || sounds[d->wschan].slotnum == WSNDF(weap, true)))
                     {
-                        sounds[d->wschan].hook = NULL;
+                        sounds[d->wschan].hook = nullptr;
                         d->wschan = -1;
                     }
                     playsound(slot, d->o, d, 0, vol, -1, -1, &d->wschan);

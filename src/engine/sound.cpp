@@ -7,37 +7,37 @@ using std::swap;
 
 struct soundsample
 {
-    Mix_Chunk *sound;
-    char *name;
+    Mix_Chunk* sound;
+    char* name;
 
-    soundsample() : name(NULL) {}
-    ~soundsample() { DELETEA(name); }
+    soundsample() : name(nullptr) {}
+    ~soundsample() { }
 
     void cleanup()
     {
         Mix_FreeChunk(sound);
-        sound = NULL;
+        sound = nullptr;
     }
 };
 
 soundslot::soundslot() : vol(255), maxrad(-1), minrad(-1), name("") {}
 soundslot::~soundslot() { }
 
-sound::sound() : hook(NULL) { reset(); }
+sound::sound() : hook(nullptr) { reset(); }
 sound::~sound() {}
 bool sound::playing() { return chan >= 0 && (Mix_Playing(chan) || Mix_Paused(chan)); }
 void sound::reset()
 {
     pos = oldpos = vec(-1, -1, -1);
-    slot = NULL;
-    owner = NULL;
+    slot = nullptr;
+    owner = nullptr;
     vol = curvol = 255;
     curpan = 127;
     material = MAT_AIR;
     flags = maxrad = minrad = millis = ends = 0;
     slotnum = chan = -1;
-    if(hook) *hook = -1;
-    hook = NULL;
+    if (hook) *hook = -1;
+    hook = nullptr;
     buffer.shrink(0);
 }
 
@@ -46,9 +46,9 @@ std::map<const int, soundslot> gamesounds, mapsounds;
 vector<sound> sounds;
 
 bool nosound = true, changedvol = false, canmusic = false;
-Mix_Music *music = NULL;
-SDL_RWops *musicrw = NULL;
-stream *musicstream = NULL;
+Mix_Music* music = nullptr;
+SDL_RWops* musicrw = nullptr;
+stream* musicstream = nullptr;
 std::string musicfile = "", musicdonecmd = "";
 int musictime = -1, musicdonetime = -1;
 
@@ -101,9 +101,9 @@ void stopmusic(bool docmd)
     if(music)
     {
         Mix_FreeMusic(music);
-        music = NULL;
+        music = nullptr;
     }
-    if(musicrw) { SDL_FreeRW(musicrw); musicrw = NULL; }
+    if(musicrw != nullptr) { SDL_FreeRW(musicrw); musicrw = nullptr; }
     DELETEP(musicstream);
     musicfile = "";
     if(!musicdonecmd.empty())
@@ -194,7 +194,7 @@ void getcursounds(int idx, int prop)
             case 13: intret(sounds[idx].valid() ? 1 : 0); break;
             case 14: intret(sounds[idx].playing() ? 1 : 0); break;
             case 15: intret(sounds[idx].flags&SND_MAP ? 1 : 0); break;
-            case 16: intret(sounds[idx].owner!=NULL ? 1 : 0); break;
+            case 16: intret(sounds[idx].owner!=nullptr ? 1 : 0); break;
             case 17: intret(sounds[idx].owner==camera1 ? 1 : 0); break;
             case 18: intret(client::getcn(sounds[idx].owner)); break;
             default: break;
@@ -208,14 +208,15 @@ Mix_Music *loadmusic(std::string name)
     if(!musicstream) musicstream = openzipfile(name.c_str(), "rb");
     if(musicstream)
     {
-        if(!musicrw) musicrw = musicstream->rwops();
-        if(!musicrw) DELETEP(musicstream);
+        if (musicrw == nullptr) musicrw = musicstream->rwops();
+        // if musicrw is still a nullptr, delete the musicstream
+        if (musicrw == nullptr) DELETEP(musicstream);
     }
-    if(musicrw) music = Mix_LoadMUSType_RW(musicrw, MUS_NONE, 0);
+    if(musicrw != nullptr) music = Mix_LoadMUSType_RW(musicrw, MUS_NONE, 0);
     else music = Mix_LoadMUS(findfile(name.c_str(), "rb"));
     if(!music)
     {
-        if(musicrw) { SDL_FreeRW(musicrw); musicrw = NULL; }
+        if(musicrw != nullptr) { SDL_FreeRW(musicrw); musicrw = nullptr; }
         DELETEP(musicstream);
     }
     return music;
@@ -223,9 +224,13 @@ Mix_Music *loadmusic(std::string name)
 
 bool playmusic(std::string name, std::string cmd)
 {
-    if(nosound) return false;
+    if (nosound) {
+        return false;
+    }
 
+    // stop music with cmd
     stopmusic(false);
+
 
     if (!name.empty())
     {
@@ -307,7 +312,7 @@ ICOMMAND(0, smartmusic, "i", (int *a), smartmusic(*a));
 
 static Mix_Chunk *loadwav(const char *name)
 {
-    Mix_Chunk *c = NULL;
+    Mix_Chunk *c = nullptr;
     stream *z = openzipfile(name, "rb");
     if(z)
     {
@@ -603,65 +608,111 @@ void updatesounds()
     }
 }
 
-int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad, int minrad, int *hook, int ends, int *oldhook)
+int playsound(int n, const vec& pos, physent* d, int flags, int vol, int maxrad, int minrad, int* hook, int ends, int* oldhook)
 {
-    if(nosound || !mastervol || !soundvol || ((flags&SND_MAP || n >= S_GAMESPECIFIC) && client::waiting(true)) || (!d && !insideworld(pos))) return -1;
-    std::map<const int, soundslot>& soundset = flags&SND_MAP ? mapsounds : gamesounds;
+    bool flag_buffer  = flags & SND_BUFFER;
+    bool flag_map     = flags & SND_MAP;
+    bool flag_clamped = flags & SND_CLAMPED;
+    bool flag_nocull  = flags & SND_NOCULL;
+    bool flag_nodelay = flags & SND_NODELAY;
+    bool flag_loop    = flags & SND_LOOP;
 
-    if(soundset.find(n) != soundset.end())
+    if (  nosound
+       || mastervol == 0
+       || soundvol == 0
+       || ((flag_map || n >= S_GAMESPECIFIC) && client::waiting(true))
+       || (d == nullptr && !insideworld(pos)))
     {
-        if(hook && issound(*hook) && flags&SND_BUFFER)
+        return -1;
+    }
+
+    std::map<const int, soundslot>& soundset = flag_map ? mapsounds : gamesounds;
+
+    if (soundset.find(n) != soundset.end())
+    {
+        if (hook && issound(*hook) && flag_buffer)
         {
             sounds[*hook].buffer.add(n);
             return *hook;
         }
-        if(soundset[n].samples.empty() || !soundset[n].vol)
+
+        if (soundset[n].samples.empty() || !soundset[n].vol)
         {
-            if(oldhook && issound(*oldhook)) removesound(*oldhook);
+            if(oldhook && issound(*oldhook)) {
+                removesound(*oldhook);
+            }
             return -1;
         }
-        soundslot *slot = &soundset[n];
-        if(!oldhook || !issound(*oldhook) || (n != sounds[*oldhook].slotnum && slot->name == gamesounds[sounds[*oldhook].slotnum].name))
-            oldhook = NULL;
+
+        soundslot* slot = &soundset[n];
+        if (  !oldhook
+           || !issound(*oldhook)
+           || (n != sounds[*oldhook].slotnum && slot->name == gamesounds[sounds[*oldhook].slotnum].name))
+        {
+            oldhook = nullptr;
+        }
 
         vec o = d ? game::camerapos(d) : pos;
-        int cvol = 0, cpan = 0, v = clamp(vol >= 0 ? vol : 255, flags&SND_CLAMPED ? 64 : 0, 255),
-            x = maxrad > 0 ? maxrad : (flags&SND_CLAMPED ? getworldsize() : (slot->maxrad > 0 ? slot->maxrad : soundmaxrad)),
-            y = minrad >= 0 ? minrad : (flags&SND_CLAMPED ? 32 : (slot->minrad >= 0 ? slot->minrad : soundminrad)),
-            mat = lookupmaterial(o);
+        int cvol = 0;
+        int cpan = 0;
+        int v = clamp(vol >= 0 ? vol : 255, flag_clamped ? 64 : 0, 255);
+        int x = maxrad > 0 ? maxrad : (flag_clamped ? getworldsize() : (slot->maxrad > 0 ? slot->maxrad : soundmaxrad));
+        int y = minrad >= 0 ? minrad : (flag_clamped ? 32 : (slot->minrad >= 0 ? slot->minrad : soundminrad));
+        int mat = lookupmaterial(o);
 
-        bool liquid = isliquid(lookupmaterial(camera1->o)&MATF_VOLUME);
-        calcvol(flags, v, slot->vol, x, y, o, &cvol, &cpan, liquid || isliquid(mat&MATF_VOLUME));
-        bool nocull = flags&SND_NOCULL || o.dist(camera1->o) <= 0;
+        bool liquid = isliquid(lookupmaterial(camera1->o) & MATF_VOLUME);
+        calcvol(flags, v, slot->vol, x, y, o, &cvol, &cpan, liquid || isliquid(mat & MATF_VOLUME));
+        bool nocull = flag_nocull || o.dist(camera1->o) <= 0;
 
-        if(nocull || !soundcull || cvol > 0)
+        if (nocull || soundcull == 0 || cvol > 0)
         {
             int chan = -1;
-            if(oldhook) chan = *oldhook;
+            if (oldhook)
+            {
+                chan = *oldhook;
+            }
             else
             {
-                oldhook = NULL;
-                soundsample *sample = slot->samples[rnd(slot->samples.length())];
-                if((chan = Mix_PlayChannel(-1, sample->sound, flags&SND_LOOP ? -1 : 0)) < 0)
+                oldhook = nullptr;
+                soundsample* sample = slot->samples[rnd(slot->samples.length())];
+                chan = Mix_PlayChannel(-1, sample->sound, flag_loop ? -1 : 0);
+                if(chan < 0)
                 {
                     int lowest = -1;
-                    loopv(sounds) if(sounds[i].chan >= 0 && (!(sounds[i].flags&SND_MAP) || flags&SND_MAP) && sounds[i].curvol < cvol && (lowest < 0 || sounds[i].curvol < sounds[lowest].curvol) && (nocull || (!(sounds[i].flags&SND_NOCULL) && sounds[i].pos.dist(camera1->o) > 0)))
-                        lowest = i;
-                    if(sounds.inrange(lowest))
+                    for (int i = 0; i < sounds.length(); i++)
                     {
-                        if(verbose >= 4) conoutf("culled channel %d (%d)", lowest, sounds[lowest].curvol);
+                        if (   sounds[i].chan >= 0
+                            && ( !(sounds[i].flags & SND_MAP) || flag_map )
+                            && sounds[i].curvol < cvol
+                            && (lowest < 0 || sounds[i].curvol < sounds[lowest].curvol)
+                            && (nocull || ( !(sounds[i].flags & SND_NOCULL) && sounds[i].pos.dist(camera1->o) > 0 )))
+                        {
+                            lowest = i;
+                        }
+                    }
+
+                    if (sounds.inrange(lowest))
+                    {
+                        if (verbose >= 4)
+                        {
+                            conoutf("culled channel %d (%d)", lowest, sounds[lowest].curvol);
+                        }
+
                         removesound(lowest);
-                        chan = Mix_PlayChannel(-1, sample->sound, flags&SND_LOOP ? -1 : 0);
+                        chan = Mix_PlayChannel(-1, sample->sound, flag_loop ? -1 : 0);
                     }
                 }
             }
-            if(chan >= 0)
+
+            if (chan >= 0)
             {
-                if(!oldhook && !(flags&SND_NODELAY)) Mix_Pause(chan);
+                if (!oldhook && !flag_nodelay) {
+                    Mix_Pause(chan);
+                }
 
-                while(chan >= sounds.length()) sounds.add();
+                while (chan >= sounds.length()) sounds.add();
 
-                sound &s = sounds[chan];
+                sound& s = sounds[chan];
                 s.slot = slot;
                 s.vol = v;
                 s.maxrad = x;
@@ -676,33 +727,47 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
                 s.curvol = cvol;
                 s.curpan = cpan;
                 s.chan = chan;
-                if(hook)
+
+                if (hook)
                 {
-                    if(issound(*hook) && (!oldhook || *hook != *oldhook)) removesound(*hook);
+                    if (issound(*hook) && (!oldhook || *hook != *oldhook)) {
+                        removesound(*hook);
+                    }
                     *hook = s.chan;
                     s.hook = hook;
                 }
-                else s.hook = NULL;
-                if(oldhook) *oldhook = -1;
+                else
+                {
+                    s.hook = nullptr;
+                }
+
+                if (oldhook) {
+                    *oldhook = -1;
+                }
+
                 updatesound(chan);
                 return chan;
             }
-            else if(verbose >= 2)
+            else if (verbose >= 2)
+            {
                 conoutf("\frcannot play sound %d (%s): %s", n, slot->name.c_str(), Mix_GetError());
+            }
         }
-        else if(verbose >= 4)
+        else if (verbose >= 4)
+        {
                 conoutf("culled sound %d (%d)", n, cvol);
-
+        }
     }
-    else if(n > 0)
+    else if (n > 0 && flag_map)
     {
         // only show this error message if it's a mapsound since we are intentionally
         // not loading sounds for some weapons e.g. S_W_BOUNCE2 or S_W_EXTINGUISH
-        if (flags & SND_MAP) {
-            conoutf("\frunregistered sound: %d", n);
-        }
+        conoutf("\frunregistered sound: %d", n);
     }
-    if(oldhook && issound(*oldhook)) removesound(*oldhook);
+    if (oldhook && issound(*oldhook))
+    {
+        removesound(*oldhook);
+    }
     return -1;
 }
 
@@ -728,6 +793,7 @@ void resetsound()
             removesound(i);
         }
 
+        // call cleanup for all soundsamples
         enumerate(soundsamples, soundsample, sample, sample.cleanup());
 
         // Stop playing music
@@ -806,8 +872,8 @@ struct MumbleInfo
 #endif
 
 #ifdef WIN32
-static HANDLE mumblelink = NULL;
-static MumbleInfo *mumbleinfo = NULL;
+static HANDLE mumblelink = nullptr;
+static MumbleInfo *mumbleinfo = nullptr;
 #define VALID_MUMBLELINK (mumblelink && mumbleinfo)
 #elif _POSIX_SHARED_MEMORY_OBJECTS > 0
 static int mumblelink = -1;
@@ -839,7 +905,7 @@ void initmumble()
         mumblelink = shm_open(shmname, O_RDWR, 0);
         if(mumblelink >= 0)
         {
-            mumbleinfo = (MumbleInfo *)mmap(NULL, sizeof(MumbleInfo), PROT_READ|PROT_WRITE, MAP_SHARED, mumblelink, 0);
+            mumbleinfo = (MumbleInfo *)mmap(nullptr, sizeof(MumbleInfo), PROT_READ|PROT_WRITE, MAP_SHARED, mumblelink, 0);
             if(mumbleinfo != (MumbleInfo *)-1) wcsncpy(mumbleinfo->name, (const wchar_t *)versionuname, 256);
         }
     #endif
@@ -852,8 +918,8 @@ void initmumble()
 void closemumble()
 {
 #ifdef WIN32
-    if(mumbleinfo) { UnmapViewOfFile(mumbleinfo); mumbleinfo = NULL; }
-    if(mumblelink) { CloseHandle(mumblelink); mumblelink = NULL; }
+    if(mumbleinfo) { UnmapViewOfFile(mumbleinfo); mumbleinfo = nullptr; }
+    if(mumblelink) { CloseHandle(mumblelink); mumblelink = nullptr; }
 #elif _POSIX_SHARED_MEMORY_OBJECTS > 0
     if(mumbleinfo != (MumbleInfo *)-1) { munmap(mumbleinfo, sizeof(MumbleInfo)); mumbleinfo = (MumbleInfo *)-1; }
     if(mumblelink >= 0) { close(mumblelink); mumblelink = -1; }
