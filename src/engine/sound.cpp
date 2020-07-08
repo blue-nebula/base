@@ -301,7 +301,11 @@ void smartmusic(bool cond, bool init)
 {
     if(init) canmusic = true;
     if(!canmusic || nosound || !mastervol || !musicvol || (!cond && Mix_PlayingMusic()) || !*titlemusic) return;
-    if(!playingmusic() || (cond && musicfile == titlemusic)) playmusic(titlemusic);
+
+    if (!playingmusic() || (cond && musicfile != titlemusic))
+    {
+        playmusic(titlemusic);
+    }
     else
     {
         Mix_VolumeMusic(int((mastervol/255.f)*(musicvol/255.f)*MIX_MAX_VOLUME));
@@ -448,10 +452,6 @@ int registersound(std::string name, int volume, int max_radius, int min_radius, 
     if (loaded_samples < value)
     {
         printf("Failed to load %d sample %s\n", (value - loaded_samples), name.c_str());
-    }
-    else
-    {
-        printf("Loaded sound %d: %s\n", index, soundset[index].name.c_str());
     }
 
     return soundset.size() - 1;
