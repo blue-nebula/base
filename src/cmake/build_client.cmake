@@ -73,14 +73,6 @@ if(BUILD_CLIENT)
             xcode/macutils.mm
             xcode/ConsoleView.m
         )
-
-        # on macOS natively, we don't seem to require that file (any more?)
-        # osxcross however appears to need it
-        if(OSXCROSS_HOST)
-            message(STATUS "osxcross build, building main.m for client")
-            list(APPEND mac_client_sources xcode/main.m)
-        endif()
-
         list(APPEND client_sources ${mac_client_sources})
     elseif(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         find_package(PkgConfig REQUIRED)
