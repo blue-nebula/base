@@ -1,6 +1,6 @@
 if(BUILD_GENKEY)
     # genkey is a rather small application
-    file(GLOB genkey_sources
+    set(genkey_sources
         engine/genkey.cpp
         shared/crypto.cpp
     )
