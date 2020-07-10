@@ -33,15 +33,29 @@ if(BUILD_SERVER)
         shared/tools.h
 
         shared/crypto.cpp
+        shared/cube.h
+        shared/tools.h
+        shared/command.h
+        shared/geom.h
+        shared/ents.h
+        shared/iengine.h
+        shared/igame.h
         shared/geom.cpp
         shared/stream.cpp
         shared/tools.cpp
         shared/zip.cpp
+        engine/engine.h
+        engine/version.h
         engine/command.cpp
         engine/irc.cpp
         engine/master.cpp
         engine/server.cpp
         game/server.cpp
+        game/capturemode.h
+        game/defendmode.h
+        game/bombermode.h
+        game/duelmut.h
+        game/aiman.h
     )
 
     # dependencies are imported globally in src/CMakeLists.txt

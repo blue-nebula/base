@@ -17,6 +17,13 @@ if(BUILD_GENKEY)
 
         engine/genkey.cpp
         shared/crypto.cpp
+        shared/cube.h
+        shared/tools.h
+        shared/command.h
+        shared/geom.h
+        shared/ents.h
+        shared/iengine.h
+        shared/igame.h
     )
 
     add_blue_nebula_executable(genkey${BIN_SUFFIX} ${genkey_sources})
