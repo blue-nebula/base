@@ -3404,13 +3404,24 @@ namespace hud
 
         gle::colorf(1, 1, 1, 1);
 
+        /*
+         * load logo and cube 2 badge
+         * both are positioned in the top right corner
+         * they are offset a little from the right (with a common value) to make sure they have the same distance from the top and right edges
+         */
+        // this value was checked with an on-screen ruler
+        const int offset_from_right = 48;
+
         t = textureload(logotex, 3);
         glBindTexture(GL_TEXTURE_2D, t->id);
-        drawtexture(w-1024, top, 1024, 256);
+        // texture coordinate is the left top corner of the image, so we subtract (twice the) real size from the width as well as the offset
+        drawtexture(w-1024-offset_from_right, top, 1024, 256);
 
         t = textureload(badgetex, 3);
         glBindTexture(GL_TEXTURE_2D, t->id);
-        drawtexture(w-336, top, 256, 128);
+        // we want to draw it below our logo, so we add the height of the logo and the height of the badge (size of the badge is 64, size of our logo is 128)
+        // also, we subtract the offset from the right (see logo drawing for more information) as well as an arbitrary value that brings it into alignment with the logo
+        drawtexture(w-256-offset_from_right-14, top+128+64, 256, 128);
 
         pushfont("console");
         int y = h-bottom-FONTH/2;
