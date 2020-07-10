@@ -424,13 +424,21 @@ static inline void setarg(ident &id, tagval &v)
     }
 }
 
+// Write a new value to an existing alias.
 static inline void setalias(ident &id, tagval &v)
 {
+    // Free the previous string if needed.
     if(id.valtype == VAL_STR) delete[] id.val.s;
+
+    // Set the new value.
     id.setval(v);
     cleancode(id);
-    id.flags = (id.flags & (identflags|IDF_WORLD)) | (id.flags & (identflags|IDF_PERSIST)) | identflags;
+
+    // Reset the ident's flags to the global state, except preserving WORLD, PERSIST, and COMPLETE.
+    id.flags = identflags | (id.flags & (IDF_WORLD | IDF_PERSIST | IDF_COMPLETE));
+
 #ifndef STANDALONE
+    // Propagate the change.
     client::editvar(&id, interactive && !(identflags&IDF_WORLD));
 #endif
 }
