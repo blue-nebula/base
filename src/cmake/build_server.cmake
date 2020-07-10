@@ -1,6 +1,6 @@
 if(BUILD_SERVER)
     # the server requires less source files than the client, so we pick them by hand
-    file(GLOB server_sources
+    set(server_sources
         shared/crypto.cpp
         shared/geom.cpp
         shared/stream.cpp
@@ -23,7 +23,7 @@ if(BUILD_SERVER)
         list(APPEND server_deps rt)
     elseif(APPLE)
         # build OS X specific Objective-C code
-        file(GLOB mac_server_sources
+        set(mac_server_sources
             xcode/macutils.mm
         )
         list(APPEND server_sources ${mac_server_sources})

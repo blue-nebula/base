@@ -1,11 +1,65 @@
 if(BUILD_CLIENT)
     # the client depends on almost all the source files
-    file(GLOB client_sources engine/*.cpp game/*.cpp shared/*.cpp)
-
-    # the client does not need genkey.cpp
-    # to avoid warnings about duplicate main()s, it has to be removed from their source lists
-    file(GLOB genkey_cpp_path engine/genkey.cpp)
-    list(REMOVE_ITEM client_sources ${genkey_cpp_path})
+    set(client_sources
+        engine/bih.cpp
+        engine/blend.cpp
+        engine/blob.cpp
+        engine/client.cpp
+        engine/command.cpp
+        engine/console.cpp
+        engine/decal.cpp
+        engine/dynlight.cpp
+        engine/glare.cpp
+        engine/grass.cpp
+        engine/irc.cpp
+        engine/lightmap.cpp
+        engine/main.cpp
+        engine/master.cpp
+        engine/material.cpp
+        engine/menus.cpp
+        engine/normal.cpp
+        engine/octa.cpp
+        engine/octaedit.cpp
+        engine/octarender.cpp
+        engine/physics.cpp
+        engine/pvs.cpp
+        engine/rendergl.cpp
+        engine/rendermodel.cpp
+        engine/renderparticles.cpp
+        engine/rendersky.cpp
+        engine/rendertext.cpp
+        engine/renderva.cpp
+        engine/server.cpp
+        engine/serverbrowser.cpp
+        engine/shader.cpp
+        engine/shadowmap.cpp
+        engine/sound.cpp
+        engine/texture.cpp
+        engine/ui.cpp
+        engine/water.cpp
+        engine/world.cpp
+        engine/worldio.cpp
+        game/ai.cpp
+        game/bomber.cpp
+        game/capture.cpp
+        game/client.cpp
+        game/defend.cpp
+        game/entities.cpp
+        game/game.cpp
+        game/hud.cpp
+        game/physics.cpp
+        game/projs.cpp
+        game/scoreboard.cpp
+        game/server.cpp
+        game/waypoint.cpp
+        game/weapons.cpp
+        shared/crypto.cpp
+        shared/geom.cpp
+        shared/glemu.cpp
+        shared/stream.cpp
+        shared/tools.cpp
+        shared/zip.cpp
+    )
 
     # dependencies are imported globally in src/CMakeLists.txt
     # we can just list them by name here
@@ -14,14 +68,11 @@ if(BUILD_CLIENT)
     # platform specific code
     if(APPLE)
         # build OS X specific Objective-C code
-        file(GLOB mac_client_sources xcode/SDLmain.m xcode/macutils.mm xcode/ConsoleView.m)
-
-        # on macOS natively, we don't seem to require that file (any more?)
-        # osxcross however appears to need it
-        if(OSXCROSS_HOST)
-            message(STATUS "osxcross build, building main.m for client")
-            list(APPEND mac_client_sources xcode/main.m)
-        endif()
+        set(mac_client_sources
+            xcode/SDLMain.m
+            xcode/macutils.mm
+            xcode/ConsoleView.m
+        )
         list(APPEND client_sources ${mac_client_sources})
     elseif(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         find_package(PkgConfig REQUIRED)
