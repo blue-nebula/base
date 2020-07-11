@@ -19,7 +19,7 @@ namespace client
     VAR(IDF_PERSIST, showservervariables, 0, 0, 1); // determines if variables set by the server are printed to the console
     VAR(IDF_PERSIST, showmapvotes, 0, 1, 3); // shows map votes, 1 = only mid-game (not intermision), 2 = at all times, 3 = verbose
     VAR(IDF_PERSIST, playmentionedsound, 0, 0, 1);
-    VAR(IDF_PERSIST, mutechat, 0, 0, 2); // mute chat sounds, 1 = mute in-game, 2 mute in-game and in spectator
+    VAR(IDF_PERSIST, playchatsounds, 0, 2, 2); // play chat sounds, 0 = never play, 1 = play in spectator, 2 play in-game and in spectator
 
     VAR(IDF_PERSIST, checkpointannounce, 0, 5, 7); // 0 = never, &1 = active players, &2 = all players, &4 = all players in gauntlet
     VAR(IDF_PERSIST, checkpointannouncefilter, 0, CP_ALL, CP_ALL); // which checkpoint types to announce for
@@ -1170,9 +1170,9 @@ namespace client
             conoutft(CON_CHAT, "%s", line);
 
             // only play chat sounds when
-            // (mutechat is 1 and player is not alive OR mutechat is 0)
-            if ((mutechat == 1 && game::player1.state != CS_ALIVE)
-                  || mutechat == 0 )
+            // (playchatsounds is 1 and player is alive OR playchatsounds is 1)
+            if ((playchatsounds == 1 && game::player1.state != CS_ALIVE)
+                  || playchatsounds == 2 )
             {
                 if (playmentionedsound && (strstr(text, game::player1.name) != NULL))
                 {

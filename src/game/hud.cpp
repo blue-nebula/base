@@ -26,7 +26,7 @@ namespace hud
     FVAR(IDF_PERSIST, hudblend, 0, 1, 1);
     VAR(IDF_PERSIST, hudminimal, 0, 0, 1);
 
-    VAR(IDF_PERSIST, hidechat, 0, 0, 2); // toggle visibility of chat, 1 = hide in-game, 2 hide in-game and in spectator
+    VAR(IDF_PERSIST, showchat, 0, 2, 2); // toggle visibility of chat 0 = not shown, 1 = shown in spectator, 2 shown in-game and in spectator
 
     VAR(IDF_PERSIST, showdemoplayback, 0, 1, 1);
     FVAR(IDF_PERSIST, edgesize, 0, 0.005f, 1000);
@@ -1775,11 +1775,11 @@ namespace hud
         {
             // draw the chat
 
-            // (don't draw the chat if hidechat is 1 and the player is alive
-            // OR if hidechat is 2)
+            // (don't draw the chat if showchat is 1 and the player is alive
+            // OR if showchat is 0)
             // AND full is false, so the chat is always shown when full is true
-            if (   ((hidechat == 1 && game::player1.state == CS_ALIVE)
-                   || (hidechat == 2))
+            if (   ((showchat == 1 && game::player1.state == CS_ALIVE)
+                   || (showchat == 0))
                 && (!full) )
             {
                 popfont();
