@@ -532,6 +532,66 @@ char *svariable(const char *name, const char *cur, char **storage, identfun fun,
     return newstring(cur);
 }
 
+// Flags that can be used by CubeScript when defining variables.
+static constexpr ushort EXPOSED_FLAGS = IDF_HEX | IDF_PERSIST | IDF_READONLY | IDF_TEXTURE;
+
+// Expose acceptable flags as variables.
+VAR(0, idfbithex, 1, IDF_HEX, -1);
+VAR(0, idfbitpersist, 1, IDF_PERSIST, -1);
+VAR(0, idfbitreadonly, 1, IDF_READONLY, -1);
+VAR(0, idfbittexture, 1, IDF_TEXTURE, -1);
+
+void defvar(const char *name, int *min, int *cur, int *max, int *flags, const char *code_on_changed)
+{
+    if(idents.access(name))
+    {
+        debugcode("\frcannot redefine %s as a variable", name);
+    }
+    else
+    {
+        // Use only flags exposed to CubeScript.
+        ushort filtered_flags = ((*flags) & EXPOSED_FLAGS);
+
+        // Create the variable, stored in new storage.
+        addident(ident(ID_VAR, newstring(name), *min, *cur, *max, new int(*cur), nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
+    }
+}
+COMMAND(0, defvar, "siiiis");
+
+void deffvar(const char *name, float *min, float *cur, float *max, int *flags, const char *code_on_changed)
+{
+    if(idents.access(name))
+    {
+        debugcode("\frcannot redefine %s as a variable", name);
+    }
+    else
+    {
+        // Use only flags exposed to CubeScript.
+        ushort filtered_flags = ((*flags) & EXPOSED_FLAGS);
+
+        // Create the variable, stored in new storage.
+        addident(ident(ID_FVAR, newstring(name), *min, *cur, *max, new float(*cur), nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
+    }
+}
+COMMAND(0, deffvar, "sfffis");
+
+void defsvar(const char *name, const char *cur, int *flags, const char *code_on_changed)
+{
+    if(idents.access(name))
+    {
+        debugcode("\frcannot redefine %s as a variable", name);
+    }
+    else
+    {
+        // Use only flags exposed to CubeScript.
+        ushort filtered_flags = ((*flags) & EXPOSED_FLAGS);
+
+        // Create the variable, stored in new storage.
+        addident(ident(ID_SVAR, newstring(name), newstring(cur), new char*(newstring(cur)), nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
+    }
+}
+COMMAND(0, defsvar, "ssis");
+
 #define GETVAR(id, vartype, name, retval) \
     ident *id = idents.access(name); \
     if(!id || id->type!=vartype) return retval;
