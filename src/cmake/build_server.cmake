@@ -1,6 +1,37 @@
 if(BUILD_SERVER)
     # the server requires less source files than the client, so we pick them by hand
     set(server_sources
+        # list generated using
+        # scripts/trace-headers.py -DSTANDALONE -DGAMESERVER <all .cpp files listed below>
+        engine/engine.h
+        engine/irc.h
+        engine/sound.h
+        engine/version.h
+        game/aiman.h
+        game/auth.h
+        game/bomber.h
+        game/bombermode.h
+        game/capture.h
+        game/capturemode.h
+        game/defend.h
+        game/defendmode.h
+        game/duelmut.h
+        game/game.h
+        game/gamemode.h
+        game/player.h
+        game/playerdef.h
+        game/teamdef.h
+        game/vars.h
+        game/weapdef.h
+        game/weapons.h
+        shared/command.h
+        shared/cube.h
+        shared/ents.h
+        shared/geom.h
+        shared/iengine.h
+        shared/igame.h
+        shared/tools.h
+
         shared/crypto.cpp
         shared/geom.cpp
         shared/stream.cpp
