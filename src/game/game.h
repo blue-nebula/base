@@ -59,6 +59,10 @@ struct enttypes
     bool    noisy,  syncs,  resyncs,    syncpos,    synckin;
     const char *name,           *attrs[13];
 };
+
+// minimum interval for updates in milliseconds for client/server
+#define UPDATERATE 8
+
 #ifdef GAMESERVER
 enttypes enttype[] = {
     {
