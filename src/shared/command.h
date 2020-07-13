@@ -346,14 +346,14 @@ static inline void loopiter(ident *id, identstack &stack, const char *s) { tagva
 
 inline void ident::changed()
 {
-    // Execute the ident's function.
-    if(fun)
+    // Execute the ident's function if it exists.
+    if(fun != nullptr)
     {
         fun();
     }
 
     // Execute the variable's cubescript on_changed callback if there is code to execute.
-    if((type == ID_VAR || type == ID_FVAR || type == ID_SVAR) && code_on_changed && *code_on_changed)
+    if((type == ID_VAR || type == ID_FVAR || type == ID_SVAR) && code_on_changed != nullptr && code_on_changed[0] != '\0')
     {
         execute(code_on_changed);
     }

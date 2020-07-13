@@ -541,56 +541,62 @@ VAR(0, idfbitpersist, 1, IDF_PERSIST, -1);
 VAR(0, idfbitreadonly, 1, IDF_READONLY, -1);
 VAR(0, idfbittexture, 1, IDF_TEXTURE, -1);
 
-void defvar(const char *name, int *min, int *cur, int *max, int *flags, const char *code_on_changed)
-{
+// Define an integer variable.
+ICOMMAND(0, defvar, "siiiis", (const char *name, int *min, int *cur, int *max, int *flags, const char *code_on_changed), {
     if(idents.access(name))
     {
-        debugcode("\frcannot redefine %s as a variable", name);
+        debugcode("\frCannot redefine %s as a variable", name);
     }
     else
     {
         // Use only flags exposed to CubeScript.
         ushort filtered_flags = ((*flags) & EXPOSED_FLAGS);
 
-        // Create the variable, stored in new storage.
-        addident(ident(ID_VAR, newstring(name), *min, *cur, *max, new int(*cur), nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
-    }
-}
-COMMAND(0, defvar, "siiiis");
+        // Allocate storage for the variable.
+        int *storage = new int(*cur);
 
-void deffvar(const char *name, float *min, float *cur, float *max, int *flags, const char *code_on_changed)
-{
+        // Create the variable.
+        addident(ident(ID_VAR, newstring(name), *min, *cur, *max, storage, nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
+    }
+});
+
+// Define a float variable.
+ICOMMAND(0, deffvar, "sfffis", (const char *name, float *min, float *cur, float *max, int *flags, const char *code_on_changed), {
     if(idents.access(name))
     {
-        debugcode("\frcannot redefine %s as a variable", name);
+        debugcode("\frCannot redefine %s as a variable", name);
     }
     else
     {
         // Use only flags exposed to CubeScript.
         ushort filtered_flags = ((*flags) & EXPOSED_FLAGS);
 
-        // Create the variable, stored in new storage.
-        addident(ident(ID_FVAR, newstring(name), *min, *cur, *max, new float(*cur), nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
-    }
-}
-COMMAND(0, deffvar, "sfffis");
+        // Allocate storage for the variable.
+        float *storage = new float(*cur);
 
-void defsvar(const char *name, const char *cur, int *flags, const char *code_on_changed)
-{
+        // Create the variable.
+        addident(ident(ID_FVAR, newstring(name), *min, *cur, *max, storage, nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
+    }
+});
+
+// Define a string variable.
+ICOMMAND(0, defsvar, "ssis", (const char *name, const char *cur, int *flags, const char *code_on_changed), {
     if(idents.access(name))
     {
-        debugcode("\frcannot redefine %s as a variable", name);
+        debugcode("\frCannot redefine %s as a variable", name);
     }
     else
     {
         // Use only flags exposed to CubeScript.
         ushort filtered_flags = ((*flags) & EXPOSED_FLAGS);
 
-        // Create the variable, stored in new storage.
-        addident(ident(ID_SVAR, newstring(name), newstring(cur), new char*(newstring(cur)), nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
+        // Allocate storage for the variable.
+        char **storage = new char*(newstring(cur));
+
+        // Create the variable.
+        addident(ident(ID_SVAR, newstring(name), newstring(cur), storage, nullptr, filtered_flags | IDF_COMPLETE, newstring(code_on_changed)));
     }
-}
-COMMAND(0, defsvar, "ssis");
+});
 
 #define GETVAR(id, vartype, name, retval) \
     ident *id = idents.access(name); \
