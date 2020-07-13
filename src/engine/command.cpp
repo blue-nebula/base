@@ -547,6 +547,10 @@ ICOMMAND(0, defvar, "siiiis", (const char *name, int *min, int *cur, int *max, i
     {
         debugcode("\frCannot redefine %s as a variable", name);
     }
+    else if(checknumber(name))
+    {
+        debugcode("\frCannot define number %s as a variable", name);
+    }
     else
     {
         // Use only flags exposed to CubeScript.
@@ -566,6 +570,10 @@ ICOMMAND(0, deffvar, "sfffis", (const char *name, float *min, float *cur, float 
     {
         debugcode("\frCannot redefine %s as a variable", name);
     }
+    else if(checknumber(name))
+    {
+        debugcode("\frCannot define number %s as a variable", name);
+    }
     else
     {
         // Use only flags exposed to CubeScript.
@@ -584,6 +592,10 @@ ICOMMAND(0, defsvar, "ssis", (const char *name, const char *cur, int *flags, con
     if(idents.access(name))
     {
         debugcode("\frCannot redefine %s as a variable", name);
+    }
+    else if(checknumber(name))
+    {
+        debugcode("\frCannot define number %s as a variable", name);
     }
     else
     {
