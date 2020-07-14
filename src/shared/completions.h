@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include "cube.h"
 
 namespace completion
