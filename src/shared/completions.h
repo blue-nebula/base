@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
+#include <iomanip>
 #include "cube.h"
 
 namespace completion

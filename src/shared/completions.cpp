@@ -12,6 +12,27 @@ namespace completion
     int selected_completion = 0;
 
 
+    template<typename T>
+    std::string int_to_hex(T i, bool include_alpha = false)
+    {
+        std::stringstream stream;
+        stream << "0x"
+                << std::setfill ('0') << std::setw(sizeof(T)*2)
+                << std::hex << i;
+        std::string hex_string = stream.str();
+        // make entire string uppercase
+        for (auto& c : hex_string) {
+            c = toupper(c);
+        }
+
+        if (!include_alpha && hex_string.length() > 8) {
+            hex_string = "0x" + hex_string.substr(4, 10);
+        }
+
+        return hex_string;
+    }
+
+
 
     /**
      * @brief Check if there are completions available
@@ -290,7 +311,6 @@ namespace completion
 
 
 
-    // returns min, max, default and current value in an array
     /**
      * @brief puts min, max, default and current value of identifier into array std::string[4]
      * 
@@ -317,18 +337,10 @@ namespace completion
             case ID_VAR:
                 if (id.flags & IDF_HEX)
                 {
-                    values[0] = "0x" + std::to_string((id.minval >> 16) & 0xFF)
-                                     + std::to_string((id.minval >> 8)  & 0xFF)
-                                     + std::to_string(id.minval         & 0xFF);
-                    values[1] = "0x" + std::to_string((id.maxval >> 16) & 0xFF)
-                                     + std::to_string((id.maxval >> 8)  & 0xFF)
-                                     + std::to_string(id.maxval         & 0xFF);
-                    values[2] = "0x" + std::to_string((id.def.i >> 16)  & 0xFF)
-                                     + std::to_string((id.def.i >> 8)   & 0xFF)
-                                     + std::to_string(id.def.i          & 0xFF);
-                    values[3] = "0x" + std::to_string((*id.storage.i >> 16) & 0xFF)
-                                     + std::to_string((*id.storage.i >> 8)  & 0xFF)
-                                     + std::to_string(*id.storage.i         & 0xFF);
+                    values[0] = int_to_hex(id.minval);
+                    values[1] = int_to_hex(id.maxval);
+                    values[2] = int_to_hex(id.def.i);
+                    values[3] = int_to_hex(*id.storage.i);
                 }
                 else if (is_ident_bool())
                 {
