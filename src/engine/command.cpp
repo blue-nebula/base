@@ -542,7 +542,7 @@ VAR(0, idfbitreadonly, 1, IDF_READONLY, -1);
 VAR(0, idfbittexture, 1, IDF_TEXTURE, -1);
 
 // Define an integer variable.
-ICOMMAND(0, defvar, "siiiis", (const char *name, int *min, int *cur, int *max, int *flags, const char *code_on_changed), {
+ICOMMAND(0, defintvar, "siiiis", (const char *name, int *min, int *cur, int *max, int *flags, const char *code_on_changed), {
     if(idents.access(name))
     {
         debugcode("\frCannot redefine %s as a variable", name);
@@ -565,7 +565,7 @@ ICOMMAND(0, defvar, "siiiis", (const char *name, int *min, int *cur, int *max, i
 });
 
 // Define a float variable.
-ICOMMAND(0, deffvar, "sfffis", (const char *name, float *min, float *cur, float *max, int *flags, const char *code_on_changed), {
+ICOMMAND(0, deffloatvar, "sfffis", (const char *name, float *min, float *cur, float *max, int *flags, const char *code_on_changed), {
     if(idents.access(name))
     {
         debugcode("\frCannot redefine %s as a variable", name);
@@ -588,7 +588,7 @@ ICOMMAND(0, deffvar, "sfffis", (const char *name, float *min, float *cur, float 
 });
 
 // Define a string variable.
-ICOMMAND(0, defsvar, "ssis", (const char *name, const char *cur, int *flags, const char *code_on_changed), {
+ICOMMAND(0, defstringvar, "ssis", (const char *name, const char *cur, int *flags, const char *code_on_changed), {
     if(idents.access(name))
     {
         debugcode("\frCannot redefine %s as a variable", name);
