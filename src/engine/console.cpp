@@ -5,6 +5,7 @@ using std::swap;
 
 #include "engine.h"
 #include "game.h"
+#include "completions.h"
 
 reversequeue<cline, MAXCONLINES> conlines;
 
@@ -472,6 +473,9 @@ bool consoleinput(const char *str, int len)
     }
     commandbuf[cmdlen + len] = '\0';
 
+    // update completion
+    completion::get_completions(commandbuf);
+
     return true;
 }
 
@@ -502,6 +506,8 @@ bool consolekey(int code, bool isdown)
                 memmove(&commandbuf[commandpos], &commandbuf[commandpos+1], len - commandpos);
                 resetcomplete();
                 if(commandpos>=len-1) commandpos = -1;
+                // update completion
+                completion::get_completions(commandbuf);
                 break;
             }
 
@@ -513,6 +519,8 @@ bool consolekey(int code, bool isdown)
                 resetcomplete();
                 if(commandpos>0) commandpos--;
                 else if(!commandpos && len<=1) commandpos = -1;
+                // update completion
+                completion::get_completions(commandbuf);
                 break;
             }
 
@@ -526,15 +534,56 @@ bool consolekey(int code, bool isdown)
                 break;
 
             case SDLK_UP:
-                if(histpos > history.length()) histpos = history.length();
-                if(histpos > 0) history[--histpos]->restore();
+                // only move in history if we didn't move in the completions
+                if (!completion::move_completion_select_up())
+                {
+                    histpos = std::min(histpos, history.length());
+                    if (histpos > 0) {
+                        history[--histpos]->restore();
+                    }
+                }
                 break;
 
             case SDLK_DOWN:
-                if(histpos + 1 < history.length()) history[++histpos]->restore();
+                // only move in history if we didn't move in the completions
+                if (!completion::move_completion_select_down() && histpos + 1 < history.length())
+                {
+                    history[++histpos]->restore();
+                }
                 break;
 
             case SDLK_TAB:
+                // use old completion system if new one fails
+                if (completion::selected_completion_is_available())
+                {
+                    completion::Completion selected_completion = completion::available_completions[completion::selected_completion];
+                    std::string completion = "";
+
+                    if (selected_completion.type == completion::Completion::IDENTIFIER)
+                    {
+                        completion = std::string("/") + selected_completion.id.name + std::string(" ");
+                    }
+                    else if (selected_completion.type == completion::Completion::OTHER)
+                    {
+                        // get the position of the last @
+                        size_t name_start_pos = completion::get_name_pos(commandbuf);
+                        completion = commandbuf;
+                        completion = completion.substr(0, name_start_pos);
+                        completion += selected_completion.text + " ";
+                    }
+
+                    // prevent completion from being bigger than BIGSTRLEN which would cause an overflow
+                    if (completion.length() > BIGSTRLEN) {
+                        completion = completion.substr(0, BIGSTRLEN);
+                    }
+                    strcpy(commandbuf, completion.c_str());
+
+                    // reload completions because commandbuf was changed
+                    completion::get_completions(commandbuf);
+
+                    break;
+                }
+
                 if(commandflags&CF_COMPLETE)
                 {
                     complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
