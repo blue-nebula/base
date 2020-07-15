@@ -703,13 +703,36 @@ const char *getvardesc(const char *name)
     return id->desc;
 }
 
-void getvarfields(const char *name, int prop)
+/**
+ * Get ident field (as set by setdesc) and result them to CubeScript.
+ * Specifying a field index of < 0 will result the total number of the ident's fields.
+ *
+ * @param name the ident name
+ * @param field the field index of the ident to result
+ */
+void getvarfields(const char* name, int field)
 {
-    ident *id = getident(name);
-    if(!id) result("");
-    if(prop < 0) intret(id->fields.length());
-    else if(id->fields.inrange(prop)) result(id->fields[prop]);
-    else result("");
+    ident* id = getident(name);
+    // Blank result if ident doesn't exist.
+    if (id == nullptr)
+    {
+        result("");
+    }
+    // Negative field index, result number of fields.
+    else if (field < 0)
+    {
+        intret(id->fields.length());
+    }
+    // Specified field exists, result its contents.
+    else if (id->fields.inrange(field))
+    {
+        result(id->fields[field]);
+    }
+    // No such field, blank result.
+    else
+    {
+        result("");
+    }
 }
 
 ICOMMAND(0, getvar, "s", (char *n), intret(getvar(n)));
