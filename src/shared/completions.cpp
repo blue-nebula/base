@@ -207,7 +207,7 @@ namespace completion
 
                 // exclude bots
                 if (game::players[i]->actortype == ENT_AI) {
-                    //continue;
+                    continue;
                 }
 
                 if (player_name.find(name) == 0) {
