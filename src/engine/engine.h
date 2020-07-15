@@ -51,7 +51,6 @@ extern int nextcontrolversion();
 
 extern void setverinfo(const char *bin);
 
-#include "irc.h"
 #include "sound.h"
 
 enum { CON_DEBUG = 0, CON_MESG, CON_INFO, CON_SELF, CON_GAMESPECIFIC };

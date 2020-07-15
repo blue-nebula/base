@@ -1140,7 +1140,6 @@ int main(int argc, char **argv)
 
         checksleep(lastmillis);
         serverslice();
-        ircslice();
         if(frameloops)
         {
             game::recomputecamera(screenw, screenh);

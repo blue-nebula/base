@@ -236,7 +236,6 @@ void conoutft(int type, const char *s, ...)
 {
     defvformatbigstring(sf, s, s);
     console(type, "%s", sf);
-    ircoutf(5, "%s", sf);
 }
 
 void conoutf(const char *s, ...)
@@ -427,7 +426,6 @@ void cleanupserver()
     server::shutdown();
     cleanupserversockets();
     cleanupmaster();
-    irccleanup();
 }
 
 void reloadserver()
@@ -847,7 +845,6 @@ void checkserversockets()        // reply all server info requests
     ADDSOCKET(pongsock, false);
     ADDSOCKET(mastersock, true);
     ADDSOCKET(lansock, false);
-    bool ircsocks = ircaddsockets(maxsock, readset, writeset);
     if(maxsock == ENET_SOCKET_NULL || enet_socketset_select(maxsock, &readset, &writeset, 0) <= 0) return;
 
     if(serverhost)
@@ -888,7 +885,6 @@ void checkserversockets()        // reply all server info requests
         if(mastersock != ENET_SOCKET_NULL && ENET_SOCKETSET_CHECK(readset, mastersock)) flushmasterinput();
     }
 
-    if(ircsocks) ircchecksockets(readset, writeset);
 }
 
 void serverslice(uint timeout)  // main server update, called from main loop in sp, or from below in dedicated server
@@ -1316,7 +1312,6 @@ void serverloop()
         updatetimer(false);
         checkmaster();
         serverslice(5);
-        ircslice();
 #ifdef WIN32
         MSG msg;
         while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

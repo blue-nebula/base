@@ -2253,7 +2253,6 @@ namespace server
     void relayf(int r, const char *s, ...)
     {
         defvformatbigstring(str, s, s);
-        ircoutf(r, "%s", str);
 #ifdef STANDALONE
         bigstring ft;
         filterstring(ft, str);

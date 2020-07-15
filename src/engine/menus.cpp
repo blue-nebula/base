@@ -954,16 +954,6 @@ bool menuactive()
 
 ICOMMAND(0, menustacklen, "", (void), intret(menustack.length()));
 
-void guiirc(const char *s, int width, int height)
-{
-    extern bool ircgui(guient *g, const char *s, int width, int height);
-    if(cgui)
-    {
-        if(!ircgui(cgui, s, width > 0 ? width : 100, height > 0 ? height : 25) && shouldclearmenu) clearlater = true;
-    }
-}
-ICOMMAND(0, ircgui, "sii", (char *s, int *w, int *h), guiirc(s, *w, *h));
-
 void ui_console(int width, int height, const char *init)
 {
     extern bool consolegui(guient *g, int width, int height, const char *init, int &update);

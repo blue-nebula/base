@@ -4,7 +4,6 @@ if(BUILD_SERVER)
         # list generated using
         # scripts/trace-headers.py -DSTANDALONE -DGAMESERVER <all .cpp files listed below>
         engine/engine.h
-        engine/irc.h
         engine/sound.h
         engine/version.h
         game/aiman.h
@@ -38,7 +37,6 @@ if(BUILD_SERVER)
         shared/tools.cpp
         shared/zip.cpp
         engine/command.cpp
-        engine/irc.cpp
         engine/master.cpp
         engine/server.cpp
         game/server.cpp

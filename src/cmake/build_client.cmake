@@ -11,7 +11,6 @@ if(BUILD_CLIENT)
         engine/dynlight.cpp
         engine/glare.cpp
         engine/grass.cpp
-        engine/irc.cpp
         engine/lightmap.cpp
         engine/main.cpp
         engine/master.cpp
@@ -45,7 +44,6 @@ if(BUILD_CLIENT)
         engine/engine.h
         engine/explosion.h
         engine/iqm.h
-        engine/irc.h
         engine/lensflare.h
         engine/lightmap.h
         engine/lightning.h
