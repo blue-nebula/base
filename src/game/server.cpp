@@ -4939,7 +4939,7 @@ namespace server
                     }
                 }
             }
-            else if(ci->state == CS_WAITING)
+            else if(ci->state == CS_WAITING) // TODO palmolive
             {
                 int nospawn = 0;
                 if(smode && !smode->canspawn(ci, false)) { nospawn++; }

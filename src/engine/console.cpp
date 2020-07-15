@@ -51,6 +51,7 @@ struct keym
         ACTION_SPECTATOR,
         ACTION_EDITING,
         ACTION_WAITING,
+        ACTION_DEAD,
         NUMACTIONS
     };
 
@@ -269,10 +270,12 @@ ICOMMAND(0, bind,     "ss", (char *key, char *action), bindkey(key, action, keym
 ICOMMAND(0, specbind, "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_SPECTATOR, "specbind"));
 ICOMMAND(0, editbind, "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_EDITING, "editbind"));
 ICOMMAND(0, waitbind, "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_WAITING, "waitbind"));
+ICOMMAND(0, deadbind, "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_DEAD, "deadbind"));
 ICOMMAND(0, getbind,     "s", (char *key), getbind(key, keym::ACTION_DEFAULT));
 ICOMMAND(0, getspecbind, "s", (char *key), getbind(key, keym::ACTION_SPECTATOR));
 ICOMMAND(0, geteditbind, "s", (char *key), getbind(key, keym::ACTION_EDITING));
 ICOMMAND(0, getwaitbind, "s", (char *key), getbind(key, keym::ACTION_WAITING));
+ICOMMAND(0, getdeadbind, "s", (char *key), getbind(key, keym::ACTION_DEAD));
 ICOMMAND(0, searchbinds,     "sissssb", (char *action, int *limit, char *s1, char *s2, char *sep1, char *sep2, int *force), { vector<char> list; searchbindlist(action, keym::ACTION_DEFAULT, max(*limit, 0), s1, s2, sep1, sep2, list, *force!=0); result(list.getbuf()); });
 ICOMMAND(0, searchspecbinds, "sissssb", (char *action, int *limit, char *s1, char *s2, char *sep1, char *sep2, int *force), { vector<char> list; searchbindlist(action, keym::ACTION_SPECTATOR, max(*limit, 0), s1, s2, sep1, sep2, list, *force!=0); result(list.getbuf()); });
 ICOMMAND(0, searcheditbinds, "sissssb", (char *action, int *limit, char *s1, char *s2, char *sep1, char *sep2, int *force), { vector<char> list; searchbindlist(action, keym::ACTION_EDITING, max(*limit, 0), s1, s2, sep1, sep2, list, *force!=0); result(list.getbuf()); });
@@ -434,10 +437,12 @@ void execbind(keym &k, bool isdown)
         int state = keym::ACTION_DEFAULT;
         switch(client::state())
         {
-            case CS_ALIVE: case CS_DEAD: default: break;
+            case CS_ALIVE:
+            default: break; // TODO : what the fuck is this line ??
             case CS_SPECTATOR: state = keym::ACTION_SPECTATOR; break;
             case CS_EDITING: state = keym::ACTION_EDITING; break;
             case CS_WAITING: state = keym::ACTION_WAITING; break;
+            case CS_DEAD: state = keym::ACTION_DEAD; break;
         }
         char *&action = k.actions[state][0] ? k.actions[state] : k.actions[keym::ACTION_DEFAULT];
         keyaction = action;

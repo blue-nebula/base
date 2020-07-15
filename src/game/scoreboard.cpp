@@ -380,8 +380,17 @@ namespace hud
                                     if(shownotices >= 2)
                                     {
                                         uifont(g, "little", {
-                                            if(game::player1.state == CS_WAITING && lastmillis-game::player1.lastdeath >= 500)
-                                                uicenterlist(g, g.textf("Press \fs\fw\f{=3:waitmodeswitch}\fS to %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
+                                            if(lastmillis-game::player1.lastdeath >= 500) {
+                                                string mode;
+                                                switch(game::player1.state) {
+                                                    case CS_WAITING:
+                                                        uicenterlist(g, g.textf("Press \fs\fw\f{=3:waitmodeswitch}\fS to %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
+                                                        break;
+                                                    case CS_DEAD:
+                                                        uicenterlist(g, g.textf("Press \fs\fw\f{=3:deadmodeswitch}\fS to %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
+                                                        break;
+                                                }
+                                            }
                                             /*
                                             if(m_loadout(game::gamemode, game::mutators))
                                                 uicenterlist(g, g.textf("Press \fs\fw\f{=showgui profile 2}\fS to \fs%s\fS loadout", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::player1.loadweap.empty() ? "\fzoyselect" : "change"));

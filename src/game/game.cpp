@@ -132,6 +132,7 @@ namespace game
     VAR(IDF_PERSIST, followmode, 0, 1, 1); // 0 = never, 1 = tv
     VARF(IDF_PERSIST, specmode, 0, 1, 1, specreset()); // 0 = float, 1 = tv
     VARF(IDF_PERSIST, waitmode, 0, 1, 1, specreset()); // 0 = float, 1 = tv
+    VARF(IDF_PERSIST, deadmode, 0, 1, 1, specreset()); // 0 = float, 1 = tv
     VARF(IDF_PERSIST, intermmode, 0, 1, 1, specreset()); // 0 = float, 1 = tv
 
     VAR(IDF_PERSIST, followdead, 0, 1, 2); // 0 = never, 1 = in all but duel/survivor, 2 = always
@@ -635,7 +636,9 @@ namespace game
     void resetfollow()
     {
         follow = spectvfollow = -1;
-        if(specresetstyle && (player1.state == CS_WAITING || player1.state == CS_SPECTATOR))
+        if(specresetstyle && (
+            player1.state == CS_DEAD || player1.state == CS_WAITING || player1.state == CS_SPECTATOR
+        ))
         {
             player1.o = camera1->o;
             player1.yaw = camera1->yaw;
@@ -707,7 +710,8 @@ namespace game
             else switch(player1.state)
             {
                 case CS_SPECTATOR: if(specmode || (force && focus != &player1 && followmode && followaim())) return true; break;
-                case CS_WAITING: if((waitmode && (!player1.lastdeath || lastmillis-player1.lastdeath >= 500)) || (force && focus != &player1 && followmode && followaim())) return true; break;
+                case CS_DEAD:
+                case CS_WAITING: if(((waitmode || deadmode) && (!player1.lastdeath || lastmillis-player1.lastdeath >= 500)) || (force && focus != &player1 && followmode && followaim())) return true; break;
                 default: break;
             }
         }
@@ -734,10 +738,23 @@ namespace game
         else waitmode = 1;
         specreset();
     });
+    ICOMMAND(0, deadmodeswitch, "", (), {
+        if(tvmode(true, true))
+        {
+            if(!tvmode(true, false)) followmode = 0;
+            else deadmode = 0;
+        }
+        else if(focus != &player1) followmode = 1;
+        else deadmode = 1;
+        specreset();
+    });
 
     bool followswitch(int n, bool other)
     {
-        if(player1.state == CS_SPECTATOR || (player1.state == CS_WAITING && (!player1.lastdeath || !deathbuttonmash || lastmillis-player1.lastdeath > deathbuttonmash)))
+        if(player1.state == CS_SPECTATOR || (
+            (player1.state == CS_WAITING || player1.state == CS_DEAD) &&
+            (!player1.lastdeath || !deathbuttonmash || lastmillis-player1.lastdeath > deathbuttonmash)
+        ))
         {
             bool istv = tvmode(true, false);
             int *f = istv ? &spectvfollow : &follow;
@@ -785,7 +802,7 @@ namespace game
     {
         if(gameent::is(d))
         {
-            if((d == &player1 && tvmode()) || d->state == CS_DEAD || d->state >= CS_SPECTATOR || !gs_playing(gamestate))
+            if((d == &player1 && tvmode()) || d->state >= CS_SPECTATOR || !gs_playing(gamestate))
                 return false;
         }
         return true;
@@ -2769,9 +2786,8 @@ namespace game
         float r = thirdperson ? 0 : d->roll, wobble = float(rnd(quakewobble+1)-quakewobble/2)*(float(min(d->quake, quakelimit))/1000.f);
         switch(d->state)
         {
-            case CS_SPECTATOR: case CS_WAITING: r = wobble*0.5f; break;
+            case CS_DEAD: case CS_SPECTATOR: case CS_WAITING: r = wobble*0.5f; break;
             case CS_ALIVE: if(d->crouching()) wobble *= 0.5f; r += wobble; break;
-            case CS_DEAD: r += wobble; break;
             default: break;
         }
         return r;
@@ -2955,6 +2971,7 @@ namespace game
             {
                 lasttvchg = lasttvcam = 0;
                 if((focus->state == CS_DEAD || (focus != &player1 && focus->state == CS_WAITING)) && focus->lastdeath)
+                    // TODO palmolive
                     deathcamyawpitch(focus, camera1->yaw, camera1->pitch);
                 else
                 {

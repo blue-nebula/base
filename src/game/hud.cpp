@@ -1475,7 +1475,7 @@ namespace hud
         }
         else if(game::player1.state == CS_SPECTATOR)
             ty += draw_textf("[ %s ]", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, specviewname())+FONTH/3;
-        else if(game::player1.state == CS_WAITING && showname())
+        else if((game::player1.state == CS_WAITING || game::player1.state == CS_DEAD) && showname())
             ty += draw_textf("[ %s ]", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, game::colourname(game::focus))+FONTH/3;
 
         if(gs_playing(game::gamestate))
@@ -1547,10 +1547,16 @@ namespace hud
                 {
                     if(target == &game::player1 && !client::demoplayback)
                     {
-                        if(target->state == CS_WAITING && shownotices >= 2)
+                        if(target->state == CS_WAITING)
                         {
                             pushfont("little");
                             ty += draw_textf("Press \fs\fw\f{=3:waitmodeswitch}\fS to %s", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, game::tvmode() ? "interact" : "switch to TV");
+                            popfont();
+                        }
+                        if(target->state == CS_DEAD)
+                        {
+                            pushfont("little");
+                            ty += draw_textf("Press \fs\fw\f{=3:deadmodeswitch}\fS to %s", tx, ty, int(FONTW*noticepadx), int(FONTH*noticepady), tr, tg, tb, tf, TEXT_CENTERED, -1, tw, 1, game::tvmode() ? "interact" : "switch to TV");
                             popfont();
                         }
                         if(m_loadout(game::gamemode, game::mutators))
@@ -3057,7 +3063,7 @@ namespace hud
         }
         else
         {
-            int st = interm ? CS_WAITING : game::player1.state;
+            int st = interm ? CS_WAITING : game::player1.state; // TODO palmolive
             const char *state = "", *tex = "";
             switch(st)
             {
@@ -3510,7 +3516,8 @@ namespace hud
             if(!radardisabled && !hasinput(true) && (game::focus->state == CS_EDITING ? showeditradar >= 1 : chkcond(showradar, !game::tvmode() || (game::focus != &game::player1 && radartype() == 3))))
                 drawradar(w, h, fade);
         }
-        drawspecborder(w, h, !gs_playing(game::gamestate) || game::player1.state == CS_SPECTATOR ? BORDER_SPEC : (game::player1.state == CS_WAITING ? BORDER_WAIT : (game::player1.state == CS_WAITING ? BORDER_EDIT : BORDER_PLAY)), top, bottom);
+        // TODO palmolive
+        drawspecborder(w, h, !gs_playing(game::gamestate) || game::player1.state == CS_SPECTATOR ? BORDER_SPEC : (game::player1.state == CS_WAITING ? BORDER_WAIT : (game::player1.state == CS_WAITING ? BORDER_WAIT : BORDER_PLAY)), top, bottom);
         return drawinventory(w, h, edge, top, bottom, fade);
     }
 
