@@ -249,9 +249,6 @@ static void text_color(char c, bvec4 *stack, int size, int &sp, bvec4 &color, in
         case 'w': case '7': stack[sp] = color = TVECX(255, 255, 255, alpha); break; // white
         case 'k': case '8': stack[sp] = color = TVECX(0,     0,   0, alpha); break; // black
         case 'c': case '9': stack[sp] = color = TVECX(64,  255, 255, alpha); break; // cyan
-        case 'h': stack[sp] = color = TVECX( 50, 184,  66, alpha); break; // play online
-        case 'i': stack[sp] = color = TVECX( 25, 109, 182, alpha); break; // offline practice
-        case 'j': stack[sp] = color = TVECX(255,  50,  27, alpha); break; // quit game
         case 'v': stack[sp] = color = TVECX(192,  96, 255, alpha); break; // violet
         case 'p': stack[sp] = color = TVECX(224,  64, 224, alpha); break; // purple
         case 'n': stack[sp] = color = TVECX(164,  72,  56, alpha); break; // brown
