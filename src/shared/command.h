@@ -123,6 +123,9 @@ struct ident
             identval overrideval;
             identval def; // declared-default (by *init.cfg)
             identval bin; // builtin-default (hard coded or version.cfg)
+
+            // Code to execute on change.
+            const char *code_on_changed;
         };
         struct // ID_ALIAS
         {
@@ -142,16 +145,16 @@ struct ident
 
     ident() {}
     // ID_VAR
-    ident(int t, const char *n, int m, int c, int x, int *s, void *f = NULL, int flags = IDF_COMPLETE)
-        : type(t), flags(flags | (m > x ? IDF_READONLY : 0)), name(n), minval(m), maxval(x), fun((identfun)f), desc(NULL)
+    ident(int t, const char *n, int m, int c, int x, int *s, void *f = NULL, int flags = IDF_COMPLETE, const char *code_on_changed = nullptr)
+        : type(t), flags(flags | (m > x ? IDF_READONLY : 0)), name(n), minval(m), maxval(x), code_on_changed(code_on_changed), fun((identfun)f), desc(NULL)
     { fields.shrink(0); def.i = c; bin.i = c; storage.i = s; }
     // ID_FVAR
-    ident(int t, const char *n, float m, float c, float x, float *s, void *f = NULL, int flags = IDF_COMPLETE)
-        : type(t), flags(flags | (m > x ? IDF_READONLY : 0)), name(n), minvalf(m), maxvalf(x), fun((identfun)f), desc(NULL)
+    ident(int t, const char *n, float m, float c, float x, float *s, void *f = NULL, int flags = IDF_COMPLETE, const char *code_on_changed = nullptr)
+        : type(t), flags(flags | (m > x ? IDF_READONLY : 0)), name(n), minvalf(m), maxvalf(x), code_on_changed(code_on_changed), fun((identfun)f), desc(NULL)
     { fields.shrink(0); def.f = c; bin.f = c; storage.f = s; }
     // ID_SVAR
-    ident(int t, const char *n, char *c, char **s, void *f = NULL, int flags = IDF_COMPLETE)
-        : type(t), flags(flags), name(n), fun((identfun)f), desc(NULL)
+    ident(int t, const char *n, char *c, char **s, void *f = NULL, int flags = IDF_COMPLETE, const char *code_on_changed = nullptr)
+        : type(t), flags(flags), name(n), code_on_changed(code_on_changed), fun((identfun)f), desc(NULL)
     { fields.shrink(0); def.s = c; bin.s = newstring(c); storage.s = s; }
     // ID_ALIAS
     ident(int t, const char *n, char *a, int flags)
@@ -174,7 +177,8 @@ struct ident
         : type(t), numargs(numargs), flags(flags), name(n), args(args), argmask(argmask), fun((identfun)f), desc(NULL)
     { fields.shrink(0); }
 
-    void changed() { if(fun) fun(); }
+    // Executed when the ident is changed. Will execute the ident's function and/or the ident's cubescript code
+    void changed();
 
     void setval(const tagval &v)
     {
@@ -339,6 +343,21 @@ extern void loopend(ident *id, identstack &stack);
 static inline void loopiter(ident *id, identstack &stack, int i) { tagval v; v.setint(i); loopiter(id, stack, v); }
 static inline void loopiter(ident *id, identstack &stack, float f) { tagval v; v.setfloat(f); loopiter(id, stack, v); }
 static inline void loopiter(ident *id, identstack &stack, const char *s) { tagval v; v.setstr(newstring(s)); loopiter(id, stack, v); }
+
+inline void ident::changed()
+{
+    // Execute the ident's function if it exists.
+    if(fun != nullptr)
+    {
+        fun();
+    }
+
+    // Execute the variable's cubescript on_changed callback if there is code to execute.
+    if((type == ID_VAR || type == ID_FVAR || type == ID_SVAR) && code_on_changed != nullptr && code_on_changed[0] != '\0')
+    {
+        execute(code_on_changed);
+    }
+}
 
 extern int identflags;
 extern bool interactive;
