@@ -1,6 +1,7 @@
 #include <algorithm>
 using std::swap;
 #include <string>
+#include <vector>
 #include "game.h"
 
 namespace client
@@ -258,25 +259,25 @@ namespace client
         }
 
         bool export_weapon = !std::string(weapon_name).empty();
-        vector<ident *> ids;
-        enumerate(idents, ident, id, ids.add(&id));
+        std::vector<ident *> ids;
+        enumerate(idents, ident, id, ids.push_back(&id));
 
         // sort the identifiers so the output file will be alphabetically sorted
-        ids.sortname();
+        std::sort(ids.begin(), ids.end(), [](ident* a, ident* b) {
+            return strcmp(a->name, b->name) < 0;
+        });
 
-        for (int i = 0; i < int(ids.size()); i++)
+        for (const auto& id : ids)
         {
-            ident &id = *ids[i];
-
             // do not save the variable if:
             // it's not a client sided variable
             // it's readonly
             // it's a world variable
             // or if we export a weapon and it the variablename doesn't start with the weapon name
-            if (   !(id.flags & IDF_CLIENT)
-                || (id.flags & IDF_READONLY)
-                || (id.flags & IDF_WORLD)
-                || ((export_weapon == true) ? (strncmp(id.name, weapon_name, strlen(weapon_name)) != 0) : false))
+            if (   !(id->flags & IDF_CLIENT)
+                || (id->flags & IDF_READONLY)
+                || (id->flags & IDF_WORLD)
+                || ((export_weapon == true) ? (strncmp(id->name, weapon_name, strlen(weapon_name)) != 0) : false))
             {
                 continue;
             }
@@ -284,19 +285,19 @@ namespace client
             bool value_changed = false;
             std::string write_value = "";
 
-            switch (id.type)
+            switch (id->type)
             {
                 case ID_VAR:
-                    value_changed = *id.storage.i != id.def.i;
-                    write_value   = intstr(&id);
+                    value_changed = *id->storage.i != id->def.i;
+                    write_value   = intstr(id->def.i);
                     break;
                 case ID_FVAR:
-                    value_changed = *id.storage.f != id.def.f;
-                    write_value   = floatstr(*id.storage.f);
+                    value_changed = *id->storage.f != id->def.f;
+                    write_value   = floatstr(*id->storage.f);
                     break;
                 case ID_SVAR:
-                    value_changed = *id.storage.s != id.def.s;
-                    write_value   = escapestring(*id.storage.s);
+                    value_changed = *id->storage.s != id->def.s;
+                    write_value   = escapestring(*id->storage.s);
                     break;
             }
 
@@ -310,7 +311,7 @@ namespace client
                 f->printf("sv_");
             }
 
-            f->printf("%s %s\n", escapeid(id), write_value.c_str());
+            f->printf("%s %s\n", escapeid(*id), write_value.c_str());
         }
         delete f;
 
