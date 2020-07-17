@@ -257,14 +257,14 @@ namespace client
             return;
         }
 
-        bool export_weapon = weapon_name != "";
+        bool export_weapon = !std::string(weapon_name).empty();
         vector<ident *> ids;
         enumerate(idents, ident, id, ids.add(&id));
 
         // sort the identifiers so the output file will be alphabetically sorted
         ids.sortname();
 
-        for (size_t i = 0; i < ids.size(); i++)
+        for (int i = 0; i < int(ids.size()); i++)
         {
             ident &id = *ids[i];
 
