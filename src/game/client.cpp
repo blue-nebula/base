@@ -289,14 +289,14 @@ namespace client
             {
                 case ID_VAR:
                     value_changed = *id->storage.i != id->def.i;
-                    write_value   = intstr(id->def.i);
+                    write_value   = intstr(id);
                     break;
                 case ID_FVAR:
                     value_changed = *id->storage.f != id->def.f;
                     write_value   = floatstr(*id->storage.f);
                     break;
                 case ID_SVAR:
-                    value_changed = *id->storage.s != id->def.s;
+                    value_changed = strcmp(*id->storage.s, id->def.s) != 0;
                     write_value   = escapestring(*id->storage.s);
                     break;
             }
@@ -304,6 +304,9 @@ namespace client
             // if the value didn't change, but we write all variables, comment the line out
             if (!value_changed && all) {
                 f->printf("// ");
+            } else if (!value_changed && !all) {
+                // we shouldn't write it to the file
+                continue;
             }
 
             // prefix the variable with "sv_", so the file can be used as config for servers
