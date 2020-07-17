@@ -259,15 +259,15 @@ namespace client
         }
 
         bool export_weapon = !std::string(weapon_name).empty();
-        std::vector<ident *> ids;
+        std::vector<const ident *> ids;
         enumerate(idents, ident, id, ids.push_back(&id));
 
         // sort the identifiers so the output file will be alphabetically sorted
-        std::sort(ids.begin(), ids.end(), [](ident* a, ident* b) {
+        std::sort(ids.begin(), ids.end(), [](const ident* a, const ident* b) {
             return strcmp(a->name, b->name) < 0;
         });
 
-        for (const auto& id : ids)
+        for (const ident* id : ids)
         {
             // do not save the variable if:
             // it's not a client sided variable
@@ -3434,7 +3434,7 @@ namespace client
 
     void getservers(int server, int prop, int idx)
     {
-        if(server < 0) 
+        if(server < 0)
         {
             if (hideincompatibleservers)
             {
