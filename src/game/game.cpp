@@ -20,6 +20,8 @@ namespace game
     vector<gameent *> players, waiting;
     vector<cament *> cameras;
 
+    int last_whisperer_cn = -1;
+
     void start()
     {
         player1.version.major = VERSION_MAJOR;
@@ -1881,6 +1883,11 @@ namespace game
         DELETEP(players[cn]);
         players[cn] = NULL;
         cleardynentcache();
+
+        // if the client that disconnected, was last whisperer, reset last whisperer
+        if (cn == game::last_whisperer_cn) {
+            game::last_whisperer_cn = -1;
+        }
     }
 
     void preload()
