@@ -216,7 +216,7 @@ namespace hud
     VAR(IDF_PERSIST, showindicator, 0, 4, 4);
     FVAR(IDF_PERSIST, indicatorsize, 0, 0.03f, 1000);
     FVAR(IDF_PERSIST, indicatorblend, 0, 0.5f, 1);
-    VAR(IDF_PERSIST, indicatorminattack, 0, 1000, VAR_MAX);
+    VAR(IDF_PERSIST, indicatorminattack, 0, 400, VAR_MAX);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, indicatortex, "<grey>textures/hud/indicator", 3);
 
     VAR(IDF_PERSIST, showcrosshair, 0, 2, 2); // 0 = off, 1 = on, 2 = blend depending on current accuracy level
@@ -2199,11 +2199,11 @@ namespace hud
             }
             colour[1] = vec::hexcolor(game::getcolour(d, game::playerovertone, game::playerovertonelevel));
             const char *tex = isdominated ? dominatedtex : (killer || self ? arrowtex : playerbliptex);
-            if (d->conopen) 
+            if (d->conopen)
             {
-                tex = chattex; 
+                tex = chattex;
             }
-            
+
             float fade = (force || killer || self || dominated ? 1.f : clamp(1.f-(dist/float(radarrange())), isdominated ? 0.25f : 0.f, 1.f))*blend, size = killer || self ? 1.5f : (isdominated ? 1.25f : 1.f);
             if(!self && (d->state == CS_DEAD || d->state == CS_WAITING))
             {
