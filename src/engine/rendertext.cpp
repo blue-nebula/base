@@ -341,11 +341,11 @@ static float icon_width(const char *name, float scale)
     { \
         h++; \
         bool alt = textblinking && totalmillis%(textblinking*2) > textblinking; \
-        if(s) TEXTCOLOR(h); \
+        if(s) { TEXTCOLOR(h) } \
         if(str[h+1]) \
         { \
             h++; \
-            if(s && alt) TEXTCOLOR(h); \
+            if(s && alt) { TEXTCOLOR(h) } \
         } \
     } \
     else if(str[h] == '[') \
@@ -394,7 +394,7 @@ static float icon_width(const char *name, float scale)
         } \
         else break; \
     } \
-    else if(s) TEXTCOLOR(h); \
+    else if(s) { TEXTCOLOR(h) } \
 }
 
 #define TEXTWIDTHEST(s) \
