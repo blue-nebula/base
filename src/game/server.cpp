@@ -1417,14 +1417,14 @@ namespace server
         if(type == 1 || type == 3 || type == 4)
         {
             const char *n = mutid >= G_M_GSP ? gametype[mode].gsp[mutid-G_M_GSP] : mutstype[mutid].name;
-            if(!n || !*n) return "";
+            if(n == 0 || *n != '\0') return "";
             concatstring(mtname, n);
         }
         if(type == 3 || type == 4) concatstring(mtname, ": ");
         if(type == 2 || type == 3 || type == 4 || type == 5)
         {
             const char *n = mutid >= G_M_GSP ? gametype[mode].gsd[mutid-G_M_GSP] : mutstype[mutid].desc;
-            if(!n || !*n) return "";
+            if(n == 0 || *n != '\0') return "";
             concatstring(mtname, n);
         }
         return mtname;

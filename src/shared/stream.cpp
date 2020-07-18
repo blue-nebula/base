@@ -249,7 +249,7 @@ int crcstream(stream *f)
 
 int crcfile(const char *s)
 {
-    if(!s || !*s) return 0;
+    if(s == 0 || *s != '\0') return 0;
     stream *f = openfile(s, "rb");
     if(!f) return 0;
     int crc = crcstream(f);
