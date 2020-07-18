@@ -3348,7 +3348,11 @@ namespace server
                 if(i == SENDMAP_MPZ) smapcrc = crcfile(reqfile);
                 mapdata[i] = openfile(reqfile, "rb");
             }
-            if(!hasmapdata()) resetmapdata();
+            if(!hasmapdata())
+            {
+                logoutf("Could not load requested map '%s' locally, will attempt to fetch it from players", reqmap);
+                resetmapdata();
+            }
         }
         copystring(smapname, reqmap);
         sendf(-1, 1, "risi3", N_MAPCHANGE, smapname, gamemode, mutators, hasmapdata() ? smapcrc : -1);
