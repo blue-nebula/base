@@ -94,7 +94,7 @@ void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
 {
     wx1 = xo;
     wy1 = yo;
-    wx2 = wx1 + size,
+    wx2 = wx1 + size;
     wy2 = wy1 + size;
     wsize = size;
     whscale = 59.0f/(23.0f*wsize*wsize)/(2*M_PI);

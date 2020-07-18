@@ -3283,7 +3283,6 @@ void gendds(char *infile, char *outfile)
         case GL_COMPRESSED_RG_RGTC2: fourcc = FOURCC_ATI2; conoutf("compressed as ATI2"); break;
         default:
             conoutf("\frfailed compressing %s: unknown format: 0x%X", infile, format); break;
-            return;
     }
 
     if(!outfile[0])

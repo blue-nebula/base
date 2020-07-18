@@ -655,7 +655,7 @@ void addtris(const sortkey &key, int orient, vertex *verts, int *index, int numv
                     vertex vt;
                     vt.pos = vec(d).mul(t.offset/8.0f).add(o);
                     vt.tc.lerp(v1.tc, v2.tc, offset);
-                    vt.lm.x = short(v1.lm.x + (v2.lm.x-v1.lm.x)*offset),
+                    vt.lm.x = short(v1.lm.x + (v2.lm.x-v1.lm.x)*offset);
                     vt.lm.y = short(v1.lm.y + (v2.lm.y-v1.lm.y)*offset);
                     vt.norm.lerp(v1.norm, v2.norm, offset);
                     vt.tangent.lerp(v1.tangent, v2.tangent, offset);
@@ -708,11 +708,23 @@ void addgrasstri(int face, vertex *verts, int numv, ushort texture, ushort lmid)
     int px, py;
 
     if(fabs(area.x) >= fabs(area.y) && fabs(area.x) >= fabs(area.z))
-        scale = 1/area.x, px = 1, py = 2;
+    {
+        scale = 1/area.x;
+        px = 1;
+        py = 2;
+    }
     else if(fabs(area.y) >= fabs(area.x) && fabs(area.y) >= fabs(area.z))
-        scale = -1/area.y, px = 0, py = 2;
+    {
+        scale = -1/area.y;
+        px = 0;
+        py = 2;
+    }
     else
-        scale = 1/area.z, px = 0, py = 1;
+    {
+        scale = 1/area.z;
+        px = 0;
+        py = 1;
+    }
 
     bx.x = (g.v[2][py] - g.v[0][py])*scale;
     bx.y = (g.v[2][px] - g.v[0][px])*scale;

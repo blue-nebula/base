@@ -2707,7 +2707,7 @@ namespace client
                     s.o.x = getint(p); s.o.y = getint(p); s.o.z = getint(p);
                     s.s.x = getint(p); s.s.y = getint(p); s.s.z = getint(p);
                     s.grid = getint(p); s.orient = getint(p);
-                    s.cx = getint(p); s.cxs = getint(p); s.cy = getint(p), s.cys = getint(p);
+                    s.cx = getint(p); s.cxs = getint(p); s.cy = getint(p); s.cys = getint(p);
                     s.corner = getint(p);
                     switch(type)
                     {

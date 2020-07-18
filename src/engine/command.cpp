@@ -1077,7 +1077,6 @@ static inline const char *parseword(const char *p)
             case ')': if(brakdepth <= 0 || brakstack[--brakdepth] != '(') return p; break;
         }
     }
-    return p;
 }
 
 static inline char *cutword(const char *&p, int &len)

@@ -1522,7 +1522,6 @@ namespace server
             case G_S_PLAYING: case G_S_OVERTIME: return timeremaining;
             default: return gamewaittime ? max(gamewaittime-totalmillis, 0)/1000 : 0;
         }
-        return 0;
     }
 
     void sendtick()

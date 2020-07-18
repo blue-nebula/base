@@ -1491,11 +1491,9 @@ bool serveroption(char *opt)
                 case 'p': setvar("masterport", atoi(opt+3)); return true;
                 default: return false;
             }
-            return false;
         }
         default: return false;
     }
-    return false;
 }
 
 bool findoctadir(const char *name, bool fallback)
