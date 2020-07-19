@@ -7,6 +7,7 @@ using std::swap;
 #include "game.h"
 
 reversequeue<cline, MAXCONLINES> conlines;
+reversequeue<cline, MAXCHATLINES> chatlines;
 
 int commandmillis = -1;
 bigstring commandbuf;
@@ -18,8 +19,28 @@ void complete(char* s, size_t s_size, const char* cmdprefix);
 
 void conline(int type, const char *sf, int n)
 {
-    char *buf = conlines.length() >= MAXCONLINES ? conlines.remove().cref : newstring("", BIGSTRLEN-1);
-    cline &cl = conlines.add();
+    // prevent that chat and console from 'scrolling' if user not at the bottom
+    if ((hud::chatpos != 0) && (hud::chatpos < hud::max_chatpos()))
+    {
+        hud::chatpos++;
+    }
+    if ((hud::consolepos != 0) && (hud::consolepos < hud::max_consolepos()))
+    {
+        hud::consolepos++;
+    }
+
+    bool add_to_chatlines = type >= CON_CHAT;
+    auto* lines = &conlines;
+    int maxlines = MAXCONLINES;
+    if (add_to_chatlines)
+    {
+        lines = &chatlines;
+        maxlines = MAXCHATLINES;
+    }
+
+    char* buf = lines->length() >= maxlines ? lines->remove().cref : newstring("", BIGSTRLEN - 1);
+    cline& cl = lines->add();
+
     cl.type = type;
     cl.cref = buf;
     cl.reftime = cl.outtime = totalmillis;
@@ -31,15 +52,40 @@ void conline(int type, const char *sf, int n)
         concatstring(cl.cref, sf, BIGSTRLEN);
         loopj(2)
         {
-            int off = n+j;
-            if(conlines.inrange(off))
+            int off = n + j;
+            if (!lines->inrange(off))
             {
-                if(j) concatstring(conlines[off].cref, "\fs", BIGSTRLEN);
-                else prependstring(conlines[off].cref, "\fS", BIGSTRLEN);
+                continue;
+            }
+
+            if (add_to_chatlines)
+            {   
+                if (j)
+                {
+                    concatstring(chatlines[off].cref, "\fs", BIGSTRLEN);
+                }
+                else 
+                {
+                    prependstring(chatlines[off].cref, "\fS", BIGSTRLEN);
+                }
+            }
+            else
+            {
+                if (j) 
+                { 
+                    concatstring(conlines[off].cref, "\fs", BIGSTRLEN);
+                }
+                else 
+                {
+                    prependstring(conlines[off].cref, "\fS", BIGSTRLEN);
+                }
             }
         }
     }
-    else copystring(cl.cref, sf, BIGSTRLEN);
+    else 
+    {
+        copystring(cl.cref, sf, BIGSTRLEN);
+    }
 }
 
 // keymap is defined externally in keymap.cfg
@@ -430,7 +476,6 @@ void execbind(keym &k, bool isdown)
     }
     if(isdown)
     {
-
         int state = keym::ACTION_DEFAULT;
         switch(client::state())
         {
@@ -473,6 +518,38 @@ bool consoleinput(const char *str, int len)
     commandbuf[cmdlen + len] = '\0';
 
     return true;
+}
+
+// toggles ability to scroll through chat
+VAR(IDF_PERSIST, scrollchat, 0, 1, 1);
+// toggles ability to scroll through console
+VAR(IDF_PERSIST, scrollconsole, 0, 0, 1);
+
+void scrolldown_chat_console(int lines)
+{
+    if (scrollchat)
+    {
+        hud::chatpos = std::max(0, hud::chatpos - lines);
+    }
+
+    if (scrollconsole)
+    {
+        hud::consolepos = std::max(0, hud::consolepos - lines);
+    }
+}
+
+void scrollup_chat_console(int lines)
+{
+    const int max_chatpos = hud::max_chatpos();
+    if (scrollchat)
+    {
+        hud::chatpos = std::min(max_chatpos, hud::chatpos + lines);
+    }
+    const int max_consolepos = hud::max_consolepos();
+    if (scrollconsole)
+    {
+        hud::consolepos = std::min(max_consolepos, hud::consolepos + lines);
+    }   
 }
 
 bool consolekey(int code, bool isdown)
@@ -522,44 +599,72 @@ bool consolekey(int code, bool isdown)
                 break;
 
             case SDLK_RIGHT:
-                if(commandpos>=0 && ++commandpos>=(int)strlen(commandbuf)) commandpos = -1;
+                if (commandpos >= 0 && ++commandpos >= (int)strlen(commandbuf)) 
+                {
+                    commandpos = -1;
+                }
                 break;
 
             case SDLK_UP:
-                if(histpos > history.length()) histpos = history.length();
-                if(histpos > 0) history[--histpos]->restore();
+                if (histpos > history.length())
+                {
+                    histpos = history.length();
+                }
+                if (histpos > 0) 
+                {
+                    history[--histpos]->restore();
+                }
                 break;
 
             case SDLK_DOWN:
-                if(histpos + 1 < history.length()) history[++histpos]->restore();
+                if (histpos + 1 < history.length())
+                {
+                    history[++histpos]->restore();
+                } 
                 break;
 
             case SDLK_TAB:
-                if(commandflags&CF_COMPLETE)
+                if (commandflags & CF_COMPLETE)
                 {
                     complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
-                    if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
+                    if(commandpos >= 0 && commandpos >= (int)strlen(commandbuf)) commandpos = -1;
                 }
                 break;
 
             case SDLK_v:
-                if(SDL_GetModState()&MOD_KEYS) paste(commandbuf, sizeof(commandbuf));
+                if(SDL_GetModState() & MOD_KEYS) 
+                {
+                    paste(commandbuf, sizeof(commandbuf));
+                }
+                break;
+            case -5:
+                scrolldown_chat_console(1);
+                break;
+            case SDLK_PAGEDOWN:
+                scrolldown_chat_console(5);
+                break;
+            case -4:
+                scrollup_chat_console(1);
+                break;
+            case SDLK_PAGEUP:
+                scrollup_chat_console(5);
                 break;
         }
     }
     else
     {
-        if(code==SDLK_RETURN || code==SDLK_KP_ENTER)
+        if(code == SDLK_RETURN || code == SDLK_KP_ENTER)
         {
             hline *h = NULL;
-            if(commandbuf[0])
+            if (commandbuf[0])
             {
-                if(history.empty() || history.last()->shouldsave())
+                if (history.empty() || history.last()->shouldsave())
                 {
-                    if(maxhistory && history.length() >= maxhistory)
+                    if (maxhistory && history.length() >= maxhistory)
                     {
-                        loopi(history.length()-maxhistory+1) delete history[i];
-                        history.remove(0, history.length()-maxhistory+1);
+                        loopi(history.length() - maxhistory + 1) delete history[i];
+                        history.remove(0, history.length() - maxhistory + 1);
+                        history.remove(0, history.length() - maxhistory + 1);
                     }
                     history.add(h = new hline)->save();
                 }
@@ -567,17 +672,24 @@ bool consolekey(int code, bool isdown)
             }
             histpos = history.length();
             inputcommand(NULL);
-            if(h)
+            if (h)
             {
                 interactive = true;
                 h->run();
                 interactive = false;
             }
+
+            hud::chatpos = 0;
+            hud::consolepos = 0;
         }
-        else if(code==SDLK_ESCAPE || code < 0)
+        // close console if either escape or any mouse button is pressed (excluding mousewheel)
+        else if (code == SDLK_ESCAPE || (code < 0 && code > -4)) 
         {
             histpos = history.length();
             inputcommand(NULL);
+
+            hud::chatpos = 0;
+            hud::consolepos = 0;
         }
     }
 
@@ -586,8 +698,10 @@ bool consolekey(int code, bool isdown)
 
 void processtextinput(const char *str, int len)
 {
-    if(!hud::textinput(str, len))
+    if (!hud::textinput(str, len))
+    {
         consoleinput(str, len);
+    }
 }
 
 #define keyintercept(name,body) \

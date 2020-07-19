@@ -728,8 +728,10 @@ enum { MN_BACK = 0, MN_INPUT, MN_MAX };
 
 // console
 #define MAXCONLINES 1000
+#define MAXCHATLINES 1000
 struct cline { char *cref; int type, reftime, outtime, realtime; };
 extern reversequeue<cline, MAXCONLINES> conlines;
+extern reversequeue<cline, MAXCHATLINES> chatlines;
 extern void conline(int type, const char *sf, int n);
 
 // rendergl

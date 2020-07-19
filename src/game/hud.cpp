@@ -5,6 +5,9 @@ using std::swap;
 
 namespace hud
 {
+    int chatpos = 0;
+    int consolepos = 0;
+
     const int NUMSTATS = 11;
     int damageresidue = 0, hudwidth = 0, hudheight = 0, lastteam = 0, laststats = 0, prevstats[NUMSTATS] = {0}, curstats[NUMSTATS] = {0};
 
@@ -699,6 +702,16 @@ namespace hud
         result(list.getbuf());
     });
 
+    int max_chatpos()
+    {
+        return chatlines.length() - (chatconsize + chatconoverflow);
+    }
+
+    int max_consolepos()
+    {
+        return conlines.length() - (consize + conoverflow);
+    }
+  
     const char* get_system_time_formatted()
     {
         return gettime(currenttime, "%H:%M");
@@ -1764,49 +1777,58 @@ namespace hud
 
     void drawconsole(int type, int w, int h, int x, int y, int s, float fade)
     {
-        static vector<int> refs; refs.setsize(0);
+        static vector<int> refs; 
+        refs.setsize(0);
+        
         bool full = fullconsole || commandmillis > 0;
         int tz = 0;
         pushfont("console");
-        if(type >= 2)
+        if (type >= 2)
         {
-            int numl = chatconsize, numo = chatconsize+chatconoverflow;
-            loopvj(conlines) if(conlines[j].type >= CON_CHAT)
+            int numl = chatconsize, numo = chatconsize + chatconoverflow;
+
+            for (auto j = chatpos; j < chatpos + min(numo, chatlines.length() - chatpos); j++)
             {
-                int len = !full && conlines[j].type > CON_CHAT ? chatcontime/2 : chatcontime;
-                if(full || totalmillis-conlines[j].reftime <= len+chatconfade)
+                int len = !full && chatlines[j].type > CON_CHAT ? chatcontime / 2 : chatcontime;
+                if (full || totalmillis - chatlines[j].reftime <= len + chatconfade)
                 {
-                    if(refs.length() >= numl)
+                    if (refs.length() >= numl)
                     {
-                        if(refs.length() >= numo)
+                        if (refs.length() >= numo)
                         {
-                            if(full) break;
+                            if (full) break;
                             bool found = false;
-                            loopvrev(refs) if(conlines[refs[i]].reftime+(conlines[refs[i]].type > CON_CHAT ? chatcontime/2 : chatcontime) < conlines[j].reftime+len)
+                            loopvrev (refs) if (chatlines[refs[i]].reftime + (chatlines[refs[i]].type > CON_CHAT ? chatcontime / 2 : chatcontime) < chatlines[j].reftime + len)
                             {
                                 refs.remove(i);
                                 found = true;
                                 break;
                             }
-                            if(!found) continue;
+                            if (!found) continue;
                         }
-                        conlines[j].reftime = min(conlines[j].reftime, totalmillis-len);
+                        chatlines[j].reftime = min(chatlines[j].reftime, totalmillis - len);
                     }
                     refs.add(j);
                 }
             }
+
             pushhudscale(chatconscale);
-            int tx = int(x/chatconscale), ty = int(y/chatconscale),
-                ts = int(s/chatconscale), tr = tx+FONTW;
+            int tx = int(x / chatconscale), ty = int(y / chatconscale),
+                ts = int(s / chatconscale), tr = tx + FONTW;
             tz = int(tz/chatconscale);
             loopvj(refs)
             {
-                int len = !full && conlines[refs[j]].type > CON_CHAT ? chatcontime/2 : chatcontime;
-                float f = full || !chatconfade ? 1.f : clamp(((len+chatconfade)-(totalmillis-conlines[refs[j]].reftime))/float(chatconfade), 0.f, 1.f),
-                    g = conlines[refs[j]].type > CON_CHAT ? conblend : chatconblend;
-                if(chatcondate && *chatcondateformat)
-                    tz += draw_textf("%s %s", tr, ty-tz, 0, 0, 255, 255, 255, int(fade*f*g*255), TEXT_LEFT_UP, -1, ts, 1, gettime(conlines[refs[j]].realtime, chatcondateformat), conlines[refs[j]].cref)*f;
-                else tz += draw_textf("%s", tr, ty-tz, 0, 0, 255, 255, 255, int(fade*f*g*255), TEXT_LEFT_UP, -1, ts, 1, conlines[refs[j]].cref)*f;
+                int len = !full && chatlines[refs[j]].type > CON_CHAT ? chatcontime / 2 : chatcontime;
+                float f = full || !chatconfade ? 1.f : clamp(((len + chatconfade)-(totalmillis-chatlines[refs[j]].reftime)) / float(chatconfade), 0.f, 1.f),
+                    g = chatlines[refs[j]].type > CON_CHAT ? conblend : chatconblend;
+                if (chatcondate && *chatcondateformat)
+                {
+                    tz += draw_textf("%s %s", tr, ty - tz, 0, 0, 255, 255, 255, int(fade * f * g * 255), TEXT_LEFT_UP, -1, ts, 1, gettime(chatlines[refs[j]].realtime, chatcondateformat), conlines[refs[j]].cref)*f;
+                }
+                else 
+                {
+                    tz += draw_textf("%s", tr, ty - tz, 0, 0, 255, 255, 255, int(fade * f * g * 255), TEXT_LEFT_UP, -1, ts, 1, chatlines[refs[j]].cref) * f;
+                }
             }
             pophudmatrix();
             tz = int(tz*chatconscale);
@@ -1816,8 +1838,14 @@ namespace hud
             if((showconsole && showhud) || commandmillis > 0)
             {
                 int numl = consize, numo = consize+conoverflow;
-                loopvj(conlines) if(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
+
+                for (int j = consolepos; j < consolepos + min(numo, conlines.length() - consolepos); j++)
                 {
+                    if (!(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0)))
+                    {
+                        continue;
+                    }
+
                     int len = conlines[j].type >= CON_CHAT ? (!full && conlines[j].type > CON_CHAT ? chatcontime/2 : chatcontime) : (!full && conlines[j].type < CON_IMPORTANT ? contime/2 : contime),
                         fadelen = conlines[j].type >= CON_CHAT ? chatconfade : confade;
                     if(conskip ? j>=conskip-1 || j>=conlines.length()-numl : full || totalmillis-conlines[j].reftime <= len+fadelen)
