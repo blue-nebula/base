@@ -531,9 +531,24 @@ bool consolekey(int code, bool isdown)
                 break;
 
             case SDLK_DOWN:
-                if(histpos + 1 < history.length()) history[++histpos]->restore();
-                break;
-
+                if (histpos + 1 < history.length())
+                {
+                    history[++histpos]->restore();
+                }
+                else if (histpos + 1 >= history.length())
+                {
+                    // only reset if the input isn't empty already anyways
+                    if (commandbuf[0] != '\0')
+                    {
+                        // make sure we can't go too deep
+		        if (histpos + 1 == history.length()) {
+			    histpos++;
+			}
+		        commandbuf[0] = '\0';
+			commandpos = -1;
+		    }
+		}
+		break;
             case SDLK_TAB:
                 if(commandflags&CF_COMPLETE)
                 {
