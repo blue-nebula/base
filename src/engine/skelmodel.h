@@ -1815,13 +1815,9 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
         vector<ushort> bonemask;
         loopv(bonestrs)
         {
-            char const *bonestr = bonestrs[i].data();
+            char const *bonestr = bonestrs[i].c_str();
             int bone = p->meshes ? ((meshgroup *)p->meshes)->skel->findbone(bonestr[0]=='!' ? bonestr+1 : bonestr) : -1;
-            if(bone<0)
-            {
-                conoutf("\frcould not find bone %s for anim part mask [%s]", bonestr, maskstr);
-                return;
-            }
+            if(bone<0) { conoutf("\frcould not find bone %s for anim part mask [%s]", bonestr, maskstr); return; }
             bonemask.add(bone | (bonestr[0]=='!' ? BONEMASK_NOT : 0));
         }
         bonemask.sort();

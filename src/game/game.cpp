@@ -413,19 +413,9 @@ namespace game
         if(!*d->vanity) return; // not needed
         std::vector<std::string> vanitylist;
         explodelist(d->vanity, vanitylist);
-        for( std::string const& vanity : vanitylist )
-        {
-            if( !vanity.empty() )
-            {
-                for( size_t k = 0; k < vanities.size(); ++k )
-                {
-                    if(!strcmp(vanities[k].ref, vanity.data() ))
-                    {
-                        d->vitems.emplace_back( k );
-                    }
-                }
-            }
-        }
+        loopv(vanitylist) if(!vanitylist[i].empty())
+            loopvk(vanities) if(!strcmp(vanities[k].ref, vanitylist[i].c_str()))
+                d->vitems.add(k);
     }
 
     const char *vanitymodel(gameent *d)

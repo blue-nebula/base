@@ -29,8 +29,11 @@ namespace weapons
         loopv(list)
         {
             int weap = -1;
-            if(isnumeric(list[i][0])) weap = atoi(list[i].data());
-            else loopj(W_ALL) if(!strcasecmp(weaptype[j].name, list[i].data()))
+            if(isnumeric(list[i][0]))
+            {
+                weap = atoi(list[i].c_str());
+            }
+            else loopj(W_ALL) if(!strcasecmp(weaptype[j].name, list[i].c_str()))
             {
                 weap = j;
                 break;

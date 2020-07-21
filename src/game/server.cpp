@@ -1067,16 +1067,10 @@ namespace server
                 {
                     std::vector<std::string> prev;
                     explodelist(sv_previousmaps, prev);
-                    for( size_t j = 0; j < prev.size(); ++j )
+                    loopvj(prev) loopvrev(maps) if(prev[j] != maps[i])
                     {
-                        for( ssize_t i = maps.size() - 1; i >= 0; --i )
-                        {
-                            if( strcmp( prev[j].data(), maps[i].data() ) )
-                            {
-                                maps.erase( maps.begin() + i );
-                                if(maps.size() <= 1) break;
-                            }
-                        }
+                        maps.erase( maps.begin() + i );
+                        if(maps.size() <= 1) break;
                     }
                     prev.clear();
                 }
@@ -1086,7 +1080,7 @@ namespace server
                     defaultmap = maps[r];
                 }
                 maps.clear();
-                map = !defaultmap.empty() ? defaultmap.data() : choosemap(suggest, mode, muts, G(rotatemaps), true);
+                map = !defaultmap.empty() ? defaultmap.c_str() : choosemap(suggest, mode, muts, G(rotatemaps), true);
             }
         }
         return map && *map ? map : "maps/untitled";
@@ -3379,34 +3373,27 @@ namespace server
 
         if(!demoplayback && m_play(gamemode) && numclients())
         {
-            std::vector<char> buf;
-            buf.insert( buf.end(), smapname, smapname + strlen(smapname));
+            std::string buf = smapname;
             if(*sv_previousmaps && G(maphistory))
             {
                 std::vector<std::string> prev;
                 explodelist(sv_previousmaps, prev);
-                for( ssize_t i = prev.size() - 1; i >= 0; --i )
+                loopvrev(prev) if(prev[i] == smapname)
                 {
-                    if(!strcmp(prev[i].data(), smapname))
-                    {
-                        prev.erase( prev.begin() + i );
-                    }
+                    prev.erase( prev.begin() + i );
                 }
                 while(prev.size() >= G(maphistory))
                 {
-                    int last = prev.size()-1;
-                    prev.erase( prev.begin() + last );
+                    prev.pop_back();
                 }
-                for( auto const& prev_str : prev )
+                loopv(prev)
                 {
-                    buf.emplace_back( ' ' );
-                    buf.insert( buf.end(), std::begin( prev_str ), std::end( prev_str ) );
+                    buf += ' ';
+                    buf += prev[i];
                 }
                 prev.clear();
             }
-            buf.emplace_back( 0 );
-            const char *str = buf.data();
-            if(*str) setmods(sv_previousmaps, str);
+            if(!buf.empty()) setmods(sv_previousmaps, buf.c_str());
         }
         else setmods(sv_previousmaps, "");
 

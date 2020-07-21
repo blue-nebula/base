@@ -781,7 +781,7 @@ void entattrs(const char *str, attrvector &attrs)
     explodelist(str, buf, MAXENTATTRS);
     attrs.setsize(0);
     attrs.add(0, buf.size());
-    loopv(buf) attrs[i] = parseint(buf[i].data());
+    loopv(buf) attrs[i] = parseint(buf[i].c_str());
     buf.clear();
 }
 

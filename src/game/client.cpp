@@ -403,7 +403,7 @@ namespace client
         std::vector<std::string> styles;
         explodelist(serversort, styles, SINFO_MAX);
         serversortstyles.clear();
-        for( size_t i = 0; i < styles.size(); ++i ) serversortstyles.emplace_back(parseint(styles[i].data()));
+        loopv(styles) serversortstyles.emplace_back(parseint(styles[i].c_str()));
     }
 
     void getvitem(gameent *d, int n, int v)
@@ -472,15 +472,13 @@ namespace client
         vector<int> items;
         if(list && *list)
         {
-            std::vector<std::string> chunks;
-            explodelist(list, chunks);
-            for( std::string const& chunk : chunks )
+            std::vector<std::string> chunk;
+            explodelist(list, chunk);
+            loopv(chunk)
             {
-                if( isnumeric( chunk.front() ) )
-                {
-                    int v = parseint( chunk.data() );
-                    items.emplace_back( v >= W_OFFSET && v < W_ITEM ? v : 0 );
-                }
+                if(chunk[i].empty() || !isnumeric(chunk[i][0])) continue;
+                int v = parseint(chunk[i].c_str());
+                items.emplace_back(v >= W_OFFSET && v < W_ITEM ? v : 0);
             }
         }
         game::player1.loadweap.shrink(0);
@@ -498,15 +496,13 @@ namespace client
         vector<int> items;
         if(list && *list)
         {
-            std::vector<std::string> chunks;
-            explodelist(list, chunks);
-            for( std::string const& chunk : chunks )
+            std::vector<std::string> chunk;
+            explodelist(list, chunk);
+            loopv(chunk)
             {
-                if( isnumeric( chunk.front() ) )
-                {
-                    int v = parseint( chunk.data() );
-                    items.emplace_back( v >= W_OFFSET && v < W_ITEM ? v : 0 );
-                }
+                if(chunk[i].empty() || !isnumeric(chunk[i][0])) continue;
+                int v = parseint(chunk[i].c_str());
+                items.emplace_back(v >= W_OFFSET && v < W_ITEM ? v : 0);
             }
         }
         game::player1.randweap.shrink(0);
