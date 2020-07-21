@@ -582,10 +582,10 @@ namespace capture
             if(f.droptime)
             {
                 f.droploc = f.pos();
-                if(f.lastowner && (f.lastowner == &game::player1 || f.lastowner->ai) && f.proj && (!f.movetime || totalmillis-f.movetime >= 40))
+                if (f.lastowner && (f.lastowner == &game::player1 || f.lastowner->ai) && f.proj && (!f.movetime || totalmillis-f.movetime >= UPDATERATE))
                 {
                     f.inertia = f.proj->vel;
-                    f.movetime = totalmillis-(totalmillis%40);
+                    f.movetime = totalmillis - (totalmillis % UPDATERATE);
                     client::addmsg(N_MOVEAFFIN, "ri8", f.lastowner->clientnum, i, int(f.droploc.x*DMF), int(f.droploc.y*DMF), int(f.droploc.z*DMF), int(f.inertia.x*DMF), int(f.inertia.y*DMF), int(f.inertia.z*DMF));
                 }
             }

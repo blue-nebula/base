@@ -5576,9 +5576,9 @@ namespace server
     {
         if(clients.empty() || (!hasnonlocalclients() && !demorecord)) return false;
         enet_uint32 millis = enet_time_get()-lastsend;
-        if(millis<40 && !force) return false;
+        if(millis < UPDATERATE && !force) return false;
         bool flush = buildworldstate();
-        lastsend += millis - (millis%40);
+        lastsend += millis - (millis % UPDATERATE);
         return flush;
     }
 
