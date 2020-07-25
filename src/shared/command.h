@@ -351,12 +351,16 @@ static inline const char *escapeid(ident &id) { return escapeid(id.name); }
 extern bool validateblock(const char *s);
 extern char *parsetext(const char *&p);
 
-/// \brief explodes a string according to some unclear syntax rules
-///        this *may* be used as a tokenizer, somehow
-/// \s[in] C string to explode.
-/// \elems[in,out] result. Is *not* cleared before filling.
-/// \limit[in] is the maximum number of elements to add.
-[[deprecated("explodelist provides a safer interface using STL containers")]]
+/**
+ * \brief explodes a string according to some unclear syntax rules
+ *
+ *        this *may* be used as a tokenizer, somehow
+ *
+ * \s[in] C string to explode.
+ * \elems[in,out] result. Is *not* cleared before filling.
+ * \limit[in] is the maximum number of elements to add.
+ * \deprecated use the new, safer std::vector implementation for new and modified code
+ */
 extern void explodelist(const char *s, vector<char *> &elems, int limit = -1);
 extern void explodelist(const char *s, std::vector<std::string> &elems, int limit = -1);
 
