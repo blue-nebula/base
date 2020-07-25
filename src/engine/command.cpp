@@ -2509,7 +2509,7 @@ const char *intstr(int v)
     return retbuf[retidx];
 }
 
-const char *intstr(ident *id)
+const char *intstr(const ident *id)
 {
     retidx = (retidx + 1)%4;
     formatstring(retbuf[retidx], id->flags&IDF_HEX && *id->storage.i >= 0 ? (id->maxval==0xFFFFFF ? "0x%.6X" : "0x%X") : "%d", *id->storage.i);

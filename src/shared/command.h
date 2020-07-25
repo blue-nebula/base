@@ -206,7 +206,7 @@ extern void addident(ident *id);
 
 extern tagval *commandret;
 extern const char *intstr(int v);
-extern const char *intstr(ident *id);
+extern const char *intstr(const ident *id);
 extern void intret(int v);
 extern const char *floatstr(float v);
 extern void floatret(float v);
@@ -345,7 +345,7 @@ extern bool interactive;
 
 extern const char *escapestring(const char *s);
 extern const char *escapeid(const char *s);
-static inline const char *escapeid(ident &id) { return escapeid(id.name); }
+static inline const char *escapeid(const ident &id) { return escapeid(id.name); }
 extern bool validateblock(const char *s);
 extern char *parsetext(const char *&p);
 extern void explodelist(const char *s, vector<char *> &elems, int limit = -1);
