@@ -40,23 +40,19 @@ namespace gle
     GLE_DEFATTRIB(boneweight, ATTRIB_BONEWEIGHT, 4, GL_UNSIGNED_BYTE)
     GLE_DEFATTRIB(boneindex, ATTRIB_BONEINDEX, 4, GL_UNSIGNED_BYTE)
 
-    #define GLE_INITATTRIB(name, index, suffix, type) \
-        static inline void name##suffix(type x) { glVertexAttrib1##suffix##_(index, x); } \
-        static inline void name##suffix(type x, type y) { glVertexAttrib2##suffix##_(index, x, y); } \
-        static inline void name##suffix(type x, type y, type z) { glVertexAttrib3##suffix##_(index, x, y, z); } \
-        static inline void name##suffix(type x, type y, type z, type w) { glVertexAttrib4##suffix##_(index, x, y, z, w); }
     #define GLE_INITATTRIBF(name, index) \
-        GLE_INITATTRIB(name, index, f, float) \
+        static inline void name##f(float x) { glVertexAttrib1##f##_(index, x); } \
+        static inline void name##f(float x, float y) { glVertexAttrib2##f##_(index, x, y); } \
+        static inline void name##f(float x, float y, float z) { glVertexAttrib3##f##_(index, x, y, z); } \
+        static inline void name##f(float x, float y, float z, float w) { glVertexAttrib4##f##_(index, x, y, z, w); } \
         static inline void name(const vec &v) { glVertexAttrib3fv_(index, v.v); } \
         static inline void name(const vec &v, float w) { glVertexAttrib4f_(index, v.x, v.y, v.z, w); } \
         static inline void name(const vec2 &v) { glVertexAttrib2fv_(index, v.v); } \
         static inline void name(const vec4 &v) { glVertexAttrib4fv_(index, v.v); }
-    #define GLE_INITATTRIBN(name, index, suffix, type, defaultw) \
-        static inline void name##suffix(type x, type y, type z, type w = defaultw) { glVertexAttrib4N##suffix##_(index, x, y, z, w); }
 
     GLE_INITATTRIBF(vertex, ATTRIB_VERTEX)
     GLE_INITATTRIBF(color, ATTRIB_COLOR)
-    GLE_INITATTRIBN(color, ATTRIB_COLOR, ub, uchar, 255)
+    static inline void colorub(uchar x, uchar y, uchar z, uchar w = 255) { glVertexAttrib4Nub_(ATTRIB_COLOR, x, y, z, w); }
     static inline void color(const bvec &v, uchar alpha = 255) { glVertexAttrib4Nub_(ATTRIB_COLOR, v.x, v.y, v.z, alpha); }
     static inline void color(const bvec4 &v) { glVertexAttrib4Nubv_(ATTRIB_COLOR, v.v); }
     GLE_INITATTRIBF(texcoord0, ATTRIB_TEXCOORD0)
