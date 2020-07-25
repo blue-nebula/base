@@ -44,7 +44,7 @@ namespace gle
         static inline void name##f(float x) { glVertexAttrib1##f##_(index, x); } \
         static inline void name##f(float x, float y) { glVertexAttrib2##f##_(index, x, y); } \
         static inline void name##f(float x, float y, float z) { glVertexAttrib3##f##_(index, x, y, z); } \
-        static inline void name##f(float x, float y, float z, float w) { glVertexAttrib4##f##_(index, x, y, z, w); } \
+        static inline void name##f(float x, float y, float z, float w) { glVertexAttrib4f_(index, x, y, z, w); } \
         static inline void name(const vec &v) { glVertexAttrib3fv_(index, v.v); } \
         static inline void name(const vec &v, float w) { glVertexAttrib4f_(index, v.x, v.y, v.z, w); } \
         static inline void name(const vec2 &v) { glVertexAttrib2fv_(index, v.v); } \
