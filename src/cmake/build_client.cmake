@@ -17,6 +17,7 @@ if(BUILD_CLIENT)
         engine/master.cpp
         engine/material.cpp
         engine/menus.cpp
+        engine/movie.cpp
         engine/normal.cpp
         engine/octa.cpp
         engine/octaedit.cpp
