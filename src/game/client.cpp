@@ -1,3 +1,5 @@
+#include <vector>
+#include <string>
 #include <algorithm>
 using std::swap;
 #include "game.h"
@@ -396,11 +398,10 @@ namespace client
 
     void updateserversort()
     {
-        vector<char *> styles;
+        std::vector<std::string> styles;
         explodelist(serversort, styles, SINFO_MAX);
-        serversortstyles.setsize(0);
-        loopv(styles) serversortstyles.add(parseint(styles[i]));
-        styles.deletearrays();
+        serversortstyles.clear();
+        loopv(styles) serversortstyles.emplace_back(parseint(styles[i].c_str()));
     }
 
     void getvitem(gameent *d, int n, int v)
@@ -469,15 +470,14 @@ namespace client
         vector<int> items;
         if(list && *list)
         {
-            vector<char *> chunk;
+            std::vector<std::string> chunk;
             explodelist(list, chunk);
             loopv(chunk)
             {
-                if(!chunk[i] || !*chunk[i] || !isnumeric(*chunk[i])) continue;
-                int v = parseint(chunk[i]);
-                items.add(v >= W_OFFSET && v < W_ITEM ? v : 0);
+                if(chunk[i].empty() || !isnumeric(chunk[i][0])) continue;
+                int v = parseint(chunk[i].c_str());
+                items.emplace_back(v >= W_OFFSET && v < W_ITEM ? v : 0);
             }
-            chunk.deletearrays();
         }
         game::player1.loadweap.shrink(0);
         loopv(items) if(game::player1.loadweap.find(items[i]) < 0)
@@ -494,15 +494,14 @@ namespace client
         vector<int> items;
         if(list && *list)
         {
-            vector<char *> chunk;
+            std::vector<std::string> chunk;
             explodelist(list, chunk);
             loopv(chunk)
             {
-                if(!chunk[i] || !*chunk[i] || !isnumeric(*chunk[i])) continue;
-                int v = parseint(chunk[i]);
-                items.add(v ? 1 : 0);
+                if(chunk[i].empty() || !isnumeric(chunk[i][0])) continue;
+                int v = parseint(chunk[i].c_str());
+                items.emplace_back(v != 0 ? 1 : 0);
             }
-            chunk.deletearrays();
         }
         game::player1.randweap.shrink(0);
         loopv(items)

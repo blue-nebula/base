@@ -1,3 +1,5 @@
+#include <vector>
+#include <string>
 #include <algorithm>
 using std::swap;
 #include "engine.h"
@@ -709,7 +711,7 @@ float key_widthf(const char *str)
 {
     const char *keyn = str;
     if(*str == '=') keyn = gettklp(++str);
-    vector<char *> list;
+    std::vector<std::string> list;
     explodelist(keyn, list);
     float width = 0, scale = curfont->maxh*curfont->scale/float(curfont->defaulth)*curtextscale*textkeyimagescale;
     loopv(list)
@@ -717,7 +719,7 @@ float key_widthf(const char *str)
         if(i && textkeyseps) width += text_widthf("|");
         if(textkeyimages)
         {
-            textkey *t = findtextkey(list[i]);
+            textkey *t = findtextkey(list[i].c_str());
             if(t && t->tex)
             {
                 width += (t->tex->w*scale)/float(t->tex->h);
@@ -725,10 +727,9 @@ float key_widthf(const char *str)
             }
             // fallback if not found
         }
-        defformatkey(keystr, list[i]);
+        defformatkey(keystr, list[i].c_str());
         width += text_widthf(keystr);
     }
-    list.deletearrays();
     return width;
 }
 
@@ -737,14 +738,14 @@ static int draw_key(Texture *&tex, const char *str, float sx, float sy)
     Texture *oldtex = tex;
     const char *keyn = str;
     if(*str == '=') keyn = gettklp(++str);
-    vector<char *> list;
+    std::vector<std::string> list;
     explodelist(keyn, list);
     float width = 0, sh = curfont->maxh*curfont->scale/float(curfont->defaulth)*curtextscale, h = sh*textkeyimagescale;
     loopv(list)
     {
         if(textkeyimages)
         {
-            textkey *t = findtextkey(list[i]);
+            textkey *t = findtextkey(list[i].c_str());
             if(t && t->tex)
             {
                 if(tex != t->tex)
@@ -769,11 +770,10 @@ static int draw_key(Texture *&tex, const char *str, float sx, float sy)
             tex = oldtex;
             glBindTexture(GL_TEXTURE_2D, tex->id);
         }
-        defformatkey(keystr, list[i]);
+        defformatkey(keystr, list[i].c_str());
         draw_text(keystr, sx + width, sy, 255, 255, 255, 255, 0, -1, -1, 1, -1);
         width += text_widthf(keystr);
     }
-    list.deletearrays();
     return width;
 }
 

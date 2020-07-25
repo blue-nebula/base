@@ -2,8 +2,11 @@
 // is largely backwards compatible with the quake console language.
 
 #include <vector>
+#include <algorithm>
+#include <string>
 using std::swap;
 #include "engine.h"
+
 bool interactive = false;
 
 hashnameset<ident> idents; // contains ALL vars/commands/aliases
@@ -2760,6 +2763,13 @@ void explodelist(const char *s, vector<char *> &elems, int limit)
     const char *start, *end;
     while((limit < 0 || elems.length() < limit) && parselist(s, start, end))
         elems.add(newstring(start, end-start));
+}
+
+void explodelist(const char *s, std::vector<std::string> &elems, int limit)
+{
+    const char *start, *end;
+    while((limit < 0 || elems.size() < limit) && parselist(s, start, end))
+        elems.emplace_back(std::string(start, end-start));
 }
 
 char *indexlist(const char *s, int pos)

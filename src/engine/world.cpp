@@ -1,5 +1,6 @@
 // world.cpp: core map management stuff
 #include <algorithm>
+#include <string>
 using std::swap;
 
 #include "engine.h"
@@ -776,12 +777,12 @@ int newentity(int type, const attrvector &attrs)
 
 void entattrs(const char *str, attrvector &attrs)
 {
-    static vector<char *> buf;
+    static std::vector<std::string> buf;
     explodelist(str, buf, MAXENTATTRS);
     attrs.setsize(0);
-    attrs.add(0, buf.length());
-    loopv(buf) attrs[i] = parseint(buf[i]);
-    buf.deletearrays();
+    attrs.add(0, buf.size());
+    loopv(buf) attrs[i] = parseint(buf[i].c_str());
+    buf.clear();
 }
 
 void newent(char *what, char *attr)

@@ -1810,17 +1810,16 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
 
         part *p = (part *)MDL::loading->parts.last();
 
-        vector<char *> bonestrs;
+        std::vector<std::string> bonestrs;
         explodelist(maskstr, bonestrs);
         vector<ushort> bonemask;
         loopv(bonestrs)
         {
-            char *bonestr = bonestrs[i];
+            char const *bonestr = bonestrs[i].c_str();
             int bone = p->meshes ? ((meshgroup *)p->meshes)->skel->findbone(bonestr[0]=='!' ? bonestr+1 : bonestr) : -1;
-            if(bone<0) { conoutf("\frcould not find bone %s for anim part mask [%s]", bonestr, maskstr); bonestrs.deletearrays(); return; }
+            if(bone<0) { conoutf("\frcould not find bone %s for anim part mask [%s]", bonestr, maskstr); return; }
             bonemask.add(bone | (bonestr[0]=='!' ? BONEMASK_NOT : 0));
         }
-        bonestrs.deletearrays();
         bonemask.sort();
         if(bonemask.length()) bonemask.add(BONEMASK_END);
 
