@@ -1,5 +1,7 @@
 #include <algorithm>
 using std::swap;
+#include <vector>
+#include <string>
 #include "game.h"
 
 namespace client
@@ -919,13 +921,23 @@ namespace client
     ICOMMAND(0, clearexcepts, "", (), addmsg(N_CLRCONTROL, "ri", ipinfo::EXCEPT));
 
     vector<char *> ignores;
+    std::vector<int> ignored_cns;
     void ignore(int cn)
     {
         gameent *d = game::getclient(cn);
         if(!d || d == &game::player1) return;
         if(!strcmp(d->hostip, "*"))
         {
-            conoutft(CON_EVENT, "\frcannot ignore %s: host information is private", game::colourname(d));
+            if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
+            {
+                conoutft(CON_EVENT, "\fralready ignoring %s", game::colourname(d));
+            }
+            else
+            {
+                conoutft(CON_EVENT, "\fy%s will be ignored until they or you leave the round, host information is private", game::colourname(d));
+                ignored_cns.push_back(cn);
+            }
+            
             return;
         }
         if(ignores.find(d->hostip) < 0)
@@ -943,7 +955,15 @@ namespace client
         if(!d) return;
         if(!strcmp(d->hostip, "*"))
         {
-            conoutft(CON_EVENT, "\frcannot unignore %s: host information is private", game::colourname(d));
+            if (std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end())
+            {
+                conoutft(CON_EVENT, "\fyStopped ignoring %s", game::colourname(d));
+                ignored_cns.erase(std::remove(ignored_cns.begin(), ignored_cns.end(), cn));
+            }
+            else
+            {
+                conoutft(CON_EVENT, "\fyYou are not ignoring %s", game::colourname(d));
+            }
             return;
         }
         if(ignores.find(d->hostip) >= 0)
@@ -958,7 +978,16 @@ namespace client
     bool isignored(int cn)
     {
         gameent *d = game::getclient(cn);
-        if(!d || !strcmp(d->hostip, "*")) return false;
+        if(!d)
+        {
+            return false;
+        }
+
+        if (!strcmp(d->hostip, "*"))
+        {
+            return std::find(ignored_cns.begin(), ignored_cns.end(), cn) != ignored_cns.end();
+        }
+
         return ignores.find(d->hostip) >= 0;
     }
 
@@ -1041,6 +1070,8 @@ namespace client
 
     void gamedisconnect(int clean)
     {
+        ignored_cns.clear();
+
         if(editmode) toggleedit();
         remote = isready = sendplayerinfo = sendgameinfo = sendcrcinfo = false;
         gettingmap = needsmap = sessionid = sessionver = lastplayerinfo = mastermode = 0;
@@ -2329,7 +2360,25 @@ namespace client
                 case N_DISCONNECT:
                 {
                     int lcn = getint(p), reason = getint(p);
-                    game::clientdisconnected(lcn, reason);
+                    // unignore disconnecting players to prevent unintentionally ignore the next player
+                    // that get's this cn assigned
+                    if (std::find(ignored_cns.begin(), ignored_cns.end(), lcn) != ignored_cns.end())
+                    {
+                        std::string player_name = "Player No. " + std::to_string(lcn);
+                        if (d)
+                        {
+                            player_name = game::colourname(d);
+                        }
+                        else if (game::players.inrange(lcn))
+                        {
+                            player_name = game::colourname(game::players[lcn]);
+                        }
+
+                        conoutft(CON_EVENT, "\fr%s will no longer be ignored.", player_name.c_str());
+
+                        ignored_cns.erase(std::remove(ignored_cns.begin(), ignored_cns.end(), lcn));
+	                }
+	                game::clientdisconnected(lcn, reason);
                     break;
                 }
 
