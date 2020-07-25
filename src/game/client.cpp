@@ -502,7 +502,7 @@ namespace client
             {
                 if(chunk[i].empty() || !isnumeric(chunk[i][0])) continue;
                 int v = parseint(chunk[i].c_str());
-                items.emplace_back(v >= W_OFFSET && v < W_ITEM ? v : 0);
+                items.emplace_back(v != 0 ? 1 : 0);
             }
         }
         game::player1.randweap.shrink(0);
