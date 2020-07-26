@@ -1,6 +1,3 @@
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 
 #define MAXLIGHTMAPTASKS 4096
@@ -695,7 +692,7 @@ static inline void generatealpha(lightmapworker *w, float tolerance, const vec &
         float k = 8.0f/w->vslot->scale,
               s = (pos[sdim[dim]] * k - w->vslot->offset.x) / w->slot->layermaskscale,
               t = (pos[tdim[dim]] * (dim <= 1 ? -k : k) - w->vslot->offset.y) / w->slot->layermaskscale;
-        if((w->rotate&5)==1) swap(s, t);
+        if((w->rotate&5)==1) std::swap(s, t);
         if(w->rotate>=2 && w->rotate<=4) s = -s;
         if((w->rotate>=1 && w->rotate<=2) || w->rotate==5) t = -t;
         const ImageData &mask = *w->slot->layermask;
@@ -863,7 +860,7 @@ static int finishlightmap(lightmapworker *w)
     if((hasskylight() || sunlights.length()) && blurskylight && (w->w>1 || w->h>1))
     {
         blurtexture(blurskylight, w->bpp, w->w, w->h, w->blur, w->ambient);
-        swap(w->blur, w->ambient);
+        std::swap(w->blur, w->ambient);
     }
     vec *sample = w->colordata;
     int aasample = min(1 << lmaa, 4), stride = aasample*(w->w+1);
@@ -2300,7 +2297,7 @@ static void rotatenormals(LightMap &lmlv, int x, int y, int w, int h, int rotate
         {
             if(flipx) lv[0] = 255 - lv[0];
             if(flipy) lv[1] = 255 - lv[1];
-            if(swapxy) swap(lv[0], lv[1]);
+            if(swapxy) std::swap(lv[0], lv[1]);
             lv += 3;
         }
         lv += stride;

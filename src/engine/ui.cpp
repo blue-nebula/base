@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include <vector>
 #include "engine.h"
 
@@ -980,7 +978,7 @@ struct gui : guient
         int xoff = vslot.offset.x, yoff = vslot.offset.y;
         if(vslot.rotation)
         {
-            if((vslot.rotation&5) == 1) { swap(xoff, yoff); loopk(4) swap(tc[k].x, tc[k].y); }
+            if((vslot.rotation&5) == 1) { std::swap(xoff, yoff); loopk(4) std::swap(tc[k].x, tc[k].y); }
             if(vslot.rotation >= 2 && vslot.rotation <= 4) { xoff *= -1; loopk(4) tc[k].x *= -1; }
             if(vslot.rotation <= 2 || vslot.rotation == 5) { yoff *= -1; loopk(4) tc[k].y *= -1; }
         }

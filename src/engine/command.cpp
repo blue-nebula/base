@@ -2,9 +2,7 @@
 // is largely backwards compatible with the quake console language.
 
 #include <vector>
-#include <algorithm>
 #include <string>
-using std::swap;
 #include "engine.h"
 
 bool interactive = false;

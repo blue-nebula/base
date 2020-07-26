@@ -1,7 +1,5 @@
 #include <vector>
 #include <string>
-#include <algorithm>
-using std::swap;
 #include "game.h"
 
 namespace client

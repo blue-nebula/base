@@ -469,13 +469,13 @@ static inline void quicksort(T *start, T *end, F fun)
         }
         else if(fun(*start, end[-1])) { pivot = *start; *start = *mid; } /*mid <= start < end */
         else if(fun(*mid, end[-1])) { pivot = end[-1]; end[-1] = *start; *start = *mid; } /* mid < end <= start */
-        else { pivot = *mid; swap(*start, end[-1]); }  /* end <= mid <= start */
+        else { pivot = *mid; std::swap(*start, end[-1]); }  /* end <= mid <= start */
         *mid = end[-2];
         do
         {
             while(fun(*i, pivot)) if(++i >= j) goto partitioned;
             while(fun(pivot, *--j)) if(i >= j) goto partitioned;
-            swap(*i, *j);
+            std::swap(*i, *j);
         }
         while(++i < j);
     partitioned:
@@ -739,9 +739,9 @@ public:
     {
         if(!ulen)
         {
-            swap(buf, v.buf);
-            swap(ulen, v.ulen);
-            swap(alen, v.alen);
+            std::swap(buf, v.buf);
+            std::swap(ulen, v.ulen);
+            std::swap(alen, v.alen);
         }
         else
         {
@@ -909,7 +909,7 @@ public:
 
     void reverse()
     {
-        loopi(ulen/2) swap(buf[i], buf[ulen-1-i]);
+        loopi(ulen/2) std::swap(buf[i], buf[ulen-1-i]);
     }
 
     static int heapparent(int i) { return (i - 1) >> 1; }
@@ -927,7 +927,7 @@ public:
         {
             int pi = heapparent(i);
             if(score >= heapscore(buf[pi])) break;
-            swap(buf[i], buf[pi]);
+            std::swap(buf[i], buf[pi]);
             i = pi;
         }
         return i;
@@ -949,10 +949,10 @@ public:
             float cscore = heapscore(buf[ci]);
             if(score > cscore)
             {
-               if(ci+1 < ulen && heapscore(buf[ci+1]) < cscore) { swap(buf[ci+1], buf[i]); i = ci+1; }
-               else { swap(buf[ci], buf[i]); i = ci; }
+               if(ci+1 < ulen && heapscore(buf[ci+1]) < cscore) { std::swap(buf[ci+1], buf[i]); i = ci+1; }
+               else { std::swap(buf[ci], buf[i]); i = ci; }
             }
-            else if(ci+1 < ulen && heapscore(buf[ci+1]) < score) { swap(buf[ci+1], buf[i]); i = ci+1; }
+            else if(ci+1 < ulen && heapscore(buf[ci+1]) < score) { std::swap(buf[ci+1], buf[i]); i = ci+1; }
             else break;
         }
         return i;

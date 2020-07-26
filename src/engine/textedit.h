@@ -259,8 +259,8 @@ struct editor
         sy = (mx >= 0) ? my : cy;
         ex = cx;
         ey = cy;
-        if(sy > ey) { swap(sy, ey); swap(sx, ex); }
-        else if(sy == ey && sx > ex) swap(sx, ex);
+        if(sy > ey) { std::swap(sy, ey); std::swap(sx, ex); }
+        else if(sy == ey && sx > ex) std::swap(sx, ex);
         return (sx != ex) || (sy != ey);
     }
 

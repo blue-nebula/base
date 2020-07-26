@@ -1,7 +1,4 @@
 // rendergl.cpp: core opengl rendering stuff
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 
 bool hasVAO = false, hasFBO = false, hasAFBO = false, hasDS = false, hasTF = false, hasTRG = false, hasTSW = false, hasS3TC = false, hasFXT1 = false, hasLATC = false, hasRGTC = false, hasAF = false, hasFBB = false, hasUBO = false, hasMBR = false;
@@ -1487,10 +1484,10 @@ void drawcubemap(int level, const vec &o, float yaw, float pitch, bool flipx, bo
     if(flipx || flipy) projmatrix.scalexy(flipx ? -1 : 1, flipy ? -1 : 1);
     if(swapxy)
     {
-        swap(projmatrix.a.x, projmatrix.a.y);
-        swap(projmatrix.b.x, projmatrix.b.y);
-        swap(projmatrix.c.x, projmatrix.c.y);
-        swap(projmatrix.d.x, projmatrix.d.y);
+        std::swap(projmatrix.a.x, projmatrix.a.y);
+        std::swap(projmatrix.b.x, projmatrix.b.y);
+        std::swap(projmatrix.c.x, projmatrix.c.y);
+        std::swap(projmatrix.d.x, projmatrix.d.y);
     }
     setcamprojmatrix();
 

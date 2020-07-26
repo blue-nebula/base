@@ -1,6 +1,3 @@
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 
 struct QuadNode
@@ -512,9 +509,9 @@ void sortmaterials(vector<materialsurface *> &vismats)
     if(reflecting) sortorigin.z = int(reflectz - (camera1->o.z - reflectz));
     vec dir(camera1->yaw*RAD, reflecting ? -camera1->pitch : camera1->pitch);
     loopi(3) { dir[i] = fabs(dir[i]); sortdim[i] = i; }
-    if(dir[sortdim[2]] > dir[sortdim[1]]) swap(sortdim[2], sortdim[1]);
-    if(dir[sortdim[1]] > dir[sortdim[0]]) swap(sortdim[1], sortdim[0]);
-    if(dir[sortdim[2]] > dir[sortdim[1]]) swap(sortdim[2], sortdim[1]);
+    if(dir[sortdim[2]] > dir[sortdim[1]]) std::swap(sortdim[2], sortdim[1]);
+    if(dir[sortdim[1]] > dir[sortdim[0]]) std::swap(sortdim[1], sortdim[0]);
+    if(dir[sortdim[2]] > dir[sortdim[1]]) std::swap(sortdim[2], sortdim[1]);
 
     for(vtxarray *va = reflecting ? reflectedva : visibleva; va; va = reflecting ? va->rnext : va->next)
     {

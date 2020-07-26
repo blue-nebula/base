@@ -1,6 +1,3 @@
-#include <algorithm>
-using std::swap;
-
 #ifdef WIN32
 #define FD_SETSIZE 4096
 #else

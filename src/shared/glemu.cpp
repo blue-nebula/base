@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include "cube.h"
 
 extern int glversion;

@@ -1,6 +1,3 @@
-#include <algorithm>
-using std::swap;
-
 #include "cube.h"
 
 ///////////////////////// cryptography /////////////////////////////////
@@ -154,7 +151,7 @@ namespace tiger
             loopk(3)
             {
                 uchar *c = &val.bytes[k*sizeof(chunk)];
-                loopl(sizeof(chunk)/2) swap(c[l], c[sizeof(chunk)-1-l]);
+                loopl(sizeof(chunk)/2) std::swap(c[l], c[sizeof(chunk)-1-l]);
             }
         }
     }

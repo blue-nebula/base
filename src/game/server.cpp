@@ -23,10 +23,8 @@
 // for use on the master server should first seek permission from the Blue Nebula Team,
 // each modification must be approved and will be done on a case-by-case basis.
 
-#include <algorithm>
 #include <vector>
 #include <string>
-using std::swap;
 
 #define GAMESERVER 1
 #include "game.h"

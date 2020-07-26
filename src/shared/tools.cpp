@@ -1,8 +1,5 @@
 // implementation of generic tools
 
-#include <algorithm>
-using std::swap;
-
 #include "cube.h"
 
 ////////////////////////// rnd numbers ////////////////////////////////////////

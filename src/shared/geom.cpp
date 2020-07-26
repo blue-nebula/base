@@ -1,6 +1,3 @@
-#include <algorithm>
-using std::swap;
-
 #include "cube.h"
 
 void vecfromyawpitch(float yaw, float pitch, int move, int strafe, vec &m)

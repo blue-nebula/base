@@ -1,7 +1,4 @@
 // shader.cpp: OpenGL GLSL shader management
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 
 Shader *Shader::lastshader = NULL;

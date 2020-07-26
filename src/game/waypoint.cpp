@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include "game.h"
 
 extern selinfo sel;
@@ -111,7 +109,7 @@ namespace ai
                 else
                 {
                     --right;
-                    swap(indices[left], indices[right]);
+                    std::swap(indices[left], indices[right]);
                     splitright = min(splitright, w.o[axis]-radius);
                     rightmin.min(vec(w.o).sub(radius));
                     rightmax.max(vec(w.o).add(radius));

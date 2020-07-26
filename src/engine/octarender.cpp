@@ -1,7 +1,4 @@
 // octarender.cpp: fill vertex arrays with different cube surfaces.
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 
 struct vboinfo
@@ -964,7 +961,7 @@ void gencubeedges(cube &c, const ivec &co, int size)
             if(d[axis] < 0)
             {
                 d.neg();
-                swap(e1, e2);
+                std::swap(e1, e2);
             }
             reduceslope(d);
 

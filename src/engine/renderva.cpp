@@ -1,7 +1,4 @@
 // renderva.cpp: handles the occlusion and rendering of vertex arrays
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 
 static inline void drawtris(GLsizei numindices, const GLvoid *indices, ushort minvert, ushort maxvert)
@@ -1226,7 +1223,7 @@ static void changetexgen(renderstate &cur, int dim, Slot &slot, VSlot &vslot)
             float xs = vslot.rotation>=2 && vslot.rotation<=4 ? -tex->xs : tex->xs,
                   ys = (vslot.rotation>=1 && vslot.rotation<=2) || vslot.rotation==5 ? -tex->ys : tex->ys;
             vec2 scroll(vslot.scroll);
-            if((vslot.rotation&5)==1) swap(scroll.x, scroll.y);
+            if((vslot.rotation&5)==1) std::swap(scroll.x, scroll.y);
             scroll.x *= lastmillis*tex->xs/xs;
             scroll.y *= lastmillis*tex->ys/ys;
             if(cur.texgenscroll != scroll)
