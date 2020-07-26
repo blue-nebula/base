@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include "engine.h"
 #include "SDL_mixer.h"
 

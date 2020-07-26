@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include <vector>
 #include "game.h"
 
@@ -818,8 +816,8 @@ namespace hud
 
     void drawquad(float x, float y, float w, float h, float tx1, float ty1, float tx2, float ty2, bool flipx, bool flipy)
     {
-        if(flipx) swap(tx1, tx2);
-        if(flipy) swap(ty1, ty2);
+        if(flipx) std::swap(tx1, tx2);
+        if(flipy) std::swap(ty1, ty2);
         gle::defvertex(2);
         gle::deftexcoord0();
         gle::begin(GL_TRIANGLE_STRIP);

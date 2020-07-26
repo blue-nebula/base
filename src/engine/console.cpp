@@ -1,7 +1,5 @@
 // console.cpp: the console buffer, its display, and command line control
-#include <algorithm>
 #include <string>
-using std::swap;
 
 #include "engine.h"
 #include "game.h"

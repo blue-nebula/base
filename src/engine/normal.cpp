@@ -1,6 +1,3 @@
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 
 struct normalgroup

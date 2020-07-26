@@ -1,7 +1,4 @@
 // renderparticles.cpp
-#include <algorithm>
-using std::swap;
-
 #include "engine.h"
 #include "rendertarget.h"
 
@@ -660,8 +657,8 @@ struct varenderer : partrenderer
             #define SETTEXCOORDS(u1c, u2c, v1c, v2c) \
             { \
                 float u1 = u1c, u2 = u2c, v1 = v1c, v2 = v2c; \
-                if(p->flags&0x01) swap(u1, u2); \
-                if(p->flags&0x02) swap(v1, v2); \
+                if(p->flags&0x01) std::swap(u1, u2); \
+                if(p->flags&0x02) std::swap(v1, v2); \
                 vs[0].tc = vec2(u1, v1); \
                 vs[1].tc = vec2(u2, v1); \
                 vs[2].tc = vec2(u2, v2); \
@@ -1563,7 +1560,7 @@ static inline vec offsetvec(vec o, int dir, int dist)
         }
         else from = to = p;
 
-        if(inv) swap(from, to);
+        if(inv) std::swap(from, to);
 
         if(taper)
         {

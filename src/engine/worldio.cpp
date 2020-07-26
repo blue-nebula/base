@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include <vector>
 // worldio.cpp: loading & saving of maps
 
@@ -445,13 +443,13 @@ void loadc(stream *f, cube &c, const ivec &co, int size, bool &failed)
         if(hdr.version <= 8) edgespan2vectorcube(c);
         if(hdr.version <= 11)
         {
-            swap(c.faces[0], c.faces[2]);
-            swap(c.texture[0], c.texture[4]);
-            swap(c.texture[1], c.texture[5]);
+            std::swap(c.faces[0], c.faces[2]);
+            std::swap(c.texture[0], c.texture[4]);
+            std::swap(c.texture[1], c.texture[5]);
             if(hassurfs&0x33)
             {
-                swap(surfaces[0], surfaces[4]);
-                swap(surfaces[1], surfaces[5]);
+                std::swap(surfaces[0], surfaces[4]);
+                std::swap(surfaces[1], surfaces[5]);
                 hassurfs = (hassurfs&~0x33) | ((hassurfs&0x30)>>4) | ((hassurfs&0x03)<<4);
             }
         }

@@ -1,6 +1,3 @@
-#include <algorithm>
-using std::swap;
-
 #include "cube.h"
 
 extern size_t fixdir(char *dir);

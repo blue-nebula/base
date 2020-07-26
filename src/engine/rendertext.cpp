@@ -1,7 +1,5 @@
 #include <vector>
 #include <string>
-#include <algorithm>
-using std::swap;
 #include "engine.h"
 
 VAR(IDF_PERSIST, textblinking, 0, 250, VAR_MAX);

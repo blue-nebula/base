@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include <vector>
 #include "engine.h"
 #include "rendertarget.h"

@@ -339,11 +339,11 @@ struct rendertarget
         if(blursize && !blurtex) setupblur();
         if(swaptexs() && blursize)
         {
-            swap(rendertex, blurtex);
+            std::swap(rendertex, blurtex);
             if(!rtsharefb)
             {
-                swap(renderfb, blurfb);
-                swap(renderdb, blurdb);
+                std::swap(renderfb, blurfb);
+                std::swap(renderdb, blurdb);
             }
         }
         glBindFramebuffer_(GL_FRAMEBUFFER, renderfb);
@@ -457,7 +457,7 @@ struct rendertarget
         gle::colorf(1, 1, 1);
         glBindTexture(GL_TEXTURE_2D, rendertex);
         float tx1 = 0, tx2 = 1, ty1 = 0, ty2 = 1;
-        if(flipdebug()) swap(ty1, ty2);
+        if(flipdebug()) std::swap(ty1, ty2);
         hudquad(0, 0, w, h, tx1, ty1, tx2-tx1, ty2-ty1);
         hudnotextureshader->set();
         dodebug(w, h);

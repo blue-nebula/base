@@ -1,7 +1,5 @@
-#include <algorithm>
 #include <vector>
 #include <string>
-using std::swap;
 #include <vector>
 #define GAMEWORLD 1
 #include "game.h"
@@ -3123,7 +3121,7 @@ namespace game
                 case ANIM_RIFLE: case ANIM_GRENADE: case ANIM_MINE: case ANIM_ROCKET:
                 {
                     anim = (anim>>ANIM_SECONDARY) | ((anim&((1<<ANIM_SECONDARY)-1))<<ANIM_SECONDARY);
-                    swap(basetime, basetime2);
+                    std::swap(basetime, basetime2);
                     break;
                 }
                 default: break;

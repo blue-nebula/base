@@ -1,5 +1,3 @@
-#include <algorithm>
-using std::swap;
 #include "engine.h"
 #include "SDL_thread.h"
 
@@ -440,9 +438,9 @@ struct pvsworker
             order[1] = cullorder(1, diff.x);
             order[2] = cullorder(2, diff.y);
             order[3] = cullorder(4, diff.z);
-            if(order[2].dist < order[1].dist) swap(order[1], order[2]);
-            if(order[3].dist < order[2].dist) swap(order[2], order[3]);
-            if(order[2].dist < order[1].dist) swap(order[1], order[2]);
+            if(order[2].dist < order[1].dist) std::swap(order[1], order[2]);
+            if(order[3].dist < order[2].dist) std::swap(order[2], order[3]);
+            if(order[2].dist < order[1].dist) std::swap(order[1], order[2]);
             cullorder dxy(order[1].index|order[2].index, order[1].dist+order[2].dist),
                       dxz(order[1].index|order[3].index, order[1].dist+order[3].dist),
                       dyz(order[2].index|order[3].index, order[2].dist+order[3].dist);
@@ -466,9 +464,9 @@ struct pvsworker
         shaftbb geom(co, size, edges);
         ivec diff = ivec(geom.max).sub(ivec(viewcellbb.min)).abs();
         cullorder order[3] = { cullorder(0, diff.x), cullorder(1, diff.y), cullorder(2, diff.z) };
-        if(order[1].dist > order[0].dist) swap(order[0], order[1]);
-        if(order[2].dist > order[1].dist) swap(order[1], order[2]);
-        if(order[1].dist > order[0].dist) swap(order[0], order[1]);
+        if(order[1].dist > order[0].dist) std::swap(order[0], order[1]);
+        if(order[2].dist > order[1].dist) std::swap(order[1], order[2]);
+        if(order[1].dist > order[0].dist) std::swap(order[0], order[1]);
         loopi(6)
         {
             int dim = order[i >= 3 ? i-3 : i].index, dc = (i >= 3) != (geom.max[dim] <= viewcellbb.min[dim]) ? 1 : 0, r = R[dim], c = C[dim];
