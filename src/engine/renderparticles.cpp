@@ -1237,10 +1237,7 @@ void create(int type, int color, int fade, const vec &p, float size, float blend
 {
     if(camera1->o.dist(p) > maxparticledistance) return;
     float collidez = collide ? p.z - raycube(p, vec(0, 0, -1), collide >= 0 ? COLLIDERADIUS : max(p.z, 0.0f), RAY_CLIPMAT) + (collide >= 0 ? COLLIDEERROR : 0) : -1;
-    int fmin = 1;
-    int fmax = fade*3;
-    int f = fmin + rnd(fmax); //help deallocater by using fade distribution rather than random
-    newparticle(p, vec(0, 0, 0), f, type, color, size, blend, grav, collide, pl)->val = collidez;
+    newparticle(p, vec(0, 0, 0), fade, type, color, size, blend, grav, collide, pl)->val = collidez;
 }
 
 void regularcreate(int type, int color, int fade, const vec &p, float size, float blend, int grav, int collide, physent *pl, int delay)
