@@ -3579,11 +3579,24 @@ void getvarinfo(int n, int types, int notypes, int flags, int noflags, char *str
     }
     if(str && *str)
     {
+        std::vector<std::string> words;
+        explodelist(str, words);
         static char *laststr = NULL;
         if(ids[1].empty() || !laststr || strcmp(str, laststr))
         {
             ids[1].setsize(0);
-            loopv(ids[0]) if(rigcasestr(ids[0][i]->name, str)) ids[1].add(ids[0][i]);
+            loopv(ids[0])
+            {
+                bool matches = true;
+                for (const std::string &word : words)
+                {
+                    if(!rigcasestr(ids[0][i]->name, word.c_str()))
+                    {
+                        matches = false;
+                    }
+                }
+                if(matches) ids[1].add(ids[0][i]);
+            }
             if(laststr) DELETEA(laststr);
             laststr = newstring(str);
         }
