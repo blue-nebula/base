@@ -132,8 +132,11 @@ bool pop_ui(bool skip = true)
 
 bool remove_ui(menu *m)
 {
-    loopv(menustack) if(menustack[i] == m)
+    for (int i = 0; i < menustack.length(); i++)
     {
+        if (menustack[i] != m) {
+            continue;
+        }
         menustack.remove(i);
         m->passes = 0;
         if(m->keep) *m->keep = false;
@@ -850,7 +853,9 @@ static struct applymenu : menu
         g.start(menu_start, NULL, true);
         g.text("the following settings have changed:");
         g.pushfont("little");
-        loopv(needsapply) g.text(needsapply[i].desc, 0xFFFFFF, "point");
+        for (int i = 0; i < needsapply.length(); i++) {
+            g.text(needsapply[i].desc, 0xFFFFFF, "point");
+        }
         g.popfont();
         g.separator();
         g.text("apply changes now?");
@@ -859,7 +864,9 @@ static struct applymenu : menu
         if(g.button("\fgOK")&GUI_UP)
         {
             int changetypes = 0;
-            loopv(needsapply) changetypes |= needsapply[i].type;
+            for (int i = 0; i < needsapply.length(); i++) {
+                changetypes |= needsapply[i].type;
+            }
             if(changetypes&CHANGE_GFX) updatelater.add().schedule("resetgl");
             if(changetypes&CHANGE_SOUND) updatelater.add().schedule("resetsound");
             clearlater = true;
@@ -886,7 +893,9 @@ void addchange(const char *desc, int type, bool force)
         int changetypes = type;
         if(menustack.find(&applymenu) >= 0)
         {
-            loopv(needsapply) changetypes |= needsapply[i].type;
+            for (int i = 0; i < needsapply.length(); i++) {
+                changetypes |= needsapply[i].type;
+            }
             clearlater = true;
         }
         if(changetypes&CHANGE_GFX) updatelater.add().schedule("resetgl");
@@ -894,7 +903,11 @@ void addchange(const char *desc, int type, bool force)
     }
     else
     {
-        loopv(needsapply) if(!strcmp(needsapply[i].desc, desc)) return;
+        for (int i = 0; i < needsapply.length(); i++) {
+            if (!strcmp(needsapply[i].desc, desc)) {
+                return;
+            }
+        }
         needsapply.add(change(type, desc));
         if(needsapply.length() && menustack.find(&applymenu) < 0)
             push_ui(&applymenu, max(menustack.length() - 1, 0));
@@ -903,7 +916,7 @@ void addchange(const char *desc, int type, bool force)
 
 void clearchanges(int type)
 {
-    loopv(needsapply)
+    for (int i = 0; i < needsapply.length(); i++)
     {
         if(needsapply[i].type&type)
         {
@@ -918,7 +931,9 @@ void menuprocess()
 {
     int level = menustack.length();
     interactive = true;
-    loopv(updatelater) updatelater[i].run();
+    for (int i = 0; i < updatelater.length(); i++) {
+        updatelater[i].run();
+    }
     updatelater.shrink(0);
     interactive = false;
     if(clearlater)
