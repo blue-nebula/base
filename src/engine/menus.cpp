@@ -167,7 +167,9 @@ bool push_ui(menu *m, int pos = -1, int tab = 0, bool *keep = NULL)
 bool restore_ui(int pos, int tab = 0, bool *keep = NULL)
 {
     int clear = menustack.length()-pos-1;
-    loopi(clear) pop_ui();
+    for (int i = 0; i < clear; i++) {
+        pop_ui();
+    }
     menu *m = menustack.last();
     if(m)
     {
@@ -201,7 +203,11 @@ int cleargui(int n, bool skip)
     if(closetexgui()) n--;
     int clear = menustack.length();
     if(n>0) clear = min(clear, n);
-    loopi(clear) if(!pop_ui(skip)) break;
+    for (int i = 0; i < clear; i++) {
+        if (!pop_ui(skip)) {
+            break;
+        }
+    }
     if(!menustack.empty()) restore_ui(menustack.length() - 1);
     return clear;
 }
@@ -938,7 +944,11 @@ void menuprocess()
     interactive = false;
     if(clearlater)
     {
-        if(level==menustack.length()) loopi(level) pop_ui();
+        if (level==menustack.length()) {
+            for (int i = 0; i < level; i++) {
+                pop_ui();
+            }
+        }
         clearlater = false;
     }
 }
