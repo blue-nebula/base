@@ -203,8 +203,10 @@ int cleargui(int n, bool skip)
     if(closetexgui()) n--;
     int clear = menustack.length();
     if(n>0) clear = min(clear, n);
-    for (int i = 0; i < clear; i++) {
-        if (!pop_ui(skip)) {
+    for (int i = 0; i < clear; i++)
+    {
+        if (!pop_ui(skip))
+        {
             break;
         }
     }
@@ -870,7 +872,8 @@ static struct applymenu : menu
         if(g.button("\fgOK")&GUI_UP)
         {
             int changetypes = 0;
-            for (int i = 0; i < needsapply.length(); i++) {
+            for (int i = 0; i < needsapply.length(); i++)
+            {
                 changetypes |= needsapply[i].type;
             }
             if(changetypes&CHANGE_GFX) updatelater.add().schedule("resetgl");
@@ -937,15 +940,18 @@ void menuprocess()
 {
     int level = menustack.length();
     interactive = true;
-    for (int i = 0; i < updatelater.length(); i++) {
+    for (int i = 0; i < updatelater.length(); i++)
+    {
         updatelater[i].run();
     }
     updatelater.shrink(0);
     interactive = false;
     if(clearlater)
     {
-        if (level==menustack.length()) {
-            for (int i = 0; i < level; i++) {
+        if (level==menustack.length())
+        {
+            for (int i = 0; i < level; i++)
+            {
                 pop_ui();
             }
         }
