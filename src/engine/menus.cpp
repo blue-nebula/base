@@ -134,7 +134,8 @@ bool remove_ui(menu *m)
 {
     for (int i = 0; i < menustack.length(); i++)
     {
-        if (menustack[i] != m) {
+        if (menustack[i] != m)
+        {
             continue;
         }
         menustack.remove(i);
@@ -167,7 +168,8 @@ bool push_ui(menu *m, int pos = -1, int tab = 0, bool *keep = NULL)
 bool restore_ui(int pos, int tab = 0, bool *keep = NULL)
 {
     int clear = menustack.length()-pos-1;
-    for (int i = 0; i < clear; i++) {
+    for (int i = 0; i < clear; i++)
+    {
         pop_ui();
     }
     menu *m = menustack.last();
@@ -861,7 +863,8 @@ static struct applymenu : menu
         g.start(menu_start, NULL, true);
         g.text("the following settings have changed:");
         g.pushfont("little");
-        for (int i = 0; i < needsapply.length(); i++) {
+        for (int i = 0; i < needsapply.length(); i++)
+        {
             g.text(needsapply[i].desc, 0xFFFFFF, "point");
         }
         g.popfont();
@@ -902,7 +905,8 @@ void addchange(const char *desc, int type, bool force)
         int changetypes = type;
         if(menustack.find(&applymenu) >= 0)
         {
-            for (int i = 0; i < needsapply.length(); i++) {
+            for (int i = 0; i < needsapply.length(); i++)
+            {
                 changetypes |= needsapply[i].type;
             }
             clearlater = true;
@@ -912,8 +916,10 @@ void addchange(const char *desc, int type, bool force)
     }
     else
     {
-        for (int i = 0; i < needsapply.length(); i++) {
-            if (!strcmp(needsapply[i].desc, desc)) {
+        for (int i = 0; i < needsapply.length(); i++)
+        {
+            if (!strcmp(needsapply[i].desc, desc))
+            {
                 return;
             }
         }
