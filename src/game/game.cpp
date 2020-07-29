@@ -3615,7 +3615,7 @@ namespace game
             // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
             int _burndelay = std::max(burndelay, 1);
             if(burntime - millis < _burndelay) pc *= float(burntime - millis) / _burndelay;
-            else pc *= 0.75f + (float(millis % _burndelay) / float(_burndelay * 4);
+            else pc *= 0.75f + (float(millis % _burndelay) / float(_burndelay * 4));
             vec pos = vec(d->center()).sub(vec(rnd(11)-5, rnd(11)-5, rnd(5)-2).mul(pc));
             regular_part_create(PART_FIREBALL, 50, pos, pulsecols[PULSE_FIRE][rnd(PULSECOLOURS)], d->height*0.75f*intensity*blend*pc, fade*blend*pc, -10, 0);
         }
