@@ -935,10 +935,12 @@ namespace game
                     int millis = lastmillis-d->lastres[WR_BURN];
                     size_t seed = size_t(d) + (millis/50);
                     float pc = 1, amt = (millis%50)/50.0f, intensity = 0.75f+(detrnd(seed, 25)*(1-amt) + detrnd(seed + 1, 25)*amt)/100.f;
-                    if(burntime-millis < burndelay) pc *= float(burntime-millis)/float(burndelay);
+                    // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+                    int _burndelay = std::max(burndelay, 1);
+                    if(burntime-millis < _burndelay) pc *= float(burntime - millis) / float(_burndelay);
                     else
                     {
-                        float fluc = float(millis%burndelay)*(0.25f+0.03f)/burndelay;
+                        float fluc = float(millis % _burndelay) * (0.25f + 0.03f) / _burndelay;
                         if(fluc >= 0.25f) fluc = (0.25f+0.03f-fluc)*(0.25f/0.03f);
                         pc *= 0.75f+fluc;
                     }
@@ -3610,8 +3612,10 @@ namespace game
         {
             int millis = lastmillis-d->lastres[WR_BURN];
             float pc = 1, intensity = 0.5f+(rnd(50)/100.f), fade = (d != focus ? 0.5f : 0.f)+(rnd(50)/100.f);
-            if(burntime-millis < burndelay) pc *= float(burntime-millis)/float(burndelay);
-            else pc *= 0.75f+(float(millis%burndelay)/float(burndelay*4));
+            // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+            int _burndelay = std::max(burndelay, 1);
+            if(burntime - millis < _burndelay) pc *= float(burntime - millis) / _burndelay;
+            else pc *= 0.75f + (float(millis % _burndelay) / float(_burndelay * 4);
             vec pos = vec(d->center()).sub(vec(rnd(11)-5, rnd(11)-5, rnd(5)-2).mul(pc));
             regular_part_create(PART_FIREBALL, 50, pos, pulsecols[PULSE_FIRE][rnd(PULSECOLOURS)], d->height*0.75f*intensity*blend*pc, fade*blend*pc, -10, 0);
         }

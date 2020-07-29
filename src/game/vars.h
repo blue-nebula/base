@@ -210,7 +210,7 @@ GFVAR(IDF_GAMEMOD, minresizescale, FVAR_NONZERO, 0.5f, 1);
 GFVAR(IDF_GAMEMOD, instaresizeamt, FVAR_NONZERO, 0.1f, 1); // each kill adds this much size in insta-resize
 
 GVAR(IDF_GAMEMOD, burntime, 0, 5500, VAR_MAX);
-GVAR(IDF_GAMEMOD, burndelay, 0, 1000, VAR_MAX);
+GVAR(IDF_GAMEMOD, burndelay, 1, 1000, VAR_MAX);
 GVAR(IDF_GAMEMOD, burndamage, 0, 3, VAR_MAX);
 GVAR(IDF_GAMEMOD, bleedtime, 0, 5500, VAR_MAX);
 GVAR(IDF_GAMEMOD, bleeddelay, 0, 1000, VAR_MAX);

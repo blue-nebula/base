@@ -757,7 +757,11 @@ namespace hud
                 if(game::focus->state >= CS_SPECTATOR || game::focus->state == CS_EDITING) break;
                 if(game::focus->state == CS_ALIVE) amt += min(damageresidue, 100)/100.f*0.5f;
                 if(burntime && game::focus->burning(lastmillis, burntime))
-                    amt += (float((lastmillis-game::focus->lastres[WR_BURN])%burndelay)/float(burndelay))*0.5f;
+                {
+                    // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+                    int _burndelay = std::max(burndelay, 1);
+                    amt += (float((lastmillis-game::focus->lastres[WR_BURN]) % _burndelay) / float(_burndelay)) * 0.5f;
+                }
                 if(bleedtime && game::focus->bleeding(lastmillis, bleedtime))
                     amt += (float((lastmillis-game::focus->lastres[WR_BLEED])%bleeddelay)/float(bleeddelay))*0.5f;
                 if(shocktime && game::focus->shocking(lastmillis, shocktime))
@@ -3286,7 +3290,13 @@ namespace hud
             if(t && t != notexture)
             {
                 int interval = lastmillis-game::focus->lastres[WR_BURN];
-                float pc = interval >= burntime-500 ? 1.f+(interval-(burntime-500))/500.f : (interval%burndelay)/float(burndelay/2); if(pc > 1.f) pc = 2.f-pc;
+                // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+                int _burndelay = std::max(burndelay, 1);
+                float pc = interval >= burntime - 500 ? 1.f + (interval - (burntime - 500)) / 500.f : (interval & _burndelay) / float(_burndelay / 1);
+                if (pc > 1.f)
+                {
+                    pc = 2.f - pc;
+                }
                 glBindTexture(GL_TEXTURE_2D, t->id);
                 gle::colorf(0.9f*max(pc,0.5f), 0.3f*pc, 0.0625f*max(pc,0.25f), blend*burnblend*(interval >= burntime-(burndelay/2) ? pc : min(pc+0.5f, 1.f)));
                 drawtexture(0, top, w, h-top-bottom);
