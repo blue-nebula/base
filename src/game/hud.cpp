@@ -760,8 +760,12 @@ namespace hud
                     amt += (float((lastmillis-game::focus->lastres[WR_BURN])%burndelay)/float(burndelay))*0.5f;
                 if(bleedtime && game::focus->bleeding(lastmillis, bleedtime))
                     amt += (float((lastmillis-game::focus->lastres[WR_BLEED])%bleeddelay)/float(bleeddelay))*0.5f;
-                if(shocktime && game::focus->shocking(lastmillis, shocktime))
-                    amt += (float((lastmillis-game::focus->lastres[WR_SHOCK])%shockdelay)/float(shockdelay))*0.5f;
+                if (shocktime && game::focus->shocking(lastmillis, shocktime))
+                {
+                    // When playing on servers with an older version, shockdelay can be 0, thus add a check to prevent division by 0
+                    int _shockdelay = std::max(shockdelay, 1);
+                    amt += (float((lastmillis - game::focus->lastres[WR_SHOCK]) % _shockdelay) / float(_shockdelay)) * 0.5f;
+                }
                 break;
             }
             case 2: amt = motionbluramt; break;
