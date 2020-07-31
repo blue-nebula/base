@@ -1557,14 +1557,38 @@ namespace client
             }
         }
 
-        std::vector<std::string> muts_vec;
         if(muts_str && isnumeric(*muts_str))
         {
             nextmuts = atoi(muts_str);
         }
         else if(muts_str && *muts_str)
         {
-            explodelist(muts_str, muts_vec);
+            std::vector<std::string> muts_vec;
+            char *begin = muts_str;
+            char *end = NULL;
+            // Split the muts string on ' ' and '-' into muts_vec.
+            while(*begin)
+            {
+                if(end)
+                {
+                    if(*end == ' ' || *end == '-' || *end == '\0')
+                    {
+                        muts_vec.emplace_back(begin, end - begin);
+                        begin = end;
+                        end = NULL;
+                    }
+                    else end++;
+                }
+                else
+                {
+                    if(*begin != ' ' && *begin != '-')
+                    {
+                        end = begin;
+                    }
+                    else begin++;
+                }
+            }
+
             for(const std::string &mut : muts_vec)
             {
                 bool found_one = false;
