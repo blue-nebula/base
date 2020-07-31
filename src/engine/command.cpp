@@ -2767,7 +2767,7 @@ void explodelist(const char *s, std::vector<std::string> &elems, int limit)
 {
     const char *start, *end;
     while((limit < 0 || elems.size() < limit) && parselist(s, start, end))
-        elems.emplace_back(std::string(start, end-start));
+        elems.emplace_back(start, end - start);
 }
 
 char *indexlist(const char *s, int pos)
