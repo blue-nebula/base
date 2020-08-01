@@ -759,8 +759,8 @@ namespace hud
                 if(burntime && game::focus->burning(lastmillis, burntime))
                 {
                     // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
-                    int _burndelay = std::max(burndelay, 1);
-                    amt += (float((lastmillis-game::focus->lastres[WR_BURN]) % _burndelay) / float(_burndelay)) * 0.5f;
+                    int fixed_burndelay = std::max(burndelay, 1);
+                    amt += (float((lastmillis-game::focus->lastres[WR_BURN]) % fixed_burndelay) / float(fixed_burndelay)) * 0.5f;
                 }
                 if(bleedtime && game::focus->bleeding(lastmillis, bleedtime))
                     amt += (float((lastmillis-game::focus->lastres[WR_BLEED])%bleeddelay)/float(bleeddelay))*0.5f;
@@ -3291,8 +3291,8 @@ namespace hud
             {
                 int interval = lastmillis-game::focus->lastres[WR_BURN];
                 // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
-                int _burndelay = std::max(burndelay, 1);
-                float pc = interval >= burntime - 500 ? 1.f + (interval - (burntime - 500)) / 500.f : (interval & _burndelay) / float(_burndelay / 1);
+                int fixed_burndelay = std::max(burndelay, 1);
+                float pc = interval >= burntime - 500 ? 1.f + (interval - (burntime - 500)) / 500.f : (interval & fixed_burndelay) / float(fixed_burndelay / 1);
                 if (pc > 1.f)
                 {
                     pc = 2.f - pc;
