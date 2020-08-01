@@ -1,6 +1,10 @@
+// system headers
+#include <cstdlib>
+
+// local headers
 #include "soundsample.h"
 
-soundsample::soundsample() : name(nullptr) {}
+soundsample::soundsample() : sound(nullptr), name(nullptr) {}
 
 soundsample::~soundsample() {
     free(name);
