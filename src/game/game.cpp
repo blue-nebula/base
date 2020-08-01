@@ -399,7 +399,6 @@ namespace game
         add_game_sound(S_SHOCK      , "sounds/sfx/shockdamage" ,  50, 100, 0, 0);
         add_game_sound(S_RESPAWN    , "sounds/sfx/respawn"     , 156, 200, 0, 0);
         add_game_sound(S_CHAT       , "sounds/sfx/chat"        , 254, 200, 0, 0);
-        add_game_sound(S_MENTIONED  , "sounds/sfx/mentioned"   , 254, 200, 0, 0);
         add_game_sound(S_ERROR      , "sounds/sfx/error"       , 230, 200, 0, 0);
         add_game_sound(S_ALARM      , "sounds/sfx/alarm"       , 180, 200, 0, 0);
         add_game_sound(S_CATCH      , "sounds/sfx/catch"       , 230, 280, 0, 0);
