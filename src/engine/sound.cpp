@@ -22,7 +22,11 @@ void sound::reset()
 }
 
 hashnameset<soundsample> soundsamples;
-std::map<const int, soundslot> gamesounds, mapsounds;
+
+soundslot_collection<soundslot_collection_map_t> gamesounds;
+soundslot_collection<soundslot_collection_vector_t> mapsounds;
+
+// TODO: "upgrade" to std::vector
 vector<sound> sounds;
 
 bool nosound = true, changedvol = false, canmusic = false;
@@ -132,21 +136,44 @@ void clearsound()
     mapsounds.clear(); // could introduce problems
 }
 
-void getsounds(bool mapsnd, int idx, int prop)
-{
-    std::map<const int, soundslot>& soundset = mapsnd ? mapsounds : gamesounds;
-    if(idx < 0) intret(soundset.size());
-    else if(soundset.find(idx) != soundset.end())
-    {
-        if(prop < 0) intret(4);
-        else switch(prop)
-        {
-            case 0: intret(soundset[idx].vol); break;
-            case 1: intret(soundset[idx].maxrad); break;
-            case 2: intret(soundset[idx].minrad); break;
-            case 3: result(soundset[idx].name); break;
-            default: break;
+template<typename T>
+void getsounds(T soundslots, ssize_t sound_index, int prop) {
+    if (soundslots.contains(sound_index)) {
+        if (prop < 0) {
+            intret(4);
+        } else {
+            const auto& slot = soundslots[sound_index];
+
+            switch (prop) {
+                case 0:
+                    intret(slot.vol);
+                    break;
+                case 1:
+                    intret(slot.maxrad);
+                    break;
+                case 2:
+                    intret(slot.minrad);
+                    break;
+                case 3:
+                    result(slot.name);
+                    break;
+                default:
+                    break;
+            }
         }
+    }
+}
+
+void getsounds(bool is_map_sound, ssize_t sound_index, int prop) {
+    if (is_map_sound) {
+        // FIXME: this used to be implemented for gamesounds as well, but it doesn't seem very useful there
+        if (sound_index < 0) {
+            intret(mapsounds.size());
+        } else {
+            return getsounds(mapsounds, sound_index, prop);
+        }
+    } else {
+        return getsounds(gamesounds, sound_index, prop);
     }
 }
 ICOMMAND(0, getsound, "ibb", (int *n, int *v, int *p), getsounds(*n!=0, *v, *p));
@@ -275,13 +302,7 @@ void smartmusic(bool cond, bool init)
 }
 ICOMMAND(0, smartmusic, "i", (int *a), smartmusic(*a));
 
-int findsound(const char *name, int vol, std::map<const int, soundslot>& soundset)
-{
-    loopv(soundset) if(!strcmp(soundset[i].name, name) && (!vol || soundset[i].vol == vol)) return i;
-    return -1;
-}
-
-static Mix_Chunk *loadwav(const char *name)
+Mix_Chunk* loadwav(const char *name)
 {
     Mix_Chunk *c = NULL;
     stream *z = openzipfile(name, "rb");
@@ -299,142 +320,35 @@ static Mix_Chunk *loadwav(const char *name)
     return c;
 }
 
-int registersound(std::string name, int volume, int max_radius, int min_radius, int value, int index, bool is_map_sound)
-{
-    if (index == -1) {
-        // don't register game sounds when no index is specified, as game sounds are not dynamic but fixed
-        if (!is_map_sound) {
-            return -1;
-        }
-        else
-        {
-            // map sounds will be registered in order, since they're dynamically loaded
-            index = int(mapsounds.size());
-        }
-    }
-
-    std::map<const int, soundslot>& soundset = is_map_sound ? mapsounds : gamesounds;
-
-    if (volume <= 0 || volume >= 255) { volume = 255;    }
-    if (max_radius <= 0) {              max_radius = -1; }
-    min_radius = std::max(-1, min_radius);
-
-    if (value == 1)
-    {
-        // if the sound has already been loaded, return its index
-        for (size_t i = 0; i < soundset.size(); i++)
-        {
-            soundslot& slot = soundset[i];
-            if (   slot.vol == volume
-                && slot.maxrad == max_radius
-                && slot.minrad == min_radius
-                && slot.name == name.c_str())
-            {
-                return i;
-            }
-        }
-    }
-
-    // the sound has not been added yet, let's create a new instance
-    soundset[index]        = soundslot();
-    soundset[index].name   = newstring(name.c_str());
-    soundset[index].vol    = volume;
-    soundset[index].maxrad = max_radius;
-    soundset[index].minrad = min_radius;
-
-    // just used for weapons that don't have certain sound effects, e.g. some weapons don't have a zoom sound
-    // so we don't create an offset inside the vector, we have to fill those places with some
-    // placeholders
-    if (name == "<none>")
-    {
-        printf("Do not load %d\n", index);
-        return soundset.size() - 1;
-    }
-
-    // load the actual samples here
-    std::string sample_name;
-    soundsample* sample = nullptr;
-    int i = 1;
-    int loaded_samples = 0;
-
-    // naming scheme is: shell.ogg, shell2.ogg, shell3.ogg, shell4.ogg
-    // the values would be name: "shell" and value: 4
-    // so the first element has to always be loaded, that's why do...while
-    // after that just go on counting up 'til we reach the value and load all sounds we find on our way
-    do
-    {
-        // if the value is 1 (the first entry) just use the normal name since there is no such thing as shell1.ogg,
-        // but rather shell.ogg and then it continues with shell2.ogg (that's why we start counting from 1)
-        if (i == 1) { sample_name = name;
-        } else {      sample_name = name + std::to_string(i);  }
-
-        if (!(sample = soundsamples.access(sample_name.c_str())))
-        {
-            // copy the sample_name because the class soundsample uses char* instead of std::string
-            char* s_name = newstring(sample_name.c_str());
-
-            sample = &soundsamples[s_name];
-            sample->name = s_name;
-            sample->sound = nullptr;
-        }
-
-        // if the sample isn't already loaded, load it
-        if (!sample->sound)
-        {
-            std::string relative_path;
-            std::string dirs[] = { "", "sounds/" };
-            std::string exts[] = { "", ".wav", ".ogg" };
-            bool found = false;
-
-            for (auto dir : dirs)
-            {
-                for (auto ext : exts)
-                {
-                    relative_path = dir + sample_name + ext;
-
-                    sample->sound = loadwav(relative_path.c_str());
-                    // if we can load the sample, set found to true and the exit the loop
-                    if (sample->sound != nullptr)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                // if we found the entry previously, quit the loop
-                if (found) { break; }
-            }
-        }
-
-        // check if the sample is set now
-        if (sample->sound != nullptr)
-        {
-            soundset[index].samples.add(sample);
-            loaded_samples++;
-        }
-
-        i++;
-    }
-    while (i <= value);
-
-    if (loaded_samples < value)
-    {
-        printf("Failed to load %d sample %s\n", (value - loaded_samples), name.c_str());
-    }
-    else
-    {
-        printf("Loaded sound %d: %s\n", index, soundset[index].name);
-    }
-
-    return soundset.size() - 1;
+/**
+ * Register a game sound in the game. Convenience frontend for add_sound.
+ * @param name path to the sound file (relative to data directory)
+ * @param volume volume sound is played with (see soundslot)
+ * @param max_radius maximum radius sound is played in (see soundslot)
+ * @param min_radius minimum radius sound is played in (see soundslot)
+ * @param num_slots amount of slots to load for sound "name"
+ * @param sound_index index of sound in the sounds enum (or -1 for map sounds)
+ * @return < 0 on failure, index of registered sound on success (also if the sound was not added because it existed already)
+ */
+size_t add_game_sound(size_t sound_index, const std::string& name, int volume, int max_radius, int min_radius, int num_slots) {
+    return gamesounds.insert(sound_index, name, volume, max_radius, min_radius, num_slots);
 }
 
-void add_game_sound(int index, std::string name, int volume, int max_radius, int min_radius, int value)
-{
-    registersound(name, volume, max_radius, min_radius, value, index, false);
+/**
+ * Register a game sound in the game. Convenience frontend for add_sound.
+ * @param name path to the sound file (relative to data directory)
+ * @param volume volume sound is played with (see soundslot)
+ * @param max_radius maximum radius sound is played in (see soundslot)
+ * @param min_radius minimum radius sound is played in (see soundslot)
+ * @param num_slots amount of slots to load for sound "name"
+ * @return < 0 on failure, index of registered sound on success (also if the sound was not added because it existed already)
+ */
+size_t add_map_sound(const std::string& name, int volume, int max_radius, int min_radius, int num_slots) {
+    return mapsounds.append(name, volume, max_radius, min_radius, num_slots);
 }
-
-ICOMMAND(0, registersound, "sissi", (char *n, int *v, char *w, char *x, int *u), intret(registersound(n, *v, *w ? parseint(w) : -1, *x ? parseint(x) : -1, *u, -1, false)));
-ICOMMAND(0, mapsound, "sissi", (char *n, int *v, char *w, char *x, int *u), intret(registersound(n, *v, *w ? parseint(w) : -1, *x ? parseint(x) : -1, *u, -1, true)));
+ICOMMAND(0, mapsound, "sissi", (char* name, const int* volume, char* max_radius, char* min_radius, int* num_slots),
+    intret(add_map_sound(name, *volume, *max_radius != '\0' ? parseint(max_radius) : -1, *min_radius != '\0' ? parseint(min_radius) : -1, *num_slots))
+)
 
 void calcvol(int flags, int vol, int slotvol, int maxrad, int minrad, const vec &pos, int *curvol, int *curpan, bool liquid)
 {
@@ -495,6 +409,65 @@ void updatesound(int chan)
     }
 }
 
+template<typename T>
+void updatesounds(T& soundset, sound& s, int i) {
+    while(!s.buffer.empty() && (soundset.contains(s.buffer[0]) || soundset[s.buffer[0]].samples.empty() || !soundset[s.buffer[0]].vol)) {
+        s.buffer.remove(0);
+    }
+
+    if(!s.buffer.empty())
+    {
+        int n = s.buffer[0], chan = -1;
+        Mix_HaltChannel(i);
+        s.buffer.remove(0);
+        bool nocull = s.flags&SND_NOCULL || s.pos.dist(camera1->o) <= 0;
+        soundslot& slot = soundset[n];
+        soundsample *sample = slot.samples[rnd(slot.samples.size())];
+        if((chan = Mix_PlayChannel(i, sample->sound, s.flags&SND_LOOP ? -1 : 0)) < 0)
+        {
+            int lowest = -1;
+            loopv(sounds) if(sounds[i].chan >= 0 && (!(sounds[i].flags&SND_MAP) || s.flags&SND_MAP) && sounds[i].curvol < s.curvol && (lowest < 0 || sounds[i].curvol < sounds[lowest].curvol) && (nocull || (!(sounds[i].flags&SND_NOCULL) && sounds[i].pos.dist(camera1->o) > 0)))
+                    lowest = i;
+            if(sounds.inrange(lowest))
+            {
+                if(verbose >= 4) conoutf("culled channel %d (%d)", lowest, sounds[lowest].curvol);
+                removesound(lowest);
+                chan = Mix_PlayChannel(-1, sample->sound, s.flags&SND_LOOP ? -1 : 0);
+            }
+        }
+        if(chan >= 0)
+        {
+            while(chan >= sounds.length()) sounds.add();
+            sound &t = sounds[chan];
+            if(chan == s.chan)
+            {
+                i--; // repeat with new sound
+                return;
+            }
+            else
+            {
+                t.slot = &slot;
+                t.vol = s.vol;
+                t.maxrad = s.maxrad;
+                t.minrad = s.minrad;
+                t.material = s.material;
+                t.flags = s.flags;
+                t.millis = s.millis;
+                t.ends = s.ends;
+                t.slotnum = s.slotnum;
+                t.owner = s.owner;
+                t.pos = t.oldpos = s.pos;
+                t.curvol = s.curvol;
+                t.curpan = s.curpan;
+                t.chan = chan;
+                t.hook = s.hook;
+                loopvj(s.buffer) t.buffer.add(s.buffer[j]);
+                updatesound(chan);
+            }
+        }
+    }
+}
+
 void updatesounds()
 {
     updatemumble();
@@ -512,59 +485,13 @@ void updatesounds()
             updatesound(i);
             continue;
         }
-        std::map<const int, soundslot>& soundset = s.flags&SND_MAP ? mapsounds : gamesounds;
-        while(!s.buffer.empty() && (soundset.find(s.buffer[0]) == soundset.end() || soundset[s.buffer[0]].samples.empty() || !soundset[s.buffer[0]].vol)) s.buffer.remove(0);
-        if(!s.buffer.empty())
-        {
-            int n = s.buffer[0], chan = -1;
-            Mix_HaltChannel(i);
-            s.buffer.remove(0);
-            bool nocull = s.flags&SND_NOCULL || s.pos.dist(camera1->o) <= 0;
-            soundslot *slot = &soundset[n];
-            soundsample *sample = slot->samples[rnd(slot->samples.length())];
-            if((chan = Mix_PlayChannel(i, sample->sound, s.flags&SND_LOOP ? -1 : 0)) < 0)
-            {
-                int lowest = -1;
-                loopv(sounds) if(sounds[i].chan >= 0 && (!(sounds[i].flags&SND_MAP) || s.flags&SND_MAP) && sounds[i].curvol < s.curvol && (lowest < 0 || sounds[i].curvol < sounds[lowest].curvol) && (nocull || (!(sounds[i].flags&SND_NOCULL) && sounds[i].pos.dist(camera1->o) > 0)))
-                    lowest = i;
-                if(sounds.inrange(lowest))
-                {
-                    if(verbose >= 4) conoutf("culled channel %d (%d)", lowest, sounds[lowest].curvol);
-                    removesound(lowest);
-                    chan = Mix_PlayChannel(-1, sample->sound, s.flags&SND_LOOP ? -1 : 0);
-                }
-            }
-            if(chan >= 0)
-            {
-                while(chan >= sounds.length()) sounds.add();
-                sound &t = sounds[chan];
-                if(chan == s.chan)
-                {
-                    i--; // repeat with new sound
-                    continue;
-                }
-                else
-                {
-                    t.slot = slot;
-                    t.vol = s.vol;
-                    t.maxrad = s.maxrad;
-                    t.minrad = s.minrad;
-                    t.material = s.material;
-                    t.flags = s.flags;
-                    t.millis = s.millis;
-                    t.ends = s.ends;
-                    t.slotnum = s.slotnum;
-                    t.owner = s.owner;
-                    t.pos = t.oldpos = s.pos;
-                    t.curvol = s.curvol;
-                    t.curpan = s.curpan;
-                    t.chan = chan;
-                    t.hook = s.hook;
-                    loopvj(s.buffer) t.buffer.add(s.buffer[j]);
-                    updatesound(chan);
-                }
-            }
+
+        if ((s.flags & SND_MAP) != 0) {
+            updatesounds(mapsounds, s, i);
+        } else {
+            updatesounds(gamesounds, s, i);
         }
+
         removesound(i);
     }
     if(music || Mix_PlayingMusic())
@@ -579,12 +506,9 @@ void updatesounds()
     }
 }
 
-int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad, int minrad, int *hook, int ends, int *oldhook)
-{
-    if(nosound || !mastervol || !soundvol || ((flags&SND_MAP || n >= S_GAMESPECIFIC) && client::waiting(true)) || (!d && !insideworld(pos))) return -1;
-    std::map<const int, soundslot>& soundset = flags&SND_MAP ? mapsounds : gamesounds;
-
-    if(soundset.find(n) != soundset.end())
+template<typename T>
+int playsound(T& soundset, int n, const vec& pos, physent* d, int flags, int vol, int maxrad, int minrad, int* hook, int ends, int* oldhook) {
+    if (soundset.contains(n))
     {
         if(hook && issound(*hook) && flags&SND_BUFFER)
         {
@@ -596,18 +520,22 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
             if(oldhook && issound(*oldhook)) removesound(*oldhook);
             return -1;
         }
-        soundslot *slot = &soundset[n];
-        if(!oldhook || !issound(*oldhook) || (n != sounds[*oldhook].slotnum && strcmp(slot->name, gamesounds[sounds[*oldhook].slotnum].name)))
+
+        // TODO: fix following code to be able to use a const reference
+        auto& slot = soundset[n];
+
+        if(!oldhook || !issound(*oldhook) || (n != sounds[*oldhook].slotnum && strcmp(slot.name, gamesounds[sounds[*oldhook].slotnum].name) != 0))
             oldhook = NULL;
 
         vec o = d ? game::camerapos(d) : pos;
+
         int cvol = 0, cpan = 0, v = clamp(vol >= 0 ? vol : 255, flags&SND_CLAMPED ? 64 : 0, 255),
-            x = maxrad > 0 ? maxrad : (flags&SND_CLAMPED ? getworldsize() : (slot->maxrad > 0 ? slot->maxrad : soundmaxrad)),
-            y = minrad >= 0 ? minrad : (flags&SND_CLAMPED ? 32 : (slot->minrad >= 0 ? slot->minrad : soundminrad)),
+            x = maxrad > 0 ? maxrad : (flags&SND_CLAMPED ? getworldsize() : (slot.maxrad > 0 ? slot.maxrad : soundmaxrad)),
+            y = minrad >= 0 ? minrad : (flags&SND_CLAMPED ? 32 : (slot.minrad >= 0 ? slot.minrad : soundminrad)),
             mat = lookupmaterial(o);
 
         bool liquid = isliquid(lookupmaterial(camera1->o)&MATF_VOLUME);
-        calcvol(flags, v, slot->vol, x, y, o, &cvol, &cpan, liquid || isliquid(mat&MATF_VOLUME));
+        calcvol(flags, v, slot.vol, x, y, o, &cvol, &cpan, liquid || isliquid(mat&MATF_VOLUME));
         bool nocull = flags&SND_NOCULL || o.dist(camera1->o) <= 0;
 
         if(nocull || !soundcull || cvol > 0)
@@ -617,12 +545,12 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
             else
             {
                 oldhook = NULL;
-                soundsample *sample = slot->samples[rnd(slot->samples.length())];
+                soundsample *sample = slot.samples[rnd(slot.samples.size())];
                 if((chan = Mix_PlayChannel(-1, sample->sound, flags&SND_LOOP ? -1 : 0)) < 0)
                 {
                     int lowest = -1;
                     loopv(sounds) if(sounds[i].chan >= 0 && (!(sounds[i].flags&SND_MAP) || flags&SND_MAP) && sounds[i].curvol < cvol && (lowest < 0 || sounds[i].curvol < sounds[lowest].curvol) && (nocull || (!(sounds[i].flags&SND_NOCULL) && sounds[i].pos.dist(camera1->o) > 0)))
-                        lowest = i;
+                            lowest = i;
                     if(sounds.inrange(lowest))
                     {
                         if(verbose >= 4) conoutf("culled channel %d (%d)", lowest, sounds[lowest].curvol);
@@ -631,14 +559,16 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
                     }
                 }
             }
-            if(chan >= 0)
-            {
+
+            if(chan >= 0) {
                 if(!oldhook && !(flags&SND_NODELAY)) Mix_Pause(chan);
 
                 while(chan >= sounds.length()) sounds.add();
 
-                sound &s = sounds[chan];
-                s.slot = slot;
+                // TODO: fix following code to be able to use a const reference
+                sound& s = sounds[chan];
+
+                s.slot = &slot;
                 s.vol = v;
                 s.maxrad = x;
                 s.minrad = y;
@@ -652,19 +582,21 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
                 s.curvol = cvol;
                 s.curpan = cpan;
                 s.chan = chan;
-                if(hook)
-                {
+
+                if(hook) {
                     if(issound(*hook) && (!oldhook || *hook != *oldhook)) removesound(*hook);
                     *hook = s.chan;
                     s.hook = hook;
+                } else {
+                    s.hook = NULL;
                 }
-                else s.hook = NULL;
+
                 if(oldhook) *oldhook = -1;
                 updatesound(chan);
                 return chan;
+            } else if(verbose >= 2) {
+                conoutf("\frcannot play sound %d (%s): %s", n, slot.name, Mix_GetError());
             }
-            else if(verbose >= 2)
-                conoutf("\frcannot play sound %d (%s): %s", n, slot->name, Mix_GetError());
         }
         else if(verbose >= 4)
         {
@@ -681,6 +613,17 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
     }
     if(oldhook && issound(*oldhook)) removesound(*oldhook);
     return -1;
+}
+
+int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad, int minrad, int *hook, int ends, int *oldhook)
+{
+    if(nosound || n < 0 || !mastervol || !soundvol || ((flags&SND_MAP || n >= S_GAMESPECIFIC) && client::waiting(true)) || (!d && !insideworld(pos))) return -1;
+
+    if ((flags & SND_MAP) != 0) {
+        return playsound(mapsounds, n, pos, d, flags, vol, maxrad, minrad, hook, ends, oldhook);
+    } else {
+        return playsound(gamesounds, n, pos, d, flags, vol, maxrad, minrad, hook, ends, oldhook);
+    }
 }
 
 void sound(int *n, int *vol, int *flags)
