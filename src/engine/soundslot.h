@@ -1,6 +1,7 @@
 #pragma once
 
 // system headers
+#include <string>
 #include <vector>
 
 // local headers
@@ -13,5 +14,7 @@ struct soundslot
     char *name;
 
     soundslot();
+    soundslot(const soundslot& other);
+    soundslot& operator=(const soundslot& other);
     ~soundslot();
 };
