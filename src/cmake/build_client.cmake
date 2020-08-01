@@ -67,6 +67,8 @@ if(BUILD_CLIENT)
         engine/soundslot.h
         engine/soundslot.cpp
         engine/textedit.h
+        engine/soundslot_collection.h
+        engine/soundslot_collection.cpp
         engine/texture.h
         engine/version.h
         engine/vertmodel.h
