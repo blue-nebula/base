@@ -4,11 +4,6 @@
 #include <map>
 #include <vector>
 
-#include "geom.h"
-#include "soundslot.h"
-#include "soundsample.h"
-#include "soundslot_collection.h"
-
 // forward declarations
 struct physent;
 
@@ -39,6 +34,11 @@ enum
 };
 
 #ifndef STANDALONE
+#include "geom.h"
+#include "soundslot.h"
+#include "soundsample.h"
+#include "soundslot_collection.h"
+
 #define SOUNDMINDIST        16.0f
 #define SOUNDMAXDIST        10000.f
 
