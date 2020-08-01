@@ -197,7 +197,7 @@ size_t soundslot_collection<T>::insert_or_append_(const std::string& name, int v
 
         soundsample* sample = nullptr;
 
-        if ((sample = soundsamples.access(sample_name.c_str())) == 0) {
+        if ((sample = soundsamples.access(sample_name.c_str())) == nullptr) {
             char* s_name = newstring(sample_name.c_str());
 
             sample = &soundsamples[s_name];
