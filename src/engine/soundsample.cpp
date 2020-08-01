@@ -3,11 +3,12 @@
 
 // local headers
 #include "soundsample.h"
+#include "cube.h"
 
 soundsample::soundsample() : sound(nullptr), name(nullptr) {}
 
 soundsample::~soundsample() {
-    free(name);
+    DELETEA(name);
 }
 
 void soundsample::cleanup()
