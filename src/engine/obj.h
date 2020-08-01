@@ -99,7 +99,7 @@ struct obj : vertmodel, vertloader<obj>
                         char *name = c;
                         size_t namelen = strlen(name);
                         while(namelen > 0 && isspace(name[namelen-1])) namelen--;
-                        copystring(meshname, name, min(namelen+1, sizeof(meshname)));
+                        copystring(meshname, name, std::min(namelen+1, sizeof(meshname)));
 
                         if(curmesh) FLUSHMESH;
                         curmesh = NULL;

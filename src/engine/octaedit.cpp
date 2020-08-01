@@ -179,7 +179,7 @@ bool noedit(bool view)
     vec o(sel.o), s(sel.s);
     s.mul(float(sel.grid) / 2.0f);
     o.add(s);
-    r = float(max(s.x, max(s.y, s.z)));
+    r = float(std::max(s.x, std::max(s.y, s.z)));
     bool viewable = (isvisiblesphere(r, o) != VFC_NOT_VISIBLE);
     if(!viewable) conoutf("\frselection not in view");
     return !viewable;
@@ -283,9 +283,9 @@ void normalizelookupcube(const ivec &o)
 
 void updateselection()
 {
-    sel.o.x = min(lastcur.x, cur.x);
-    sel.o.y = min(lastcur.y, cur.y);
-    sel.o.z = min(lastcur.z, cur.z);
+    sel.o.x = std::min(lastcur.x, cur.x);
+    sel.o.y = std::min(lastcur.y, cur.y);
+    sel.o.z = std::min(lastcur.z, cur.z);
     sel.s.x = abs(lastcur.x-cur.x)/sel.grid+1;
     sel.s.y = abs(lastcur.y-cur.y)/sel.grid+1;
     sel.s.z = abs(lastcur.z-cur.z)/sel.grid+1;
@@ -319,7 +319,7 @@ void rendereditcursor()
 {
     vec target(worldpos);
     if(!insideworld(target)) loopi(3)
-        target[i] = max(min(target[i], float(hdr.worldsize)), 0.0f);
+        target[i] = std::max(std::min(target[i], float(hdr.worldsize)), 0.0f);
     vec ray(target);
     physent *player = (physent *)game::focusedent(true);
     if(!player) player = camera1;
@@ -388,7 +388,7 @@ void rendereditcursor()
             vec w = vec(ray).mul(wdist+0.05f).add(player->o);
             if(!insideworld(w))
             {
-                loopi(3) wdist = min(wdist, ((ray[i] > 0 ? hdr.worldsize : 0) - player->o[i]) / ray[i]);
+                loopi(3) wdist = std::min(wdist, ((ray[i] > 0 ? hdr.worldsize : 0) - player->o[i]) / ray[i]);
                 w = vec(ray).mul(wdist-0.05f).add(player->o);
                 if(!insideworld(w))
                 {
@@ -416,10 +416,10 @@ void rendereditcursor()
             if(dragging)
             {
                 updateselection();
-                sel.cx  = min(cor[R[d]], lastcor[R[d]]);
-                sel.cy  = min(cor[C[d]], lastcor[C[d]]);
-                sel.cxs  = max(cor[R[d]], lastcor[R[d]]);
-                sel.cys  = max(cor[C[d]], lastcor[C[d]]);
+                sel.cx  = std::min(cor[R[d]], lastcor[R[d]]);
+                sel.cy  = std::min(cor[C[d]], lastcor[C[d]]);
+                sel.cxs  = std::max(cor[R[d]], lastcor[R[d]]);
+                sel.cys  = std::max(cor[C[d]], lastcor[C[d]]);
 
                 if(!selectcorners)
                 {
@@ -506,7 +506,7 @@ void rendereditcursor()
         gle::colorub(120, 120, 120);  // grid
         boxsgrid(sel.orient, vec(sel.o), vec(sel.s), sel.grid);
         gle::colorub(255, 0, 0);  // 0 reference
-        boxs3D(vec(sel.o).sub(0.5f*min(gridsize*0.25f, 2.0f)), vec(min(gridsize*0.25f, 2.0f)), 1);
+        boxs3D(vec(sel.o).sub(0.5f*std::min(gridsize*0.25f, 2.0f)), vec(std::min(gridsize*0.25f, 2.0f)), 1);
         gle::colorub(120, 120, 120);// 2D selection box
         vec co(sel.o.v), cs(sel.s.v);
         co[R[d]] += 0.5f*(sel.cx*gridsize);
@@ -656,7 +656,7 @@ void freeundo(undoblock *u)
 void pasteundoblock(block3 *b, uchar *g)
 {
     cube *s = b->c();
-    loopxyz(*b, 1<<min(int(*g++), worldscale-1), pastecube(*s++, c));
+    loopxyz(*b, 1<<std::min(int(*g++), worldscale-1), pastecube(*s++, c));
 }
 
 void pasteundo(undoblock *u)
@@ -1412,7 +1412,7 @@ void genprefabmesh(prefab &p)
     worldroot = newcubes();
     worldscale = 1;
     hdr.worldsize = 2;
-    while(hdr.worldsize < max(max(b.s.x, b.s.y), b.s.z)*b.grid)
+    while(hdr.worldsize < std::max(std::max(b.s.x, b.s.y), b.s.z)*b.grid)
     {
         worldscale++;
         hdr.worldsize *= 2;
@@ -1612,10 +1612,10 @@ void brushvert(int *x, int *y, int *v)
     if(*x<0 || *y<0 || *x>=MAXBRUSH || *y>=MAXBRUSH) return;
     brush[*x][*y] = clamp(*v, 0, 8);
     paintbrush = paintbrush || (brush[*x][*y] > 0);
-    brushmaxx = min(MAXBRUSH-1, max(brushmaxx, *x+1));
-    brushmaxy = min(MAXBRUSH-1, max(brushmaxy, *y+1));
-    brushminx = max(0,          min(brushminx, *x-1));
-    brushminy = max(0,          min(brushminy, *y-1));
+    brushmaxx = std::min(MAXBRUSH-1, std::max(brushmaxx, *x+1));
+    brushmaxy = std::min(MAXBRUSH-1, std::max(brushmaxy, *y+1));
+    brushminx = std::max(0,          std::min(brushminx, *x-1));
+    brushminy = std::max(0,          std::min(brushminy, *y-1));
 }
 
 void brushimport(char *name)
@@ -1835,7 +1835,7 @@ namespace hmap
 
         loopk(4) if(c[k]) {
             loopi(2) loopj(2) {
-                e[i][j] = min(8, map[x+i][y+j] - (mpz[x][y]+3-k)*8);
+                e[i][j] = std::min(8, map[x+i][y+j] - (mpz[x][y]+3-k)*8);
                 notempty |= e[i][j] > 0;
             }
             if(notempty)
@@ -1925,25 +1925,25 @@ namespace hmap
         gz = (cur[D[d]] >> gridpower);
         fs = dc ? 4 : 0;
         fg = dc ? gridsize : -gridsize;
-        mx = max(0, -gx);                   // ripple range
-        my = max(0, -gy);
-        nx = min(MAXBRUSH-1, hws-gx) - 1;
-        ny = min(MAXBRUSH-1, hws-gy) - 1;
+        mx = std::max(0, -gx);                   // ripple range
+        my = std::max(0, -gy);
+        nx = std::min(MAXBRUSH-1, hws-gx) - 1;
+        ny = std::min(MAXBRUSH-1, hws-gy) - 1;
         if(havesel)
         {   // selection range
-            bmx = mx = max(mx, (sel.o[R[d]]>>gridpower)-gx);
-            bmy = my = max(my, (sel.o[C[d]]>>gridpower)-gy);
-            bnx = nx = min(nx, (sel.s[R[d]]+(sel.o[R[d]]>>gridpower))-gx-1);
-            bny = ny = min(ny, (sel.s[C[d]]+(sel.o[C[d]]>>gridpower))-gy-1);
+            bmx = mx = std::max(mx, (sel.o[R[d]]>>gridpower)-gx);
+            bmy = my = std::max(my, (sel.o[C[d]]>>gridpower)-gy);
+            bnx = nx = std::min(nx, (sel.s[R[d]]+(sel.o[R[d]]>>gridpower))-gx-1);
+            bny = ny = std::min(ny, (sel.s[C[d]]+(sel.o[C[d]]>>gridpower))-gy-1);
         }
         if(havesel && mode<0) // -ve means smooth selection
             paintme = false;
         else
         {   // brush range
-            bmx = max(mx, brushminx);
-            bmy = max(my, brushminy);
-            bnx = min(nx, brushmaxx-1);
-            bny = min(ny, brushmaxy-1);
+            bmx = std::max(mx, brushminx);
+            bmy = std::max(my, brushminy);
+            bnx = std::min(nx, brushmaxx-1);
+            bny = std::min(ny, brushmaxy-1);
         }
         nz = hdr.worldsize-gridsize;
         mz = 0;
@@ -2345,7 +2345,7 @@ void vcolour(float *r, float *g, float *b)
     if(noedit()) return;
     VSlot ds;
     ds.changed = 1<<VSLOT_COLOR;
-    ds.colorscale = vec(max(*r, 0.0f), max(*g, 0.0f), max(*b, 0.0f));
+    ds.colorscale = vec(std::max(*r, 0.0f), std::max(*g, 0.0f), std::max(*b, 0.0f));
     mpeditvslot(usevdelta, ds, allfaces, sel, true);
 }
 COMMAND(0, vcolour, "fff");
@@ -2355,8 +2355,8 @@ void vpalette(int *p, int *x)
     if(noedit()) return;
     VSlot ds;
     ds.changed = 1<<VSLOT_PALETTE;
-    ds.palette = max(*p, 0);
-    ds.palindex = max(*x, 0);
+    ds.palette = std::max(*p, 0);
+    ds.palindex = std::max(*x, 0);
     mpeditvslot(usevdelta, ds, allfaces, sel, true);
 }
 COMMAND(0, vpalette, "ii");
@@ -2686,7 +2686,7 @@ void mprotate(int cw, selinfo &sel, bool local)
     int d = dimension(sel.orient);
     if(!dimcoord(sel.orient)) cw = -cw;
     int m = sel.s[C[d]] < sel.s[R[d]] ? C[d] : R[d];
-    int ss = sel.s[m] = max(sel.s[R[d]], sel.s[C[d]]);
+    int ss = sel.s[m] = std::max(sel.s[R[d]], sel.s[C[d]]);
     if(local) makeundo();
     loop(z,sel.s[D[d]]) loopi(cw>0 ? 1 : 3)
     {
@@ -2819,7 +2819,7 @@ struct texturegui : guicb
     void gui(guient &g, bool firstpass)
     {
         extern VSlot dummyvslot;
-        int curtex = menutex, numpages = max((texmru.length() + thumbwidth*thumbheight - 1)/(thumbwidth*thumbheight), 1)-1;
+        int curtex = menutex, numpages = std::max((texmru.length() + thumbwidth*thumbheight - 1)/(thumbwidth*thumbheight), 1)-1;
         if(autopreviewtexgui && texmru.inrange(rolltex)) curtex = rolltex;
         if(menupage > numpages) menupage = numpages;
         else if(menupage < 0) menupage = 0;
@@ -2995,7 +2995,7 @@ void rendertexturepanel(int w, int h)
                     layer = &lookupvslot(vslot.layer);
                     layertex = layer->slot->sts.empty() ? notexture : layer->slot->sts[0].t;
                 }
-                float sx = min(1.0f, tex->xs/(float)tex->ys), sy = min(1.0f, tex->ys/(float)tex->xs);
+                float sx = std::min(1.0f, tex->xs/(float)tex->ys), sy = std::min(1.0f, tex->ys/(float)tex->xs);
                 int x = width-s-50, r = s;
                 vec2 tc[4] = { vec2(0, 0), vec2(1, 0), vec2(1, 1), vec2(0, 1) };
                 float xoff = vslot.offset.x, yoff = vslot.offset.y;

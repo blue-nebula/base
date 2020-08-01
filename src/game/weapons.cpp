@@ -103,7 +103,7 @@ namespace weapons
                 if(newoff)
                 {
                     int offset = d->weapload[oldweap];
-                    d->ammo[oldweap] = max(d->ammo[oldweap]-offset, 0);
+                    d->ammo[oldweap] = std::max(d->ammo[oldweap]-offset, 0);
                     d->weapload[oldweap] = -d->weapload[oldweap];
                 }
                 client::addmsg(N_WSELECT, "ri3", d->clientnum, lastmillis-game::maptime, weap);
@@ -126,11 +126,11 @@ namespace weapons
             }
             client::addmsg(N_RELOAD, "ri3", d->clientnum, lastmillis-game::maptime, weap);
             int oldammo = d->ammo[weap];
-            ammo = min(max(d->ammo[weap], 0) + W(weap, ammoadd), W(weap, ammomax));
+            ammo = std::min(std::max(d->ammo[weap], 0) + W(weap, ammoadd), W(weap, ammomax));
             load = ammo-oldammo;
         }
         d->weapload[weap] = load;
-        d->ammo[weap] = min(ammo, W(weap, ammomax));
+        d->ammo[weap] = std::min(ammo, W(weap, ammomax));
         playsound(WSND(weap, S_W_RELOAD), d->o, d, 0, -1, -1, -1, &d->wschan);
         d->setweapstate(weap, W_S_RELOAD, W(weap, delayreload), lastmillis);
         return true;
@@ -213,7 +213,7 @@ namespace weapons
             else
             {
                 int offset = d->weapload[d->weapselect];
-                d->ammo[d->weapselect] = max(d->ammo[d->weapselect]-offset, 0);
+                d->ammo[d->weapselect] = std::max(d->ammo[d->weapselect]-offset, 0);
                 d->weapload[d->weapselect] = -d->weapload[d->weapselect];
             }
         }
@@ -315,7 +315,7 @@ namespace weapons
                     {
                         if(offset > 0)
                         {
-                            d->ammo[weap] = max(d->ammo[weap]-offset, 0);
+                            d->ammo[weap] = std::max(d->ammo[weap]-offset, 0);
                             d->weapload[weap] = -offset;
                         }
                         int offtime = hadcook && d->prevstate[weap] == type ? lastmillis-d->prevtime[weap] : 0;
@@ -346,7 +346,7 @@ namespace weapons
         }
         int rays = W2(weap, rays, secondary);
         if(rays > 1 && W2(weap, cooked, secondary)&W_C_RAYS && W2(weap, cooktime, secondary) && scale < 1)
-            rays = max(1, int(ceilf(rays*scale)));
+            rays = std::max(1, int(ceilf(rays*scale)));
         if(weap == W_MELEE || WF(false, weap, collide, secondary)&COLLIDE_HITSCAN)
         {
             if(weap == W_MELEE)

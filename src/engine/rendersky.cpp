@@ -354,7 +354,7 @@ namespace fogdome
         bvec color = fogdomecolour ? fogdomecolor : fogcolor;
         if(!numverts || lastcolor != color || lastminalpha != fogdomemin || lastmaxalpha != fogdomemax || lastcapsize != capsize || lastclipz != fogdomeclip)
         {
-            init(color, min(fogdomemin, fogdomemax), fogdomemax, capsize, fogdomeclip);
+            init(color, std::min(fogdomemin, fogdomemax), fogdomemax, capsize, fogdomeclip);
             lastcolor = color;
             lastminalpha = fogdomemin;
             lastmaxalpha = fogdomemax;
@@ -480,7 +480,7 @@ void drawskybox(int farplane, bool limited)
         {
             if(va->occluded >= OCCLUDE_BB && va->skyfaces&0x80) continue;
             renderedskyfaces |= va->skyfaces&0x3F;
-            if(!(va->skyfaces&0x1F) || camera1->o.z < va->skyclip) renderedskyclip = min(renderedskyclip, va->skyclip);
+            if(!(va->skyfaces&0x1F) || camera1->o.z < va->skyclip) renderedskyclip = std::min(renderedskyclip, va->skyclip);
             else renderedskyclip = 0;
         }
         if(!renderedskyfaces) return;
@@ -492,7 +492,7 @@ void drawskybox(int farplane, bool limited)
         renderedskyclip = 0;
     }
 
-    float skyclip = clipsky ? max(renderedskyclip-1, 0) : 0, topclip = 1;
+    float skyclip = clipsky ? std::max(renderedskyclip-1, 0) : 0, topclip = 1;
     if(reflectz<hdr.worldsize)
     {
         if(refracting<0) topclip = 0.5f + 0.5f*(reflectz-camera1->o.z)/float(hdr.worldsize);

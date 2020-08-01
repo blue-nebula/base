@@ -687,7 +687,7 @@ namespace server
         }
     }
 
-    void takeammo(clientinfo *ci, int weap, int amt = 1) { ci->ammo[weap] = max(ci->ammo[weap]-amt, 0); }
+    void takeammo(clientinfo *ci, int weap, int amt = 1) { ci->ammo[weap] = std::max(ci->ammo[weap] - amt, 0); }
 
     struct droplist { int weap, ent, ammo; };
     enum
@@ -738,7 +738,7 @@ namespace server
             if(v != m && (!m_team(gamemode, mutators) || v->team != m->team) && v->state == CS_ALIVE && hurt > 0)
             {
                 int real = int(ceilf(hurt*G(vampirescale))), heal = v->health+real;
-                if(AA(v->actortype, abilities)&(1<<A_A_REGEN)) heal = min(heal, m_maxhealth(gamemode, mutators, v->actortype));
+                if(AA(v->actortype, abilities)&(1<<A_A_REGEN)) heal = std::min(heal, m_maxhealth(gamemode, mutators, v->actortype));
                 int eff = heal-v->health;
                 if(eff > 0)
                 {
@@ -779,7 +779,7 @@ namespace server
                 if(wait && ci->state != CS_WAITING) waiting(ci, DROP_RESET);
                 if(msg && allowbroadcast(ci->clientnum) && !top)
                 {
-                    int x = max(int(G(maxalive)*G(maxplayers)), max(int(numclients()*G(maxalivethreshold)), G(maxaliveminimum)));
+                    int x = std::max(int(G(maxalive) * G(maxplayers)), std::max(int(numclients() * G(maxalivethreshold)), G(maxaliveminimum)));
                     if(m_team(gamemode, mutators))
                     {
                         if(x%2) x++;
@@ -836,7 +836,7 @@ namespace server
             {
                 if(!canplay()) return false;
                 if(G(maxalivequeue) && spawnq.find(ci) < 0) queue(ci);
-                int x = max(int(G(maxalive)*G(maxplayers)), max(int(numclients()*G(maxalivethreshold)), G(maxaliveminimum)));
+                int x = std::max(int(G(maxalive) * G(maxplayers)), std::max(int(numclients() * G(maxalivethreshold)), G(maxaliveminimum)));
                 if(m_team(gamemode, mutators))
                 {
                     if(x%2) x++;
@@ -1518,7 +1518,7 @@ namespace server
         switch(gamestate)
         {
             case G_S_PLAYING: case G_S_OVERTIME: return timeremaining;
-            default: return gamewaittime ? max(gamewaittime-totalmillis, 0)/1000 : 0;
+            default: return gamewaittime ? std::max(gamewaittime - totalmillis, 0) / 1000 : 0;
         }
         return 0;
     }
@@ -1535,7 +1535,7 @@ namespace server
         {
             setpause(false);
             timeremaining = 0;
-            gamelimit = min(gamelimit, gamemillis);
+            gamelimit = std::min(gamelimit, gamemillis);
             if(smode) smode->intermission();
             mutate(smuts, mut->intermission());
         }
@@ -1727,7 +1727,7 @@ namespace server
             if(newlimit)
             {
                 if(limit && oldtimelimit) gamelimit += (limit-oldtimelimit)*60000;
-                else if(limit) gamelimit = max(gamemillis, limit*60000);
+                else if(limit) gamelimit = std::max(gamemillis, limit * 60000);
                 oldtimelimit = limit;
             }
             if(timeremaining)
@@ -1817,7 +1817,7 @@ namespace server
         }
         else if(gamelimit > 0 && curbalance < (numt-1))
         {
-            int delpart = min(gamelimit/(numt*2), G(balancedelay)), balpart = (gamelimit/numt*(curbalance+1))-delpart;
+            int delpart = std::min(gamelimit/(numt*2), G(balancedelay)), balpart = (gamelimit/numt*(curbalance+1))-delpart;
             if(gamemillis >= balpart)
             {
                 if(!nextbalance)
@@ -2221,7 +2221,7 @@ namespace server
             bool hasent = sents.inrange(ci->spawnpoint) && sents[ci->spawnpoint].type == ACTOR;
             if(m_sweaps(gamemode, mutators)) weap = m_weapon(ci->actortype, gamemode, mutators);
             else weap = hasent && sents[ci->spawnpoint].attrs[6] > 0 ? sents[ci->spawnpoint].attrs[6]-1 : m_weapon(ci->actortype, gamemode, mutators);
-            if(!m_insta(gamemode, mutators) && hasent && sents[ci->spawnpoint].attrs[7] > 0) health = max(sents[ci->spawnpoint].attrs[7], 1);
+            if(!m_insta(gamemode, mutators) && hasent && sents[ci->spawnpoint].attrs[7] > 0) health = std::max(sents[ci->spawnpoint].attrs[7], 1);
         }
         int spawn = pickspawn(ci);
         ci->spawnstate(gamemode, mutators, weap, health);
@@ -2472,7 +2472,7 @@ namespace server
     void adddemo()
     {
         if(!demotmp) return;
-        int len = (int)min(demotmp->size(), stream::offset(G(demomaxsize) + 0x10000));
+        int len = (int)std::min(demotmp->size(), stream::offset(G(demomaxsize) + 0x10000));
         demofile &d = demos.add();
         d.ctime = clocktime;
         d.data = new uchar[len];
@@ -3578,13 +3578,13 @@ namespace server
         {
             const char *name = &id->name[3], *val = NULL, *oldval = NULL;
             bool needfreeoldval = false;
-            int locked = min(max(id->flags&IDF_ADMIN ? int(G(adminlock)) : (id->flags&IDF_MODERATOR ? int(G(moderatorlock)) : 0), G(varslock)), int(PRIV_CREATOR));
-            if(!strcmp(id->name, "sv_gamespeed") && G(gamespeedlock) > locked) locked = min(G(gamespeedlock), int(PRIV_CREATOR));
+            int locked = std::min(std::max(id->flags&IDF_ADMIN ? int(G(adminlock)) : (id->flags&IDF_MODERATOR ? int(G(moderatorlock)) : 0), G(varslock)), int(PRIV_CREATOR));
+            if(!strcmp(id->name, "sv_gamespeed") && G(gamespeedlock) > locked) locked = std::min(G(gamespeedlock), int(PRIV_CREATOR));
             else if(id->type == ID_VAR)
             {
                 int len = strlen(id->name);
                 if(len > 4 && !strcmp(&id->name[len-4], "lock"))
-                    locked = min(max(max(*id->storage.i, parseint(arg)), locked), int(PRIV_CREATOR));
+                    locked = std::min(std::max(std::max(*id->storage.i, parseint(arg)), locked), int(PRIV_CREATOR));
             }
 #ifndef STANDALONE
             if(servertype < 3 && (!strcmp(id->name, "sv_gamespeed") || !strcmp(id->name, "sv_gamepaused"))) locked = PRIV_MAX;
@@ -4090,10 +4090,10 @@ namespace server
         }
         else
         {
-            m->health = min(m->health-realdamage, m_maxhealth(gamemode, mutators, m->actortype));
+            m->health = std::min(m->health - realdamage, m_maxhealth(gamemode, mutators, m->actortype));
             if(realdamage > 0)
             {
-                hurt = min(m->health, realdamage);
+                hurt = std::min(m->health, realdamage);
                 m->lastregen = m->lastregenamt = 0;
                 m->lastpain = gamemillis;
                 v->damage += realdamage;
@@ -4546,7 +4546,7 @@ namespace server
                     int f = W2(weap, fragweap, WS(flags));
                     if(f >= 0)
                     {
-                        int w = f%W_MAX, r = min(W2(weap, fragrays, WS(flags)), MAXPARAMS);
+                        int w = f%W_MAX, r = std::min(W2(weap, fragrays, WS(flags)), MAXPARAMS);
                         loopi(r) ci->weapshots[w][f >= W_MAX ? 1 : 0].add(-id);
                         if(WS(flags)) ci->weapstats[weap].flakshots2 += r;
                         else ci->weapstats[weap].flakshots1 += r;
@@ -4614,7 +4614,7 @@ namespace server
         {
             if(!ci->canshoot(weap, flags, m_weapon(ci->actortype, gamemode, mutators), millis, (1<<W_S_RELOAD)))
             {
-                if(sub && W(weap, ammomax)) ci->ammo[weap] = max(ci->ammo[weap]-sub, 0);
+                if(sub && W(weap, ammomax)) ci->ammo[weap] = std::max(ci->ammo[weap] - sub, 0);
                 if(!ci->hasweap(weap, m_weapon(ci->actortype, gamemode, mutators))) ci->entid[weap] = -1; // its gone..
                 if(G(serverdebug)) srvmsgf(ci->clientnum, "sync error: shoot [%d] failed - current state disallows it", weap);
                 sendresume(ci, true);
@@ -4722,7 +4722,7 @@ namespace server
         }
         ci->setweapstate(weap, W_S_RELOAD, W(weap, delayreload), millis);
         int oldammo = ci->ammo[weap];
-        ci->ammo[weap] = min(max(ci->ammo[weap], 0) + W(weap, ammoadd), W(weap, ammomax));
+        ci->ammo[weap] = std::min(std::max(ci->ammo[weap], 0) + W(weap, ammoadd), W(weap, ammomax));
         ci->weapload[weap] = ci->ammo[weap]-oldammo;
         sendf(-1, 1, "ri5x", N_RELOAD, ci->clientnum, weap, ci->weapload[weap], ci->ammo[weap], ci->clientnum);
     }
@@ -5114,7 +5114,7 @@ namespace server
                         }
                         if(!gamewaittime)
                         {
-                            gamewaittime = totalmillis+max(m_play(gamemode) ? G(waitforplayerload) : 1, 1);
+                            gamewaittime = totalmillis + std::max(m_play(gamemode) ? G(waitforplayerload) : 1, 1);
                             sendtick();
                         }
                         if(numnotready && gamewaittime > totalmillis) break;
@@ -5724,8 +5724,8 @@ namespace server
                         filterstring(namestr, text, true, true, true, true, MAXNAMELEN);
                         if(!*namestr) copystring(namestr, "unnamed");
                         copystring(ci->name, namestr, MAXNAMELEN+1);
-                        ci->colour = max(getint(p), 0);
-                        ci->model = max(getint(p), 0);
+                        ci->colour = std::max(getint(p), 0);
+                        ci->model = std::max(getint(p), 0);
                         getstring(text, p);
                         ci->setvanity(text);
                         int lw = getint(p);
@@ -6138,7 +6138,7 @@ namespace server
                     }
                     if(havecn)
                     {
-                        int rays = min(W2(ev->weap, rays, WS(ev->flags)), MAXPARAMS);
+                        int rays = std::min(W2(ev->weap, rays, WS(ev->flags)), MAXPARAMS);
                         if(rays > 1 && W2(ev->weap, cooktime, WS(ev->flags))) rays = int(ceilf(rays*ev->scale/float(W2(ev->weap, cooktime, WS(ev->flags)))));
                         while(ev->shots.length() > rays) ev->shots.remove(rnd(ev->shots.length()));
                         cp->addevent(ev);
@@ -6197,7 +6197,7 @@ namespace server
                         hit.flags = getint(p);
                         hit.proj = getint(p);
                         hit.target = getint(p);
-                        hit.dist = max(getint(p), 0);
+                        hit.dist = std::max(getint(p), 0);
                         loopk(3) hit.dir[k] = getint(p);
                         loopk(3) hit.vel[k] = getint(p);
                     }
@@ -6513,9 +6513,9 @@ namespace server
                         copystring(ci->name, namestr, MAXNAMELEN+1);
                         relayf(2, "\fm* %s is now known as %s", oldname, colourname(ci));
                     }
-                    ci->colour = max(getint(p), 0);
-                    ci->model = max(getint(p), 0);
-                    ci->checkpointspawn = max(getint(p), 0);
+                    ci->colour = std::max(getint(p), 0);
+                    ci->model = std::max(getint(p), 0);
+                    ci->checkpointspawn = std::max(getint(p), 0);
                     getstring(text, p);
                     ci->setvanity(text);
                     ci->loadweap.shrink(0);
@@ -6907,7 +6907,7 @@ namespace server
                         if(G(serverdebug)) srvmsgf(ci->clientnum, "sync error: unable to modify spectator %s - %d [%d, %d] - invalid", colourname(cp), cp->state, cp->lastdeath, gamemillis);
                         break;
                     }
-                    if(sn != sender ? !haspriv(ci, max(m_edit(gamemode) ? G(spawneditlock) : G(spawnlock), G(speclock)), "control other players") : (!haspriv(ci, max(m_edit(gamemode) ? G(spawneditlock) : G(spawnlock), G(speclock))) && !allowstate(cp, val ? ALST_SPEC : ALST_TRY, m_edit(gamemode) ? G(spawneditlock) : G(spawnlock))))
+                    if(sn != sender ? !haspriv(ci, std::max(m_edit(gamemode) ? G(spawneditlock) : G(spawnlock), G(speclock)), "control other players") : (!haspriv(ci, std::max(m_edit(gamemode) ? G(spawneditlock) : G(spawnlock), G(speclock))) && !allowstate(cp, val ? ALST_SPEC : ALST_TRY, m_edit(gamemode) ? G(spawneditlock) : G(spawnlock))))
                     {
                         if(G(serverdebug)) srvmsgf(ci->clientnum, "sync error: unable to modify spectator %s - %d [%d, %d] - restricted", colourname(cp), cp->state, cp->lastdeath, gamemillis);
                         break;
@@ -6997,7 +6997,7 @@ namespace server
                         sents[n].type = newtype;
                         tweaked = true;
                     }
-                    int numattrs = getint(p), realattrs =  min(max(5, numattrs), MAXENTATTRS);
+                    int numattrs = getint(p), realattrs =  std::min(std::max(5, numattrs), MAXENTATTRS);
                     if(inrange) while(sents[n].attrs.length() < realattrs) sents[n].attrs.add(0);
                     loopk(numattrs)
                     {

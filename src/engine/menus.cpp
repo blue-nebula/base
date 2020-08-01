@@ -197,7 +197,7 @@ int cleargui(int n, bool skip)
 {
     if(closetexgui()) n--;
     int clear = menustack.length();
-    if(n>0) clear = min(clear, n);
+    if(n>0) clear = std::min(clear, n);
     loopi(clear) if(!pop_ui(skip)) break;
     if(!menustack.empty()) restore_ui(menustack.length() - 1);
     return clear;
@@ -385,7 +385,7 @@ void ui_strut(float *strut, int *alt)
 
 void ui_spring(int *weight)
 {
-    if(cgui) cgui->spring(max(*weight, 1));
+    if(cgui) cgui->spring(std::max(*weight, 1));
 }
 
 void ui_visible(uint *body)
@@ -897,7 +897,7 @@ void addchange(const char *desc, int type, bool force)
         loopv(needsapply) if(!strcmp(needsapply[i].desc, desc)) return;
         needsapply.add(change(type, desc));
         if(needsapply.length() && menustack.find(&applymenu) < 0)
-            push_ui(&applymenu, max(menustack.length() - 1, 0));
+            push_ui(&applymenu, std::max(menustack.length() - 1, 0));
     }
 }
 

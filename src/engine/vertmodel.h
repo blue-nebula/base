@@ -67,8 +67,8 @@ struct vertmodel : animmodel
                 vec v = m.transform(verts[j].pos);
                 loopi(3)
                 {
-                    bbmin[i] = min(bbmin[i], v[i]);
-                    bbmax[i] = max(bbmax[i], v[i]);
+                    bbmin[i] = std::min(bbmin[i], v[i]);
+                    bbmax[i] = std::max(bbmax[i], v[i]);
                 }
             }
         }
@@ -118,12 +118,12 @@ struct vertmodel : animmodel
                     {
                         int &vidx = htdata[(htidx+k)&(htlen-1)];
                         if(vidx < 0) { vidx = idxs.add(ushort(vverts.length())); vverts.add(vv); break; }
-                        else if(!memcmp(&vverts[vidx], &vv, sizeof(vv))) { minvert = min(minvert, idxs.add(ushort(vidx))); break; }
+                        else if(!memcmp(&vverts[vidx], &vv, sizeof(vv))) { minvert = std::min(minvert, idxs.add(ushort(vidx))); break; }
                     }
                 }
             }
-            minvert = min(minvert, ushort(voffset));
-            maxvert = max(minvert, ushort(vverts.length()-1));
+            minvert = std::min(minvert, ushort(voffset));
+            maxvert = std::max(minvert, ushort(vverts.length()-1));
             elen = idxs.length()-eoffset;
             return vverts.length()-voffset;
         }

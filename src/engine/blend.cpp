@@ -139,9 +139,9 @@ bool setblendmaporigin(BlendMapCache *cache, const ivec &o, int size)
     BlendMapBranch *bm = blendmap.branch;
     int bmscale = worldscale-BM_SCALE, bmsize = 1<<bmscale,
         x = o.x>>BM_SCALE, y = o.y>>BM_SCALE,
-        x1 = max(x-1, 0), y1 = max(y-1, 0),
-        x2 = min(((o.x + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
-        y2 = min(((o.y + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
+        x1 = std::max(x - 1, 0), y1 = std::max(y - 1, 0),
+        x2 = std::min(((o.x + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
+        y2 = std::min(((o.y + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
         diff = (x1^x2)|(y1^y2);
     if(diff < bmsize) while(!(diff&(1<<(bmscale-1))))
     {
@@ -206,7 +206,7 @@ uchar lookupblendmap(BlendMapCache *cache, const vec &pos)
 
 static void fillblendmap(uchar &type, BlendMapNode &node, int size, uchar val, int x1, int y1, int x2, int y2)
 {
-    if(max(x1, y1) <= 0 && min(x2, y2) >= size)
+    if(std::max(x1, y1) <= 0 && std::min(x2, y2) >= size)
     {
         node.cleanup(type);
         type = BM_SOLID;
@@ -220,16 +220,16 @@ static void fillblendmap(uchar &type, BlendMapNode &node, int size, uchar val, i
         if(y1 < size)
         {
             if(x1 < size) fillblendmap(node.branch->type[0], node.branch->children[0], size, val,
-                                        x1, y1, min(x2, size), min(y2, size));
+                                        x1, y1, std::min(x2, size), std::min(y2, size));
             if(x2 > size) fillblendmap(node.branch->type[1], node.branch->children[1], size, val,
-                                        max(x1-size, 0), y1, x2-size, min(y2, size));
+                                        std::max(x1-size, 0), y1, x2-size, std::min(y2, size));
         }
         if(y2 > size)
         {
             if(x1 < size) fillblendmap(node.branch->type[2], node.branch->children[2], size, val,
-                                        x1, max(y1-size, 0), min(x2, size), y2-size);
+                                        x1, std::max(y1-size, 0), std::min(x2, size), y2-size);
             if(x2 > size) fillblendmap(node.branch->type[3], node.branch->children[3], size, val,
-                                        max(x1-size, 0), max(y1-size, 0), x2-size, y2-size);
+                                        std::max(x1-size, 0), std::max(y1-size, 0), x2-size, y2-size);
         }
         loopi(4) if(node.branch->type[i]!=BM_SOLID || node.branch->children[i].solid->val!=val) return;
         node.cleanup(type);
@@ -269,7 +269,7 @@ void fillblendmap(int x, int y, int w, int h, uchar val)
         y1 = clamp(y, 0, bmsize),
         x2 = clamp(x+w, 0, bmsize),
         y2 = clamp(y+h, 0, bmsize);
-    if(max(x1, y1) >= bmsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
+    if(std::max(x1, y1) >= bmsize || std::min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
     fillblendmap(blendmap.type, blendmap, bmsize, val, x1, y1, x2, y2);
 }
 
@@ -281,16 +281,16 @@ static void invertblendmap(uchar &type, BlendMapNode &node, int size, int x1, in
         if(y1 < size)
         {
             if(x1 < size) invertblendmap(node.branch->type[0], node.branch->children[0], size,
-                                        x1, y1, min(x2, size), min(y2, size));
+                                        x1, y1, std::min(x2, size), std::min(y2, size));
             if(x2 > size) invertblendmap(node.branch->type[1], node.branch->children[1], size,
-                                        max(x1-size, 0), y1, x2-size, min(y2, size));
+                                        std::max(x1-size, 0), y1, x2-size, std::min(y2, size));
         }
         if(y2 > size)
         {
             if(x1 < size) invertblendmap(node.branch->type[2], node.branch->children[2], size,
-                                        x1, max(y1-size, 0), min(x2, size), y2-size);
+                                        x1, std::max(y1-size, 0), std::min(x2, size), y2-size);
             if(x2 > size) invertblendmap(node.branch->type[3], node.branch->children[3], size,
-                                        max(x1-size, 0), max(y1-size, 0), x2-size, y2-size);
+                                        std::max(x1-size, 0), std::max(y1-size, 0), x2-size, y2-size);
         }
         return;
     }
@@ -316,7 +316,7 @@ void invertblendmap(int x, int y, int w, int h)
         y1 = clamp(y, 0, bmsize),
         x2 = clamp(x+w, 0, bmsize),
         y2 = clamp(y+h, 0, bmsize);
-    if(max(x1, y1) >= bmsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
+    if(std::max(x1, y1) >= bmsize || std::min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
     invertblendmap(blendmap.type, blendmap, bmsize, x1, y1, x2, y2);
 }
 
@@ -395,7 +395,7 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
     int x1 = clamp(sx - bmx, 0, bmsize), y1 = clamp(sy - bmy, 0, bmsize),
         x2 = clamp(sx+sw - bmx, 0, bmsize), y2 = clamp(sy+sh - bmy, 0, bmsize);
     uchar *dst = &node.image->data[y1*BM_IMAGE_SIZE + x1];
-    src += max(bmy - sy, 0)*sw + max(bmx - sx, 0);
+    src += std::max(bmy - sy, 0)*sw + std::max(bmx - sx, 0);
     loopi(y2-y1)
     {
         switch(blendpaintmode)
@@ -405,19 +405,19 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
                 break;
 
             case 2:
-                loopi(x2 - x1) dst[i] = min(dst[i], src[i]);
+                loopi(x2 - x1) dst[i] = std::min(dst[i], src[i]);
                 break;
 
             case 3:
-                loopi(x2 - x1) dst[i] = max(dst[i], src[i]);
+                loopi(x2 - x1) dst[i] = std::max(dst[i], src[i]);
                 break;
 
             case 4:
-                loopi(x2 - x1) dst[i] = min(dst[i], uchar(0xFF - src[i]));
+                loopi(x2 - x1) dst[i] = std::min(dst[i], uchar(0xFF - src[i]));
                 break;
 
             case 5:
-                loopi(x2 - x1) dst[i] = max(dst[i], uchar(0xFF - src[i]));
+                loopi(x2 - x1) dst[i] = std::max(dst[i], uchar(0xFF - src[i]));
                 break;
         }
         dst += BM_IMAGE_SIZE;
@@ -428,7 +428,7 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
 void blitblendmap(uchar *src, int sx, int sy, int sw, int sh)
 {
     int bmsize = hdr.worldsize>>BM_SCALE;
-    if(max(sx, sy) >= bmsize || min(sx+sw, sy+sh) <= 0 || min(sw, sh) <= 0) return;
+    if(std::max(sx, sy) >= bmsize || std::min(sx+sw, sy+sh) <= 0 || std::min(sw, sh) <= 0) return;
     blitblendmap(blendmap.type, blendmap, 0, 0, bmsize, src, sx, sy, sw, sh);
 }
 
@@ -554,7 +554,7 @@ void addblendbrush(const char *name, const char *imgname)
 
     ImageData s;
     if(!loadimage(imgname, s)) { conoutf("\frcould not load blend brush image %s", imgname); return; }
-    if(max(s.w, s.h) > (1<<12))
+    if(std::max(s.w, s.h) > (1<<12))
     {
         conoutf("\frblend brush image size exceeded %dx%d pixels: %s", 1<<12, 1<<12, imgname);
         return;
@@ -738,7 +738,7 @@ void renderblendbrush()
         x2 = x1 + (brush->w << BM_SCALE),
         y2 = y1 + (brush->h << BM_SCALE);
 
-    if(max(x1, y1) >= hdr.worldsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
+    if(std::max(x1, y1) >= hdr.worldsize || std::min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
 
     if(!brush->tex) brush->gentex();
     renderblendbrush(brush->tex, x1, y1, x2 - x1, y2 - y1);

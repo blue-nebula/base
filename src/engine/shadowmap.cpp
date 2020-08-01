@@ -101,10 +101,10 @@ static struct shadowmaptexture : rendertarget
 
     bool scissorblur(int &x, int &y, int &w, int &h)
     {
-        x = max(int(floor((scissorx1+1)/2*vieww)) - 2*blursize, 2);
-        y = max(int(floor((scissory1+1)/2*viewh)) - 2*blursize, 2);
-        w = min(int(ceil((scissorx2+1)/2*vieww)) + 2*blursize, vieww-2) - x;
-        h = min(int(ceil((scissory2+1)/2*viewh)) + 2*blursize, viewh-2) - y;
+        x = std::max(int(floor((scissorx1+1)/2*vieww)) - 2*blursize, 2);
+        y = std::max(int(floor((scissory1+1)/2*viewh)) - 2*blursize, 2);
+        w = std::min(int(ceil((scissorx2+1)/2*vieww)) + 2*blursize, vieww-2) - x;
+        h = std::min(int(ceil((scissory2+1)/2*viewh)) + 2*blursize, viewh-2) - y;
         return true;
     }
 
@@ -161,7 +161,7 @@ static struct shadowmaptexture : rendertarget
         rendergame();
         renderavatar(false);
         shadowmapping = false;
-        shadowmapmaxz = min(shadowmapmaxz, shadowfocus.z);
+        shadowmapmaxz = std::min(shadowmapmaxz, shadowfocus.z);
 
         if(shadowmapcasters && smdepthpeel)
         {
@@ -217,17 +217,17 @@ void calcshadowmapbb(const vec &o, float xyrad, float zrad, float &x1, float &y1
     low.x -= zrad * skewdir.x;
     low.y -= zrad * skewdir.y;
 
-    x1 = (min(high.x, low.x) - xyrad) / shadowmapradius;
-    y1 = (min(high.y, low.y) - xyrad) / shadowmapradius;
-    x2 = (max(high.x, low.x) + xyrad) / shadowmapradius;
-    y2 = (max(high.y, low.y) + xyrad) / shadowmapradius;
+    x1 = (std::min(high.x, low.x) - xyrad) / shadowmapradius;
+    y1 = (std::min(high.y, low.y) - xyrad) / shadowmapradius;
+    x2 = (std::max(high.x, low.x) + xyrad) / shadowmapradius;
+    y2 = (std::max(high.y, low.y) + xyrad) / shadowmapradius;
 }
 
 bool addshadowmapcaster(const vec &o, float xyrad, float zrad)
 {
     if(o.z + zrad <= shadowfocus.z - shadowmapdist || o.z - zrad >= shadowfocus.z) return false;
 
-    shadowmapmaxz = max(shadowmapmaxz, o.z + zrad);
+    shadowmapmaxz = std::max(shadowmapmaxz, o.z + zrad);
 
     float x1, y1, x2, y2;
     calcshadowmapbb(o, xyrad, zrad, x1, y1, x2, y2);
@@ -244,7 +244,7 @@ bool isshadowmapreceiver(vtxarray *va)
 
     if(va->shadowmapmax.z <= shadowfocus.z - shadowmapdist || va->shadowmapmin.z >= shadowmapmaxz) return false;
 
-    float xyrad = SQRT2*0.5f*max(va->shadowmapmax.x-va->shadowmapmin.x, va->shadowmapmax.y-va->shadowmapmin.y),
+    float xyrad = SQRT2*0.5f*std::max(va->shadowmapmax.x-va->shadowmapmin.x, va->shadowmapmax.y-va->shadowmapmin.y),
           zrad = 0.5f*(va->shadowmapmax.z-va->shadowmapmin.z),
           x1, y1, x2, y2;
     if(xyrad<0 || zrad<0) return false;
@@ -300,15 +300,15 @@ void pushshadowmap()
     {
         if(skylightcolor[0] || skylightcolor[1] || skylightcolor[2])
         {
-            r = max(25.0f, 0.4f*ambientcolor[0] + 0.6f*max(ambientcolor[0], skylightcolor[0]));
-            g = max(25.0f, 0.4f*ambientcolor[1] + 0.6f*max(ambientcolor[1], skylightcolor[1]));
-            b = max(25.0f, 0.4f*ambientcolor[2] + 0.6f*max(ambientcolor[2], skylightcolor[2]));
+            r = std::max(25.0f, 0.4f*ambientcolor[0] + 0.6f*std::max(ambientcolor[0], skylightcolor[0]));
+            g = std::max(25.0f, 0.4f*ambientcolor[1] + 0.6f*std::max(ambientcolor[1], skylightcolor[1]));
+            b = std::max(25.0f, 0.4f*ambientcolor[2] + 0.6f*std::max(ambientcolor[2], skylightcolor[2]));
         }
         else
         {
-            r = max(25.0f, 2.0f*ambientcolor[0]);
-            g = max(25.0f, 2.0f*ambientcolor[1]);
-            b = max(25.0f, 2.0f*ambientcolor[2]);
+            r = std::max(25.0f, 2.0f*ambientcolor[0]);
+            g = std::max(25.0f, 2.0f*ambientcolor[1]);
+            b = std::max(25.0f, 2.0f*ambientcolor[2]);
         }
     }
     else { r = shadowmapambientcolor[0]; g = shadowmapambientcolor[1]; b = shadowmapambientcolor[2]; }

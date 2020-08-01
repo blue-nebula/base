@@ -30,7 +30,7 @@ namespace ai
         showwaypoints = dropwaypoints = 0;
     }
 
-    float viewdist(int x) { return x <= 100 ? clamp((SIGHTMIN+(SIGHTMAX-SIGHTMIN))/100.f*float(x), float(SIGHTMIN), max(float(fog), SIGHTMIN)) : max(float(fog), SIGHTMIN); }
+    float viewdist(int x) { return x <= 100 ? clamp((SIGHTMIN+(SIGHTMAX-SIGHTMIN))/100.f*float(x), float(SIGHTMIN), std::max(float(fog), SIGHTMIN)) : std::max(float(fog), SIGHTMIN); }
     float viewfieldx(int x) { return x <= 100 ? clamp((VIEWMIN+(VIEWMAX-VIEWMIN))/100.f*float(x), float(VIEWMIN), float(VIEWMAX)) : float(VIEWMAX); }
     float viewfieldy(int x) { return viewfieldx(x)*3.f/4.f; }
 
@@ -952,7 +952,7 @@ namespace ai
         if(d->ai->route.empty() || !d->ai->route.inrange(n)) return false;
         int len = d->ai->route.length();
         if(len <= 2 || (d->ai->lastcheck && lastmillis-d->ai->lastcheck <= 500)) return false;
-        int w = iswaypoint(d->lastnode) ? d->lastnode : d->ai->route[n], c = min(len, NUMPREVNODES);
+        int w = iswaypoint(d->lastnode) ? d->lastnode : d->ai->route[n], c = std::min(len, NUMPREVNODES);
         if(c >= 3) loopj(c) // check ahead to see if we need to go around something
         {
             int m = len-j-1;
@@ -1072,7 +1072,7 @@ namespace ai
 
     void process(gameent *d, aistate &b, bool &occupied, bool &firing, bool &enemyok)
     {
-        int skmod = max(101-d->skill, 1);
+        int skmod = std::max(101 - d->skill, 1);
         float frame = d->skill <= 100 ? ((lastmillis-d->ai->lastrun)*(100.f/gamespeed))/float(skmod*10) : 1;
         if(d->dominating.length()) frame *= 1+d->dominating.length();
         bool dancing = b.type == AI_S_OVERRIDE && b.overridetype == AI_O_DANCE,
@@ -1190,7 +1190,7 @@ namespace ai
             {
                 if(b.acttype == AI_A_NORMAL && (d->health <= m_health(game::gamemode, game::mutators, d->actortype)/3 || (iswaypoint(d->ai->targnode) && obstacles.find(d->ai->targnode, d))))
                     b.acttype = AI_A_HASTE;
-                if(b.acttype == AI_A_HASTE) frame *= 1+(max(m_health(game::gamemode, game::mutators, d->actortype)/3, 1)/float(max(d->health, 1)));
+                if(b.acttype == AI_A_HASTE) frame *= 1 + (std::max(m_health(game::gamemode, game::mutators, d->actortype) / 3, 1) / float(std::max(d->health, 1)));
             }
             else frame *= 2;
             game::scaleyawpitch(d->yaw, d->pitch, d->ai->targyaw, d->ai->targpitch, frame, frame*0.5f);
@@ -1259,7 +1259,7 @@ namespace ai
                 static vector<actitem> actitems;
                 actitems.setsize(0);
                 vec pos = d->center();
-                float radius = max(d->height*0.5f, max(d->xradius, d->yradius));
+                float radius = std::max(d->height * 0.5f, std::max(d->xradius, d->yradius));
                 if(entities::collateitems(d, pos, radius, actitems))
                 {
                     while(!actitems.empty())
@@ -1306,7 +1306,7 @@ namespace ai
             }
         }
 
-        bool timepassed = d->weapstate[d->weapselect] == W_S_IDLE && (d->ammo[d->weapselect] <= 0 || lastmillis-d->weaptime[d->weapselect] >= max(6000-(d->skill*50), weaponswitchdelay));
+        bool timepassed = d->weapstate[d->weapselect] == W_S_IDLE && (d->ammo[d->weapselect] <= 0 || lastmillis-d->weaptime[d->weapselect] >= std::max(6000 - (d->skill * 50), weaponswitchdelay));
 
         if(!firing && (!occupied || d->ammo[d->weapselect] <= 0) && timepassed && d->hasweap(d->weapselect, sweap) && weapons::weapreload(d, d->weapselect))
         {
@@ -1472,7 +1472,7 @@ namespace ai
 
     void avoid()
     {
-        float guessradius = max(actor[A_PLAYER].xradius, actor[A_PLAYER].yradius);
+        float guessradius = std::max(actor[A_PLAYER].xradius, actor[A_PLAYER].yradius);
         obstacles.clear();
         obstacles.add(wpavoid);
         int numdyns = game::numdynents();
@@ -1505,7 +1505,7 @@ namespace ai
                 radius.mul(e.attrs[5]/100.f);
             }
             if(!mmi->m->ellipsecollide) rotatebb(center, radius, int(e.attrs[1]), int(e.attrs[2]));
-            float xy = max(radius.x, max(radius.y, radius.z));
+            float xy = std::max(radius.x, std::max(radius.y, radius.z));
             if(e.attrs[6]&MMT_HIDE) xy += WAYPOINTRADIUS + 1;
             obstacles.avoidnear(NULL, e.o.z + radius.z + 1, e.o, xy);
         }

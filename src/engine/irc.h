@@ -19,7 +19,7 @@ struct ircbuf
         while(lines.length() >= limit)
         {
             delete[] lines.remove(0);
-            newlines = min(newlines, lines.length());
+            newlines = std::min(newlines, lines.length());
         }
     }
 

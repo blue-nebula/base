@@ -413,13 +413,13 @@ void calcvol(int flags, int vol, int slotvol, int maxrad, int minrad, const vec 
                   nrad = minrad > 0 ? (minrad <= mrad ? minrad : mrad) : soundminrad;
             if(dist > nrad)
             {
-                if(dist <= mrad) svol = int(svol*(1.f-((dist-nrad)/max(mrad-nrad,1e-16f))));
+                if(dist <= mrad) svol = int(svol*(1.f-((dist-nrad)/std::max(mrad-nrad,1e-16f))));
                 else svol = 0;
             }
         }
     }
     if(!(flags&SND_NOQUIET) && svol > 0 && liquid) svol = int(svol*0.65f);
-    if(flags&SND_CLAMPED) svol = max(svol, clamp(vol, 0, 255));
+    if(flags&SND_CLAMPED) svol = std::max(svol, clamp(vol, 0, 255));
     *curvol = clamp(int((mastervol/255.f)*(soundvol/255.f)*(slotvol/255.f)*(svol/255.f)*MIX_MAX_VOLUME*(flags&SND_MAP ? soundenvvol : soundevtvol)), 0, MIX_MAX_VOLUME);
     *curpan = span;
 }

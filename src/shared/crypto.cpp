@@ -254,7 +254,7 @@ template<int BI_DIGITS> struct bigint
     template<int X_DIGITS, int Y_DIGITS> bigint &add(const bigint<X_DIGITS> &x, const bigint<Y_DIGITS> &y)
     {
         dbldigit carry = 0;
-        int maxlen = max(x.len, y.len), i;
+        int maxlen = std::max(x.len, y.len), i;
         for(i = 0; i < y.len || carry; i++)
         {
              carry += (i < x.len ? (dbldigit)x.digits[i] : 0) + (i < y.len ? (dbldigit)y.digits[i] : 0);
@@ -262,7 +262,7 @@ template<int BI_DIGITS> struct bigint
              carry >>= BI_DIGIT_BITS;
         }
         if(i < x.len && this != &x) memcpy(&digits[i], &x.digits[i], (x.len - i)*sizeof(digit));
-        len = max(i, maxlen);
+        len = std::max(i, maxlen);
         return *this;
     }
     template<int Y_DIGITS> bigint &add(const bigint<Y_DIGITS> &y) { return add(*this, y); }
@@ -291,7 +291,7 @@ template<int BI_DIGITS> struct bigint
 
     template<int Y_DIGITS> void copyshrinkdigits(const bigint<Y_DIGITS> &y, int n)
     {
-        len = min(y.len, n);
+        len = std::min(y.len, n);
         memcpy(digits, y.digits, len*sizeof(digit));
         shrink();
     }
@@ -368,7 +368,7 @@ template<int BI_DIGITS> struct bigint
     
     template<int Y_DIGITS> void copydigits(int to, const bigint<Y_DIGITS> &y, int from, int n)
     {
-        int avail = min(y.len-from, n);
+        int avail = std::min(y.len - from, n);
         memcpy(&digits[to], &y.digits[from], avail*sizeof(digit));
         if(avail < n) memset(&digits[to+avail], 0, (n-avail)*sizeof(digit));
     }

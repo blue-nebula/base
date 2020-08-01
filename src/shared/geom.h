@@ -39,10 +39,10 @@ struct vec2
     vec2 &sub(float f)       { x -= f; y -= f; return *this; }
     vec2 &sub(const vec2 &o) { x -= o.x; y -= o.y; return *this; }
     vec2 &neg()              { x = -x; y = -y; return *this; }
-    vec2 &min(const vec2 &o) { x = ::min(x, o.x); y = ::min(y, o.y); return *this; }
-    vec2 &max(const vec2 &o) { x = ::max(x, o.x); y = ::max(y, o.y); return *this; }
-    vec2 &min(float f)       { x = ::min(x, f); y = ::min(y, f); return *this; }
-    vec2 &max(float f)       { x = ::max(x, f); y = ::max(y, f); return *this; }
+    vec2 &min(const vec2 &o) { x = std::min(x, o.x); y = std::min(y, o.y); return *this; }
+    vec2 &max(const vec2 &o) { x = std::max(x, o.x); y = std::max(y, o.y); return *this; }
+    vec2 &min(float f)       { x = std::min(x, f); y = std::min(y, f); return *this; }
+    vec2 &max(float f)       { x = std::max(x, f); y = std::max(y, f); return *this; }
     vec2 &abs() { x = fabs(x); y = fabs(y); return *this; }
     vec2 &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); return *this; }
     vec2 &reflect(const vec2 &n) { float k = 2*dot(n); x -= k*n.x; y -= k*n.y; return *this; }
@@ -116,10 +116,10 @@ struct vec
     vec &subz(float f)       { z -= f; return *this; }
     vec &neg2()              { x = -x; y = -y; return *this; }
     vec &neg()               { x = -x; y = -y; z = -z; return *this; }
-    vec &min(const vec &o)   { x = ::min(x, o.x); y = ::min(y, o.y); z = ::min(z, o.z); return *this; }
-    vec &max(const vec &o)   { x = ::max(x, o.x); y = ::max(y, o.y); z = ::max(z, o.z); return *this; }
-    vec &min(float f)        { x = ::min(x, f); y = ::min(y, f); z = ::min(z, f); return *this; }
-    vec &max(float f)        { x = ::max(x, f); y = ::max(y, f); z = ::max(z, f); return *this; }
+    vec &min(const vec &o)   { x = std::min(x, o.x); y = std::min(y, o.y); z = std::min(z, o.z); return *this; }
+    vec &max(const vec &o)   { x = std::max(x, o.x); y = std::max(y, o.y); z = std::max(z, o.z); return *this; }
+    vec &min(float f)        { x = std::min(x, f); y = std::min(y, f); z = std::min(z, f); return *this; }
+    vec &max(float f)        { x = std::max(x, f); y = std::max(y, f); z = std::max(z, f); return *this; }
     vec &abs() { x = fabs(x); y = fabs(y); z = fabs(z); return *this; }
     vec &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
     float magnitude2() const { return sqrtf(dot2(*this)); }
@@ -146,14 +146,14 @@ struct vec
     {
         float m = squaredlen(), k = dot(n);
         projectxydir(n);
-        rescale(sqrtf(::max(m - k*k, 0.0f)));
+        rescale(sqrtf(std::max(m - k*k, 0.0f)));
         return *this;
     }
     vec &projectxy(const vec &n, float threshold)
     {
-        float m = squaredlen(), k = ::min(dot(n), threshold);
+        float m = squaredlen(), k = std::min(dot(n), threshold);
         projectxydir(n);
-        rescale(sqrtf(::max(m - k*k, 0.0f)));
+        rescale(sqrtf(std::max(m - k*k, 0.0f)));
         return *this;
     }
     vec &lerp(const vec &b, float t) { x += (b.x-x)*t; y += (b.y-y)*t; z += (b.z-z)*t; return *this; }
@@ -1177,10 +1177,10 @@ struct ivec
     ivec &sub(const ivec &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
     ivec &mask(int n) { x &= n; y &= n; z &= n; return *this; }
     ivec &neg() { return mul(-1); }
-    ivec &min(const ivec &o) { x = ::min(x, o.x); y = ::min(y, o.y); z = ::min(z, o.z); return *this; }
-    ivec &max(const ivec &o) { x = ::max(x, o.x); y = ::max(y, o.y); z = ::max(z, o.z); return *this; }
-    ivec &min(int n) { x = ::min(x, n); y = ::min(y, n); z = ::min(z, n); return *this; }
-    ivec &max(int n) { x = ::max(x, n); y = ::max(y, n); z = ::max(z, n); return *this; }
+    ivec &min(const ivec &o) { x = std::min(x, o.x); y = std::min(y, o.y); z = std::min(z, o.z); return *this; }
+    ivec &max(const ivec &o) { x = std::max(x, o.x); y = std::max(y, o.y); z = std::max(z, o.z); return *this; }
+    ivec &min(int n) { x = std::min(x, n); y = std::min(y, n); z = std::min(z, n); return *this; }
+    ivec &max(int n) { x = std::max(x, n); y = std::max(y, n); z = std::max(z, n); return *this; }
     ivec &abs() { x = ::abs(x); y = ::abs(y); z = ::abs(z); return *this; }
     ivec &clamp(int l, int h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
     ivec &cross(const ivec &a, const ivec &b) { x = a.y*b.z-a.z*b.y; y = a.z*b.x-a.x*b.z; z = a.x*b.y-a.y*b.x; return *this; }
@@ -1236,10 +1236,10 @@ struct ivec2
     ivec2 &sub(const ivec2 &v) { x -= v.x; y -= v.y; return *this; }
     ivec2 &mask(int n) { x &= n; y &= n; return *this; }
     ivec2 &neg() { x = -x; y = -y; return *this; }
-    ivec2 &min(const ivec2 &o) { x = ::min(x, o.x); y = ::min(y, o.y); return *this; }
-    ivec2 &max(const ivec2 &o) { x = ::max(x, o.x); y = ::max(y, o.y); return *this; }
-    ivec2 &min(int n) { x = ::min(x, n); y = ::min(y, n); return *this; }
-    ivec2 &max(int n) { x = ::max(x, n); y = ::max(y, n); return *this; }
+    ivec2 &min(const ivec2 &o) { x = std::min(x, o.x); y = std::min(y, o.y); return *this; }
+    ivec2 &max(const ivec2 &o) { x = std::max(x, o.x); y = std::max(y, o.y); return *this; }
+    ivec2 &min(int n) { x = std::min(x, n); y = std::min(y, n); return *this; }
+    ivec2 &max(int n) { x = std::max(x, n); y = std::max(y, n); return *this; }
     ivec2 &abs() { x = ::abs(x); y = ::abs(y); return *this; }
     int dot(const ivec2 &o) const { return x*o.x + y*o.y; }
     int cross(const ivec2 &o) const { return x*o.y - y*o.x; }
@@ -1320,10 +1320,10 @@ struct bvec
     bvec &sub(int n) { x -= n; y -= n; z -= n; return *this; }
     bvec &add(const bvec &v) { x += v.x; y += v.y; z += v.z; return *this; }
     bvec &sub(const bvec &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
-    bvec &min(const bvec &o)   { x = ::min(x, o.x); y = ::min(y, o.y); z = ::min(z, o.z); return *this; }
-    bvec &max(const bvec &o)   { x = ::max(x, o.x); y = ::max(y, o.y); z = ::max(z, o.z); return *this; }
-    bvec &min(int f)        { x = ::min(int(x), f); y = ::min(int(y), f); z = ::min(int(z), f); return *this; }
-    bvec &max(int f)        { x = ::max(int(x), f); y = ::max(int(y), f); z = ::max(int(z), f); return *this; }
+    bvec &min(const bvec &o)   { x = std::min(x, o.x); y = std::min(y, o.y); z = std::min(z, o.z); return *this; }
+    bvec &max(const bvec &o)   { x = std::max(x, o.x); y = std::max(y, o.y); z = std::max(z, o.z); return *this; }
+    bvec &min(int f)        { x = std::min(int(x), f); y = std::min(int(y), f); z = std::min(int(z), f); return *this; }
+    bvec &max(int f)        { x = std::max(int(x), f); y = std::max(int(y), f); z = std::max(int(z), f); return *this; }
     bvec &abs() { return *this; }
     bvec &clamp(int l, int h) { x = ::clamp(int(x), l, h); y = ::clamp(int(y), l, h); z = ::clamp(int(z), l, h); return *this; }
 

@@ -420,7 +420,7 @@ namespace hud
                             /*
                             if(m_play(game::gamemode) && game::player1.state != CS_SPECTATOR && (!gs_playing(game::gamestate) || scoresinfo))
                             {
-                                float ratio = game::player1.frags >= game::player1.deaths ? (game::player1.frags/float(max(game::player1.deaths, 1))) : -(game::player1.deaths/float(max(game::player1.frags, 1)));
+                                float ratio = game::player1.frags >= game::player1.deaths ? (game::player1.frags/float(std::max(game::player1.deaths, 1))) : -(game::player1.deaths/float(std::max(game::player1.frags, 1)));
                                 uicenterlist(g, uifont(g, "little", {
                                     g.textf("\fs\fg%d\fS %s, \fs\fg%d\fS %s (\fs\fy%.1f\fS:\fs\fy%.1f\fS) \fs\fg%d\fS damage", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF,
                                         game::player1.frags, game::player1.frags != 1 ? "frags" : "frag",
@@ -448,7 +448,7 @@ namespace hud
                     if(paused) g.text(", \fs\fopaused\fS", 0xFFFFFF);
                     else if(m_play(game::gamemode) || client::demoplayback)
                     {
-                        int timecorrected = max(game::timeremaining * 1000-((gs_playing(game::gamestate) ? lastmillis : totalmillis)-game::lasttimeremain), 0);
+                        int timecorrected = std::max(game::timeremaining * 1000-((gs_playing(game::gamestate) ? lastmillis : totalmillis)-game::lasttimeremain), 0);
                         // display gamestate
                         if (game::gamestate != G_S_PLAYING)
                             g.textf(", \fs\fc%s\fS", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, gamestates[0][game::gamestate], gs_waiting(game::gamestate) ? "\fr" : (game::gamestate == G_S_OVERTIME ? "\fzoy" : "\fg"));
@@ -494,10 +494,10 @@ namespace hud
                             scoregroup &sg = k == numgroups ? spectators : *groups[k];
                             loopscoregroup({
                                 if(scorebotinfo && o->actortype > A_PLAYER) hasbots = true;
-                                namepad = max(namepad, text_widthf(game::colourname(o, NULL, false, true))/FONTW*0.51f);
+                                namepad = std::max(namepad, text_widthf(game::colourname(o, NULL, false, true)) / FONTW * 0.51f);
                                 if(scorehandles && o->handle[0])
                                 {
-                                    handlepad = max(handlepad, text_widthf(o->handle)/FONTW*0.51f);
+                                    handlepad = std::max(handlepad, text_widthf(o->handle) / FONTW * 0.51f);
                                     hashandle = true;
                                 }
                                 if(scoreipinfo)
@@ -505,7 +505,7 @@ namespace hud
                                     const char *host = scorehost(o, false);
                                     if(host && *host)
                                     {
-                                        ippad = max(ippad, text_widthf(host)/FONTW*0.51f);
+                                        ippad = std::max(ippad, text_widthf(host) / FONTW * 0.51f);
                                         if(o->ownernum != game::player1.clientnum) hasip = true;
                                     }
                                 }
@@ -514,7 +514,7 @@ namespace hud
                                     const char *host = scorehost(o, true);
                                     if(host && *host)
                                     {
-                                        hostpad = max(hostpad, text_widthf(host)/FONTW*0.51f);
+                                        hostpad = std::max(hostpad, text_widthf(host) / FONTW * 0.51f);
                                         if(o->ownernum != game::player1.clientnum) hashost = true;
                                     }
                                 }
@@ -523,7 +523,7 @@ namespace hud
                                     const char *ver = scoreversion(o);
                                     if(ver && *ver)
                                     {
-                                        verpad = max(verpad, text_widthf(ver)/FONTW*0.51f);
+                                        verpad = std::max(verpad, text_widthf(ver) / FONTW * 0.51f);
                                         if(o->ownernum != game::player1.clientnum) hasver = true;
                                     }
                                 }
@@ -911,7 +911,7 @@ namespace hud
                         lastpos = k;
                     }
                     if(!sg.team || ((sg.team != game::focus->team) == !i)) continue;
-                    float sk = numout && inventoryscoreshrink > 0 ? 1.f-min(numout*inventoryscoreshrink, inventoryscoreshrinkmax) : 1;
+                    float sk = numout && inventoryscoreshrink > 0 ? 1.f - std::min(numout * inventoryscoreshrink, inventoryscoreshrinkmax) : 1;
                     int offset = numgroups > 1 ? sg.total-groups[k ? 0 : 1]->total : 0;
                     sy += drawscoreitem(inventoryscorename >= 2 ? game::colourteam(sg.team) : NULL, TEAM(sg.team, colour), x, y+sy, s, sk*inventoryscoresize, blend*inventoryblend, pos, sg.total, offset);
                     if(++numout >= count) return sy;
@@ -929,7 +929,7 @@ namespace hud
                             lastpos = j;
                         }
                         if((d != game::focus) == !i) continue;
-                        float sk = numout && inventoryscoreshrink > 0 ? 1.f-min(numout*inventoryscoreshrink, inventoryscoreshrinkmax) : 1;
+                        float sk = numout && inventoryscoreshrink > 0 ? 1.f - std::min(numout * inventoryscoreshrink, inventoryscoreshrinkmax) : 1;
                         int score = m_laptime(game::gamemode, game::mutators) ? d->cptime : d->points,
                             offset = (sg.players.length() > 1 && (!m_laptime(game::gamemode, game::mutators) || score)) ? score-(m_laptime(game::gamemode, game::mutators) ? sg.players[j ? 0 : 1]->cptime : sg.players[j ? 0 : 1]->points) : 0;
                         sy += drawscoreitem(inventoryscorename ? game::colourname(d) : NULL, game::getcolour(d, game::playerteamtone, game::playerteamtonelevel), x, y+sy, s, sk*inventoryscoresize, blend*inventoryblend, pos, score, offset);

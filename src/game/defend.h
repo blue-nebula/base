@@ -183,7 +183,7 @@ struct defendstate
         {
             flag &e = flags[i];
             if(e.owner && b.owner != e.owner)
-                dist = min(dist, b.o.dist(e.o));
+                dist = std::min(dist, b.o.dist(e.o));
         }
         return dist;
     }
