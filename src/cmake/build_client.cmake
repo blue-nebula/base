@@ -62,6 +62,10 @@ if(BUILD_CLIENT)
         engine/skelmodel.h
         engine/smd.h
         engine/sound.h
+        engine/soundsample.h
+        engine/soundsample.cpp
+        engine/soundslot.h
+        engine/soundslot.cpp
         engine/textedit.h
         engine/texture.h
         engine/version.h

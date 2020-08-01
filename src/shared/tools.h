@@ -4,6 +4,9 @@
 #define _TOOLS_H
 #include <utility>
 #include <vector>
+#include <cstdarg>
+#include "enet/enet.h"
+#include "zlib.h"
 
 #ifdef NULL
 #undef NULL

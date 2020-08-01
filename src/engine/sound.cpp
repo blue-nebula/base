@@ -3,24 +3,6 @@
 #include "engine.h"
 #include "SDL_mixer.h"
 
-struct soundsample
-{
-    Mix_Chunk *sound;
-    char *name;
-
-    soundsample() : name(NULL) {}
-    ~soundsample() { DELETEA(name); }
-
-    void cleanup()
-    {
-        Mix_FreeChunk(sound);
-        sound = NULL;
-    }
-};
-
-soundslot::soundslot() : vol(255), maxrad(-1), minrad(-1), name(NULL) {}
-soundslot::~soundslot() { DELETEA(name); }
-
 sound::sound() : hook(NULL) { reset(); }
 sound::~sound() {}
 bool sound::playing() { return chan >= 0 && (Mix_Playing(chan) || Mix_Paused(chan)); }

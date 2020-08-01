@@ -1,5 +1,16 @@
+#pragma once
+
 #include <string>
 #include <map>
+#include <vector>
+
+#include "geom.h"
+#include "soundslot.h"
+#include "soundsample.h"
+#include "soundslot_collection.h"
+
+// forward declarations
+struct physent;
 
 enum
 {
