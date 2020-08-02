@@ -935,7 +935,7 @@ namespace game
                     int millis = lastmillis-d->lastres[WR_BURN];
                     size_t seed = size_t(d) + (millis/50);
                     float pc = 1, amt = (millis%50)/50.0f, intensity = 0.75f+(detrnd(seed, 25)*(1-amt) + detrnd(seed + 1, 25)*amt)/100.f;
-                    // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+                    // When playing on servers with an older version, burndelay can be 0, thus avoid division by zero by enforcing new lower boundary
                     int fixed_burndelay = std::max(burndelay, 1);
                     if(burntime-millis < fixed_burndelay) pc *= float(burntime - millis) / float(fixed_burndelay);
                     else
@@ -3612,7 +3612,7 @@ namespace game
         {
             int millis = lastmillis-d->lastres[WR_BURN];
             float pc = 1, intensity = 0.5f+(rnd(50)/100.f), fade = (d != focus ? 0.5f : 0.f)+(rnd(50)/100.f);
-            // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+            // When playing on servers with an older version, burndelay can be 0, thus avoid division by zero by enforcing new lower boundary
             int fixed_burndelay = std::max(burndelay, 1);
             if(burntime - millis < fixed_burndelay) pc *= float(burntime - millis) / fixed_burndelay;
             else pc *= 0.75f + (float(millis % fixed_burndelay) / float(fixed_burndelay * 4));

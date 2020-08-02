@@ -758,7 +758,7 @@ namespace hud
                 if(game::focus->state == CS_ALIVE) amt += min(damageresidue, 100)/100.f*0.5f;
                 if(burntime && game::focus->burning(lastmillis, burntime))
                 {
-                    // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+                    // When playing on servers with an older version, burndelay can be 0, thus avoid division by zero by enforcing new lower boundary
                     int fixed_burndelay = std::max(burndelay, 1);
                     amt += (float((lastmillis-game::focus->lastres[WR_BURN]) % fixed_burndelay) / float(fixed_burndelay)) * 0.5f;
                 }
@@ -3290,7 +3290,7 @@ namespace hud
             if(t && t != notexture)
             {
                 int interval = lastmillis-game::focus->lastres[WR_BURN];
-                // When playing on servers with an older version, burndelay can be 0, thus add a check to prevent division by 0
+                // When playing on servers with an older version, burndelay can be 0, thus avoid division by zero by enforcing new lower boundary
                 int fixed_burndelay = std::max(burndelay, 1);
                 float pc = interval >= burntime - 500 ? 1.f + (interval - (burntime - 500)) / 500.f : (interval & fixed_burndelay) / float(fixed_burndelay / 1);
                 if (pc > 1.f)
