@@ -165,11 +165,14 @@ size_t soundslot_collection<T>::insert_or_append_(const std::string& name, int v
     new_slot.minrad = min_radius;
 
     // TODO: validate whether this check is needed at all; all slots should be filled once the sound has been registered
+    // check if soundslot has been loaded already to avoid loading samples more than once
     if (num_slots == 1) {
         const auto existing_slot_index = find_existing_soundslot_(new_slot);
 
-        if (existing_slot_index >= 0)
-            return existing_slot_index;
+        // if an existing soundslot is found, it is copied into the new location
+        if (existing_slot_index >= 0) {
+            return insert_into_soundslots_(index, (*this)[existing_slot_index]);
+        }
     }
 
     // just used for weapons that don't have certain sound effects, e.g. some weapons don't have a zoom sound
