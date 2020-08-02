@@ -573,7 +573,7 @@ struct skelmodel : animmodel
             {
                 int bone = schedule[i];
                 const boneinfo &info = bones[bone];
-                loopj(numbones) if(abs(bones[j].group) == bone && bones[j].scheduled < 0)
+                loopj(numbones) if(std::abs(bones[j].group) == bone && bones[j].scheduled < 0)
                 {
                     antipodes.add(antipode(info.interpindex, bones[j].interpindex));
                     bones[j].scheduled = schedule.length();
@@ -582,7 +582,7 @@ struct skelmodel : animmodel
                 if(i + 1 == schedule.length())
                 {
                     int conflict = INT_MAX;
-                    loopj(numbones) if(bones[j].group < numbones && bones[j].scheduled < 0) conflict = min(conflict, abs(bones[j].group));
+                    loopj(numbones) if(bones[j].group < numbones && bones[j].scheduled < 0) conflict = min(conflict, std::abs(bones[j].group));
                     if(conflict < numbones)
                     {
                         bones[conflict].scheduled = schedule.length();
@@ -1700,8 +1700,8 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
                 }
                 else
                 {
-                    b.pitchmin = -360*fabs(b.pitchscale) + b.pitchoffset;
-                    b.pitchmax = 360*fabs(b.pitchscale) + b.pitchoffset;
+                    b.pitchmin = -360*std::fabs(b.pitchscale) + b.pitchoffset;
+                    b.pitchmax = 360*std::fabs(b.pitchscale) + b.pitchoffset;
                 }
                 return;
             }
@@ -1718,8 +1718,8 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
         }
         else
         {
-            mdl.pitchmin = -360*fabs(mdl.pitchscale) + mdl.pitchoffset;
-            mdl.pitchmax = 360*fabs(mdl.pitchscale) + mdl.pitchoffset;
+            mdl.pitchmin = -360*std::fabs(mdl.pitchscale) + mdl.pitchoffset;
+            mdl.pitchmax = 360*std::fabs(mdl.pitchscale) + mdl.pitchoffset;
         }
     }
 

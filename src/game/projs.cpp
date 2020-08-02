@@ -539,7 +539,7 @@ namespace projs
                 {
                     float rmax = 180.f+reflectivity, rmin = 180.f-reflectivity,
                         off = aim[i][1]-aim[i][0];
-                    if(fabs(off) <= rmax && fabs(off) >= rmin)
+                    if(std::fabs(off) <= rmax && std::fabs(off) >= rmin)
                     {
                         if(off > 0.f ? off > 180.f : off < -180.f)
                             aim[i][1] += rmax-off;
@@ -1860,7 +1860,7 @@ namespace projs
                     proj.o = orig; // continues below
                 }
             }
-            if(proj.projtype == PRJ_SHOT && (WF(WK(proj.flags), proj.weap, grab, WS(proj.flags))&(d ? 2 : 1)) && (proj.owner == &game::player1 || proj.owner->ai) && proj.owner->state == CS_ALIVE && (d || fabs(proj.norm.z) <= impulseparkournorm) && physics::canimpulse(proj.owner, A_A_PARKOUR, true))
+            if(proj.projtype == PRJ_SHOT && (WF(WK(proj.flags), proj.weap, grab, WS(proj.flags))&(d ? 2 : 1)) && (proj.owner == &game::player1 || proj.owner->ai) && proj.owner->state == CS_ALIVE && (d || std::fabs(proj.norm.z) <= impulseparkournorm) && physics::canimpulse(proj.owner, A_A_PARKOUR, true))
             {
                 gameent *e = (gameent *)proj.owner;
                 vec keepvel = vec(e->vel).add(e->falling);
@@ -1873,7 +1873,7 @@ namespace projs
                     {
                         case 0: pitch = e->pitch; break;
                         case 1: pitch = -e->pitch; break;
-                        case 2: pitch = fabs(e->pitch); break;
+                        case 2: pitch = std::fabs(e->pitch); break;
                         case 3:
                             if(d)
                             {

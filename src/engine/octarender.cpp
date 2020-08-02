@@ -551,7 +551,7 @@ void reduceslope(ivec &n)
     int mindim = -1, minval = 64;
     loopi(3) if(n[i])
     {
-        int val = abs(n[i]);
+        int val = std::abs(n[i]);
         if(mindim < 0 || val < minval)
         {
             mindim = i;
@@ -629,7 +629,7 @@ void addtris(const sortkey &key, int orient, vertex *verts, int *index, int numv
                 int e1 = cedge%(MAXFACEVERTS+1), e2 = (e1+1)%numverts;
                 vertex &v1 = verts[e1], &v2 = verts[e2];
                 ivec d(vec(v2.pos).sub(v1.pos).mul(8));
-                int axis = abs(d.x) > abs(d.y) ? (abs(d.x) > abs(d.z) ? 0 : 2) : (abs(d.y) > abs(d.z) ? 1 : 2);
+                int axis = std::abs(d.x) > std::abs(d.y) ? (std::abs(d.x) > std::abs(d.z) ? 0 : 2) : (std::abs(d.y) > std::abs(d.z) ? 1 : 2);
                 if(d[axis] < 0) d.neg();
                 reduceslope(d);
                 int origin = int(min(v1.pos[axis], v2.pos[axis])*8)&~0x7FFF,
@@ -704,9 +704,9 @@ void addgrasstri(int face, vertex *verts, int numv, ushort texture, ushort lmid)
     float scale;
     int px, py;
 
-    if(fabs(area.x) >= fabs(area.y) && fabs(area.x) >= fabs(area.z))
+    if(std::fabs(area.x) >= std::fabs(area.y) && std::fabs(area.x) >= std::fabs(area.z))
         scale = 1/area.x, px = 1, py = 2;
-    else if(fabs(area.y) >= fabs(area.x) && fabs(area.y) >= fabs(area.z))
+    else if(std::fabs(area.y) >= std::fabs(area.x) && std::fabs(area.y) >= std::fabs(area.z))
         scale = -1/area.y, px = 0, py = 2;
     else
         scale = 1/area.z, px = 0, py = 1;
@@ -957,7 +957,7 @@ void gencubeedges(cube &c, const ivec &co, int size)
             ivec d = pos[e2];
             d.sub(pos[e1]);
             if(d.iszero()) continue;
-            int axis = abs(d.x) > abs(d.y) ? (abs(d.x) > abs(d.z) ? 0 : 2) : (abs(d.y) > abs(d.z) ? 1 : 2);
+            int axis = std::abs(d.x) > std::abs(d.y) ? (std::abs(d.x) > std::abs(d.z) ? 0 : 2) : (std::abs(d.y) > std::abs(d.z) ? 1 : 2);
             if(d[axis] < 0)
             {
                 d.neg();

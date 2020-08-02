@@ -942,7 +942,7 @@ static LocalShaderParam screentexcoord[2] = { LocalShaderParam("screentexcoord0"
 
 static inline void setscreentexcoord(int i, float w, float h, float x = 0, float y = 0)
 {
-    screentexcoord[i].setf(w*0.5f, h*0.5f, x + w*0.5f, y + fabs(h)*0.5f);
+    screentexcoord[i].setf(w*0.5f, h*0.5f, x + w*0.5f, y + std::fabs(h)*0.5f);
 }
 
 void screenquad(float sw, float sh)
@@ -1354,7 +1354,7 @@ void drawreflection(float z, bool refract, int fogdepth, const bvec &col)
 
     if(fading)
     {
-        float scale = fogging ? -0.25f : 0.25f, offset = 2*fabs(scale) - scale*z;
+        float scale = fogging ? -0.25f : 0.25f, offset = 2*std::fabs(scale) - scale*z;
         GLOBALPARAMF(waterfadeparams, scale, offset, -scale, offset + camera1->o.z*scale);
     }
 

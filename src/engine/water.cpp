@@ -22,7 +22,7 @@ static float whscale, whoffset;
     { \
         float angle = (v1-wx1)*(v2-wy1)*(v1-wx2)*(v2-wy2)*whscale+whoffset; \
         float s = angle - int(angle) - 0.5f; \
-        s *= 8 - fabs(s)*16; \
+        s *= 8 - std::fabs(s)*16; \
         float h = WATER_AMPLITUDE*s-WATER_OFFSET; \
         gle::attribf(v1, v2, v3+h); \
         body; \
@@ -42,7 +42,7 @@ static float whscale, whoffset;
 #define VERTWT(vertwt, defbody, body) \
     VERTW(vertwt, defbody, { \
         float v = angle - int(angle+0.25) - 0.25; \
-        v *= 8 - fabs(v)*16; \
+        v *= 8 - std::fabs(v)*16; \
         float duv = 0.5f*v; \
         body; \
     })
@@ -123,7 +123,7 @@ int calcwatersubdiv(int x, int y, int z, int size)
     float dist;
     if(camera1->o.x >= x && camera1->o.x < x + size &&
        camera1->o.y >= y && camera1->o.y < y + size)
-        dist = fabs(camera1->o.z - float(z));
+        dist = std::fabs(camera1->o.z - float(z));
     else
         dist = vec(x + size/2, y + size/2, z + size/2).dist(camera1->o) - size*1.42f/2;
     int subdiv = watersubdiv + int(dist) / (32 << waterlod);
@@ -689,7 +689,7 @@ void queryreflection(Reflection &ref, bool init)
         {
             offset = WATER_OFFSET +
                 (vertwater ? WATER_AMPLITUDE*(camera1->pitch > 0 || m.depth < WATER_AMPLITUDE+0.5f ? -1 : 1) : 0);
-            if(fabs(m.o.z-offset - camera1->o.z) < 0.5f && m.depth > WATER_AMPLITUDE+1.5f)
+            if(std::fabs(m.o.z-offset - camera1->o.z) < 0.5f && m.depth > WATER_AMPLITUDE+1.5f)
                 offset += camera1->pitch > 0 ? -1 : 1;
         }
         drawmaterialquery(m, offset);

@@ -2298,7 +2298,7 @@ namespace server
     {
         defvformatbigstring(str, s, s);
         srvmsgf(r >= 0 ? -1 : -2, "%s", str);
-        relayf(abs(r), "%s", str);
+        relayf(std::abs(r), "%s", str);
     }
 
     void listdemos(int cn)

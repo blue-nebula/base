@@ -397,7 +397,7 @@ namespace physics
         oldvel.add(d->falling);
         if(dir.dot(floor) >= 0)
         {
-            if(d->physstate < PHYS_SLIDE || fabs(dir.dot(d->floor)) > 0.01f*dir.magnitude()) return;
+            if(d->physstate < PHYS_SLIDE || std::fabs(dir.dot(d->floor)) > 0.01f*dir.magnitude()) return;
             d->vel.projectxy(floor, 0.0f);
         }
         else d->vel.projectxy(floor);
@@ -507,7 +507,7 @@ namespace physics
         stepdir.normalize();
 
         vec old(d->o);
-        d->o.add(vec(stepdir).mul(stairheight/fabs(stepdir.z))).z -= stairheight;
+        d->o.add(vec(stepdir).mul(stairheight/std::fabs(stepdir.z))).z -= stairheight;
         d->zmargin = -stairheight;
         if(collide(d, vec(0, 0, -1), slopez))
         {
@@ -857,7 +857,7 @@ namespace physics
                 d->o = oldpos;
                 if(!collided || hitplayer || collidewall.iszero()) continue;
                 vec face = vec(collidewall).normalize();
-                if(fabs(face.z) <= impulseparkournorm)
+                if(std::fabs(face.z) <= impulseparkournorm)
                 {
                     bool cankick = d->action[AC_SPECIAL] && canimpulse(d, A_A_PARKOUR, true), parkour = cankick && !onfloor && !d->onladder;
                     float yaw = 0, pitch = 0;
@@ -865,7 +865,7 @@ namespace physics
                     float off = yaw-d->yaw;
                     if(off > 180) off -= 360;
                     else if(off < -180) off += 360;
-                    bool iskick = impulsekick > 0 && fabs(off) >= impulsekick, vault = false;
+                    bool iskick = impulsekick > 0 && std::fabs(off) >= impulsekick, vault = false;
                     if(cankick && iskick)
                     {
                         float space = d->height+d->aboveeye, m = min(impulsevaultmin, impulsevaultmax), n = max(impulsevaultmin, impulsevaultmax);
@@ -894,7 +894,7 @@ namespace physics
                         if(mag > 0)
                         {
                             vec rft;
-                            vecfromyawpitch(d->yaw, vault || d->actortype >= A_BOT || !kickupstyle ? kickupangle : fabs(d->pitch), 1, 0, rft);
+                            vecfromyawpitch(d->yaw, vault || d->actortype >= A_BOT || !kickupstyle ? kickupangle : std::fabs(d->pitch), 1, 0, rft);
                             rft.reflect(face);
                             d->vel = vec(rft).mul(mag).add(keepvel);
                             d->doimpulse(cost, vault ? IM_T_VAULT : IM_T_KICK, lastmillis);

@@ -443,7 +443,7 @@ uint getclientip(int n)         { int o = server::peerowner(n); return clients.i
 
 void sendpacket(int n, int chan, ENetPacket *packet, int exclude)
 {
-    if(n < 0 || chan < 0) server::recordpacket(abs(chan), packet->data, packet->dataLength);
+    if(n < 0 || chan < 0) server::recordpacket(std::abs(chan), packet->data, packet->dataLength);
     if(chan < 0) return; // was just a record packet
     if(n < 0)
     {

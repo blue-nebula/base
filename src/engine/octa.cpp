@@ -222,7 +222,7 @@ cube &lookupcube(const ivec &to, int tsize, ivec &ro, int &rsize)
     int tx = clamp(to.x, 0, hdr.worldsize-1),
         ty = clamp(to.y, 0, hdr.worldsize-1),
         tz = clamp(to.z, 0, hdr.worldsize-1);
-    int scale = worldscale-1, csize = abs(tsize);
+    int scale = worldscale-1, csize = std::abs(tsize);
     cube *c = &worldroot[octastep(tx, ty, tz, scale)];
     if(!(csize>>scale)) do
     {
@@ -348,7 +348,7 @@ static int midedge(const ivec &a, const ivec &b, int xd, int yd, bool &perfect)
     int risex = (by-ay)*(8-ax)*256;
     int s = risex/(bx-ax);
     int y = s/256 + ay;
-    if(((abs(s)&0xFF)!=0) || // ie: rounding error
+    if(((std::abs(s)&0xFF)!=0) || // ie: rounding error
         (crossy && y!=8) ||
         (y<0 || y>16)) perfect = false;
     return crossy ? 8 : min(max(y, 0), 16);

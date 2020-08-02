@@ -654,7 +654,7 @@ struct gui : guient
             e->linewrap = (length < 0);
             e->maxx = e->linewrap ? -1 : length;
             e->maxy = (height <= 0) ? 1 : -1;
-            e->pixelwidth = (abs(length)+1)*FONTW;
+            e->pixelwidth = (std::abs(length)+1)*FONTW;
             if(e->linewrap && e->maxy == 1)
             {
                 int temp = 0;
@@ -1225,7 +1225,7 @@ struct gui : guient
             {
                 hitx = (cursorx - uiorigin.x)/uiscale.x;
                 hity = (cursory - uiorigin.y)/uiscale.y;
-                if((mouse_action[0] & GUI_PRESSED) && (fabs(hitx - firstx) > 2 || fabs(hity - firsty) > 2)) mouse_action[0] |= GUI_DRAGGED;
+                if((mouse_action[0] & GUI_PRESSED) && (std::fabs(hitx - firstx) > 2 || std::fabs(hity - firsty) > 2)) mouse_action[0] |= GUI_DRAGGED;
             }
         }
         else
