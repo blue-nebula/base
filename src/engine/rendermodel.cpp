@@ -744,9 +744,9 @@ static inline void enablecullmodelquery()
 
 static inline void rendercullmodelquery(model *m, dynent *d, const vec &center, float radius)
 {
-    if(fabs(camera1->o.x-center.x) < radius+1 &&
-       fabs(camera1->o.y-center.y) < radius+1 &&
-       fabs(camera1->o.z-center.z) < radius+1)
+    if(std::fabs(camera1->o.x-center.x) < radius+1 &&
+       std::fabs(camera1->o.y-center.y) < radius+1 &&
+       std::fabs(camera1->o.z-center.z) < radius+1)
     {
         d->query = NULL;
         return;
@@ -1111,8 +1111,8 @@ void setbbfrommodel(dynent *d, const char *mdl, float size)
     m->collisionbox(center, radius);
     if(d->type==ENT_INANIMATE && !m->ellipsecollide)
         d->collidetype = COLLIDE_OBB;
-    d->xradius  = (radius.x + fabs(center.x))*size;
-    d->yradius  = (radius.y + fabs(center.y))*size;
+    d->xradius  = (radius.x + std::fabs(center.x))*size;
+    d->yradius  = (radius.y + std::fabs(center.y))*size;
     d->radius   = d->collidetype==COLLIDE_OBB ? sqrtf(d->xradius*d->xradius + d->yradius*d->yradius) : max(d->xradius, d->yradius);
     d->height   = (d->zradius = (center.z-radius.z) + radius.z*2*m->height)*size;
     d->aboveeye = radius.z*2*(1.0f-m->height);

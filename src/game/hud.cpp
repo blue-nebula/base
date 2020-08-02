@@ -3049,7 +3049,7 @@ namespace hud
 
                 loopi(AC_TOTAL) if(inventoryinputfilter&(1<<i))
                 {
-                    bool active = game::focus->action[i] || (inventoryinputlinger&(1<<i) && game::focus->actiontime[i] && lastmillis-abs(game::focus->actiontime[i]) <= inventoryinputdelay);
+                    bool active = game::focus->action[i] || (inventoryinputlinger&(1<<i) && game::focus->actiontime[i] && lastmillis-std::abs(game::focus->actiontime[i]) <= inventoryinputdelay);
                     sy += draw_textf("\fs\fw\f{\f[%d]%s}\fS", x+s/2, y-sy, 0, 0, 255, 255, 255, int(blend*inventoryinputblend*255), TEXT_CENTER_UP, -1, -1, 1,
                             active ? inventoryinputactive : inventoryinputcolour, actionnames[i]);
                 }
@@ -3192,7 +3192,7 @@ namespace hud
                 if(game::player1.state == CS_EDITING)
                 {
                     cy[1] -= draw_textf("cube:%s%d corner:%d orient:%d grid:%d%s", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1,
-                            selchildcount<0 ? "1/" : "", abs(selchildcount), sel.corner, sel.orient, sel.grid, showmat && selchildmat > 0 ? getmaterialdesc(selchildmat, " mat:") : "");
+                            selchildcount<0 ? "1/" : "", std::abs(selchildcount), sel.corner, sel.orient, sel.grid, showmat && selchildmat > 0 ? getmaterialdesc(selchildmat, " mat:") : "");
 
                     cy[1] -= draw_textf("sel:%d,%d,%d %d,%d,%d (%d,%d,%d,%d)", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1,
                             sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z,
@@ -3531,23 +3531,23 @@ namespace hud
         if(!progressing)
         {
             vec colour = vec(1, 1, 1);
-            if(commandfade && (commandmillis > 0 || totalmillis-abs(commandmillis) <= commandfade))
+            if(commandfade && (commandmillis > 0 || totalmillis-std::abs(commandmillis) <= commandfade))
             {
-                float a = min(float(totalmillis-abs(commandmillis))/float(commandfade), 1.f)*commandfadeamt;
+                float a = min(float(totalmillis-std::abs(commandmillis))/float(commandfade), 1.f)*commandfadeamt;
                 if(commandmillis > 0) a = 1.f-a;
                 else a += (1.f-commandfadeamt);
                 loopi(3) if(a < colour[i]) colour[i] *= a;
             }
-            if(compassfade && (compassmillis > 0 || totalmillis-abs(compassmillis) <= compassfade))
+            if(compassfade && (compassmillis > 0 || totalmillis-std::abs(compassmillis) <= compassfade))
             {
-                float a = min(float(totalmillis-abs(compassmillis))/float(compassfade), 1.f)*compassfadeamt;
+                float a = min(float(totalmillis-std::abs(compassmillis))/float(compassfade), 1.f)*compassfadeamt;
                 if(compassmillis > 0) a = 1.f-a;
                 else a += (1.f-compassfadeamt);
                 loopi(3) if(a < colour[i]) colour[i] *= a;
             }
-            if(uifade && (uimillis > 0 || totalmillis-abs(uimillis) <= uifade))
+            if(uifade && (uimillis > 0 || totalmillis-std::abs(uimillis) <= uifade))
             {
-                float n = min(float(totalmillis-abs(uimillis))/float(uifade), 1.f), a = n*uifadeamt;
+                float n = min(float(totalmillis-std::abs(uimillis))/float(uifade), 1.f), a = n*uifadeamt;
                 if(uimillis > 0) a = 1.f-a;
                 else a += (1.f-uifadeamt);
                 loopi(3) if(a < colour[i]) colour[i] *= a;
@@ -3591,7 +3591,7 @@ namespace hud
                 drawblend(0, 0, hudwidth, hudheight, colour.x, colour.y, colour.z);
                 usetexturing(true);
                 float amt = (colour.x+colour.y+colour.z)/3.f;
-                if(commandfadeskew < 1 && (!commandmillis || (commandmillis < 0 && totalmillis-abs(commandmillis) > commandfade)))
+                if(commandfadeskew < 1 && (!commandmillis || (commandmillis < 0 && totalmillis-std::abs(commandmillis) > commandfade)))
                     consolefade *= amt+((1.f-amt)*commandfadeskew);
                 fade *= amt;
             }

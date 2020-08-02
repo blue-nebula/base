@@ -125,7 +125,7 @@ namespace ai
                 offy = yaw-d->yaw, offp = pitch-d->pitch;
             if(offy > 180) offy -= 360;
             else if(offy < -180) offy += 360;
-            if(fabs(offy) <= d->ai->views[0]*skew && fabs(offp) <= d->ai->views[1]*skew) return true;
+            if(std::fabs(offy) <= d->ai->views[0]*skew && std::fabs(offp) <= d->ai->views[1]*skew) return true;
         }
         return false;
     }

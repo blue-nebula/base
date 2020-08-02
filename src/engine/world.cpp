@@ -631,7 +631,7 @@ void entautoview(int *dir)
     v.normalize();
     v.mul(entautoviewdist);
     int t = s + *dir;
-    s = abs(t) % entgroup.length();
+    s = std::abs(t) % entgroup.length();
     if(t<0 && s>0) s = entgroup.length() - s;
     entfocus(entgroup[s],
         v.add(e.o);
@@ -682,8 +682,8 @@ bool dropentity(extentity &e, int drop = -1)
         {
             vec center;
             mmboundbox(e, m, center, radius);
-            radius.x += fabs(center.x);
-            radius.y += fabs(center.y);
+            radius.x += std::fabs(center.x);
+            radius.y += std::fabs(center.y);
         }
         radius.z = 0.0f;
     }

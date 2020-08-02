@@ -31,7 +31,7 @@ namespace bomber
         float angle = fixrot(a)-fixrot(b);
         while(angle < -180.0f) angle += 360.0f;
         while(angle >= 180.0f) angle -= 360.0f;
-        return fabs(angle);
+        return std::fabs(angle);
     }
 
     VAR(IDF_PERSIST, bombertargetintersect, 0, 1, 1);

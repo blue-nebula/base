@@ -334,7 +334,7 @@ void ragdolldata::constrainrot()
         vec axis;
         float angle;
         if(!rot.calcangleaxis(angle, axis)) continue;
-        angle = r.maxangle - fabs(angle);
+        angle = r.maxangle - std::fabs(angle);
         if(angle >= 0) continue;
         angle += 1e-3f;
 
@@ -366,7 +366,7 @@ void ragdolldata::applyrotfriction(float ts)
         float angle;
         if(rot.calcangleaxis(angle, axis))
         {
-            angle *= -(fabs(angle) >= stopangle ? rotfric : 1.0f);
+            angle *= -(std::fabs(angle) >= stopangle ? rotfric : 1.0f);
             applyrotlimit(skel->tris[r.tri[0]], skel->tris[r.tri[1]], angle, axis);
         }
     }
