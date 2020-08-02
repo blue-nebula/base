@@ -192,7 +192,7 @@ struct defendstate
     {
         if(radius <= 0) radius = enttype[AFFINITY].radius;
         float dx = (b.o.x-o.x), dy = (b.o.y-o.y), dz = (b.o.z-o.z);
-        return dx*dx + dy*dy <= radius*radius && fabs(dz) <= radius;
+        return dx*dx + dy*dy <= radius*radius && std::fabs(dz) <= radius;
     }
 };
 

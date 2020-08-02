@@ -23,9 +23,9 @@ struct BIH
 
         bool outside(const ivec &bo, const ivec &br) const
         {
-            return abs(bo.x - center.x) > br.x + radius.x ||
-                   abs(bo.y - center.y) > br.y + radius.y ||
-                   abs(bo.z - center.z) > br.z + radius.z;
+            return std::abs(bo.x - center.x) > br.x + radius.x ||
+                   std::abs(bo.y - center.y) > br.y + radius.y ||
+                   std::abs(bo.z - center.z) > br.z + radius.z;
         }
     };
 

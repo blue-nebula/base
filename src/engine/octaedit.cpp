@@ -286,9 +286,9 @@ void updateselection()
     sel.o.x = min(lastcur.x, cur.x);
     sel.o.y = min(lastcur.y, cur.y);
     sel.o.z = min(lastcur.z, cur.z);
-    sel.s.x = abs(lastcur.x-cur.x)/sel.grid+1;
-    sel.s.y = abs(lastcur.y-cur.y)/sel.grid+1;
-    sel.s.z = abs(lastcur.z-cur.z)/sel.grid+1;
+    sel.s.x = std::abs(lastcur.x-cur.x)/sel.grid+1;
+    sel.s.y = std::abs(lastcur.y-cur.y)/sel.grid+1;
+    sel.s.z = std::abs(lastcur.z-cur.z)/sel.grid+1;
 }
 
 bool editmoveplane(const vec &o, const vec &ray, int d, float off, vec &handle, vec &dest, bool first)

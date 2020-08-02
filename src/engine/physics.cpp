@@ -82,7 +82,7 @@ bool pointincube(const clipplanes &p, const vec &v)
     { \
         if(ray[i]) \
         { \
-            float prad = fabs(p.r[i] * invray[i]), pdist = (p.o[i] - v[i]) * invray[i], pmin = pdist - prad, pmax = pdist + prad; \
+            float prad = std::fabs(p.r[i] * invray[i]), pdist = (p.o[i] - v[i]) * invray[i], pmin = pdist - prad, pmax = pdist + prad; \
             if(pmin > enterdist) \
             { \
                 if(pmin > exitdist) exit; \
@@ -760,7 +760,7 @@ static bool fuzzycollidebox(physent *d, const vec &dir, float cutoff, const vec 
     mpr::ModelOBB mdlvol(o, center, radius, yaw, pitch, roll);
     vec bbradius = mdlvol.orient.abstransposedtransform(radius);
 
-    if(fabs(d->o.x - mdlvol.o.x) > bbradius.x + d->radius || fabs(d->o.y - mdlvol.o.y) > bbradius.y + d->radius ||
+    if(std::fabs(d->o.x - mdlvol.o.x) > bbradius.x + d->radius || std::fabs(d->o.y - mdlvol.o.y) > bbradius.y + d->radius ||
        d->o.z + d->aboveeye < mdlvol.o.z - bbradius.z || d->o.z - d->height > mdlvol.o.z + bbradius.z)
         return false;
 
@@ -812,7 +812,7 @@ static bool fuzzycollideellipse(physent *d, const vec &dir, float cutoff, const 
     mpr::ModelEllipse mdlvol(o, center, radius, yaw, pitch, roll);
     vec bbradius = mdlvol.orient.abstransposedtransform(radius);
 
-    if(fabs(d->o.x - mdlvol.o.x) > bbradius.x + d->radius || fabs(d->o.y - mdlvol.o.y) > bbradius.y + d->radius ||
+    if(std::fabs(d->o.x - mdlvol.o.x) > bbradius.x + d->radius || std::fabs(d->o.y - mdlvol.o.y) > bbradius.y + d->radius ||
        d->o.z + d->aboveeye < mdlvol.o.z - bbradius.z || d->o.z - d->height > mdlvol.o.z + bbradius.z)
         return false;
 
@@ -917,7 +917,7 @@ template<class E>
 static bool fuzzycollidesolid(physent *d, const vec &dir, float cutoff, const cube &c, const ivec &co, int size) // collide with solid cube geometry
 {
     int crad = size/2;
-    if(fabs(d->o.x - co.x - crad) > d->radius + crad || fabs(d->o.y - co.y - crad) > d->radius + crad ||
+    if(std::fabs(d->o.x - co.x - crad) > d->radius + crad || std::fabs(d->o.y - co.y - crad) > d->radius + crad ||
        d->o.z + d->aboveeye < co.z || d->o.z - d->height > co.z + size)
         return false;
 
@@ -956,21 +956,21 @@ static bool fuzzycollidesolid(physent *d, const vec &dir, float cutoff, const cu
 template<class E>
 static inline bool clampcollide(const clipplanes &p, const E &entvol, const plane &w, const vec &pw)
 {
-    if(w.x && (w.y || w.z) && fabs(pw.x - p.o.x) > p.r.x)
+    if(w.x && (w.y || w.z) && std::fabs(pw.x - p.o.x) > p.r.x)
     {
         vec c = entvol.center();
         float fv = pw.x < p.o.x ? p.o.x-p.r.x : p.o.x+p.r.x, fdist = (w.x*fv + w.y*c.y + w.z*c.z + w.offset) / (w.y*w.y + w.z*w.z);
         vec fdir(fv - c.x, -w.y*fdist, -w.z*fdist);
         if((pw.y-c.y-fdir.y)*w.y + (pw.z-c.z-fdir.z)*w.z >= 0 && entvol.supportpoint(fdir).squaredist(c) < fdir.squaredlen()) return true;
     }
-    if(w.y && (w.x || w.z) && fabs(pw.y - p.o.y) > p.r.y)
+    if(w.y && (w.x || w.z) && std::fabs(pw.y - p.o.y) > p.r.y)
     {
         vec c = entvol.center();
         float fv = pw.y < p.o.y ? p.o.y-p.r.y : p.o.y+p.r.y, fdist = (w.x*c.x + w.y*fv + w.z*c.z + w.offset) / (w.x*w.x + w.z*w.z);
         vec fdir(-w.x*fdist, fv - c.y, -w.z*fdist);
         if((pw.x-c.x-fdir.x)*w.x + (pw.z-c.z-fdir.z)*w.z >= 0 && entvol.supportpoint(fdir).squaredist(c) < fdir.squaredlen()) return true;
     }
-    if(w.z && (w.x || w.y) && fabs(pw.z - p.o.z) > p.r.z)
+    if(w.z && (w.x || w.y) && std::fabs(pw.z - p.o.z) > p.r.z)
     {
         vec c = entvol.center();
         float fv = pw.z < p.o.z ? p.o.z-p.r.z : p.o.z+p.r.z, fdist = (w.x*c.x + w.y*c.y + w.z*fv + w.offset) / (w.x*w.x + w.y*w.y);
@@ -985,7 +985,7 @@ static bool fuzzycollideplanes(physent *d, const vec &dir, float cutoff, const c
 {
     const clipplanes &p = getclipplanes(c, co, size);
 
-    if(fabs(d->o.x - p.o.x) > p.r.x + d->radius || fabs(d->o.y - p.o.y) > p.r.y + d->radius ||
+    if(std::fabs(d->o.x - p.o.x) > p.r.x + d->radius || std::fabs(d->o.y - p.o.y) > p.r.y + d->radius ||
        d->o.z + d->aboveeye < p.o.z - p.r.z || d->o.z - d->height > p.o.z + p.r.z)
         return false;
 
@@ -1035,7 +1035,7 @@ template<class E>
 static bool cubecollidesolid(physent *d, const vec &dir, float cutoff, const cube &c, const ivec &co, int size) // collide with solid cube geometry
 {
     int crad = size/2;
-    if(fabs(d->o.x - co.x - crad) > d->radius + crad || fabs(d->o.y - co.y - crad) > d->radius + crad ||
+    if(std::fabs(d->o.x - co.x - crad) > d->radius + crad || std::fabs(d->o.y - co.y - crad) > d->radius + crad ||
        d->o.z + d->aboveeye < co.z || d->o.z - d->height > co.z + size)
         return false;
 
@@ -1066,7 +1066,7 @@ static bool cubecollideplanes(physent *d, const vec &dir, float cutoff, const cu
 {
     const clipplanes &p = getclipplanes(c, co, size);
 
-    if(fabs(d->o.x - p.o.x) > p.r.x + d->radius || fabs(d->o.y - p.o.y) > p.r.y + d->radius ||
+    if(std::fabs(d->o.x - p.o.x) > p.r.x + d->radius || std::fabs(d->o.y - p.o.y) > p.r.y + d->radius ||
        d->o.z + d->aboveeye < p.o.z - p.r.z || d->o.z - d->height > p.o.z + p.r.z)
         return false;
 
@@ -1267,8 +1267,8 @@ bool getsight(vec &o, float yaw, float pitch, vec &q, vec &v, float mdist, float
 
     if(dist <= mdist)
     {
-        float x = fmod(fabs(asin((q.z-o.z)/dist)/RAD-pitch), 360);
-        float y = fmod(fabs(-atan2(q.x-o.x, q.y-o.y)/RAD-yaw), 360);
+        float x = fmod(std::fabs(asin((q.z-o.z)/dist)/RAD-pitch), 360);
+        float y = fmod(std::fabs(-atan2(q.x-o.x, q.y-o.y)/RAD-yaw), 360);
         if(min(x, 360-x) <= fovx && min(y, 360-y) <= fovy) return raycubelos(o, q, v);
     }
     return false;

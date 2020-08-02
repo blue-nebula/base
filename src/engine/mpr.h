@@ -68,7 +68,7 @@ namespace mpr
         {
             vec n = orient.transform(wn).div(vec(ent->xradius, ent->yradius, (ent->aboveeye + ent->height)/2)),
                 dir = orient.transform(wdir),
-                an(fabs(n.x), fabs(n.y), dir.z ? fabs(n.z) : 0),
+                an(std::fabs(n.x), std::fabs(n.y), dir.z ? std::fabs(n.z) : 0),
                 fn(0, 0, 0);
             if(an.x > an.y)
             {
@@ -208,7 +208,7 @@ namespace mpr
         vec contactface(const vec &wn, const vec &wdir) const
         {
             vec n = orient.transform(wn).div(radius), dir = orient.transform(wdir),
-                an(fabs(n.x), fabs(n.y), dir.z ? fabs(n.z) : 0),
+                an(std::fabs(n.x), std::fabs(n.y), dir.z ? std::fabs(n.z) : 0),
                 fn(0, 0, 0);
             if(an.x > an.y)
             {

@@ -443,12 +443,12 @@ struct decalrenderer
 #if 0
             // intersect ray along decal normal with plane
             float dist = n.dot(p) / facing;
-            if(fabs(dist) > decalradius) continue;
+            if(std::fabs(dist) > decalradius) continue;
             vec pcenter = vec(decalnormal).mul(dist).add(decalcenter);
 #else
             // travel back along plane normal from the decal center
             float dist = n.dot(p);
-            if(fabs(dist) > decalradius) continue;
+            if(std::fabs(dist) > decalradius) continue;
             vec pcenter = vec(n).mul(dist).add(decalcenter);
 #endif
             vec ft, fb;
