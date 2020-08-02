@@ -949,15 +949,15 @@ namespace game
                     int millis = lastmillis-d->lastres[WR_SHOCK];
                     size_t seed = size_t(d) + (millis/50);
                     float pc = 1, amt = (millis%50)/50.0f, intensity = 0.75f+(detrnd(seed, 25)*(1-amt) + detrnd(seed + 1, 25)*amt)/100.f;
-                    // When playing on servers with an older version, shockdelay can be 0, thus add a check to prevent division by 0
-                    int _shockdelay = std::max(shockdelay, 1);
-                    if(shocktime - millis < _shockdelay)
+                    // When playing on servers with an older version, shockdelay can be 0, thus avoid division by zero by enforcing new lower boundary
+                    int fixed_shockdelay = std::max(shockdelay, 1);
+                    if(shocktime - millis < fixed_shockdelay)
                     {
-                        pc *= float(shocktime - millis) / float(_shockdelay);
+                        pc *= float(shocktime - millis) / float(fixed_shockdelay);
                     }
                     else
                     {
-                        float fluc = float(millis % _shockdelay) * (0.25f + 0.03f) / _shockdelay;
+                        float fluc = float(millis % fixed_shockdelay) * (0.25f + 0.03f) / fixed_shockdelay;
                         if (fluc >= 0.25f) 
                         {
                             fluc = (0.25f + 0.03f - fluc) * (0.25f / 0.03f);
