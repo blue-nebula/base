@@ -568,6 +568,8 @@ struct guient
     virtual void start(int starttime, int *tab = NULL, bool allowinput = true, bool wantstitle = true, bool wantsbgfx = true) = 0;
     virtual void end() = 0;
 
+    virtual bool unique_object_active(bool hit) = 0;
+
     virtual int text(const char *text, int color = 0xFFFFFF, const char *icon = NULL, int icolour = 0xFFFFFF, int wrap = -1, bool faded = false, const char *oicon = NULL, int ocolor = 0xFFFFFF) = 0;
     int textf(const char *fmt, int color = 0xFFFFFF, const char *icon = NULL, int icolour = 0xFFFFFF, int wrap = -1, bool faded = false, const char *oicon = NULL, int ocolor = 0xFFFFFF, ...) PRINTFARGS(2, 10)
     {
