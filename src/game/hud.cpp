@@ -43,6 +43,7 @@ namespace hud
     VAR(IDF_PERSIST, statrate, 0, 200, 1000);
     FVAR(IDF_PERSIST, statblend, 0, 1, 1);
 
+    //TODO: rework
     bool fullconsole = false;
     void toggleconsole() { fullconsole = !fullconsole; }
     COMMAND(0, toggleconsole, "");
@@ -121,6 +122,8 @@ namespace hud
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, dominatingtex, "<grey>textures/dominating", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, dominatedtex, "<grey>textures/dominated", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, inputtex, "textures/menu", 3);
+    TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, console_search_tex, "textures/icons/fontawesome/find_servers", 3);
+    TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, console_command_tex, "textures/icons/fontawesome/command", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, waitingtex, "<grey>textures/waiting", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, spectatortex, "<grey>textures/spectator", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, chattex, "<grey>textures/chat", 3);
@@ -1760,59 +1763,257 @@ namespace hud
         if(!progressing) drawpointers(hudwidth, hudheight);
     }
 
-    void drawconsole(int type, int w, int h, int x, int y, int s, float fade)
+    void draw_rect(vec2 pos, vec2 dimensions, int usetc)
     {
+        hudnotextureshader->set();
+        gle::defvertex(2);
+        gle::deftexcoord0();
+        gle::begin(GL_TRIANGLE_STRIP);
+        static const vec2 tc[5] = {
+            vec2(0, 0),
+            vec2(1, 0),
+            vec2(1, 1), 
+            vec2(0, 1),
+            vec2(0, 0)
+        };
+        gle::attribf(pos.x, pos.y); gle::attrib(tc[usetc]);
+        gle::attribf(pos.x + dimensions.x, pos.y); gle::attrib(tc[usetc + 1]);
+        gle::attribf(pos.x, pos.y + dimensions.y); gle::attrib(tc[usetc + 3]);
+        gle::attribf(pos.x + dimensions.x, pos.y + dimensions.y); gle::attrib(tc[usetc + 2]);
+        xtraverts += gle::end();
+        hudshader->set();
+    }
+
+    std::string tab_string()
+    {
+        std::string ret_str = "\fwTab: ";
+        static const std::string cmds[3] = { "CHAT", "GAME", "DEBUG" };
+        static const std::string colors[3] = { "\fw", "\fy", "\fr" };
+
+        for (int i = 1; i < 4; i++)
+        {
+            if (new_console.selected_hist == i) 
+            {
+                ret_str += "\fg";
+            }
+            else
+            {
+                ret_str += colors[i - 1];
+            }
+            ret_str += cmds[i - 1] + " ";
+        }
+        return ret_str;
+    }
+
+    void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
+    {
+        dims.w *= 0.85f;
         static vector<int> refs; refs.setsize(0);
         bool full = fullconsole || commandmillis > 0;
         int tz = 0;
+
         pushfont("console");
-        if(type >= 2)
+        pos.x += 10;
+        int max_lines_drawn = full ? consize + conoverflow : consize;
+
+        int pos_y = 0;
+        int height_mainview = pos.y + int(FONTH / 2) + FONTH * max_lines_drawn;
+
+        if((showconsole && showhud) || commandmillis > 0)
         {
-            int numl = chatconsize, numo = chatconsize+chatconoverflow;
-            loopvj(conlines) if(conlines[j].type >= CON_CHAT)
+            if (full)
             {
-                int len = !full && conlines[j].type > CON_CHAT ? chatcontime/2 : chatcontime;
-                if(full || totalmillis-conlines[j].reftime <= len+chatconfade)
+                gle::colorf(.1f, .1f, .1f, .95f);
+                draw_rect(vec2(0, pos_y), vec2(pos.x + dims.w, height_mainview), false);
+            }
+
+            pushhudscale(conscale);
+            ivec2 text_pos = ivec2(
+                    int(pos.x / conscale),
+                    int(pos.y / conscale));
+            int text_scale = int(s / conscale);
+            int text_r = concenter ? text_pos.x + text_scale / 2 : text_pos.x;
+            tz = int(tz / conscale);
+
+            int histlen = int(new_console.curr_hist().h.size());//full ? int(new_console.curr_hist().h.size()) : int(new_console.curr_hist().h.size());
+            int histpos = new_console.curr_hist().scroll_pos;
+
+            // only draw scrollbar when in full-mode, otherwise it's not relevant
+            if (full)
+            {
+                // scrollbar indicator (sbi)
+                const int sbi_width = 18;
+                const int min_sbi_height = 5;
+                int sbi_height = int((max_lines_drawn / float(histlen)) * height_mainview);
+                sbi_height = std::max(min_sbi_height, sbi_height);
+                int sbi_y = (int(((histlen - histpos) / float(histlen)) * height_mainview)) - sbi_height;
+
+                gle::colorf(.9f, .9f, 1.f, .95f);
+                draw_rect(vec2(0, sbi_y), vec2(sbi_width, sbi_height), false);
+            }
+                
+            int i_start = std::min((full ? histpos : 0) + max_lines_drawn - 1, histlen);
+            int i_stop = full ? histpos : 0;
+
+            if (histlen == 0)
+            {
+                draw_textf("Nothing.", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1);
+            }
+            else
+            {
+                for (int i = i_start; i >= i_stop; i--)
                 {
-                    if(refs.length() >= numl)
+                    ConsoleLine& line = new_console.curr_hist().h[i];//full ? new_console.history.filtered[i] : new_console.history.all[i];
+                    
+                    // draw line background
+                    if (full)
                     {
-                        if(refs.length() >= numo)
+                        bool draw_background = true;
+                        switch (line.type)
                         {
-                            if(full) break;
-                            bool found = false;
-                            loopvrev(refs) if(conlines[refs[i]].reftime+(conlines[refs[i]].type > CON_CHAT ? chatcontime/2 : chatcontime) < conlines[j].reftime+len)
-                            {
-                                refs.remove(i);
-                                found = true;
+                            case CON_CHAT_WHISPER:
+                                gle::colorf(.7f, .7f, .7f, .2f);
                                 break;
-                            }
-                            if(!found) continue;
+                            case CON_CHAT_TEAM:
+                                gle::colorf(0, 0, .1f, .8f);
+                                break;
+                            default:
+                                draw_background = false;
+                                break;
                         }
-                        conlines[j].reftime = min(conlines[j].reftime, totalmillis-len);
+
+                        if (draw_background)
+                        {
+                            draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
+                        }
                     }
-                    refs.add(j);
+
+
+                    // draw line text
+                    tz += draw_textf("%s", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
+                            line.text.c_str());
                 }
             }
-            pushhudscale(chatconscale);
-            int tx = int(x/chatconscale), ty = int(y/chatconscale),
-                ts = int(s/chatconscale), tr = tx+FONTW;
-            tz = int(tz/chatconscale);
-            loopvj(refs)
-            {
-                int len = !full && conlines[refs[j]].type > CON_CHAT ? chatcontime/2 : chatcontime;
-                float f = full || !chatconfade ? 1.f : clamp(((len+chatconfade)-(totalmillis-conlines[refs[j]].reftime))/float(chatconfade), 0.f, 1.f),
-                    g = conlines[refs[j]].type > CON_CHAT ? conblend : chatconblend;
-                if(chatcondate && *chatcondateformat)
-                    tz += draw_textf("%s %s", tr, ty-tz, 0, 0, 255, 255, 255, int(fade*f*g*255), TEXT_LEFT_UP, -1, ts, 1, gettime(conlines[refs[j]].realtime, chatcondateformat), conlines[refs[j]].cref)*f;
-                else tz += draw_textf("%s", tr, ty-tz, 0, 0, 255, 255, 255, int(fade*f*g*255), TEXT_LEFT_UP, -1, ts, 1, conlines[refs[j]].cref)*f;
-            }
+
             pophudmatrix();
-            tz = int(tz*chatconscale);
+            tz = int(tz * conscale);
         }
-        else
+        
+        if (commandmillis > 0)
         {
-            if((showconsole && showhud) || commandmillis > 0)
+            //////////////
+            // TAB INFO //
+            //////////////
+            pos_y += height_mainview;
+            
+            gle::colorf(.5f, .5f, .5f, .9f);
+            draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH), false);
+
+            static const std::string con_tabs[3] = { "\fwChat", "\fyGame", "\frDebug" };
+
+            static const ivec2 tab_dims = ivec2(126, 42);
+            static const int padding_left = 84;
+
+            // draw highlight
+            gle::colorf(.05f, .05f, .05f, .6f);
+            draw_rect(vec2((tab_dims.w * (new_console.selected_hist - 1)) + pos.x + (padding_left * 0.25f), pos_y), vec2(tab_dims.w, tab_dims.h), false);
+
+            // draw text
+            for (int i = 0; i < 3; i++)
             {
+                draw_textf(con_tabs[i].c_str(), (tab_dims.w * i) + pos.x + padding_left, pos_y, 0, 0, 255, 255, 255, 255, TEXT_CENTERED, -1, tab_dims.w);
+            }
+
+
+            pos_y += FONTH;
+
+
+            /////////////////
+            // INPUT FIELD //
+            /////////////////
+
+            pushfont("emphasis");
+
+            Texture* t = nullptr;
+                
+            switch (new_console.get_mode())
+            {
+                case Console::MODE_SEARCH:
+                    t = textureload(console_search_tex, 3);
+                    break;
+                case Console::MODE_COMMAND:
+                    t = textureload(console_command_tex, 3);
+                    break;
+                default:
+                    t = textureload(commandicon ? commandicon : inputtex, 3);
+                    break;
+            }
+
+            vec c(1, 1, 1);
+            if (commandcolour)
+            {
+                c = vec::hexcolor(commandcolour);
+            }
+            float f = float(totalmillis % 1000) / 1000.f;
+            if (f < 0.5f)
+            {
+                f = 1.f - f;
+            }
+                
+            pushhudscale(commandscale);
+            vec2 text_dims = vec2(FONTH, float(t->w) / float(t->h) * FONTH);
+            vec2 text_pos = vec2(int(pos.x / commandscale), int(pos.y / commandscale));
+            int text_scale = int(s / commandscale);
+            int text_q = (concenter ? text_pos.x + text_scale / 2 - FONTW * 3 : text_pos.x);
+            int text_r = int(text_dims.x + FONTW);
+            int text_t = text_scale - (FONTH + FONTW);
+            tz = int(tz / commandscale);
+
+            // draw the background
+            gle::colorf(.05f, .05f, .05f, 1.f);
+            draw_rect(vec2(0, pos_y), vec2(pos.x + dims.w, text_dims.y + text_pos.y + int(FONTH / 4)), false);
+
+            // draw the icon
+            glBindTexture(GL_TEXTURE_2D, t->id);
+            gle::color(c, fullconblend * fade * f);
+            drawtexture(text_pos.x, text_pos.y + pos_y, text_dims.y, text_dims.x);
+                
+            // draw the input
+            int cp = new_console.cursor_pos >= 0 ? new_console.cursor_pos : int(new_console.get_buffer().length());//strlen(commandbuf);
+            pos_y += draw_textf("%s", text_q + text_r, text_pos.y + pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, text_t, 1,
+                    new_console.get_buffer().c_str());
+                
+            popfont();
+                
+            //////////////
+            // Info bar //
+            //////////////
+
+            std::string info_bar_text = new_console.get_info_bar_text();
+
+            if (!info_bar_text.empty())
+            {
+                pushfont("default");
+                pos_y += 15;
+                // Info Bar background
+                gle::colorf(0.15f, 0.15f, 0.15f, 0.95f);
+                draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH * 1.5f), false);
+
+                // Info bar text
+                tz += draw_textf(new_console.get_info_bar_text().c_str(), text_q + text_r, text_pos.y + pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                popfont();
+            }
+
+            ////////////////
+            // Completion //
+            ////////////////
+
+
+            pophudmatrix();
+
+        }
+
+                /*
                 int numl = consize, numo = consize+conoverflow;
                 loopvj(conlines) if(type ? conlines[j].type >= (confilter && !full ? CON_LO : 0) && conlines[j].type <= CON_HI : conlines[j].type >= (confilter && !full ? CON_LO : 0))
                 {
@@ -1860,7 +2061,8 @@ namespace hud
                     tz += draw_textf("\fs\fzwy^^^\fS IN BACKLOG: \fs\fy%d\fS \fs\fzwy^^^\fS", tr, ty+tz, 0, 0, 255, 255, 255, int(fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, ts, 1, conskip);
                 pophudmatrix();
                 tz = int(tz*conscale);
-            }
+                */
+            /*}
             if(commandmillis > 0)
             {
                 pushfont("command");
@@ -1879,7 +2081,7 @@ namespace hud
                 drawtexture(tx, ty+tz, th, tw);
                 int cp = commandpos >= 0 ? commandpos : strlen(commandbuf);//, fp = completesize && completeoffset >= 0 ? min(pos, completeoffset+completesize) : -1;
                 tz += draw_textf("%s", tq+tr, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, tt, 1, commandbuf);
-                if(capslockwarn && capslockon)
+                if(capslockwarn && input_system.capslockon)
                     tz += draw_textf("\fs\fzoy^\fS \fs\fw\f{CAPSLOCK}\fS is \fs\fcON\fS", tq+tr, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1);
                 popfont();
                 if(commandbuf[0] == '/' && commandbuf[1])
@@ -2008,8 +2210,8 @@ namespace hud
                 }
                 pophudmatrix();
                 //tz = int(tz*commandscale);
-            }
-        }
+            }*/
+        
         popfont();
     }
 
@@ -2842,16 +3044,16 @@ namespace hud
                     static string weapids[W_ALL];
                     static int lastweapids = -1;
                     int n = weapons::slot(game::focus, i);
-                    if(lastweapids != changedkeys)
+                    if(lastweapids != input_system.changed_keys)
                     {
                         loopj(W_ALL)
                         {
                             defformatstring(action, "weapon %d", j);
-                            const char *actkey = searchbind(action, 0);
+                            const char *actkey = input_system.search_bind(action, 0);
                             if(actkey && *actkey) copystring(weapids[j], actkey);
                             else formatstring(weapids[j], "%d", j);
                         }
-                        lastweapids = changedkeys;
+                        lastweapids = input_system.changed_keys;
                     }
                     drawitemtext(x, oldy, size, false, skew, "default", blend, "\f[%d]%s", inventorycolour >= 2 ? W(i, colour) : 0xAAAAAA, isweap(n) ? weapids[n] : "?");
                 }
@@ -3603,9 +3805,9 @@ namespace hud
             else if(gs_playing(game::gamestate) && game::focus == &game::player1 && game::focus->state == CS_ALIVE && game::inzoom())
                 drawzoom(hudwidth, hudheight);
         }
-        drawconsole(showconsole < 2 || noview ? 0 : 1, hudwidth, hudheight, edge*2, edge+top, hudwidth-edge*2, consolefade);
-        if(showconsole >= 2 && !noview && showconsole && showhud)
-            drawconsole(2, hudwidth, hudheight, left, hudheight-edge-bottom, showfps >= 2 || showstats >= (m_edit(game::gamemode) ? 1 : 2) ? (hudwidth-left*2)/2-edge*4 : ((hudwidth-left*2)/2-edge*4)*2, consolefade);
+        drawconsole(showconsole < 2 || noview ? 0 : 1, ivec2(hudwidth, hudheight), ivec2(edge * 2, edge + top), hudwidth-edge*2, consolefade);
+        //if(showconsole >= 2 && !noview && showconsole && showhud)
+        //    drawconsole(2, ivec2(hudwidth, hudheight), ivec2(left, hudheight - edge - bottom), showfps >= 2 || showstats >= (m_edit(game::gamemode) ? 1 : 2) ? (hudwidth-left*2)/2-edge*4 : ((hudwidth-left*2)/2-edge*4)*2, consolefade);
         glDisable(GL_BLEND);
     }
 

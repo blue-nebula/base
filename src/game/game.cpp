@@ -625,6 +625,7 @@ namespace game
         if(targ >= 0 && msg && *msg)
         {
             defvformatbigstring(text, msg, msg);
+            printf("%s\n", text);
             conoutft(targ == CON_INFO && d == &player1 ? CON_SELF : targ, "%s", text);
         }
         announce(idx, d, forced);
@@ -1752,7 +1753,7 @@ namespace game
                     case 4: if(isme || d->actortype == A_PLAYER || v->actortype == A_PLAYER || anc >= 0 || m_duke(gamemode, mutators)) show = true; break;
                     case 5: default: show = true; break;
                 }
-                int target = show ? (isme ? CON_SELF : CON_INFO) : -1;
+                int target = show ? CON_FRAG : -1;
                 announcef(anc, target, d, false, "\fw%s", d->obit);
             }
             else if(anc >= 0) announce(anc, d);

@@ -40,7 +40,7 @@ namespace weapons
                 weaplist.add(weap);
         }
         loopi(W_ALL) if(weaplist.find(i) < 0) weaplist.add(i); // make sure all weapons have a slot
-        changedkeys = lastmillis;
+        input_system.changed_keys = lastmillis;
     }
     SVARF(IDF_PERSIST, weapselectlist, "", buildweaplist(weapselectlist));
     VARF(IDF_PERSIST, weapselectslot, 0, 1, 2, buildweaplist(weapselectlist)); // 0 = by id, 1 = by slot, 2 = by list

@@ -92,7 +92,7 @@ void cleanup()
     cleargamma();
     freeocta(worldroot);
     extern void clear_command();    clear_command();
-    extern void clear_console();    clear_console();
+    input_system.clear_keymaps();
     extern void clear_mdls();       clear_mdls();
     stopsound();
     #ifdef __APPLE__
@@ -578,14 +578,14 @@ void checkinput()
                 {
                     uchar buf[SDL_TEXTINPUTEVENT_TEXT_SIZE+1];
                     size_t len = decodeutf8(buf, sizeof(buf)-1, (const uchar *)event.text.text, strlen(event.text.text));
-                    if(len > 0) { buf[len] = '\0'; processtextinput((const char *)buf, len); }
+                    if(len > 0) { buf[len] = '\0'; input_system.process_text_input((const char *)buf, len); }
                 }
                 break;
 
             case SDL_KEYDOWN:
             case SDL_KEYUP:
                 if(keyrepeatmask || !event.key.repeat)
-                    processkey(event.key.keysym.sym, event.key.state==SDL_PRESSED);
+                    input_system.process_key(event.key.keysym.sym, event.key.state==SDL_PRESSED);
                 break;
 
             case SDL_WINDOWEVENT:
@@ -649,19 +649,19 @@ void checkinput()
                 //if(lasttype==event.type && lastbut==event.button.button) break; // why?? get event twice without it
                 switch(event.button.button)
                 {
-                    case SDL_BUTTON_LEFT: processkey(-1, event.button.state==SDL_PRESSED); break;
-                    case SDL_BUTTON_MIDDLE: processkey(-2, event.button.state==SDL_PRESSED); break;
-                    case SDL_BUTTON_RIGHT: processkey(-3, event.button.state==SDL_PRESSED); break;
-                    case SDL_BUTTON_X1: processkey(-6, event.button.state==SDL_PRESSED); break;
-                    case SDL_BUTTON_X2: processkey(-7, event.button.state==SDL_PRESSED); break;
+                    case SDL_BUTTON_LEFT: input_system.process_key(-1, event.button.state==SDL_PRESSED); break;
+                    case SDL_BUTTON_MIDDLE: input_system.process_key(-2, event.button.state==SDL_PRESSED); break;
+                    case SDL_BUTTON_RIGHT: input_system.process_key(-3, event.button.state==SDL_PRESSED); break;
+                    case SDL_BUTTON_X1: input_system.process_key(-6, event.button.state==SDL_PRESSED); break;
+                    case SDL_BUTTON_X2: input_system.process_key(-7, event.button.state==SDL_PRESSED); break;
                 }
                 //lasttype = event.type;
                 //lastbut = event.button.button;
                 break;
 
             case SDL_MOUSEWHEEL:
-                if(event.wheel.y > 0) { processkey(-4, true); processkey(-4, false); }
-                else if(event.wheel.y < 0) { processkey(-5, true); processkey(-5, false); }
+                if(event.wheel.y > 0) { input_system.process_key(-4, true); input_system.process_key(-4, false); }
+                else if(event.wheel.y < 0) { input_system.process_key(-5, true); input_system.process_key(-5, false); }
                 break;
         }
     }
@@ -966,7 +966,7 @@ int main(int argc, char **argv)
                     case 'f': fullscreen = atoi(&argv[i][3]); break;
                     case 's': /* compat, ignore */ break;
                     case 'u': /* compat, ignore */ break;
-                    default: conoutf("\frunknown display option %c", argv[i][2]); break;
+                    default: conoutf("\frUnknown Display Option %c", argv[i][2]); break;
                 }
                 break;
             }
@@ -1014,15 +1014,15 @@ int main(int argc, char **argv)
 
     numcpus = clamp(SDL_GetCPUCount(), 1, 16);
 
-    conoutf("loading enet..");
+    conoutf("Loading Enet...");
     if(enet_initialize()<0) fatal("Unable to initialise network module");
     atexit(enet_deinitialize);
     enet_time_set(0);
 
-    conoutf("loading game..");
+    conoutf("Loading Game...");
     initgame();
 
-    conoutf("loading sdl..");
+    conoutf("Loading SDL...");
 
     //#ifdef WIN32
     //SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
@@ -1030,8 +1030,8 @@ int main(int argc, char **argv)
 
     if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0) fatal("error initialising SDL: %s", SDL_GetError());
 
-    conoutf("loading video..");
-    setcaption("please wait..");
+    conoutf("Loading Video...");
+    setcaption("Please Wait...");
     SDL_SetHint(SDL_HINT_GRAB_KEYBOARD, "0");
     SDL_SetHint(SDL_HINT_VIDEO_ALLOW_SCREENSAVER, "0");
     setupscreen();
@@ -1056,34 +1056,34 @@ int main(int argc, char **argv)
         #endif
     #endif
 
-    conoutf("loading gl..");
+    conoutf("Loading GL...");
     gl_checkextensions();
     gl_init();
     if(!(notexture = textureload(notexturetex)) || !(blanktexture = textureload(blanktex)))
-        fatal("could not find core textures");
+        fatal("Could not find core textures");
 
-    conoutf("loading sound..");
+    conoutf("Loading Sound...");
     initsound();
 
     game::start();
 
-    conoutf("loading defaults..");
+    conoutf("Loading Defaults...");
     if(!execfile("config/stdlib.cfg", false)) fatal("cannot find data files");
     if(!setfont("default")) fatal("no default font specified");
     inbetweenframes = true;
     progress(0, "please wait..");
 
-    conoutf("loading world..");
-    progress(0, "loading world..");
+    conoutf("Loading World...");
+    progress(0, "Loading World...");
     emptymap(0, true, NULL, true);
 
-    conoutf("loading config..");
-    progress(0, "loading config..");
+    conoutf("Loading Config...");
+    progress(0, "Loading Config...");
     rehash(false);
     smartmusic(true, true);
 
-    conoutf("loading required data..");
-    progress(0, "loading required data..");
+    conoutf("Loading Required Data...");
+    progress(0, "Loading Required Data...");
     restoregamma();
     restorevsync();
     loadshaders();
@@ -1092,12 +1092,13 @@ int main(int argc, char **argv)
     initdecals();
 
     trytofindocta();
-    conoutf("loading main..");
-    progress(0, "loading main..");
+    conoutf("Loading Main...");
+    progress(0, "Loading Main...");
     if(initscript) execute(initscript, true);
 
-    capslockon = capslocked();
-    numlockon = numlocked();
+    //TODO: check if necessary
+    //input_system.capslock_on = input_system.capslocked();
+    //input_system.numlock_on = input_system.numlocked();
     ignoremousemotion();
 
     localconnect(false);
@@ -1106,7 +1107,7 @@ int main(int argc, char **argv)
     if(blue_nebula_protocol_arg)
     {
         if(connecthost && *connecthost) connectserv(connecthost, connectport, connectpassword);
-        else conoutf("\frmalformed commandline argument: %s", blue_nebula_protocol_arg);
+        else conoutf("\frMalformed Commandline Argument: %s", blue_nebula_protocol_arg);
     }
 
     // housekeeping

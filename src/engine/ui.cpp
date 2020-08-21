@@ -1315,7 +1315,7 @@ namespace UI
                     }
                     return true;
             }
-            const char *keyname = getkeyname(code);
+            const char *keyname = input_system.get_key_name(code);
             if(keyname && isdown)
             {
                 if(e->lines.length()!=1 || !e->lines[0].empty()) e->insert(" ");

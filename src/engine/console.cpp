@@ -1,292 +1,289 @@
 // console.cpp: the console buffer, its display, and command line control
 #include <string>
+#include <algorithm>
 
+#include "console.h"
 #include "engine.h"
 #include "game.h"
+
+bool InputHistory::go_up()
+{
+    int prev_history_pos = current_history_pos;
+    current_history_pos = std::min(current_history_pos + 1, int(history.size()));
+
+    current_line = history[current_history_pos];
+    return current_history_pos != prev_history_pos;
+}
+
+bool InputHistory::go_down()
+{
+    int prev_history_pos = current_history_pos;
+    current_history_pos = std::max(current_history_pos - 1, 0);
+
+    current_line = history[current_history_pos];
+    return current_history_pos != prev_history_pos;
+}
+
+void InputHistory::save(InputHistoryLine line)
+{
+    history.push_front(line);
+}
+
+bool History::move(int lines)
+{
+    if (lines == 0)
+    {
+        return false;
+    }
+
+    int prev_scroll_pos = scroll_pos;
+    
+    if (lines > 0)
+    {
+        // go up
+        //TODO: Find alternative to using idents hashnameset
+        int max_pos = int(h.size()) - (*idents["consize"].storage.i + *idents["conoverflow"].storage.i);
+        scroll_pos = std::min(scroll_pos + lines, max_pos);
+    }
+    else
+    {
+        // lines is smaller than 0, go down
+        scroll_pos = std::max(scroll_pos + lines, 0);
+    }
+
+    // make sure scrollpos never gets below 0
+    scroll_pos = std::max(scroll_pos, 0);
+
+    return scroll_pos != prev_scroll_pos;
+}
+
+void History::save(ConsoleLine line)
+{
+    h.push_front(line);
+}
+
+History& Console::curr_hist()
+{
+    switch (selected_hist)
+    {
+        case HIST_CHAT:
+            return chat_history;
+        case HIST_GAME:
+            return game_history;
+        case HIST_DEBUG:
+            return debug_history;
+        default:
+            return all_history;
+    }
+}
+
+void Console::set_buffer(std::string text)
+{
+    buffer = text;
+    // update search or completion
+    
+    switch (get_mode())
+    {
+        case MODE_COMMAND:
+            //update_completion();
+            break;
+        case MODE_SEARCH:
+            update_search();
+            break;
+    }
+}
+std::string Console::get_buffer()
+{
+    return buffer;
+}
+
+void Console::print(int type, const std::string text, const std::string raw_text)
+{
+    ConsoleLine line = ConsoleLine();
+    line.text = text;
+    line.raw_text = raw_text;
+    line.type = type;
+    line.reftime = totalmillis;
+    line.out_time = totalmillis;
+    line.real_time = clocktime;
+
+    switch (line.type)
+    {
+        case CON_CHAT:
+        case CON_CHAT_TEAM:
+        case CON_CHAT_WHISPER:
+            chat_history.save(line);
+            break;
+        case CON_FRAG:
+            game_history.save(line);
+            break;
+        case CON_DEBUG:
+            debug_history.save(line);
+            break;
+        default:
+            all_history.save(line);
+            break;
+    }
+}
+
+void Console::run_buffer()
+{
+    if (buffer[0] == command_prefix)
+    {
+        execute(buffer.c_str() + 1);
+    }
+    else
+    {
+        client::toserver(0, buffer.c_str());
+    }
+    // reset scrolling
+    curr_hist().scroll_pos = 0;
+}
+
+void Console::open_console()
+{
+}
+
+void Console::close_console()
+{
+    input_history.current_history_pos = -1;
+}
+
+void Console::insert_in_buffer(const std::string text)
+{
+    int maxlen = std::min(client::maxmsglen(), max_buffer_len);
+
+    int remaining_space = maxlen - int(buffer.length());
+    int insert_len = std::min(int(text.length()), remaining_space);
+
+    if (insert_len <= 0)
+    {
+        // can't insert anything
+        return;
+    }
+
+    if (cursor_pos < 0)
+    {
+        set_buffer(buffer + text);
+        cursor_pos = int(buffer.length());
+    }
+    else
+    {
+        std::string new_buffer = get_buffer();
+        new_buffer.insert(std::max(0, cursor_pos), text);
+        set_buffer(new_buffer);
+
+        cursor_pos += insert_len;
+    }
+}
+
+int Console::get_mode()
+{
+    if (!buffer.empty())
+    {
+        if (buffer[0] == command_prefix)
+        {
+            return MODE_COMMAND;
+        }
+        else if (buffer[0] == search_prefix)
+        {
+            return MODE_SEARCH;
+        }
+    }
+    
+    return MODE_NONE;
+}
+
+std::string Console::get_info_bar_text()
+{
+    std::string text = "";
+    switch (get_mode())
+    {
+        case MODE_SEARCH:
+            text = "\fgSearch Mode: \fwFound ";
+            text += std::to_string(search_results.size()) + " match" + (search_results.size() == 1 ? "." : "es.");
+            break;
+        case MODE_COMMAND:
+            text = "\fbCommand Mode";
+            break;
+    }
+    return text;
+}
+
+void Console::update_search()
+{
+    if (get_buffer().empty())
+    {
+        return;
+    }
+
+    const bool smartcase = true;
+
+    std::string search_term = get_buffer().substr(1, -1);
+    bool case_sensitive_search = true;
+    // if smartcase is on, and the search contains an uppercase letter,
+    // search is case sensitive
+    if (smartcase && !std::all_of(search_term.begin(), search_term.end(), islower))
+    {
+        case_sensitive_search = true;
+    }
+    else
+    {
+        case_sensitive_search = false;
+        //TODO: make search_term lowercase
+        std::transform(search_term.begin(), search_term.end(), search_term.begin(),
+            [](unsigned char c){ return std::tolower(c); });
+    }
+
+    search_results.clear();
+    for (const auto& line : curr_hist().h)
+    {
+        std::string line_text = line.type != CON_CHAT ? line.text : line.raw_text;
+        if (!case_sensitive_search)
+        {
+            std::transform(line_text.begin(), line_text.end(), line_text.begin(),
+                [](unsigned char c){ return std::tolower(c); });
+        }
+
+        if (line_text.find(search_term) != std::string::npos)
+        {
+            search_results.push_back(line.text);
+        }
+    }
+
+    printf("%d: %s: %d\n", case_sensitive_search, search_term.c_str(), int(search_results.size()));
+}
+
+Console new_console = Console();
 
 reversequeue<cline, MAXCONLINES> conlines;
 
 int commandmillis = -1;
-bigstring commandbuf;
+//bigstring commandbuf;
 char *commandaction = NULL, *commandicon = NULL;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1, CF_MESSAGE = 1<<2 };
-int commandflags = 0, commandpos = -1, commandcolour = 0;
+int commandflags = 0;//commandpos = -1, commandcolour = 0;
+int commandcolour = 0;
 
 void complete(char* s, size_t s_size, const char* cmdprefix);
 
 void conline(int type, const char *sf, int n)
 {
-    char *buf = conlines.length() >= MAXCONLINES ? conlines.remove().cref : newstring("", BIGSTRLEN-1);
-    cline &cl = conlines.add();
-    cl.type = type;
-    cl.cref = buf;
-    cl.reftime = cl.outtime = totalmillis;
-    cl.realtime = clocktime;
-
-    if(n)
-    {
-        copystring(cl.cref, "  ", BIGSTRLEN);
-        concatstring(cl.cref, sf, BIGSTRLEN);
-        loopj(2)
-        {
-            int off = n+j;
-            if(conlines.inrange(off))
-            {
-                if(j) concatstring(conlines[off].cref, "\fs", BIGSTRLEN);
-                else prependstring(conlines[off].cref, "\fS", BIGSTRLEN);
-            }
-        }
-    }
-    else copystring(cl.cref, sf, BIGSTRLEN);
+    new_console.print(type, sf);
 }
-
-// keymap is defined externally in keymap.cfg
-struct keym
-{
-    enum
-    {
-        ACTION_DEFAULT = 0,
-        ACTION_SPECTATOR,
-        ACTION_EDITING,
-        ACTION_WAITING,
-        NUMACTIONS
-    };
-
-    int code;
-    char *name;
-    char *actions[NUMACTIONS];
-    bool pressed, persist[NUMACTIONS];
-
-    keym() : code(-1), name(NULL), pressed(false) { loopi(NUMACTIONS) { actions[i] = newstring(""); persist[i] = false; } }
-    ~keym() { DELETEA(name); loopi(NUMACTIONS) { DELETEA(actions[i]); persist[i] = false; } }
-};
-
-hashtable<int, keym> keyms(128);
-
-void keymap(int *code, char *key)
-{
-    if(identflags&IDF_WORLD) { conoutf("\frcannot override keymap"); return; }
-    keym &km = keyms[*code];
-    km.code = *code;
-    DELETEA(km.name);
-    km.name = newstring(key);
-}
-
-COMMAND(0, keymap, "is");
-
-keym *keypressed = NULL;
-char *keyaction = NULL;
-
-const char *getkeyname(int code)
-{
-    keym *km = keyms.access(code);
-    return km ? km->name : NULL;
-}
-
-void searchbindlist(const char *action, int type, int limit, const char *s1, const char *s2, const char *sep1, const char *sep2, vector<char> &names, bool force)
-{
-    const char *name1 = NULL, *name2 = NULL, *lastname = NULL;
-    int found = 0;
-    enumerate(keyms, keym, km,
-    {
-        char *act = type && force && (!km.actions[type] || !*km.actions[type]) ? km.actions[keym::ACTION_DEFAULT] : km.actions[type];
-        if(act && !strcmp(act, action))
-        {
-            if(!name1) name1 = km.name;
-            else if(!name2) name2 = km.name;
-            else
-            {
-                if(lastname)
-                {
-                    if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-                    if(s1 && *s1) names.put(s1, strlen(s1));
-                    names.put(lastname, strlen(lastname));
-                    if(s2 && *s2) names.put(s2, strlen(s2));
-                }
-                else
-                {
-                    if(s1 && *s1) names.put(s1, strlen(s1));
-                    names.put(name1, strlen(name1));
-                    if(s2 && *s2) names.put(s2, strlen(s2));
-                    if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-                    if(s1 && *s1) names.put(s1, strlen(s1));
-                    names.put(name2, strlen(name2));
-                    if(s2 && *s2) names.put(s2, strlen(s2));
-                }
-                lastname = km.name;
-            }
-            ++found;
-            if(limit > 0 && found >= limit) break;
-        }
-    });
-    if(lastname)
-    {
-        if(sep2 && *sep2) names.put(sep2, strlen(sep2));
-        else if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-        if(s1 && *s1) names.put(s1, strlen(s1));
-        names.put(lastname, strlen(lastname));
-        if(s2 && *s2) names.put(s2, strlen(s2));
-    }
-    else
-    {
-        if(name1)
-        {
-            if(s1 && *s1) names.put(s1, strlen(s1));
-            names.put(name1, strlen(name1));
-            if(s2 && *s2) names.put(s2, strlen(s2));
-        }
-        if(name2)
-        {
-            if(sep2 && *sep2) names.put(sep2, strlen(sep2));
-            else if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-            if(s1 && *s1) names.put(s1, strlen(s1));
-            names.put(name2, strlen(name2));
-            if(s2 && *s2) names.put(s2, strlen(s2));
-        }
-    }
-    names.add('\0');
-}
-
-const char *searchbind(const char *action, int type)
-{
-    enumerate(keyms, keym, km,
-    {
-        char *act = ((!km.actions[type] || !*km.actions[type]) && type ? km.actions[keym::ACTION_DEFAULT] : km.actions[type]);
-        if(!strcmp(act, action)) return km.name;
-    });
-    return NULL;
-}
-
-void getkeypressed(int limit, const char *s1, const char *s2, const char *sep1, const char *sep2, vector<char> &names)
-{
-    const char *name1 = NULL, *name2 = NULL, *lastname = NULL;
-    int found = 0;
-    enumerate(keyms, keym, km,
-    {
-        if(km.pressed)
-        {
-            if(!name1) name1 = km.name;
-            else if(!name2) name2 = km.name;
-            else
-            {
-                if(lastname)
-                {
-                    if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-                    if(s1 && *s1) names.put(s1, strlen(s1));
-                    names.put(lastname, strlen(lastname));
-                    if(s2 && *s2) names.put(s2, strlen(s2));
-                }
-                else
-                {
-                    if(s1 && *s1) names.put(s1, strlen(s1));
-                    names.put(name1, strlen(name1));
-                    if(s2 && *s2) names.put(s2, strlen(s2));
-                    if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-                    if(s1 && *s1) names.put(s1, strlen(s1));
-                    names.put(name2, strlen(name2));
-                    if(s2 && *s2) names.put(s2, strlen(s2));
-                }
-                lastname = km.name;
-            }
-            ++found;
-            if(limit > 0 && found >= limit) break;
-        }
-    });
-    if(lastname)
-    {
-        if(sep2 && *sep2) names.put(sep2, strlen(sep2));
-        else if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-        if(s1 && *s1) names.put(s1, strlen(s1));
-        names.put(lastname, strlen(lastname));
-        if(s2 && *s2) names.put(s2, strlen(s2));
-    }
-    else
-    {
-        if(name1)
-        {
-            if(s1 && *s1) names.put(s1, strlen(s1));
-            names.put(name1, strlen(name1));
-            if(s2 && *s2) names.put(s2, strlen(s2));
-        }
-        if(name2)
-        {
-            if(sep2 && *sep2) names.put(sep2, strlen(sep2));
-            else if(sep1 && *sep1) names.put(sep1, strlen(sep1));
-            if(s1 && *s1) names.put(s1, strlen(s1));
-            names.put(name2, strlen(name2));
-            if(s2 && *s2) names.put(s2, strlen(s2));
-        }
-    }
-    names.add('\0');
-}
-
-int findkeycode(char *key)
-{
-    enumerate(keyms, keym, km,
-    {
-        if(!strcasecmp(km.name, key)) return i;
-    });
-    return 0;
-}
-
-keym *findbind(char *key)
-{
-    enumerate(keyms, keym, km,
-    {
-        if(!strcasecmp(km.name, key)) return &km;
-    });
-    return NULL;
-}
-
-void getbind(char *key, int type)
-{
-    keym *km = findbind(key);
-    result(km ? ((!km->actions[type] || !*km->actions[type]) && type ? km->actions[keym::ACTION_DEFAULT] : km->actions[type]) : "");
-}
-
-int changedkeys = 0;
-
-void bindkey(char *key, char *action, int state, const char *cmd)
-{
-    if(identflags&IDF_WORLD) { conoutf("\frcannot override %s \"%s\"", cmd, key); return; }
-    keym *km = findbind(key);
-    if(!km) { conoutf("\frunknown key \"%s\"", key); return; }
-    char *&binding = km->actions[state];
-    bool *persist = &km->persist[state];
-    if(!keypressed || keyaction!=binding) delete[] binding;
-    // trim white-space to make searchbinds more reliable
-    while(iscubespace(*action)) action++;
-    int len = strlen(action);
-    while(len>0 && iscubespace(action[len-1])) len--;
-    binding = newstring(action, len);
-    *persist = initing != INIT_DEFAULTS;
-    changedkeys = totalmillis;
-}
-
-ICOMMAND(0, bind,     "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_DEFAULT, "bind"));
-ICOMMAND(0, specbind, "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_SPECTATOR, "specbind"));
-ICOMMAND(0, editbind, "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_EDITING, "editbind"));
-ICOMMAND(0, waitbind, "ss", (char *key, char *action), bindkey(key, action, keym::ACTION_WAITING, "waitbind"));
-ICOMMAND(0, getbind,     "s", (char *key), getbind(key, keym::ACTION_DEFAULT));
-ICOMMAND(0, getspecbind, "s", (char *key), getbind(key, keym::ACTION_SPECTATOR));
-ICOMMAND(0, geteditbind, "s", (char *key), getbind(key, keym::ACTION_EDITING));
-ICOMMAND(0, getwaitbind, "s", (char *key), getbind(key, keym::ACTION_WAITING));
-ICOMMAND(0, searchbinds,     "sissssb", (char *action, int *limit, char *s1, char *s2, char *sep1, char *sep2, int *force), { vector<char> list; searchbindlist(action, keym::ACTION_DEFAULT, max(*limit, 0), s1, s2, sep1, sep2, list, *force!=0); result(list.getbuf()); });
-ICOMMAND(0, searchspecbinds, "sissssb", (char *action, int *limit, char *s1, char *s2, char *sep1, char *sep2, int *force), { vector<char> list; searchbindlist(action, keym::ACTION_SPECTATOR, max(*limit, 0), s1, s2, sep1, sep2, list, *force!=0); result(list.getbuf()); });
-ICOMMAND(0, searcheditbinds, "sissssb", (char *action, int *limit, char *s1, char *s2, char *sep1, char *sep2, int *force), { vector<char> list; searchbindlist(action, keym::ACTION_EDITING, max(*limit, 0), s1, s2, sep1, sep2, list, *force!=0); result(list.getbuf()); });
-ICOMMAND(0, searchwaitbinds, "sissssb", (char *action, int *limit, char *s1, char *s2, char *sep1, char *sep2, int *force), { vector<char> list; searchbindlist(action, keym::ACTION_WAITING, max(*limit, 0), s1, s2, sep1, sep2, list, *force!=0); result(list.getbuf()); });
-
-ICOMMAND(0, keyspressed, "issss", (int *limit, char *s1, char *s2, char *sep1, char *sep2), { vector<char> list; getkeypressed(max(*limit, 0), s1, s2, sep1, sep2, list); result(list.getbuf()); });
 
 void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour = 0, char *flags = NULL) // turns input to the command line on or off
 {
     commandmillis = init ? totalmillis : -totalmillis;
     textinput(commandmillis >= 0, TI_CONSOLE);
     keyrepeat(commandmillis >= 0, KR_CONSOLE);
-    copystring(commandbuf, init ? init : "", BIGSTRLEN);
+    if (init != nullptr)
+    {
+        new_console.set_buffer(init);
+    }
     DELETEA(commandaction);
     DELETEA(commandicon);
-    commandpos = -1;
+    new_console.cursor_pos = -1;
     if(action && action[0]) commandaction = newstring(action);
     if(icon && icon[0]) commandicon = newstring(icon);
     commandcolour = colour;
@@ -317,67 +314,36 @@ bool paste(char *buf, size_t len)
     return true;
 }
 
+bool paste_to_buffer()
+{
+    if (!SDL_HasClipboardText())
+    {
+        return false;
+    }
+
+    char* clipboard_text = SDL_GetClipboardText();
+    if (clipboard_text == nullptr)
+    {
+        return false;
+    }
+
+    size_t clipboard_len = strlen(clipboard_text);
+    printf("%d: %s\n", int(clipboard_len), clipboard_text);
+    
+    new_console.insert_in_buffer(clipboard_text);
+
+    // documentation says this has to be done
+    SDL_free(clipboard_text);
+
+    return true;
+}
+
 SVAR(0, commandbuffer, "");
 
-struct hline
-{
-    char *buf, *action, *icon;
-    int colour, flags;
-
-    hline() : buf(NULL), action(NULL), icon(NULL), colour(0), flags(0) {}
-    ~hline()
-    {
-        DELETEA(buf);
-        DELETEA(action);
-        DELETEA(icon);
-    }
-
-    void restore()
-    {
-        copystring(commandbuf, buf);
-        if(commandpos >= (int)strlen(commandbuf)) commandpos = -1;
-        DELETEA(commandaction);
-        DELETEA(commandicon);
-        if(action) commandaction = newstring(action);
-        if(icon) commandicon = newstring(icon);
-        commandcolour = colour;
-        commandflags = flags;
-    }
-
-    bool shouldsave()
-    {
-        return strcmp(commandbuf, buf) ||
-               (commandaction ? !action || strcmp(commandaction, action) : action!=NULL) ||
-               (commandicon ? !icon || strcmp(commandicon, icon) : icon!=NULL) ||
-               commandcolour != colour ||
-               commandflags != flags;
-    }
-
-    void save()
-    {
-        buf = newstring(commandbuf);
-        if(commandaction) action = newstring(commandaction);
-        if(commandicon) icon = newstring(commandicon);
-        colour = commandcolour;
-        flags = commandflags;
-    }
-
-    void run()
-    {
-        if(flags&CF_EXECUTE && buf[0]=='/') execute(buf+1); // above all else
-        else if(action)
-        {
-            setsvar("commandbuffer", buf, true);
-            execute(action);
-        }
-        else client::toserver(0, buf);
-    }
-};
-vector<hline *> history;
 int histpos = 0;
 
 VAR(IDF_PERSIST, maxhistory, 0, 1000, 10000);
-
+/*
 void history_(int *n)
 {
     static bool inhistory = false;
@@ -388,289 +354,209 @@ void history_(int *n)
         inhistory = false;
     }
 }
+*/
 
-COMMANDN(0, history, history_, "i");
+//COMMANDN(0, history, history_, "i");
 
-struct releaseaction
+bool Console::process_text_input(const char *str, int len)
 {
-    keym *key;
-    char *action;
-};
-vector<releaseaction> releaseactions;
-
-const char *addreleaseaction(char *s)
-{
-    if(!keypressed) { delete[] s; return NULL; }
-    releaseaction &ra = releaseactions.add();
-    ra.key = keypressed;
-    ra.action = s;
-    return keypressed->name;
-}
-
-void onrelease(const char *s)
-{
-    addreleaseaction(newstring(s));
-}
-
-COMMAND(0, onrelease, "s");
-
-void execbind(keym &k, bool isdown)
-{
-    loopv(releaseactions)
+    if (commandmillis < 0)
     {
-        releaseaction &ra = releaseactions[i];
-        if(ra.key==&k)
-        {
-            if(!isdown) execute(ra.action);
-            delete[] ra.action;
-            releaseactions.remove(i--);
-        }
+        return false;
     }
-    if(isdown)
-    {
-
-        int state = keym::ACTION_DEFAULT;
-        switch(client::state())
-        {
-            case CS_ALIVE: case CS_DEAD: default: break;
-            case CS_SPECTATOR: state = keym::ACTION_SPECTATOR; break;
-            case CS_EDITING: state = keym::ACTION_EDITING; break;
-            case CS_WAITING: state = keym::ACTION_WAITING; break;
-        }
-        char *&action = k.actions[state][0] ? k.actions[state] : k.actions[keym::ACTION_DEFAULT];
-        keyaction = action;
-        keypressed = &k;
-        execute(keyaction);
-        keypressed = NULL;
-        if(keyaction!=action) delete[] keyaction;
-    }
-    k.pressed = isdown;
-}
-
-bool consoleinput(const char *str, int len)
-{
-    if(commandmillis < 0) return false;
 
     resetcomplete();
-    int maxlen = int(sizeof(commandbuf));
-    if(commandflags&CF_MESSAGE) maxlen = min(client::maxmsglen(), maxlen);
-    int cmdlen = (int)strlen(commandbuf), cmdspace = maxlen - (cmdlen+1);
-    len = min(len, cmdspace);
-    if(len <= 0) return true;
-
-    if(commandpos<0)
-    {
-        memcpy(&commandbuf[cmdlen], str, len);
-    }
-    else
-    {
-        memmove(&commandbuf[commandpos+len], &commandbuf[commandpos], cmdlen - commandpos);
-        memcpy(&commandbuf[commandpos], str, len);
-        commandpos += len;
-    }
-    commandbuf[cmdlen + len] = '\0';
+    new_console.insert_in_buffer(str);
 
     return true;
 }
 
-bool consolekey(int code, bool isdown)
+bool Console::process_key(int code, bool isdown)
 {
-    if(commandmillis < 0) return false;
-
-    if(isdown)
+    if (commandmillis < 0)
     {
-        switch(code)
+        return false;
+    }
+
+    if (isdown)
+    {
+        switch (code)
         {
             case SDLK_RETURN:
             case SDLK_KP_ENTER:
                 break;
 
             case SDLK_HOME:
-                if(strlen(commandbuf)) commandpos = 0;
+                if (new_console.get_buffer().length() != 0)
+                {
+                    new_console.cursor_pos = 0;
+                }
                 break;
 
             case SDLK_END:
-                commandpos = -1;
+                new_console.cursor_pos = -1;
                 break;
 
             case SDLK_DELETE:
             {
-                int len = (int)strlen(commandbuf);
-                if(commandpos<0) break;
-                memmove(&commandbuf[commandpos], &commandbuf[commandpos+1], len - commandpos);
+                int len = int(new_console.get_buffer().length());
+                
+                if (new_console.cursor_pos < 0)
+                {
+                    break;
+                }
+
+                std::string new_buffer = new_console.get_buffer();
+                new_buffer.erase(new_buffer.begin() + new_console.cursor_pos);
+                new_console.set_buffer(new_buffer);
+
                 resetcomplete();
-                if(commandpos>=len-1) commandpos = -1;
+                if (new_console.cursor_pos >= len - 1)
+                {
+                    new_console.cursor_pos = -1;
+                }
+
                 break;
             }
 
             case SDLK_BACKSPACE:
             {
-                int len = (int)strlen(commandbuf), i = commandpos>=0 ? commandpos : len;
-                if(i<1) break;
-                memmove(&commandbuf[i-1], &commandbuf[i], len - i + 1);
+                int len = int(new_console.get_buffer().length());
+                int i = new_console.cursor_pos >= 0 ? new_console.cursor_pos : len;
+
+                if (i < 1)
+                {
+                    break;
+                }
+
+                std::string new_buffer = new_console.get_buffer();
+                new_buffer.erase(new_buffer.begin() + (i - 1));
+                new_console.set_buffer(new_buffer);
+                
                 resetcomplete();
-                if(commandpos>0) commandpos--;
-                else if(!commandpos && len<=1) commandpos = -1;
+                if (new_console.cursor_pos > 0)
+                {
+                    new_console.cursor_pos--;
+                }
+                else if (new_console.cursor_pos == 0 && len <= 1)
+                {
+                    new_console.cursor_pos = -1;
+                }
                 break;
             }
 
+            case -4:
+                new_console.curr_hist().move(1);
+                break;
+            case -5:
+                new_console.curr_hist().move(-1);
+                break;
+            case SDLK_PAGEUP:
+                new_console.curr_hist().move(10);
+                break;
+            case SDLK_PAGEDOWN:
+                new_console.curr_hist().move(-10);
+                break;
+
             case SDLK_LEFT:
-                if(commandpos>0) commandpos--;
-                else if(commandpos<0) commandpos = (int)strlen(commandbuf)-1;
-                break;
-
-            case SDLK_RIGHT:
-                if(commandpos>=0 && ++commandpos>=(int)strlen(commandbuf)) commandpos = -1;
-                break;
-
-            case SDLK_UP:
-                if(histpos > history.length()) histpos = history.length();
-                if(histpos > 0) history[--histpos]->restore();
-                break;
-
-            case SDLK_DOWN:
-                if(histpos + 1 < history.length()) history[++histpos]->restore();
-                break;
-
-            case SDLK_TAB:
-                if(commandflags&CF_COMPLETE)
+                if (new_console.cursor_pos > 0)
                 {
-                    complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
-                    if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
+                    new_console.cursor_pos--;
+                }
+                else if (new_console.cursor_pos < 0)
+                {
+                    new_console.cursor_pos = int(new_console.get_buffer().length()) - 1;
                 }
                 break;
 
+            case SDLK_RIGHT:
+                if (new_console.cursor_pos >= 0 && ++new_console.cursor_pos >= int(new_console.get_buffer().length()))
+                {
+                    new_console.cursor_pos = -1;
+                }
+                break;
+
+            case SDLK_UP:
+                if (new_console.input_history.go_up())
+                {
+                    new_console.set_buffer(new_console.input_history.current_line.text);
+                }
+                break;
+
+            case SDLK_DOWN:
+                if (new_console.input_history.go_down())
+                {
+                    new_console.set_buffer(new_console.input_history.current_line.text);
+                }
+                break;
+
+            case SDLK_TAB:
+                //TODO: Implement completion
+                /*if(commandflags&CF_COMPLETE)
+                {
+                    complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
+                    if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
+                }*/
+                printf("Completion isn't implemented yet\n");
+                break;
+
             case SDLK_v:
-                if(SDL_GetModState()&MOD_KEYS) paste(commandbuf, sizeof(commandbuf));
+                if (SDL_GetModState() & MOD_KEYS)
+                {
+                    paste_to_buffer();
+                }
+                break;
+            case SDLK_F1:
+                selected_hist = HIST_CHAT;
+                break;
+            case SDLK_F2:
+                selected_hist = HIST_GAME;
+                break;
+            case SDLK_F3:
+                selected_hist = HIST_DEBUG;
                 break;
         }
     }
     else
     {
-        if(code==SDLK_RETURN || code==SDLK_KP_ENTER)
+        if (code == SDLK_RETURN || code == SDLK_KP_ENTER)
         {
-            hline *h = NULL;
-            if(commandbuf[0])
+            if (!new_console.get_buffer().empty())
             {
-                if(history.empty() || history.last()->shouldsave())
-                {
-                    if(maxhistory && history.length() >= maxhistory)
-                    {
-                        loopi(history.length()-maxhistory+1) delete history[i];
-                        history.remove(0, history.length()-maxhistory+1);
-                    }
-                    history.add(h = new hline)->save();
-                }
-                else h = history.last();
+                // save this line to the history
+                InputHistoryLine line = InputHistoryLine();
+                line.text = new_console.get_buffer();
+                new_console.input_history.save(line);
             }
-            histpos = history.length();
-            inputcommand(NULL);
-            if(h)
-            {
-                interactive = true;
-                h->run();
-                interactive = false;
-            }
+            inputcommand(nullptr);
+                
+            interactive = true;
+            new_console.run_buffer();
+            interactive = false;
+            
+            new_console.close_console();
         }
-        else if(code==SDLK_ESCAPE || code < 0)
+        else if (code == SDLK_ESCAPE || (code < 0 && code != -5 && code != -4))
         {
-            histpos = history.length();
-            inputcommand(NULL);
+            inputcommand(nullptr);
+            new_console.close_console();
         }
     }
 
     return true;
 }
 
-void processtextinput(const char *str, int len)
-{
-    if(!hud::textinput(str, len))
-        consoleinput(str, len);
-}
-
-#define keyintercept(name,body) \
-{ \
-    static bool key##name = false; \
-    if(SDL_GetModState()&MOD_ALTS && isdown) \
-    { \
-        if(!key##name) \
-        { \
-            body; \
-            key##name = true; \
-        } \
-        return; \
-    } \
-    if(!isdown && key##name) \
-    { \
-        key##name = false; \
-        return; \
-    } \
-}
-void processkey(int code, bool isdown)
-{
-    switch(code)
-    {
-#ifdef __APPLE__
-        case SDLK_q:
-#else
-        case SDLK_F4:
-#endif
-            keyintercept(quit, quit());
-            break;
-        case SDLK_RETURN:
-            keyintercept(fullscreen, setfullscreen(!(SDL_GetWindowFlags(screen) & SDL_WINDOW_FULLSCREEN)));
-            break;
-#if defined(WIN32) || defined(__APPLE__)
-        case SDLK_TAB:
-            keyintercept(iconify, SDL_MinimizeWindow(screen));
-            break;
-#endif
-        case SDLK_CAPSLOCK:
-            if(!isdown) capslockon = capslocked();
-            break;
-        case SDLK_NUMLOCKCLEAR:
-            if(!isdown) numlockon = numlocked();
-            break;
-        default: break;
-    }
-    keym *haskey = keyms.access(code);
-    if(haskey && haskey->pressed) execbind(*haskey, isdown); // allow pressed keys to release
-    else if(!consolekey(code, isdown) && !hud::keypress(code, isdown) && haskey) execbind(*haskey, isdown);
-}
-
 char *getcurcommand()
 {
-    return commandmillis > 0 ? commandbuf : (char *)NULL;
-}
-
-void clear_console()
-{
-    keyms.clear();
+    char* buf = newstring(new_console.get_buffer().c_str());
+    return commandmillis > 0 ? buf : (char *)nullptr;//commandbuf : (char *)NULL;
 }
 
 void writebinds(stream *f)
 {
-    static const char * const cmds[4] = { "bind", "specbind", "editbind", "waitbind" };
-    vector<keym *> binds;
-    enumerate(keyms, keym, km, binds.add(&km));
-    binds.sortname();
-    loopj(4)
-    {
-        bool found = false;
-        loopv(binds)
-        {
-            keym &km = *binds[i];
-            if(km.persist[j])
-            {
-                if(!*km.actions[j]) f->printf("%s %s []\n", cmds[j], escapestring(km.name));
-                else if(validateblock(km.actions[j])) f->printf("%s %s [%s]\n", cmds[j], escapestring(km.name), km.actions[j]);
-                else f->printf("%s %s %s\n", cmds[j], escapestring(km.name), escapestring(km.actions[j]));
-                found = true;
-            }
-        }
-        if(found) f->printf("\n");
-    }
-}
+    std::string binds = input_system.get_save_binds_string();
+    f->printf(binds.c_str());
+} 
 
 // tab-completion of all idents and base maps
 
@@ -776,7 +662,6 @@ COMMANDN(0, listcomplete, addlistcomplete, "ss");
 
 void complete(char *s, size_t s_size, const char *cmdprefix)
 {
-
     char* name = strrchr(s, '@');
 
     if (name)
@@ -940,54 +825,6 @@ void writecompletions(stream *f)
     }
 }
 
-#ifdef __APPLE__
-extern bool mac_capslock();
-extern bool mac_numlock();
-#endif
-
-bool capslockon = false, numlockon = false;
-#if !defined(WIN32) && !defined(__APPLE__)
-#include <X11/XKBlib.h>
-#endif
-bool capslocked()
-{
-    #ifdef WIN32
-    if(GetKeyState(VK_CAPITAL)) return true;
-    #elif defined(__APPLE__)
-    if(mac_capslock()) return true;
-    #else
-    Display *d = XOpenDisplay((char*)0);
-    if(d)
-    {
-        uint n = 0;
-        XkbGetIndicatorState(d, XkbUseCoreKbd, &n);
-        XCloseDisplay(d);
-        return (n&0x01)!=0;
-    }
-    #endif
-    return false;
-}
-ICOMMAND(0, getcapslock, "", (), intret(capslockon ? 1 : 0));
-
-bool numlocked()
-{
-    #ifdef WIN32
-    if(GetKeyState(VK_NUMLOCK)) return true;
-    #elif defined(__APPLE__)
-    if(mac_numlock()) return true;
-    #else
-    Display *d = XOpenDisplay((char*)0);
-    if(d)
-    {
-        uint n = 0;
-        XkbGetIndicatorState(d, XkbUseCoreKbd, &n);
-        XCloseDisplay(d);
-        return (n&0x02)!=0;
-    }
-    #endif
-    return false;
-}
-ICOMMAND(0, getnumlock, "", (), intret(numlockon ? 1 : 0));
 
 #ifndef STANDALONE
 bool consolegui(guient *g, int width, int height, const char *init, int &update)
@@ -1007,17 +844,20 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
     char *w = g->field("console_input", 0x666666, -width, 0, init, EDITORFOREVER, g->visible(), "console_window");
     if(w && *w)
     {
-        bool consolecmd = *w == '/';
+        bool consolecmd = *w == new_console.command_prefix;
         commandmillis = totalmillis;
-        copystring(commandbuf, w, BIGSTRLEN);
+        new_console.set_buffer(w);
+        //copystring(commandbuf, w, BIGSTRLEN);
         DELETEA(commandaction);
         DELETEA(commandicon);
-        commandpos = strlen(commandbuf);
+        new_console.cursor_pos = new_console.get_buffer().length();
+        //commandpos = strlen(commandbuf);
         if(!consolecmd) commandaction = newstring("say $commandbuffer");
         commandcolour = 0;
         commandflags = CF_EXECUTE|CF_MESSAGE;
+        /*
         hline *h = NULL;
-        if(commandbuf[0])
+        if (!new_console.buffer.empty())
         {
             if(history.empty() || history.last()->shouldsave())
             {
@@ -1031,14 +871,16 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
             else h = history.last();
         }
         histpos = history.length();
+        */
         inputcommand(NULL);
 
-        if(h)
+        /*if(h)
         {
             interactive = true;
             h->run();
             interactive = false;
-        }
+        }*/
+        printf("Run\n");
         UI::editoredit(UI::geteditor("console_input", EDITORFOREVER, init, "console_window"), init);
     }
     return true;

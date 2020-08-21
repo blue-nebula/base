@@ -3,6 +3,8 @@
 
 #include "version.h"
 #include "cube.h"
+#include "console.h"
+#include "input.h"
 
 extern int version, versioning, versionmajor, versionminor, versionpatch, versionplatform, versionarch, versionisserver, versioncrc;
 extern char *versionstring, *versionname, *versionuname, *versionvname, *versionrelease, *versionurl, *versionmaster, *versionplatname, *versionplatlongname, *versionbranch;
@@ -522,12 +524,8 @@ extern ENetPeer *curpeer, *connpeer;
 extern bool paste(char *buf, size_t len);
 extern void writebinds(stream *f);
 extern void writecompletions(stream *f);
-extern const char *addreleaseaction(char *s);
-extern const char *getkeyname(int code);
-extern int findkeycode(char *key);
 
-extern int uimillis, commandmillis,  commandpos, commandcolour, completeoffset, completesize;
-extern bigstring commandbuf;
+extern int uimillis, commandmillis, commandcolour, completeoffset, completesize;
 extern char *commandaction, *commandicon;
 extern bool fullconsole;
 // main
@@ -730,6 +728,7 @@ enum { MN_BACK = 0, MN_INPUT, MN_MAX };
 #define MAXCONLINES 1000
 struct cline { char *cref; int type, reftime, outtime, realtime; };
 extern reversequeue<cline, MAXCONLINES> conlines;
+extern Console new_console;
 extern void conline(int type, const char *sf, int n);
 
 // rendergl

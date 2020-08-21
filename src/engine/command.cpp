@@ -1845,7 +1845,7 @@ static inline void callcommand(ident *id, tagval *args, int numargs, bool lookup
         case '$': if(++i < numargs) freearg(args[i]); args[i].setident(id); break;
         case 'N': if(++i < numargs) freearg(args[i]); args[i].setint(lookup ? -1 : i-fakeargs); break;
 #ifndef STANDALONE
-        case 'D': if(++i < numargs) freearg(args[i]); args[i].setint(addreleaseaction(conc(args, i, true, id->name)) ? 1 : 0); fakeargs++; break;
+        case 'D': if(++i < numargs) freearg(args[i]); args[i].setint(input_system.add_release_action(conc(args, i, true, id->name)) ? 1 : 0); fakeargs++; break;
 #endif
         case 'C': { i = max(i+1, numargs); vector<char> buf; ((comfun1)id->fun)(conc(buf, args, i, true)); goto cleanup; }
         case 'V': i = max(i+1, numargs); ((comfunv)id->fun)(args, i); goto cleanup;
@@ -2134,7 +2134,7 @@ static const uint *runcode(const uint *code, tagval &result)
 #ifndef STANDALONE
             case CODE_COMD|RET_NULL: case CODE_COMD|RET_STR: case CODE_COMD|RET_FLOAT: case CODE_COMD|RET_INT:
                 id = identmap[op>>8];
-                args[numargs].setint(addreleaseaction(conc(args, numargs, true, id->name)) ? 1 : 0);
+                args[numargs].setint(input_system.add_release_action(conc(args, numargs, true, id->name)) ? 1 : 0);
                 numargs++;
                 goto callcom;
 #endif

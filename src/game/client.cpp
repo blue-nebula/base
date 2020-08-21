@@ -1162,7 +1162,18 @@ namespace client
         }
         if((!(flags&SAY_TEAM) || f->team == game::player1.team) && (!(flags&SAY_WHISPER) || f == &game::player1 || t == &game::player1))
         {
-            conoutft(CON_CHAT, "%s", line);
+            int type = CON_CHAT;
+            if (flags & SAY_TEAM)
+            {
+                type = CON_CHAT_TEAM;
+            }
+            else if (flags & SAY_WHISPER)
+            {
+                type = CON_CHAT_WHISPER;
+            }
+
+            // send msg as raw_text so search can function properly without formatted text
+            new_console.print(type, line, msg);
 
             if (snd >= 0 && !issound(f->cschan))
             {
