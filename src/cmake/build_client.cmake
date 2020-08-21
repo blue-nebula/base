@@ -43,6 +43,7 @@ if(BUILD_CLIENT)
         engine/bih.h
         engine/depthfx.h
         engine/engine.h
+        engine/input.cpp
         engine/explosion.h
         engine/iqm.h
         engine/irc.h
