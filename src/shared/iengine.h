@@ -1,6 +1,10 @@
 #ifndef IENGINE_H
 #define IENGINE_H
+
+#include "input.h"
+
 // the interface the game uses to access the engine
+extern InputSystem input_system;
 
 extern int verbose, curtime, lastmillis, totalmillis, timescale, paused;
 extern uint totalsecs;
@@ -123,36 +127,26 @@ struct VSlot;
 extern void packvslot(vector<uchar> &buf, int index);
 extern void packvslot(vector<uchar> &buf, const VSlot *vs);
 
-// console
-extern int changedkeys;
-
-extern void processtextinput(const char *str, int len);
-extern void processkey(int code, bool isdown);
 extern char *getcurcommand();
 extern void resetcomplete();
-extern const char *searchbind(const char *action, int type);
-extern void searchbindlist(const char *action, int type, int limit, const char *s1, const char *s2, const char *sep1, const char *sep2, vector<char> &names, bool force = true);
 
-extern bool capslockon, numlockon;
-extern bool capslocked();
-extern bool numlocked();
 
 struct bindlist
 {
-    vector<char> names;
+    std::string names;
     int lastsearch;
 
     bindlist() : lastsearch(-1) {}
 
     const char *search(const char *action, int type = 0, const char *s1 = "\f{", const char *s2 = "}", const char *sep1 = " ", const char *sep2 = " ", int limit = 5)
     {
-        if(names.empty() || lastsearch != changedkeys)
+        if(names.empty() || lastsearch != input_system.changed_keys)
         {
-            names.shrink(0);
-            searchbindlist(action, type, limit, s1, s2, sep1, sep2, names);
-            lastsearch = changedkeys;
+            names.clear();
+            input_system.search_bind_list(action, type, limit, s1, s2, sep1, sep2, names);
+            lastsearch = input_system.changed_keys;
         }
-        return names.getbuf();
+        return names.c_str();
     }
 };
 

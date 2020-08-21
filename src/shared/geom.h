@@ -1209,6 +1209,7 @@ struct ivec2
     union
     {
         struct { int x, y; };
+        struct { int w, h; };
         int v[2];
     };
 
