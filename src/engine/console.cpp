@@ -1,6 +1,7 @@
 // console.cpp: the console buffer, its display, and command line control
 #include <string>
 #include <algorithm>
+#include <sstream>
 
 #include "console.h"
 #include "engine.h"
@@ -37,12 +38,12 @@ bool History::move(int lines)
     }
 
     int prev_scroll_pos = scroll_pos;
-    
+
     if (lines > 0)
     {
         // go up
         //TODO: Find alternative to using idents hashnameset
-        int max_pos = int(h.size()) - (*idents["consize"].storage.i + *idents["conoverflow"].storage.i);
+        int max_pos = num_linebreaks - (*idents["consize"].storage.i + *idents["conoverflow"].storage.i);
         scroll_pos = std::min(scroll_pos + lines, max_pos);
     }
     else
@@ -54,12 +55,87 @@ bool History::move(int lines)
     // make sure scrollpos never gets below 0
     scroll_pos = std::max(scroll_pos, 0);
 
-    return scroll_pos != prev_scroll_pos;
+    bool moved = scroll_pos != prev_scroll_pos;
+    if (moved)
+    {
+        recalc_scroll_info();
+    }
+
+    return moved;
+}
+
+void History::recalc_scroll_info()
+{
+    int linebreaks_iterated = 0;
+    int curr_hist_idx = 0;
+    int curr_linebreak_idx = -1;
+    
+    for (int i = 0; i < int(h.size()); i++)
+    {
+        int line_count = int(h[i].lines.size());
+        if ((linebreaks_iterated + line_count) > scroll_pos)
+        {
+            for (int j = 0; j < line_count; j++)
+            {
+                if (linebreaks_iterated == scroll_pos)
+                {
+                    scroll_info_hist_idx = i;
+                    scroll_info_line_idx = j;
+                    scroll_info_outdated = false;
+                    return;
+                }
+
+                linebreaks_iterated++;
+            }
+        }
+        else
+        {
+            linebreaks_iterated += line_count;
+        }
+    }
+    printf("wtf, couldn't find shit\n");
+}
+
+// returns line info relative to given hist_idx and line_idx
+// format: std::pair<hist_idx, line_idx>
+std::pair<int, int> History::get_relative_line_info(int n, int hist_idx, int line_idx)
+{
+    if (scroll_info_outdated)
+    {
+        recalc_scroll_info();
+    }
+
+
+    for (int i = 0; i < n; i++)
+    {
+        if (line_idx <= 0)
+        {
+            hist_idx++;
+        }
+        line_idx--;
+
+        if (line_idx == -1)
+        {
+            line_idx = h[hist_idx].lines.size() - 1;
+        }
+    }
+    
+    return std::make_pair(hist_idx, line_idx);
 }
 
 void History::save(ConsoleLine line)
 {
+    num_linebreaks += line.num_linebreaks;
+    
+    if (int(h.size()) > 1000)
+    {
+        num_linebreaks -= h.back().num_linebreaks;
+        h.pop_back();
+    }
     h.push_front(line);
+    // set scroll info outdated to true, it will be recalculated
+    // as soon the history is shown
+    scroll_info_outdated = true;
 }
 
 History& Console::curr_hist()
@@ -68,10 +144,8 @@ History& Console::curr_hist()
     {
         case HIST_CHAT:
             return chat_history;
-        case HIST_GAME:
-            return game_history;
-        case HIST_DEBUG:
-            return debug_history;
+        case HIST_CONSOLE:
+            return console_history;
         default:
             return all_history;
     }
@@ -107,21 +181,55 @@ void Console::print(int type, const std::string text, const std::string raw_text
     line.out_time = totalmillis;
     line.real_time = clocktime;
 
+    //line.num_linebreaks = int(std::count(text.begin(), text.end(), '\n'));
+
+    /*
+    if (line.num_linebreaks > 0)
+    {
+        int last_found = 0;
+        for (int i = 0; i < line.num_linebreaks; i++)
+        {
+            int pos = line.text.find('\n', last_found);
+            std::string l = line.text.substr(last_found, pos);
+            l.erase(std::remove(l.begin(), l.end(), '\n'), l.end());
+            line.lines.push_back(l);
+            last_found = pos + 1;
+        }
+    }
+    else
+    {
+        line.lines.push_back(line.text);
+        line.num_linebreaks = 1;
+    }
+    */
+    //std::reverse(std::begin(line.lines), std::end(line.lines));
+
+    std::string tmp; 
+    std::stringstream ss(line.text);
+
+    while (std::getline(ss, tmp))
+    {
+        line.lines.push_back(tmp);
+    }
+    line.num_linebreaks = int(line.lines.size());
+
+    if (int(line.lines.size()) == 0)
+    {
+        line.lines.push_back(line.text);
+        line.num_linebreaks = 1;
+    }
+
+    // filter
     switch (line.type)
     {
         case CON_CHAT:
         case CON_CHAT_TEAM:
         case CON_CHAT_WHISPER:
+        case CON_INFO:
             chat_history.save(line);
             break;
-        case CON_FRAG:
-            game_history.save(line);
-            break;
-        case CON_DEBUG:
-            debug_history.save(line);
-            break;
         default:
-            all_history.save(line);
+            console_history.save(line);
             break;
     }
 }
@@ -510,10 +618,7 @@ bool Console::process_key(int code, bool isdown)
                 selected_hist = HIST_CHAT;
                 break;
             case SDLK_F2:
-                selected_hist = HIST_GAME;
-                break;
-            case SDLK_F3:
-                selected_hist = HIST_DEBUG;
+                selected_hist = HIST_CONSOLE;
                 break;
         }
     }

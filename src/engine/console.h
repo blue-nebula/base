@@ -2,7 +2,6 @@
 #define CONSOLE_H
 
 #include <string>
-#include <queue>
 #include <deque>
 #include <vector>
 
@@ -31,11 +30,15 @@ class ConsoleLine
 {
 public:
     std::string text;
+    std::vector<std::string> lines;
     std::string raw_text;
     int type;
     int reftime;
     int out_time;
     int real_time;
+    int num_linebreaks = 0;
+
+    bool hide = false;
 };
 
 class History
@@ -43,9 +46,16 @@ class History
 public:
     std::deque<ConsoleLine> h;
 
+    int num_linebreaks = 0;
     int scroll_pos = 0;
+    int scroll_info_hist_idx = 0;
+    int scroll_info_line_idx = 0;
+    bool scroll_info_outdated = false;
 
     bool move(int lines);
+    void recalc_scroll_info();
+    //TODO: replace std::pair with smth more fitting
+    std::pair<int, int> get_relative_line_info(int n, int hist_idx, int line_idx);
     void save(ConsoleLine line);
 };
 
@@ -97,16 +107,15 @@ public:
     
     enum
     {
-        HIST_ALL =   0,
-        HIST_CHAT =  1,
-        HIST_GAME =  2,
-        HIST_DEBUG = 3
+        HIST_ALL =     0,
+        HIST_CHAT =    1,
+        HIST_CONSOLE = 2,
     };
 
-    History all_history;       
+    History all_history;   
     History chat_history; 
-    History debug_history;
-    History game_history; 
+    History console_history;
+
     int selected_hist = HIST_CHAT;
     History& curr_hist();
 

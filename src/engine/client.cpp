@@ -283,12 +283,12 @@ void gets2c()           // get updates from the server
             if(event.data >= DISC_NUM) event.data = DISC_NONE;
             if(event.peer == connpeer)
             {
-                conoutft(CON_MESG, "\frcould not connect to server");
+                conoutft(CON_MESG, "\frCould not connect to server");
                 connectfail();
             }
             else
             {
-                if(!discmillis || event.data) conoutft(CON_MESG, "\frserver disconnected (%s) ...", disc_reasons[event.data]);
+                if(!discmillis || event.data) conoutft(CON_MESG, "\frServer disconnected (%s) ...", disc_reasons[event.data]);
                 disconnect();
             }
             return;

@@ -3062,7 +3062,7 @@ namespace client
                             if(showlaptimes >= (t != game::focus ? (t->actortype > A_PLAYER ? 3 : 2) : 1))
                             {
                                 defformatstring(best, "%s", timestr(t->cptime, 1));
-                                conoutft(t != &game::player1 ? CON_INFO : CON_SELF, "%s completed in \fs\fg%s\fS (best: \fs\fy%s\fS, laps: \fs\fc%d\fS)", game::colourname(t), timestr(t->cplast, 1), best, t->points);
+                                conoutft(t != &game::player1 ? CON_INFO : CON_SELF, "%s completed in \fs\fg%s\fS (Best: \fs\fy%s\fS, Laps: \fs\fc%d\fS)", game::colourname(t), timestr(t->cplast, 1), best, t->points);
                             }
                         }
                         else if(!m_ra_endurance(game::gamemode, game::mutators)) t->impulse[IM_METER] = 0;

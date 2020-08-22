@@ -1,5 +1,7 @@
 #include <vector>
 #include "game.h"
+//TODO: remove chrono
+//#include <chrono>
 
 namespace hud
 {
@@ -1784,30 +1786,8 @@ namespace hud
         hudshader->set();
     }
 
-    std::string tab_string()
-    {
-        std::string ret_str = "\fwTab: ";
-        static const std::string cmds[3] = { "CHAT", "GAME", "DEBUG" };
-        static const std::string colors[3] = { "\fw", "\fy", "\fr" };
-
-        for (int i = 1; i < 4; i++)
-        {
-            if (new_console.selected_hist == i) 
-            {
-                ret_str += "\fg";
-            }
-            else
-            {
-                ret_str += colors[i - 1];
-            }
-            ret_str += cmds[i - 1] + " ";
-        }
-        return ret_str;
-    }
-
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
-        dims.w *= 0.85f;
         static vector<int> refs; refs.setsize(0);
         bool full = fullconsole || commandmillis > 0;
         int tz = 0;
@@ -1816,15 +1796,16 @@ namespace hud
         pos.x += 10;
         int max_lines_drawn = full ? consize + conoverflow : consize;
 
-        int pos_y = 0;
-        int height_mainview = pos.y + int(FONTH / 2) + FONTH * max_lines_drawn;
+        int pos_y = pos.y;
+        const int height_mainview = int(FONTH / 2) + FONTH * max_lines_drawn;
 
         if((showconsole && showhud) || commandmillis > 0)
         {
+            // draw main view background
             if (full)
             {
                 gle::colorf(.1f, .1f, .1f, .95f);
-                draw_rect(vec2(0, pos_y), vec2(pos.x + dims.w, height_mainview), false);
+                draw_rect(vec2(0, pos.y), vec2(pos.x + dims.w, height_mainview), false);
             }
 
             pushhudscale(conscale);
@@ -1835,65 +1816,85 @@ namespace hud
             int text_r = concenter ? text_pos.x + text_scale / 2 : text_pos.x;
             tz = int(tz / conscale);
 
-            int histlen = int(new_console.curr_hist().h.size());//full ? int(new_console.curr_hist().h.size()) : int(new_console.curr_hist().h.size());
+            int histlen = new_console.curr_hist().num_linebreaks;//int(new_console.curr_hist().h.size());
             int histpos = new_console.curr_hist().scroll_pos;
+
+            /////////////////
+            /// SCROLLBAR ///
+            /////////////////
 
             // only draw scrollbar when in full-mode, otherwise it's not relevant
             if (full)
             {
-                // scrollbar indicator (sbi)
-                const int sbi_width = 18;
-                const int min_sbi_height = 5;
-                int sbi_height = int((max_lines_drawn / float(histlen)) * height_mainview);
-                sbi_height = std::max(min_sbi_height, sbi_height);
-                int sbi_y = (int(((histlen - histpos) / float(histlen)) * height_mainview)) - sbi_height;
+                static const int scrollbar_width = 18;
+                static const int min_scrollbar_height = 5;
 
+                int scrollbar_height = int((max_lines_drawn / float(histlen)) * height_mainview);
+                scrollbar_height = std::min(std::max(min_scrollbar_height, scrollbar_height), height_mainview);
+
+                int scrollbar_y = (int(((histlen - histpos) / float(histlen)) * height_mainview)) - scrollbar_height;
+
+                //printf("Height: %d, Y: %d, Mainview: %d\n", scrollbar_height, scrollbar_y, height_mainview);
+
+                // draw scrollbar
                 gle::colorf(.9f, .9f, 1.f, .95f);
-                draw_rect(vec2(0, sbi_y), vec2(sbi_width, sbi_height), false);
+                draw_rect(vec2(0, pos.y + scrollbar_y), vec2(scrollbar_width, scrollbar_height), false);
             }
+            
+            const History& hist = new_console.curr_hist();
+
+            //TODO: optimize and test performance
+            //auto start = std::chrono::steady_clock::now();
+
+            const int max_drawable_lines = std::min(max_lines_drawn, histlen);
+            tz += FONTH * (max_drawable_lines - 1);
+
+            int lines_drawn = 0;
+            int hist_idx = 0;
+            int line_idx = 0;
+            if (full)
+            {
+                hist_idx = hist.scroll_info_hist_idx;
+                line_idx = hist.scroll_info_line_idx;
+            }
+
+            while (lines_drawn < max_drawable_lines && hist_idx < (hist.h.size()))
+            {
+                const std::pair<int, int> line_info = new_console.curr_hist().get_relative_line_info(lines_drawn, hist_idx, line_idx);
                 
-            int i_start = std::min((full ? histpos : 0) + max_lines_drawn - 1, histlen);
-            int i_stop = full ? histpos : 0;
-
-            if (histlen == 0)
-            {
-                draw_textf("Nothing.", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1);
-            }
-            else
-            {
-                for (int i = i_start; i >= i_stop; i--)
+                const ConsoleLine& line = hist.h[line_info.first];
+                
+                // draw line background
+                if (full)
                 {
-                    ConsoleLine& line = new_console.curr_hist().h[i];//full ? new_console.history.filtered[i] : new_console.history.all[i];
-                    
-                    // draw line background
-                    if (full)
+                    bool draw_background = true;
+                    if (line.type == CON_CHAT_WHISPER)
                     {
-                        bool draw_background = true;
-                        switch (line.type)
-                        {
-                            case CON_CHAT_WHISPER:
-                                gle::colorf(.7f, .7f, .7f, .2f);
-                                break;
-                            case CON_CHAT_TEAM:
-                                gle::colorf(0, 0, .1f, .8f);
-                                break;
-                            default:
-                                draw_background = false;
-                                break;
-                        }
-
-                        if (draw_background)
-                        {
-                            draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
-                        }
+                        gle::colorf(.7f, .7f, .7f, .2f);
+                    }
+                    else if (line.type == CON_CHAT_TEAM)
+                    {
+                        gle::colorf(0, 0, .1f, .8f);
+                    }
+                    else
+                    {
+                        draw_background = false;
                     }
 
-
-                    // draw line text
-                    tz += draw_textf("%s", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
-                            line.text.c_str());
-                }
+                    if (draw_background)
+                    {
+                        draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
+                    }
+                } 
+                    
+                // draw line
+                tz -= draw_textf("%s", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
+                    line.lines[line_info.second].c_str());
+                lines_drawn++;
             }
+            //auto end = std::chrono::steady_clock::now();
+            //double elapsed_time = double(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
+            //printf("It took %fns\n", elapsed_time);
 
             pophudmatrix();
             tz = int(tz * conscale);
@@ -1901,29 +1902,30 @@ namespace hud
         
         if (commandmillis > 0)
         {
-            //////////////
-            // TAB INFO //
-            //////////////
+            /////////////
+            // TAB BAR //
+            /////////////
             pos_y += height_mainview;
             
             gle::colorf(.5f, .5f, .5f, .9f);
             draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH), false);
 
-            static const std::string con_tabs[3] = { "\fwChat", "\fyGame", "\frDebug" };
+            static const std::string console_tabs[2] = { "\fgChat", "\frConsole" };
 
-            static const ivec2 tab_dims = ivec2(126, 42);
+            static const vec2 tab_dimensions = vec2(21 * 8, 42); 
             static const int padding_left = 84;
 
             // draw highlight
             gle::colorf(.05f, .05f, .05f, .6f);
-            draw_rect(vec2((tab_dims.w * (new_console.selected_hist - 1)) + pos.x + (padding_left * 0.25f), pos_y), vec2(tab_dims.w, tab_dims.h), false);
+            // 21 * 7 -> (tab_dimensions.w * (new_console.selected_hist - 1) + pos.x + (padding_left * 0.125f))
+            // 21 * 8 -> (tab_dimensions.w * (new_console.selected_hist - 1) + pos.x)
+            draw_rect(vec2((tab_dimensions.w * (new_console.selected_hist - 1)) + pos.x , pos_y), tab_dimensions, false);
 
-            // draw text
-            for (int i = 0; i < 3; i++)
+            // draw text            
+            for (int i = 0; i < 2; i++)
             {
-                draw_textf(con_tabs[i].c_str(), (tab_dims.w * i) + pos.x + padding_left, pos_y, 0, 0, 255, 255, 255, 255, TEXT_CENTERED, -1, tab_dims.w);
+                draw_textf(console_tabs[i].c_str(), (tab_dimensions.w * i) + pos.x  + padding_left, pos_y, 0, 0, 255, 255, 255, 255, TEXT_CENTERED, -1, tab_dimensions.w);
             }
-
 
             pos_y += FONTH;
 
@@ -1969,18 +1971,20 @@ namespace hud
             int text_t = text_scale - (FONTH + FONTW);
             tz = int(tz / commandscale);
 
+            const int text_padding_y = 10;
+
             // draw the background
             gle::colorf(.05f, .05f, .05f, 1.f);
-            draw_rect(vec2(0, pos_y), vec2(pos.x + dims.w, text_dims.y + text_pos.y + int(FONTH / 4)), false);
+            draw_rect(vec2(0, pos_y), vec2(pos.x + dims.w, text_padding_y * 2 + FONTH), false);
 
             // draw the icon
             glBindTexture(GL_TEXTURE_2D, t->id);
             gle::color(c, fullconblend * fade * f);
-            drawtexture(text_pos.x, text_pos.y + pos_y, text_dims.y, text_dims.x);
+            drawtexture(text_pos.x, pos_y + text_padding_y, text_dims.y, text_dims.x);
                 
             // draw the input
-            int cp = new_console.cursor_pos >= 0 ? new_console.cursor_pos : int(new_console.get_buffer().length());//strlen(commandbuf);
-            pos_y += draw_textf("%s", text_q + text_r, text_pos.y + pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, text_t, 1,
+            int cp = new_console.cursor_pos >= 0 ? new_console.cursor_pos : int(new_console.get_buffer().length());
+            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, text_t, 1,
                     new_console.get_buffer().c_str());
                 
             popfont();
@@ -2000,7 +2004,7 @@ namespace hud
                 draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH * 1.5f), false);
 
                 // Info bar text
-                tz += draw_textf(new_console.get_info_bar_text().c_str(), text_q + text_r, text_pos.y + pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                pos_y += draw_textf(new_console.get_info_bar_text().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
                 popfont();
             }
 
