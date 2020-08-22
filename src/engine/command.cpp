@@ -1518,7 +1518,6 @@ static inline bool compilearg(vector<uint> &code, const char *&p, int wordtype)
 {
     char *word = NULL;
     int wordlen = 0;
-    if(wordtype == VAL_ANY && *p == '{') wordtype = VAL_CODE;
     bool more = compileword(code, p, wordtype, word, wordlen);
     if(!more) return false;
     if(word)
@@ -1581,7 +1580,12 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
             else switch(id->type)
             {
                 case ID_ALIAS:
-                    while(numargs < MAXARGS && (more = compilearg(code, p, VAL_ANY))) numargs++;
+                    while(numargs < MAXARGS)
+                    {
+                        skipcomments(p);
+                        if(more = compilearg(code, p, *p == '{' ? VAL_CODE : VAL_ANY)) numargs++;
+                        else break;
+                    }
                     code.add((id->index < MAXARGS ? CODE_CALLARG : CODE_CALL)|(id->index<<8));
                     break;
                 case ID_COMMAND:
