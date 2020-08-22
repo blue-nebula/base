@@ -2213,12 +2213,19 @@ static const uint *runcode(const uint *code, tagval &result)
                     _numargs = newargs; \
                     identlink aliaslink = { id, aliasstack, (1<<newargs)-1, argstack }; \
                     aliasstack = &aliaslink; \
-                    if(!id->code) id->code = compilecode(id->getstr()); \
-                    uint *code = id->code; \
-                    code[0] += 0x100; \
-                    runcode(code+1, result); \
-                    code[0] -= 0x100; \
-                    if(int(code[0]) < 0x100) delete[] code; \
+                    if(id->valtype == VAL_CODE && id->val.code) \
+                    { \
+                        runcode(id->val.code, result); \
+                    } \
+                    else \
+                    { \
+                        if(!id->code) id->code = compilecode(id->getstr()); \
+                        uint *code = id->code; \
+                        code[0] += 0x100; \
+                        runcode(code+1, result); \
+                        code[0] -= 0x100; \
+                        if(int(code[0]) < 0x100) delete[] code; \
+                    } \
                     aliasstack = aliaslink.next; \
                     for(int i = 0; i < newargs; i++) \
                         poparg(*identmap[i]); \
