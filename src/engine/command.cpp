@@ -1068,13 +1068,14 @@ static inline const char *parseword(const char *p)
     int brakdepth = 0;
     for(;; p++)
     {
-        p += strcspn(p, "\"/;()[] \t\r\n\0");
+        p += strcspn(p, "\"/;()[]{} \t\r\n\0");
         switch(p[0])
         {
             case '"': case ';': case ' ': case '\t': case '\r': case '\n': case '\0': return p;
             case '/': if(p[1] == '/') return p; break;
-            case '[': case '(': if(brakdepth >= maxbrak) return p; brakstack[brakdepth++] = p[0]; break;
+            case '[': case '{': case '(': if(brakdepth >= maxbrak) return p; brakstack[brakdepth++] = p[0]; break;
             case ']': if(brakdepth <= 0 || brakstack[--brakdepth] != '[') return p; break;
+            case '}': if(brakdepth <= 0 || brakstack[--brakdepth] != '{') return p; break;
             case ')': if(brakdepth <= 0 || brakstack[--brakdepth] != '(') return p; break;
         }
     }
@@ -1214,6 +1215,7 @@ static void compilelookup(vector<uint> &code, const char *&p, int ltype)
     {
         case '(':
         case '[':
+        case '{':
             if(!compileword(code, p, VAL_STR, lookup, lookuplen)) goto invalid;
             break;
         case '$':
@@ -1288,13 +1290,15 @@ invalid:
 
 static bool compileblockstr(vector<uint> &code, const char *str, const char *end, bool macro)
 {
+    const char block_start = *str++;
+    const char block_end = block_start == '{' ? '}' : ']';
     int start = code.length();
     code.add(macro ? CODE_MACRO : CODE_VAL|RET_STR);
     char *buf = (char *)code.reserve((end-str)/sizeof(uint)+1).buf;
     int len = 0;
     while(str < end)
     {
-        int n = strcspn(str, "\r/\"@]\0");
+        int n = strcspn(str, "\r/\"@]}\0");
         memcpy(&buf[len], str, n);
         len += n;
         str += n;
@@ -1324,6 +1328,7 @@ static bool compileblockstr(vector<uint> &code, const char *str, const char *end
                 else buf[len++] = *str++;
                 break;
             case '@':
+            case '}':
             case ']':
                 if(str < end) { buf[len++] = *str++; break; }
             case '\0': goto done;
@@ -1342,6 +1347,7 @@ static bool compileblocksub(vector<uint> &code, const char *&p)
     int lookuplen = 0;
     switch(*p)
     {
+        case '{':
         case '(':
             if(!compilearg(code, p, VAL_STR)) return false;
             break;
@@ -1382,11 +1388,13 @@ static bool compileblocksub(vector<uint> &code, const char *&p)
 
 static void compileblock(vector<uint> &code, const char *&p, int wordtype)
 {
+    const char block_start = *p++;
+    const char block_end = block_start == '{' ? '}' : ']';
     const char *line = p, *start = p;
     int concs = 0;
     for(int brak = 1; brak;)
     {
-        p += strcspn(p, "@\"/[]\0");
+        p += strcspn(p, "@\"/[]{}\0");
         int c = *p++;
         switch(c)
         {
@@ -1401,8 +1409,14 @@ static void compileblock(vector<uint> &code, const char *&p, int wordtype)
             case '/':
                 if(*p=='/') p += strcspn(p, "\n\0");
                 break;
-            case '[': brak++; break;
-            case ']': brak--; break;
+            case '[':
+            case '{':
+                if(c == block_start) brak++;
+                break;
+            case ']':
+            case '}':
+                if(c == block_end) brak--;
+                break;
             case '@':
             {
                 const char *esc = p;
@@ -1416,7 +1430,7 @@ static void compileblock(vector<uint> &code, const char *&p, int wordtype)
                     code.add(CODE_CONCW|RET_STR|(concs<<8));
                     concs = 1;
                 }
-                if(compileblockstr(code, start, esc-1, true)) concs++;
+                if(compileblockstr(code, start-1, esc-1, true)) concs++;
                 if(compileblocksub(code, p)) concs++;
                 if(!concs) code.pop();
                 else start = p;
@@ -1435,7 +1449,7 @@ done:
                 int inst = code.length();
                 code.add(CODE_BLOCK);
                 code.add(CODE_OFFSET|((inst+2)<<8));
-                compilestatements(code, p, VAL_ANY, ']');
+                compilestatements(code, p, VAL_ANY, block_end);
                 code.add(CODE_EXIT);
                 code[inst] |= uint(code.length() - (inst + 1))<<8;
                 return;
@@ -1448,7 +1462,7 @@ done:
                 return;
             }
         }
-        compileblockstr(code, start, p-1, concs > 0);
+        compileblockstr(code, start-1, p-1, concs > 0);
         if(concs > 1) concs++;
     }
     if(concs)
@@ -1491,8 +1505,8 @@ static bool compileword(vector<uint> &code, const char *&p, int wordtype, char *
                 case VAL_IDENT: code.add(CODE_IDENTU); break;
             }
             return true;
+        case '{':
         case '[':
-            p++;
             compileblock(code, p, wordtype);
             return true;
         default: word = cutword(p, wordlen); break;
@@ -1504,6 +1518,7 @@ static inline bool compilearg(vector<uint> &code, const char *&p, int wordtype)
 {
     char *word = NULL;
     int wordlen = 0;
+    if(wordtype == VAL_ANY && *p == '{') wordtype = VAL_CODE;
     bool more = compileword(code, p, wordtype, word, wordlen);
     if(!more) return false;
     if(word)
@@ -1648,7 +1663,7 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
         }
     endstatement:
         if(more) while(compilearg(code, p, VAL_ANY)) code.add(CODE_POP);
-        p += strcspn(p, ")];/\n\0");
+        p += strcspn(p, ")}];/\n\0");
         int c = *p++;
         switch(c)
         {
@@ -1658,6 +1673,7 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
                 return;
 
             case ')':
+            case '}':
             case ']':
                 if(c == brak) return;
                 debugcodeline(line, "\frunexpected \"%c\"", c);
@@ -2476,7 +2492,7 @@ ICOMMAND(0, unescape, "s", (char *s),
 
 const char *escapeid(const char *s)
 {
-    const char *end = s + strcspn(s, "\"/;()[]@ \f\t\r\n\0");
+    const char *end = s + strcspn(s, "\"/;()[]{}@ \f\t\r\n\0");
     return *end ? escapestring(s) : s;
 }
 
@@ -2487,8 +2503,9 @@ bool validateblock(const char *s)
     int brakdepth = 0;
     for(; *s; s++) switch(*s)
     {
-        case '[': case '(': if(brakdepth >= maxbrak) return false; brakstack[brakdepth++] = *s; break;
+        case '{': case '[': case '(': if(brakdepth >= maxbrak) return false; brakstack[brakdepth++] = *s; break;
         case ']': if(brakdepth <= 0 || brakstack[--brakdepth] != '[') return false; break;
+        case '}': if(brakdepth <= 0 || brakstack[--brakdepth] != '{') return false; break;
         case ')': if(brakdepth <= 0 || brakstack[--brakdepth] != '(') return false; break;
         case '"': s = parsestring(s + 1); if(*s != '"') return false; break;
         case '/': if(s[1] == '/') return false; break;
@@ -2727,28 +2744,29 @@ static bool parselist(const char *&s, const char *&start = liststart, const char
     switch(*s)
     {
         case '"': quotestart = s++; start = s; s = parsestring(s); end = s; if(*s == '"') s++; quoteend = s; break;
-        case '(': case '[':
+        case '{': case '(': case '[':
             quotestart = s;
             start = s+1;
             for(int braktype = *s++, brak = 1;;)
             {
-                s += strcspn(s, "\"/;()[]\0");
+                s += strcspn(s, "\"/;()[]{}\0");
                 int c = *s++;
                 switch(c)
                 {
                     case '\0': s--; quoteend = end = s; return true;
                     case '"': s = parsestring(s); if(*s == '"') s++; break;
                     case '/': if(*s == '/') s += strcspn(s, "\n\0"); break;
-                    case '(': case '[': if(c == braktype) brak++; break;
+                    case '{': case '(': case '[': if(c == braktype) brak++; break;
                     case ')': if(braktype == '(' && --brak <= 0) goto endblock; break;
                     case ']': if(braktype == '[' && --brak <= 0) goto endblock; break;
+                    case '}': if(braktype == '{' && --brak <= 0) goto endblock; break;
                 }
             }
         endblock:
             end = s-1;
             quoteend = s;
             break;
-        case '\0': case ')': case ']': return false;
+        case '\0': case '}': case ')': case ']': return false;
         default: quotestart = start = s; s = parseword(s); quoteend = end = s; break;
     }
     skiplist(s);
@@ -3031,7 +3049,7 @@ void listsplice(const char *s, const char *vals, int *skip, int *count)
     skiplist(s);
     switch(*s)
     {
-        case '\0': case ')': case ']': break;
+        case '\0': case '}': case ')': case ']': break;
         default:
             if(!p.empty()) p.add(' ');
             p.put(s, strlen(s));
