@@ -335,12 +335,12 @@ static float icon_width(const char *name, float scale)
 
 #define TEXTHEIGHT (int(FONTH*linespace))
 
-#define TEXTCOLORIZE(h,s,q) \
+#define TEXTCOLORIZE(h,s,q,blink) \
 { \
     if(str[h] == 'z' && str[h+1]) \
     { \
         h++; \
-        bool alt = textblinking && totalmillis%(textblinking*2) > textblinking; \
+        bool alt = blink ? textblinking && totalmillis%(textblinking*2) > textblinking : true; \
         if(s) TEXTCOLOR(h); \
         if(str[h+1]) \
         { \
@@ -452,14 +452,14 @@ static float icon_width(const char *name, float scale)
             if(str[fi+1]) \
             { \
                 fi++; \
-                TEXTCOLORIZE(fi, false, fx); \
+                TEXTCOLORIZE(fi, false, fx, true); \
                 float cw = fx-qx; \
                 if(cw > 0) TEXTWIDTHEST(false); \
             } \
             if(str[qi+1]) \
             { \
                 qi++; \
-                TEXTCOLORIZE(qi, false, qx); \
+                TEXTCOLORIZE(qi, false, qx, true); \
             } \
         } \
         else if(curfont->chars.inrange(qc-curfont->charoffset)) \
@@ -536,14 +536,14 @@ static float icon_width(const char *name, float scale)
             if(str[fi+1]) \
             { \
                 fi++; \
-                TEXTCOLORIZE(fi, false, fx); \
+                TEXTCOLORIZE(fi, false, fx, true); \
                 float cw = fx-x; \
                 if(cw > 0) TEXTWIDTH(false); \
             } \
             if(str[i+1]) \
             { \
                 i++; \
-                TEXTCOLORIZE(i, true, x); \
+                TEXTCOLORIZE(i, true, x, true); \
             } \
         } \
         else if(curfont->chars.inrange(c-curfont->charoffset)) \
@@ -890,6 +890,133 @@ int draw_textf(const char *fstr, int left, int top, int xpad, int ypad, int r, i
     draw_text(str, left, top, r, g, b, a, flags, cursor, maxwidth, linespace, realwidth);
     return height;
 }
+
+// like TEXTSKELETON but without TEXTESTIMATE and a call to
+// curr_color.clear()
+#define TEXT_SKELETON_WRAP_INFO \
+    float y = 0; \
+    float x = 0; \
+    float scale = curfont->scale / float(curfont->defaulth) * curtextscale; \
+    int i = 0; \
+    int usewidth = realwidth; \
+    for (i = 0; str[i]; i++) \
+    { \
+        int c = uchar(str[i]); \
+        TEXTINDEX(i) \
+        if (c == '\t') \
+        { \
+            float cw = TEXTTAB(x); \
+            TEXTWIDTH(true) \
+            x += cw; \
+            TEXTWHITE(i); \
+        } \
+        else if (c == '\n') \
+        { \
+            TEXTLINE(i); \
+            TEXTALIGN(i + 1); \
+        } \
+        else if (c == '\f') \
+        { \
+            curr_color.clear(); \
+            int fi = i; \
+            float fx = x; \
+            if (str[fi + 1]) \
+            { \
+                fi++; \
+                TEXTCOLORIZE(fi, false, fx, false); \
+                float cw = fx - x; \
+                if (cw > 0) TEXTWIDTH(false); \
+            } \
+            if (str[i + 1]) \
+            { \
+                i++; \
+                TEXTCOLORIZE(i, true, x, false); \
+            } \
+        } \
+        else if (curfont->chars.inrange(c - curfont->charoffset)) \
+        { \
+            float cw = scale * curfont->chars[c -curfont->charoffset].advance; \
+            if (cw <= 0) continue; \
+            TEXTWIDTH(false); \
+            TEXTCHAR(i); \
+        } \
+    } \
+
+// returns a pair with format <index, color>, where index is the 
+// index of str, where a linebreak should be done and color what the color at 
+// the linebreak should be
+std::vector<std::pair<int, std::string>> get_text_wraps(const char* str, const int mwidth)
+{
+    const int maxwidth = mwidth * FONTW;
+    float width = 0, height = 0;
+    static const int flags = 0;
+    const int linespace = textlinespacing;
+    const int realwidth = maxwidth;
+    std::vector<std::pair<int, std::string>> wraps;
+
+    #include <string>
+    std::string curr_color;
+    #define TEXTINDEX(idx)
+    #define TEXTWHITE(idx)
+    #define TEXTLINE(idx) \
+        if (x > width) \
+        { \
+            width = x; \
+        } \
+        if (curr_color[0] != '[' && curr_color.size() == 2) \
+        { \
+            curr_color = 'z' + curr_color[0] + curr_color[1]; \
+        } \
+        wraps.push_back(std::make_pair(i, curr_color)); \
+        printf("Break at %d %c with color %s\n", i, str[i], curr_color.c_str()); 
+    #define TEXTCOLOR(idx) curr_color += str[idx];
+    #define TEXTHEXCOLOR(ret) curr_color = '[' + std::to_string(ret) + ']';
+    #define TEXTICON(ret, q, s) q += icon_width(ret, scale);
+    #define TEXTKEY(ret, q, s) q += key_widthf(ret);
+    #define TEXTCHAR(idx) x += cw;
+    width = height = 0;
+    TEXT_SKELETON_WRAP_INFO
+    TEXTLINE(_)
+    height = y + FONTH;
+    #undef TEXTINDEX
+    #undef TEXTWHITE
+    #undef TEXTLINE
+    #undef TEXTCOLOR
+    #undef TEXTHEXCOLOR
+    #undef TEXTICON
+    #undef TEXTKEY
+    #undef TEXTCHAR
+
+    return wraps;
+}
+
+/*
+std::vector<int> get_wraps_textf(const char* str, int maxwidth, float linespace)
+{
+
+
+    maxwidth = int(maxwidth * FONTW);
+    //printf("Get wraps for str: %s\n", str);
+    if (linespace <= 0)
+    {
+        linespace = textlinespacing;
+    }
+    //text_bounds(str, width, height, 0, 0, maxwidth, 0, linespace);
+    
+    int width = 0, height = 0;
+    float widthf = 0, heightf = 0;
+    text_boundsf_w(str, widthf, heightf, maxwidth, linespace);
+    width = std::ceil(widthf);
+    height = std::ceil(heightf);
+    printf("Bounds: [ %d, %d ]\n", width, height);
+    printf("Lines: %d\n", (height / FONTH));
+
+    std::vector<int> ret;
+    return ret;
+}
+*/
+
+ICOMMAND(0, gettextwraps, "si", (char* s, int* w), get_text_wraps(s, *w));
 
 vector<font *> fontstack;
 

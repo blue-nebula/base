@@ -2,6 +2,7 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 #include "console.h"
 #include "engine.h"
@@ -67,15 +68,13 @@ bool History::move(int lines)
 void History::recalc_scroll_info()
 {
     int linebreaks_iterated = 0;
-    int curr_hist_idx = 0;
-    int curr_linebreak_idx = -1;
-    
+   
     for (int i = 0; i < int(h.size()); i++)
     {
         int line_count = int(h[i].lines.size());
         if ((linebreaks_iterated + line_count) > scroll_pos)
         {
-            for (int j = 0; j < line_count; j++)
+            for (int j = line_count - 1; j >= 0; j--)
             {
                 if (linebreaks_iterated == scroll_pos)
                 {
@@ -105,6 +104,10 @@ std::pair<int, int> History::get_relative_line_info(int n, int hist_idx, int lin
         recalc_scroll_info();
     }
 
+    if (line_idx == -1)
+    {
+        line_idx = h[hist_idx].lines.size() - 1;
+    }
 
     for (int i = 0; i < n; i++)
     {
@@ -123,19 +126,103 @@ std::pair<int, int> History::get_relative_line_info(int n, int hist_idx, int lin
     return std::make_pair(hist_idx, line_idx);
 }
 
-void History::save(ConsoleLine line)
+void History::save(ConsoleLine& line)
 {
+    calculate_wordwrap(line);
     num_linebreaks += line.num_linebreaks;
-    
+
     if (int(h.size()) > 1000)
     {
         num_linebreaks -= h.back().num_linebreaks;
         h.pop_back();
     }
     h.push_front(line);
+
+    //calculate_wordwrap(0);
+    //num_linebreaks += h[0].num_linebreaks;
     // set scroll info outdated to true, it will be recalculated
     // as soon the history is shown
     scroll_info_outdated = true;
+}
+
+void History::clear()
+{
+    h.clear();
+    num_linebreaks = 0;
+    scroll_pos = 0;
+    scroll_info_hist_idx = 0;
+    scroll_info_line_idx = 0;
+    scroll_info_outdated = false;
+}
+
+void History::calculate_wordwrap(ConsoleLine& line)
+{
+    const int max_width = std::ceil(line_width / char_width);
+    line.lines.clear();
+   
+    if (curfont != nullptr)
+    {
+        std::vector<std::pair<int, std::string>> wraps = get_text_wraps(line.text.c_str(), max_width);
+
+        int prev_pos = 0;
+        for (const auto& wrap : wraps)
+        {
+            std::string text = wrap.second.empty() ? "" : "\f" + wrap.second; 
+            text += line.text.substr(prev_pos, wrap.first - prev_pos);
+            // remove every occurence of \n from text, as it has already been accounted for in get_text_wraps
+            text.erase(std::remove(text.begin(), text.end(), '\n'), text.end());
+            line.lines.push_back(text);
+            prev_pos += wrap.first - prev_pos;
+        }
+    }
+    
+    if (int(line.lines.size()) == 0)
+    {
+        line.lines.push_back(line.text);
+    }
+    line.num_linebreaks = line.lines.size();
+    // calculate all intentional linebreaks
+    /*
+    std::string tmp;
+    std::stringstream ss(line.text);
+
+    while (std::getline(ss, tmp))
+    {
+        line.lines.push_back(tmp);
+    }
+    line.num_linebreaks = int(line.lines.size());
+    
+    if (line.num_linebreaks == 0)
+    {
+        line.lines.push_back(line.text);
+        line.num_linebreaks = 1;
+    }
+    
+    
+    // calculate non-intentional linebreaks (lines that are too long and have to be wrapped)
+    line.intentional_linebreaks.clear();
+    // iterate through all lines and check if they're too long
+   
+    std::vector<std::string> new_lines;
+
+    for (int i = 0; i < line.num_linebreaks; i++)
+    {
+        std::vector<std::string> splitted = split_str(line.lines[i], max_width);
+        new_lines.insert(new_lines.begin() + i, splitted.begin(), splitted.end());
+    }
+
+    line.lines = new_lines;*/
+}
+
+void History::calculate_all_wordwraps()
+{
+    //TODO: measure time
+    num_linebreaks = 0;
+    for (auto& line : h)
+    {
+        calculate_wordwrap(line);
+        num_linebreaks += line.num_linebreaks;
+    }
 }
 
 History& Console::curr_hist()
@@ -166,6 +253,28 @@ void Console::set_buffer(std::string text)
             break;
     }
 }
+
+void Console::set_char_width(double w)
+{
+    chat_history.char_width = w;
+    console_history.char_width = w;
+}
+
+void Console::set_line_width(int n)
+{
+    // it's assumed that line_width of all histories are in sync
+
+    int prev_line_width = chat_history.line_width;
+    chat_history.line_width = n;
+    console_history.line_width = n;
+
+    if (prev_line_width != n)
+    {
+        chat_history.calculate_all_wordwraps();
+        console_history.calculate_all_wordwraps();
+    }
+}
+
 std::string Console::get_buffer()
 {
     return buffer;
@@ -173,6 +282,17 @@ std::string Console::get_buffer()
 
 void Console::print(int type, const std::string text, const std::string raw_text)
 {
+    //psrintf("Adding %s\n", text.c_str());
+    ///std::cout << "Adding " << text << " at " << chat_history.h.size() << std::endl;
+
+    if (text.empty())
+    {
+        printf("Error printing empty text of type %d\n", type);
+        return;
+    }
+    
+    //get_wraps_textf(text.c_str(), chat_history.line_width, 1);
+
     ConsoleLine line = ConsoleLine();
     line.text = text;
     line.raw_text = raw_text;
@@ -204,6 +324,7 @@ void Console::print(int type, const std::string text, const std::string raw_text
     */
     //std::reverse(std::begin(line.lines), std::end(line.lines));
 
+    /*
     std::string tmp; 
     std::stringstream ss(line.text);
 
@@ -218,6 +339,7 @@ void Console::print(int type, const std::string text, const std::string raw_text
         line.lines.push_back(line.text);
         line.num_linebreaks = 1;
     }
+    */
 
     // filter
     switch (line.type)
@@ -359,7 +481,7 @@ void Console::update_search()
         }
     }
 
-    printf("%d: %s: %d\n", case_sensitive_search, search_term.c_str(), int(search_results.size()));
+    //printf("%d: %s: %d\n", case_sensitive_search, search_term.c_str(), int(search_results.size()));
 }
 
 Console new_console = Console();
@@ -377,7 +499,14 @@ void complete(char* s, size_t s_size, const char* cmdprefix);
 
 void conline(int type, const char *sf, int n)
 {
-    new_console.print(type, sf);
+    if (sf && *sf)
+    {
+        new_console.print(type, sf);
+    }
+    else
+    {
+        printf("Excuse me wtf\n");
+    }
 }
 
 void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour = 0, char *flags = NULL) // turns input to the command line on or off
@@ -436,7 +565,7 @@ bool paste_to_buffer()
     }
 
     size_t clipboard_len = strlen(clipboard_text);
-    printf("%d: %s\n", int(clipboard_len), clipboard_text);
+    
     
     new_console.insert_in_buffer(clipboard_text);
 
@@ -554,9 +683,18 @@ bool Console::process_key(int code, bool isdown)
             }
 
             case -4:
+                if (SDL_GetModState() & KMOD_SHIFT)
+                {
+                    new_console.curr_hist().move(10);
+                    break;
+                }
                 new_console.curr_hist().move(1);
                 break;
             case -5:
+                if (SDL_GetModState() & KMOD_SHIFT)
+                {
+                    new_console.curr_hist().move(-10);
+                }
                 new_console.curr_hist().move(-1);
                 break;
             case SDLK_PAGEUP:
@@ -585,6 +723,19 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_UP:
+                if (SDL_GetModState() & KMOD_CTRL)
+                {
+                    int speed = 1;
+                    // accelerate scroll speed with shift
+                    if (SDL_GetModState() & KMOD_SHIFT)
+                    {
+                        speed *= 10;
+                    }
+
+                    new_console.curr_hist().move(speed);
+                    break;
+                }
+                
                 if (new_console.input_history.go_up())
                 {
                     new_console.set_buffer(new_console.input_history.current_line.text);
@@ -592,6 +743,19 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_DOWN:
+                if (SDL_GetModState() & KMOD_CTRL)
+                {
+                    int speed = -1;
+                    // accelerate scroll speed with shift
+                    if (SDL_GetModState() & KMOD_SHIFT)
+                    {
+                        speed *= 10;
+                    }
+
+                    new_console.curr_hist().move(speed);
+                    break;
+                }
+
                 if (new_console.input_history.go_down())
                 {
                     new_console.set_buffer(new_console.input_history.current_line.text);
@@ -650,6 +814,12 @@ bool Console::process_key(int code, bool isdown)
 
     return true;
 }
+
+void Console::clear_curr_hist()
+{
+    curr_hist().clear();
+}
+ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
 
 char *getcurcommand()
 {
@@ -871,6 +1041,8 @@ void complete(char *s, size_t s_size, const char *cmdprefix)
         completesize = 0;
     }
 }
+
+
 
 void setidflag(const char *s, const char *v, int flag, const char *msg, bool alias)
 {

@@ -625,7 +625,6 @@ namespace game
         if(targ >= 0 && msg && *msg)
         {
             defvformatbigstring(text, msg, msg);
-            printf("%s\n", text);
             conoutft(targ == CON_INFO && d == &player1 ? CON_SELF : targ, "%s", text);
         }
         announce(idx, d, forced);

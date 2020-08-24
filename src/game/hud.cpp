@@ -1,7 +1,5 @@
 #include <vector>
 #include "game.h"
-//TODO: remove chrono
-//#include <chrono>
 
 namespace hud
 {
@@ -1788,6 +1786,7 @@ namespace hud
 
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
+        new_console.set_line_width(dims.w);
         static vector<int> refs; refs.setsize(0);
         bool full = fullconsole || commandmillis > 0;
         int tz = 0;
@@ -1798,7 +1797,7 @@ namespace hud
 
         int pos_y = pos.y;
         const int height_mainview = int(FONTH / 2) + FONTH * max_lines_drawn;
-
+        
         if((showconsole && showhud) || commandmillis > 0)
         {
             // draw main view background
@@ -1834,8 +1833,6 @@ namespace hud
 
                 int scrollbar_y = (int(((histlen - histpos) / float(histlen)) * height_mainview)) - scrollbar_height;
 
-                //printf("Height: %d, Y: %d, Mainview: %d\n", scrollbar_height, scrollbar_y, height_mainview);
-
                 // draw scrollbar
                 gle::colorf(.9f, .9f, 1.f, .95f);
                 draw_rect(vec2(0, pos.y + scrollbar_y), vec2(scrollbar_width, scrollbar_height), false);
@@ -1843,27 +1840,39 @@ namespace hud
             
             const History& hist = new_console.curr_hist();
 
-            //TODO: optimize and test performance
-            //auto start = std::chrono::steady_clock::now();
-
             const int max_drawable_lines = std::min(max_lines_drawn, histlen);
             tz += FONTH * (max_drawable_lines - 1);
 
             int lines_drawn = 0;
             int hist_idx = 0;
-            int line_idx = 0;
+            int line_idx = -1;
             if (full)
             {
                 hist_idx = hist.scroll_info_hist_idx;
                 line_idx = hist.scroll_info_line_idx;
             }
 
-            while (lines_drawn < max_drawable_lines && hist_idx < (hist.h.size()))
+            //printf("%d: [%d, %d]\n", max_drawable_lines, hist_idx, line_idx);
+
+            while (lines_drawn < max_drawable_lines)
             {
+    
                 const std::pair<int, int> line_info = new_console.curr_hist().get_relative_line_info(lines_drawn, hist_idx, line_idx);
                 
                 const ConsoleLine& line = hist.h[line_info.first];
-                
+
+                if (line_info.first > (int(hist.h.size()) - 1))
+                {
+                    printf("Breaking apaaaaaaaaart, fix pls pls pls pls\n");
+                    break;
+                }
+
+                if (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1))
+                {
+                    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH\n");
+                    break;
+                }
+
                 // draw line background
                 if (full)
                 {
@@ -1885,16 +1894,13 @@ namespace hud
                     {
                         draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
                     }
-                } 
+                }
                     
                 // draw line
                 tz -= draw_textf("%s", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
                     line.lines[line_info.second].c_str());
                 lines_drawn++;
             }
-            //auto end = std::chrono::steady_clock::now();
-            //double elapsed_time = double(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
-            //printf("It took %fns\n", elapsed_time);
 
             pophudmatrix();
             tz = int(tz * conscale);

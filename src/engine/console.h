@@ -29,9 +29,10 @@ public:
 class ConsoleLine
 {
 public:
-    std::string text;
+    std::string text = "";
     std::vector<std::string> lines;
-    std::string raw_text;
+    std::vector<int> intentional_linebreaks;
+    std::string raw_text = "";
     int type;
     int reftime;
     int out_time;
@@ -46,6 +47,9 @@ class History
 public:
     std::deque<ConsoleLine> h;
 
+    double char_width = 30.169014;
+    int line_width = 1000;
+
     int num_linebreaks = 0;
     int scroll_pos = 0;
     int scroll_info_hist_idx = 0;
@@ -53,10 +57,13 @@ public:
     bool scroll_info_outdated = false;
 
     bool move(int lines);
+    void clear();
     void recalc_scroll_info();
     //TODO: replace std::pair with smth more fitting
     std::pair<int, int> get_relative_line_info(int n, int hist_idx, int line_idx);
-    void save(ConsoleLine line);
+    void save(ConsoleLine& line);
+    void calculate_wordwrap(ConsoleLine& line);
+    void calculate_all_wordwraps();
 };
 
 class InputHistoryLine
@@ -119,6 +126,9 @@ public:
     int selected_hist = HIST_CHAT;
     History& curr_hist();
 
+    void set_char_width(double w);
+    void set_line_width(int n);
+
     // info bar
     std::string get_info_bar_text();
 
@@ -126,6 +136,7 @@ public:
     void open_console();
     void close_console();
     void insert_in_buffer(const std::string text);
+    void clear_curr_hist();
 
     bool process_key(int code, bool isdown);
     bool process_text_input(const char* str, int len);
