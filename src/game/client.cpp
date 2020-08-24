@@ -1189,6 +1189,10 @@ namespace client
         {
             bigstring output;
             copystring(output, text, messagelength);
+            std::string saytextcolor_prefix = "\f[" + std::to_string(new_console.get_say_text_color()) + "]";
+
+            prependstring(output, saytextcolor_prefix.c_str(), messagelength);
+
             if(flags&SAY_WHISPER)
             {
                 gameent *e = game::getclient(parseplayer(target));

@@ -31,7 +31,6 @@ class ConsoleLine
 public:
     std::string text = "";
     std::vector<std::string> lines;
-    std::vector<int> intentional_linebreaks;
     std::string raw_text = "";
     int type;
     int reftime;
@@ -46,9 +45,7 @@ class History
 {
 public:
     std::deque<ConsoleLine> h;
-
-    double char_width = 30.169014;
-    int line_width = 1000;
+    int max_line_width = 1000;
 
     int num_linebreaks = 0;
     int scroll_pos = 0;
@@ -119,15 +116,16 @@ public:
         HIST_CONSOLE = 2,
     };
 
-    History all_history;   
-    History chat_history; 
+    History all_history;
+    History chat_history;
     History console_history;
 
     int selected_hist = HIST_CHAT;
     History& curr_hist();
 
-    void set_char_width(double w);
-    void set_line_width(int n);
+    void set_max_line_width(int w);
+
+    int get_say_text_color();
 
     // info bar
     std::string get_info_bar_text();

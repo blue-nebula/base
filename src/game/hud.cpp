@@ -1786,12 +1786,13 @@ namespace hud
 
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
-        new_console.set_line_width(dims.w);
         static vector<int> refs; refs.setsize(0);
         bool full = fullconsole || commandmillis > 0;
         int tz = 0;
 
         pushfont("console");
+        // I've found out that / 30 seems to work best
+        new_console.set_max_line_width(dims.w / 30);
         pos.x += 10;
         int max_lines_drawn = full ? consize + conoverflow : consize;
 
@@ -1987,10 +1988,14 @@ namespace hud
             glBindTexture(GL_TEXTURE_2D, t->id);
             gle::color(c, fullconblend * fade * f);
             drawtexture(text_pos.x, pos_y + text_padding_y, text_dims.y, text_dims.x);
-                
+            
+            const int input_color_r = (new_console.get_say_text_color() >> 16) & 0xFF;
+            const int input_color_g = (new_console.get_say_text_color() >> 8) & 0xFF;
+            const int input_color_b = new_console.get_say_text_color() & 0xFF;
+
             // draw the input
             int cp = new_console.cursor_pos >= 0 ? new_console.cursor_pos : int(new_console.get_buffer().length());
-            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, text_t, 1,
+            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, input_color_r, input_color_g, input_color_b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, text_t, 1,
                     new_console.get_buffer().c_str());
                 
             popfont();

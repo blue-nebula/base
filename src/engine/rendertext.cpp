@@ -898,7 +898,7 @@ int draw_textf(const char *fstr, int left, int top, int xpad, int ypad, int r, i
     float x = 0; \
     float scale = curfont->scale / float(curfont->defaulth) * curtextscale; \
     int i = 0; \
-    int usewidth = realwidth; \
+    int usewidth = maxwidth; \
     for (i = 0; str[i]; i++) \
     { \
         int c = uchar(str[i]); \
@@ -948,10 +948,9 @@ int draw_textf(const char *fstr, int left, int top, int xpad, int ypad, int r, i
 std::vector<std::pair<int, std::string>> get_text_wraps(const char* str, const int mwidth)
 {
     const int maxwidth = mwidth * FONTW;
-    float width = 0, height = 0;
     static const int flags = 0;
     const int linespace = textlinespacing;
-    const int realwidth = maxwidth;
+    const int realwidth = 0;
     std::vector<std::pair<int, std::string>> wraps;
 
     #include <string>
@@ -959,25 +958,18 @@ std::vector<std::pair<int, std::string>> get_text_wraps(const char* str, const i
     #define TEXTINDEX(idx)
     #define TEXTWHITE(idx)
     #define TEXTLINE(idx) \
-        if (x > width) \
-        { \
-            width = x; \
-        } \
         if (curr_color[0] != '[' && curr_color.size() == 2) \
         { \
             curr_color = 'z' + curr_color[0] + curr_color[1]; \
         } \
-        wraps.push_back(std::make_pair(i, curr_color)); \
-        printf("Break at %d %c with color %s\n", i, str[i], curr_color.c_str()); 
+        wraps.push_back(std::make_pair(i, curr_color));  
     #define TEXTCOLOR(idx) curr_color += str[idx];
     #define TEXTHEXCOLOR(ret) curr_color = '[' + std::to_string(ret) + ']';
-    #define TEXTICON(ret, q, s) q += icon_width(ret, scale);
-    #define TEXTKEY(ret, q, s) q += key_widthf(ret);
+    #define TEXTICON(ret,q,s) q += icon_width(ret, scale);
+    #define TEXTKEY(ret,q,s) q += key_widthf(ret);
     #define TEXTCHAR(idx) x += cw;
-    width = height = 0;
     TEXT_SKELETON_WRAP_INFO
     TEXTLINE(_)
-    height = y + FONTH;
     #undef TEXTINDEX
     #undef TEXTWHITE
     #undef TEXTLINE
@@ -989,34 +981,6 @@ std::vector<std::pair<int, std::string>> get_text_wraps(const char* str, const i
 
     return wraps;
 }
-
-/*
-std::vector<int> get_wraps_textf(const char* str, int maxwidth, float linespace)
-{
-
-
-    maxwidth = int(maxwidth * FONTW);
-    //printf("Get wraps for str: %s\n", str);
-    if (linespace <= 0)
-    {
-        linespace = textlinespacing;
-    }
-    //text_bounds(str, width, height, 0, 0, maxwidth, 0, linespace);
-    
-    int width = 0, height = 0;
-    float widthf = 0, heightf = 0;
-    text_boundsf_w(str, widthf, heightf, maxwidth, linespace);
-    width = std::ceil(widthf);
-    height = std::ceil(heightf);
-    printf("Bounds: [ %d, %d ]\n", width, height);
-    printf("Lines: %d\n", (height / FONTH));
-
-    std::vector<int> ret;
-    return ret;
-}
-*/
-
-ICOMMAND(0, gettextwraps, "si", (char* s, int* w), get_text_wraps(s, *w));
 
 vector<font *> fontstack;
 

@@ -8,6 +8,8 @@
 #include "engine.h"
 #include "game.h"
 
+VAR(IDF_PERSIST|IDF_HEX, saytextcolour, -1, 0xFFFFFF, 0xFFFFFF);
+
 bool InputHistory::go_up()
 {
     int prev_history_pos = current_history_pos;
@@ -157,12 +159,11 @@ void History::clear()
 
 void History::calculate_wordwrap(ConsoleLine& line)
 {
-    const int max_width = std::ceil(line_width / char_width);
     line.lines.clear();
    
     if (curfont != nullptr)
     {
-        std::vector<std::pair<int, std::string>> wraps = get_text_wraps(line.text.c_str(), max_width);
+        std::vector<std::pair<int, std::string>> wraps = get_text_wraps(line.text.c_str(), max_line_width);
 
         int prev_pos = 0;
         for (const auto& wrap : wraps)
@@ -181,37 +182,6 @@ void History::calculate_wordwrap(ConsoleLine& line)
         line.lines.push_back(line.text);
     }
     line.num_linebreaks = line.lines.size();
-    // calculate all intentional linebreaks
-    /*
-    std::string tmp;
-    std::stringstream ss(line.text);
-
-    while (std::getline(ss, tmp))
-    {
-        line.lines.push_back(tmp);
-    }
-    line.num_linebreaks = int(line.lines.size());
-    
-    if (line.num_linebreaks == 0)
-    {
-        line.lines.push_back(line.text);
-        line.num_linebreaks = 1;
-    }
-    
-    
-    // calculate non-intentional linebreaks (lines that are too long and have to be wrapped)
-    line.intentional_linebreaks.clear();
-    // iterate through all lines and check if they're too long
-   
-    std::vector<std::string> new_lines;
-
-    for (int i = 0; i < line.num_linebreaks; i++)
-    {
-        std::vector<std::string> splitted = split_str(line.lines[i], max_width);
-        new_lines.insert(new_lines.begin() + i, splitted.begin(), splitted.end());
-    }
-
-    line.lines = new_lines;*/
 }
 
 void History::calculate_all_wordwraps()
@@ -223,6 +193,15 @@ void History::calculate_all_wordwraps()
         calculate_wordwrap(line);
         num_linebreaks += line.num_linebreaks;
     }
+}
+
+int Console::get_say_text_color()
+{
+    if (saytextcolour < 0)
+    {
+        return game::getcolour(&game::player1, 1);
+    }
+    return saytextcolour;
 }
 
 History& Console::curr_hist()
@@ -254,21 +233,14 @@ void Console::set_buffer(std::string text)
     }
 }
 
-void Console::set_char_width(double w)
-{
-    chat_history.char_width = w;
-    console_history.char_width = w;
-}
-
-void Console::set_line_width(int n)
+void Console::set_max_line_width(int w)
 {
     // it's assumed that line_width of all histories are in sync
+    int prev_line_width = chat_history.max_line_width;
+    chat_history.max_line_width = w;
+    console_history.max_line_width = w;
 
-    int prev_line_width = chat_history.line_width;
-    chat_history.line_width = n;
-    console_history.line_width = n;
-
-    if (prev_line_width != n)
+    if (prev_line_width != w)
     {
         chat_history.calculate_all_wordwraps();
         console_history.calculate_all_wordwraps();
