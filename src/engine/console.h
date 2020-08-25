@@ -38,6 +38,7 @@ public:
     int real_time;
     int num_linebreaks = 0;
 
+    bool seen = false;
     bool hide = false;
 };
 
@@ -53,7 +54,8 @@ public:
     int scroll_info_line_idx = 0;
     bool scroll_info_outdated = false;
 
-    bool move(int lines);
+    bool move(const int lines);
+    void remove(const int idx);
     void clear();
     void recalc_scroll_info();
     //TODO: replace std::pair with smth more fitting
@@ -67,8 +69,8 @@ class InputHistoryLine
 {
 public:
     std::string text;
-    int icon;
-    int action;
+    std::string icon;
+    std::string action;
 };
 
 class InputHistory
@@ -76,10 +78,9 @@ class InputHistory
 public:
     std::deque<InputHistoryLine> history;
     InputHistoryLine current_line;
-    int current_history_pos = -1;
+    int hist_pos = -1;
 
-    bool go_up();
-    bool go_down();
+    bool move(const int lines);
     void save(InputHistoryLine line);
 };
 
@@ -87,7 +88,10 @@ class Console
 {
 private:
     std::string buffer;
+    std::string curr_action;
+    std::string curr_icon;
 public:
+
     enum
     {
         MODE_NONE =    0,
@@ -99,7 +103,12 @@ public:
     const char command_prefix = ':';
     const char search_prefix = '/';
     const int max_buffer_len = 4096;
+    
+    bool open = false;    
+    int unseen_error_messages = 0;
 
+    std::string get_icon();
+    void set_input(std::string init = "", std::string action = "", std::string icon = "");
     void set_buffer(std::string text);
     std::string get_buffer();
     int cursor_pos = -1;
@@ -119,6 +128,7 @@ public:
     History all_history;
     History chat_history;
     History console_history;
+    History preview_history;
 
     int selected_hist = HIST_CHAT;
     History& curr_hist();

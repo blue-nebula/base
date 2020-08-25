@@ -721,7 +721,7 @@ namespace hud
 
     bool hasinput(bool pass, bool focus)
     {
-        if(focus && (commandmillis > 0 || curcompass)) return true;
+        if(focus && (new_console.open || curcompass)) return true;
         return UI::active(pass);
     }
 
@@ -1384,7 +1384,7 @@ namespace hud
     void drawpointers(int w, int h)
     {
         int index = POINTER_NONE;
-        if(hasinput()) index = !hasinput(true) || commandmillis > 0 ? POINTER_NONE : POINTER_GUI;
+        if(hasinput()) index = !hasinput(true) || new_console.open ? POINTER_NONE : POINTER_GUI;
         else if(!showhud || !showcrosshair || game::focus->state == CS_DEAD || !gs_playing(game::gamestate) || client::waiting() || (game::thirdpersonview(true) && game::focus != &game::player1))
             index = POINTER_NONE;
         else if(game::focus->state == CS_EDITING) index = POINTER_EDIT;
@@ -1745,7 +1745,7 @@ namespace hud
             flushhudmatrix();
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            if(commandmillis <= 0 && curcompass) rendercmenu();
+            if(!new_console.open && curcompass) rendercmenu();
             else if(shownotices && !client::waiting() && !hasinput(false) && !texpaneltimer) drawnotices();
             if(overlaydisplay >= 2 || (game::focus->state == CS_ALIVE && (overlaydisplay || !game::thirdpersonview(true))))
             {
@@ -1759,7 +1759,7 @@ namespace hud
             }
             glDisable(GL_BLEND);
         }
-        if(progressing || (commandmillis <= 0 && !curcompass)) UI::render();
+        if(progressing || (!new_console.open && !curcompass)) UI::render();
         if(!progressing) drawpointers(hudwidth, hudheight);
     }
 
@@ -1787,7 +1787,7 @@ namespace hud
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
         static vector<int> refs; refs.setsize(0);
-        bool full = fullconsole || commandmillis > 0;
+        bool full = fullconsole || new_console.open;
         int tz = 0;
 
         pushfont("console");
@@ -1799,9 +1799,11 @@ namespace hud
         int pos_y = pos.y;
         const int height_mainview = int(FONTH / 2) + FONTH * max_lines_drawn;
         
-        if((showconsole && showhud) || commandmillis > 0)
+        History& hist = full ? new_console.curr_hist() : new_console.preview_history;
+
+        if((showconsole && showhud) || new_console.open)
         {
-            // draw main view background
+            // draw main view background only if full
             if (full)
             {
                 gle::colorf(.1f, .1f, .1f, .95f);
@@ -1816,8 +1818,8 @@ namespace hud
             int text_r = concenter ? text_pos.x + text_scale / 2 : text_pos.x;
             tz = int(tz / conscale);
 
-            int histlen = new_console.curr_hist().num_linebreaks;//int(new_console.curr_hist().h.size());
-            int histpos = new_console.curr_hist().scroll_pos;
+            int histlen = hist.num_linebreaks;
+            int histpos = hist.scroll_pos;
 
             /////////////////
             /// SCROLLBAR ///
@@ -1838,10 +1840,15 @@ namespace hud
                 gle::colorf(.9f, .9f, 1.f, .95f);
                 draw_rect(vec2(0, pos.y + scrollbar_y), vec2(scrollbar_width, scrollbar_height), false);
             }
-            
-            const History& hist = new_console.curr_hist();
+            else
+            {
+                if (new_console.unseen_error_messages > 0)
+                {
+                    tz += draw_textf("\fr%d Unseen error messages", pos.x, pos.y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, 100 * FONTW, 1, new_console.unseen_error_messages);
+                }
+            }
 
-            const int max_drawable_lines = std::min(max_lines_drawn, histlen);
+            int max_drawable_lines = std::min(max_lines_drawn, histlen);
             tz += FONTH * (max_drawable_lines - 1);
 
             int lines_drawn = 0;
@@ -1853,18 +1860,16 @@ namespace hud
                 line_idx = hist.scroll_info_line_idx;
             }
 
-            //printf("%d: [%d, %d]\n", max_drawable_lines, hist_idx, line_idx);
-
             while (lines_drawn < max_drawable_lines)
             {
-    
-                const std::pair<int, int> line_info = new_console.curr_hist().get_relative_line_info(lines_drawn, hist_idx, line_idx);
+                const std::pair<int, int> line_info = hist.get_relative_line_info(lines_drawn, hist_idx, line_idx);
                 
-                const ConsoleLine& line = hist.h[line_info.first];
+                ConsoleLine& line = hist.h[line_info.first];
 
                 if (line_info.first > (int(hist.h.size()) - 1))
                 {
                     printf("Breaking apaaaaaaaaart, fix pls pls pls pls\n");
+                    printf("[%d, %d], %d, %d, %d, %d", line_info.first, line_info.second, full, lines_drawn, max_drawable_lines, new_console.selected_hist);
                     break;
                 }
 
@@ -1877,6 +1882,12 @@ namespace hud
                 // draw line background
                 if (full)
                 {
+                    if (line.type == CON_DEBUG_ERROR && !line.seen)
+                    {
+                        hist.h[line_info.first].seen = true;
+                        new_console.unseen_error_messages--;
+                    }
+
                     bool draw_background = true;
                     if (line.type == CON_CHAT_WHISPER)
                     {
@@ -1896,18 +1907,56 @@ namespace hud
                         draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
                     }
                 }
-                    
+                int max_time = 60;
+                float a = 1;
+                if (!full)
+                {
+                    line.out_time = totalmillis - line.reftime;
+                    switch (line.type)
+                    {
+                        case CON_GAME:
+                        case CON_INFO:
+                            max_time = 3;
+                            break;
+                        case CON_FRAG:
+                            max_time = 4;
+                            break;
+                        case CON_SELF:
+                            max_time = 5;
+                            break;
+                        case CON_GAME_INFO:
+                            max_time = 10;
+                            break;
+                    }
+                    if (line.type != CON_CHAT)
+                    {
+                        a = 1 - (line.out_time / float(max_time * 1000));
+                    }
+                }
+
+
                 // draw line
-                tz -= draw_textf("%s", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
+                tz -= draw_textf("%s", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * a * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
                     line.lines[line_info.second].c_str());
                 lines_drawn++;
+
+                if (!full)
+                {
+                    // convert max_time into milliseconds
+                    max_time *= 1000;
+                    
+                    if (line.out_time >= max_time)
+                    {
+                        hist.remove(line_info.first);
+                    }
+                }
             }
 
             pophudmatrix();
             tz = int(tz * conscale);
         }
         
-        if (commandmillis > 0)
+        if (new_console.open)
         {
             /////////////
             // TAB BAR //
@@ -1954,7 +2003,7 @@ namespace hud
                     t = textureload(console_command_tex, 3);
                     break;
                 default:
-                    t = textureload(commandicon ? commandicon : inputtex, 3);
+                    t = textureload(new_console.get_icon().empty() ? inputtex : new_console.get_icon().c_str(), 3);
                     break;
             }
 
@@ -3738,11 +3787,13 @@ namespace hud
         if(!progressing)
         {
             vec colour = vec(1, 1, 1);
-            if(commandfade && (commandmillis > 0 || totalmillis-abs(commandmillis) <= commandfade))
+            if(commandfade && new_console.open)
             {
-                float a = min(float(totalmillis-abs(commandmillis))/float(commandfade), 1.f)*commandfadeamt;
-                if(commandmillis > 0) a = 1.f-a;
-                else a += (1.f-commandfadeamt);
+                //float a = min(float(totalmillis-abs(commandmillis))/float(commandfade), 1.f)*commandfadeamt;
+                //if(commandmillis > 0) a = 1.f-a;
+                
+                //else a += (1.f-commandfadeamt);
+                float a = 1.f;
                 loopi(3) if(a < colour[i]) colour[i] *= a;
             }
             if(compassfade && (compassmillis > 0 || totalmillis-abs(compassmillis) <= compassfade))
@@ -3798,8 +3849,8 @@ namespace hud
                 drawblend(0, 0, hudwidth, hudheight, colour.x, colour.y, colour.z);
                 usetexturing(true);
                 float amt = (colour.x+colour.y+colour.z)/3.f;
-                if(commandfadeskew < 1 && (!commandmillis || (commandmillis < 0 && totalmillis-abs(commandmillis) > commandfade)))
-                    consolefade *= amt+((1.f-amt)*commandfadeskew);
+                //if(commandfadeskew < 1 && (!commandmillis || (commandmillis < 0 && totalmillis-abs(commandmillis) > commandfade)))
+                //    consolefade *= amt+((1.f-amt)*commandfadeskew);
                 fade *= amt;
             }
         }

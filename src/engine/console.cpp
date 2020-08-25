@@ -10,22 +10,29 @@
 
 VAR(IDF_PERSIST|IDF_HEX, saytextcolour, -1, 0xFFFFFF, 0xFFFFFF);
 
-bool InputHistory::go_up()
+bool InputHistory::move(const int lines)
 {
-    int prev_history_pos = current_history_pos;
-    current_history_pos = std::min(current_history_pos + 1, int(history.size()));
+    if (lines == 0)
+    {
+        return false;
+    }
+    
+    const int prev_hist_pos = hist_pos;
+        
+    if (lines > 0)
+    {
+        const int max_pos = int(history.size());
+        hist_pos = std::min(hist_pos + lines, max_pos);
+    }
+    else
+    {
+        hist_pos = std::max(hist_pos + lines, 0);
+    }
 
-    current_line = history[current_history_pos];
-    return current_history_pos != prev_history_pos;
-}
+    hist_pos = std::max(hist_pos, 0);
 
-bool InputHistory::go_down()
-{
-    int prev_history_pos = current_history_pos;
-    current_history_pos = std::max(current_history_pos - 1, 0);
-
-    current_line = history[current_history_pos];
-    return current_history_pos != prev_history_pos;
+    current_line = history[hist_pos];
+    return hist_pos != prev_hist_pos;
 }
 
 void InputHistory::save(InputHistoryLine line)
@@ -33,20 +40,20 @@ void InputHistory::save(InputHistoryLine line)
     history.push_front(line);
 }
 
-bool History::move(int lines)
+bool History::move(const int lines)
 {
     if (lines == 0)
     {
         return false;
     }
 
-    int prev_scroll_pos = scroll_pos;
+    const int prev_scroll_pos = scroll_pos;
 
     if (lines > 0)
     {
         // go up
         //TODO: Find alternative to using idents hashnameset
-        int max_pos = num_linebreaks - (*idents["consize"].storage.i + *idents["conoverflow"].storage.i);
+        const int max_pos = num_linebreaks - (*idents["consize"].storage.i + *idents["conoverflow"].storage.i);
         scroll_pos = std::min(scroll_pos + lines, max_pos);
     }
     else
@@ -65,6 +72,12 @@ bool History::move(int lines)
     }
 
     return moved;
+}
+
+void History::remove(const int idx)
+{
+    num_linebreaks -= h[idx].num_linebreaks;
+    h.erase(h.begin() + idx);
 }
 
 void History::recalc_scroll_info()
@@ -140,8 +153,6 @@ void History::save(ConsoleLine& line)
     }
     h.push_front(line);
 
-    //calculate_wordwrap(0);
-    //num_linebreaks += h[0].num_linebreaks;
     // set scroll info outdated to true, it will be recalculated
     // as soon the history is shown
     scroll_info_outdated = true;
@@ -273,57 +284,34 @@ void Console::print(int type, const std::string text, const std::string raw_text
     line.out_time = totalmillis;
     line.real_time = clocktime;
 
-    //line.num_linebreaks = int(std::count(text.begin(), text.end(), '\n'));
-
-    /*
-    if (line.num_linebreaks > 0)
-    {
-        int last_found = 0;
-        for (int i = 0; i < line.num_linebreaks; i++)
-        {
-            int pos = line.text.find('\n', last_found);
-            std::string l = line.text.substr(last_found, pos);
-            l.erase(std::remove(l.begin(), l.end(), '\n'), l.end());
-            line.lines.push_back(l);
-            last_found = pos + 1;
-        }
-    }
-    else
-    {
-        line.lines.push_back(line.text);
-        line.num_linebreaks = 1;
-    }
-    */
-    //std::reverse(std::begin(line.lines), std::end(line.lines));
-
-    /*
-    std::string tmp; 
-    std::stringstream ss(line.text);
-
-    while (std::getline(ss, tmp))
-    {
-        line.lines.push_back(tmp);
-    }
-    line.num_linebreaks = int(line.lines.size());
-
-    if (int(line.lines.size()) == 0)
-    {
-        line.lines.push_back(line.text);
-        line.num_linebreaks = 1;
-    }
-    */
-
     // filter
     switch (line.type)
     {
         case CON_CHAT:
         case CON_CHAT_TEAM:
         case CON_CHAT_WHISPER:
-        case CON_INFO:
+        case CON_SELF:
+        case CON_GAME_INFO:
             chat_history.save(line);
             break;
+        case CON_DEBUG_ERROR: /* FALLTHROUGH */
+            unseen_error_messages++;
         default:
             console_history.save(line);
+            break;
+    }
+
+    switch (line.type)
+    {
+        case CON_CHAT:
+        case CON_CHAT_TEAM:
+        case CON_CHAT_WHISPER:
+        case CON_INFO:
+        case CON_SELF:
+        case CON_FRAG:
+        case CON_GAME:
+        case CON_GAME_INFO:
+            preview_history.save(line);
             break;
     }
 }
@@ -343,12 +331,23 @@ void Console::run_buffer()
 }
 
 void Console::open_console()
-{
+{    
+    textinput(true, TI_CONSOLE);
+    keyrepeat(true, KR_CONSOLE);
+
+    open = true;
 }
 
 void Console::close_console()
 {
-    input_history.current_history_pos = -1;
+    textinput(false, TI_CONSOLE);
+    keyrepeat(false, KR_CONSOLE);
+
+    open = false;
+    set_buffer("");
+    curr_action = "";
+    curr_icon = "";
+    input_history.hist_pos = -1;
 }
 
 void Console::insert_in_buffer(const std::string text)
@@ -460,11 +459,7 @@ Console new_console = Console();
 
 reversequeue<cline, MAXCONLINES> conlines;
 
-int commandmillis = -1;
-//bigstring commandbuf;
-char *commandaction = NULL, *commandicon = NULL;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1, CF_MESSAGE = 1<<2 };
-int commandflags = 0;//commandpos = -1, commandcolour = 0;
 int commandcolour = 0;
 
 void complete(char* s, size_t s_size, const char* cmdprefix);
@@ -483,6 +478,10 @@ void conline(int type, const char *sf, int n)
 
 void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour = 0, char *flags = NULL) // turns input to the command line on or off
 {
+    new_console.set_input(init != nullptr ? init : "", 
+                        action != nullptr ? action : "", 
+                        icon != nullptr ? icon : "");
+    /*
     commandmillis = init ? totalmillis : -totalmillis;
     textinput(commandmillis >= 0, TI_CONSOLE);
     keyrepeat(commandmillis >= 0, KR_CONSOLE);
@@ -490,8 +489,9 @@ void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour
     {
         new_console.set_buffer(init);
     }
-    DELETEA(commandaction);
-    DELETEA(commandicon);
+
+    //DELETEA(commandaction);
+    //DELETEA(commandicon);
     new_console.cursor_pos = -1;
     if(action && action[0]) commandaction = newstring(action);
     if(icon && icon[0]) commandicon = newstring(icon);
@@ -505,6 +505,18 @@ void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour
         case 's': commandflags |= CF_COMPLETE|CF_EXECUTE|CF_MESSAGE; break;
     }
     else if(init) commandflags |= CF_COMPLETE|CF_EXECUTE;
+    */
+}
+
+void Console::set_input(std::string init, std::string action, std::string icon)
+{
+    open_console();
+
+    set_buffer(init);
+
+    new_console.cursor_pos = -1;
+    curr_action = action;
+    curr_icon = icon;
 }
 
 ICOMMAND(0, saycommand, "C", (char *init), inputcommand(init));
@@ -530,19 +542,22 @@ bool paste_to_buffer()
         return false;
     }
 
-    char* clipboard_text = SDL_GetClipboardText();
-    if (clipboard_text == nullptr)
+    char* cb = SDL_GetClipboardText();
+    if (cb == nullptr)
     {
         return false;
     }
+    size_t len = new_console.max_buffer_len;
+    size_t cblen = strlen(cb);
+    char* buf = newstring("");
+    size_t start = strlen(buf);
+    size_t decoded = decodeutf8((uchar *)&buf[start], len-1-start, (const uchar *)cb, cblen);
+   
 
-    size_t clipboard_len = strlen(clipboard_text);
-    
-    
-    new_console.insert_in_buffer(clipboard_text);
+    new_console.insert_in_buffer(buf);
 
     // documentation says this has to be done
-    SDL_free(clipboard_text);
+    SDL_free(cb);
 
     return true;
 }
@@ -569,12 +584,12 @@ void history_(int *n)
 
 bool Console::process_text_input(const char *str, int len)
 {
-    if (commandmillis < 0)
+    if (!open)
     {
         return false;
     }
 
-    resetcomplete();
+    //resetcomplete();
     new_console.insert_in_buffer(str);
 
     return true;
@@ -582,7 +597,7 @@ bool Console::process_text_input(const char *str, int len)
 
 bool Console::process_key(int code, bool isdown)
 {
-    if (commandmillis < 0)
+    if (!open)
     {
         return false;
     }
@@ -708,7 +723,7 @@ bool Console::process_key(int code, bool isdown)
                     break;
                 }
                 
-                if (new_console.input_history.go_up())
+                if (new_console.input_history.move(1))
                 {
                     new_console.set_buffer(new_console.input_history.current_line.text);
                 }
@@ -728,7 +743,7 @@ bool Console::process_key(int code, bool isdown)
                     break;
                 }
 
-                if (new_console.input_history.go_down())
+                if (new_console.input_history.move(-1))
                 {
                     new_console.set_buffer(new_console.input_history.current_line.text);
                 }
@@ -769,22 +784,25 @@ bool Console::process_key(int code, bool isdown)
                 line.text = new_console.get_buffer();
                 new_console.input_history.save(line);
             }
-            inputcommand(nullptr);
-                
+             
             interactive = true;
             new_console.run_buffer();
             interactive = false;
             
-            new_console.close_console();
+            close_console();
         }
         else if (code == SDLK_ESCAPE || (code < 0 && code != -5 && code != -4))
         {
-            inputcommand(nullptr);
-            new_console.close_console();
+            close_console();
         }
     }
 
     return true;
+}
+
+std::string Console::get_icon()
+{
+    return curr_icon;
 }
 
 void Console::clear_curr_hist()
@@ -796,7 +814,7 @@ ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
 char *getcurcommand()
 {
     char* buf = newstring(new_console.get_buffer().c_str());
-    return commandmillis > 0 ? buf : (char *)nullptr;//commandbuf : (char *)NULL;
+    return new_console.open ? buf : (char *)nullptr;
 }
 
 void writebinds(stream *f)
@@ -830,7 +848,7 @@ struct filesval
 
     void update()
     {
-        if(type!=FILES_DIR || millis >= commandmillis) return;
+        if(type!=FILES_DIR) return;
         files.deletearrays();
         listfiles(dir, ext, files);
         files.sort();
@@ -1094,16 +1112,22 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
     if(w && *w)
     {
         bool consolecmd = *w == new_console.command_prefix;
-        commandmillis = totalmillis;
-        new_console.set_buffer(w);
+        //commandmillis = totalmillis;
+        //new_console.set_buffer(w);
         //copystring(commandbuf, w, BIGSTRLEN);
-        DELETEA(commandaction);
-        DELETEA(commandicon);
-        new_console.cursor_pos = new_console.get_buffer().length();
+        //DELETEA(commandaction);
+        //DELETEA(commandicon);
+        //new_console.cursor_pos = new_console.get_buffer().length();
         //commandpos = strlen(commandbuf);
-        if(!consolecmd) commandaction = newstring("say $commandbuffer");
-        commandcolour = 0;
-        commandflags = CF_EXECUTE|CF_MESSAGE;
+        std::string action = "";
+        if (!consolecmd)
+        {
+            action = "say $commandbuffer";
+        }
+        printf("Set input to %s\n", w);
+        new_console.set_input(w, action);
+        //commandcolour = 0;
+        //commandflags = CF_EXECUTE|CF_MESSAGE;
         /*
         hline *h = NULL;
         if (!new_console.buffer.empty())
@@ -1121,7 +1145,7 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
         }
         histpos = history.length();
         */
-        inputcommand(NULL);
+        new_console.open_console();
 
         /*if(h)
         {

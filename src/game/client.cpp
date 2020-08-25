@@ -1271,9 +1271,9 @@ namespace client
             {
                 if(oldval)
                 {
-                    conoutft(CON_EVENT, "\fy%s set \fs\fc%s\fS to \fs\fc%s\fS (was: \fs\fc%s\fS)", d ? game::colourname(d) : (connected(false) ? "the server" : "you"), cmd, val, oldval);
+                    conoutft(CON_INFO, "\fy%s set \fs\fc%s\fS to \fs\fc%s\fS (was: \fs\fc%s\fS)", d ? game::colourname(d) : (connected(false) ? "the server" : "you"), cmd, val, oldval);
                 }
-                else conoutft(CON_EVENT, "\fy%s set \fs\fc%s\fS to \fs\fc%s\fS", d ? game::colourname(d) : (connected(false) ? "the server" : "you"), cmd, val);
+                else conoutft(CON_INFO, "\fy%s set \fs\fc%s\fS to \fs\fc%s\fS", d ? game::colourname(d) : (connected(false) ? "the server" : "you"), cmd, val);
             }
         }
         else if(verbose) conoutft(CON_EVENT, "\fr%s sent unknown command: \fc%s", d ? game::colourname(d) : "the server", cmd);
@@ -2327,10 +2327,10 @@ namespace client
                             if(showpresencehostinfo && client::haspriv(&game::player1, G(iphostlock))) formatstring(ipaddr, " (%s)", d->hostip);
                             if(priv > PRIV_NONE)
                             {
-                                if(d->handle[0]) conoutft(CON_EVENT, "\fg%s%s joined the game (\fs\fy%s\fS: \fs\fc%s\fS) [%d.%d.%d-%s%d-%s] (%d %s)", game::colourname(d), ipaddr, server::privname(d->privilege), d->handle, d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch, amt, amt != 1 ? "players" : "player");
-                                else conoutft(CON_EVENT, "\fg%s%s joined the game (\fs\fy%s\fS) [%d.%d.%d-%s%d-%s] (%d %s)", game::colourname(d), ipaddr, server::privname(d->privilege), d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch, amt, amt != 1 ? "players" : "player");
+                                if(d->handle[0]) conoutft(CON_GAME_INFO, "\fg%s%s joined the game (\fs\fy%s\fS: \fs\fc%s\fS) [%d.%d.%d-%s%d-%s] (%d %s)", game::colourname(d), ipaddr, server::privname(d->privilege), d->handle, d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch, amt, amt != 1 ? "players" : "player");
+                                else conoutft(CON_GAME_INFO, "\fg%s%s joined the game (\fs\fy%s\fS) [%d.%d.%d-%s%d-%s] (%d %s)", game::colourname(d), ipaddr, server::privname(d->privilege), d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch, amt, amt != 1 ? "players" : "player");
                             }
-                            else conoutft(CON_EVENT, "\fg%s%s joined the game [%d.%d.%d-%s%d-%s] (%d %s)", game::colourname(d), ipaddr, d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch, amt, amt != 1 ? "players" : "player");
+                            else conoutft(CON_GAME_INFO, "\fg%s%s joined the game [%d.%d.%d-%s%d-%s] (%d %s)", game::colourname(d), ipaddr, d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch, amt, amt != 1 ? "players" : "player");
                         }
                         if(needclipboard >= 0) needclipboard++;
                         game::specreset(d);
@@ -3066,7 +3066,7 @@ namespace client
                             if(showlaptimes >= (t != game::focus ? (t->actortype > A_PLAYER ? 3 : 2) : 1))
                             {
                                 defformatstring(best, "%s", timestr(t->cptime, 1));
-                                conoutft(t != &game::player1 ? CON_INFO : CON_SELF, "%s completed in \fs\fg%s\fS (Best: \fs\fy%s\fS, Laps: \fs\fc%d\fS)", game::colourname(t), timestr(t->cplast, 1), best, t->points);
+                                conoutft(CON_GAME, "%s completed in \fs\fg%s\fS (Best: \fs\fy%s\fS, Laps: \fs\fc%d\fS)", game::colourname(t), timestr(t->cplast, 1), best, t->points);
                             }
                         }
                         else if(!m_ra_endurance(game::gamemode, game::mutators)) t->impulse[IM_METER] = 0;

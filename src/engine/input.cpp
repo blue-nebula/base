@@ -242,7 +242,7 @@ void InputSystem::get_key_pressed(int limit, const char* c_s1, const char* c_s2,
         {
             names += s1 + name1 + s2;
         }
-        
+         
         if (!name2.empty())
         {
             std::string sep;

@@ -283,7 +283,7 @@ static void debugcode(const char *fmt, ...)
     if(nodebug) return;
 
     defvformatbigstring(msg, fmt, fmt);
-    conoutft(CON_MESG, "%s", msg);
+    conoutft(CON_DEBUG_ERROR, "%s", msg);
 
     debugalias();
 }
@@ -2216,7 +2216,7 @@ static const uint *runcode(const uint *code, tagval &result)
                 id = identmap[op>>8];
                 if(id->flags&IDF_UNKNOWN)
                 {
-                    debugcode("\frunknown command: %s", id->name);
+                    debugcode("\frUnknown Command: %s", id->name);
                     goto forceresult;
                 }
                 CALLALIAS(0);
@@ -2239,7 +2239,7 @@ static const uint *runcode(const uint *code, tagval &result)
                     {
                         if(server::rewritecommand(id, args, numargs)) goto forceresult;
                     }
-                    debugcode("\frunknown command: %s", args[0].s);
+                    debugcode("\frUnknown Command: %s", args[0].s);
                     forcenull(result);
                     goto forceresult;
                 }
@@ -3370,7 +3370,7 @@ ICOMMAND(0, >s, "ss", (char *a, char *b), intret(strcmp(a,b)>0));
 ICOMMAND(0, <=s, "ss", (char *a, char *b), intret(strcmp(a,b)<=0));
 ICOMMAND(0, >=s, "ss", (char *a, char *b), intret(strcmp(a,b)>=0));
 ICOMMAND(0, echo, "C", (char *s), conoutft(CON_MESG, "%s", s));
-ICOMMAND(0, error, "C", (char *s), conoutft(CON_DEBUG, "\fr%s", s));
+ICOMMAND(0, error, "C", (char *s), conoutft(CON_DEBUG_ERROR, "\fr%s", s));
 ICOMMAND(0, stringlen, "s", (char *s), intret(strlen(s)));
 ICOMMAND(0, stringcode, "si", (char *s, int *i), intret(*i > 0 ? (memchr(s, 0, *i) ? 0 : uchar(s[*i])) : uchar(s[0])));
 ICOMMAND(0, codestring, "i", (int *i), { char *s = newstring(1); s[0] = char(*i); s[1] = '\0'; stringret(s); });

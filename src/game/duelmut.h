@@ -362,7 +362,7 @@ struct duelservmode : servmode
                                 {
                                     if(clients[i]->team == alive[0]->team)
                                     {
-                                        ancmsgft(clients[i]->clientnum, S_V_YOUWIN, CON_SELF, "%s", end);
+                                        ancmsgft(clients[i]->clientnum, S_V_YOUWIN, CON_GAME, "%s", end);
                                         if(alive.find(clients[i]) >= 0)
                                         {
                                             if(!m_affinity(gamemode))
