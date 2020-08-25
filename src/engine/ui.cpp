@@ -117,32 +117,20 @@ struct gui : guient
 
     void skin(int x1, int y1, int x2, int y2, int c1 = -1, float b1 = -1.f, int c2 = -1, float b2 = -1.f, bool skinborder = false)
     {
-        int colour1 = c1 >= 0 ? c1 : (ui_color_background >= 0 ? ui_color_background : (c2 >= 0 ? c2 : 0x000000)),
-            colour2 = c2 >= 0 ? c2 : (ui_color_border >= 0 ? ui_color_border : 0x808080);
-        float blend1 = b1 >= 0 ? b1 : ui_blend_background, blend2 = b2 >= 0 ? b2 : ui_blend_border;
+        int colour1 = c1 >= 0 ? c1 : (ui_color_background >= 0 ? ui_color_background : (c2 >= 0 ? c2 : 0x000000));
+        int colour2 = c2 >= 0 ? c2 : (ui_color_border >= 0 ? ui_color_border : 0x808080);
+        float blend1 = b1 >= 0 ? b1 : ui_blend_background;
+        float blend2 = b2 >= 0 ? b2 : ui_blend_border;
         switch(ui_skinned)
         {
             case 2: case 3:
             {
-                loopk(ui_skinned == 3 || skinborder ? 2 : 1)
+                if(!skintex) skintex = textureload(ui_skin_texture, 0, true, false);
+                drawskin(skintex, x1, y1, x2, y2, colour1, blend1, ui_size_skin);
+                if(ui_skinned == 3 || skinborder)
                 {
-                    int colour = colour1;
-                    float blend = blend1;
-                    Texture *t = NULL;
-                    switch(k)
-                    {
-                        case 1:
-                            colour = colour2;
-                            blend = blend2;
-                            if(!skinbordertex) skinbordertex = textureload(ui_skin_border_texture, 0, true, false);
-                            t = skinbordertex;
-                            break;
-                        case 0: default:
-                            if(!skintex) skintex = textureload(ui_skin_texture, 0, true, false);
-                            t = skintex;
-                            break;
-                    }
-                    drawskin(t, x1, y1, x2, y2, colour, blend, ui_size_skin);
+                    if(!skinbordertex) skinbordertex = textureload(ui_skin_border_texture, 0, true, false);
+                    drawskin(skinbordertex, x1, y1, x2, y2, colour2, blend2, ui_size_skin);
                 }
                 break;
             }
