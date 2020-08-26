@@ -1888,22 +1888,11 @@ namespace hud
                         new_console.unseen_error_messages--;
                     }
 
-                    bool draw_background = true;
-                    if (line.type == CON_CHAT_WHISPER)
+                    if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
                     {
-                        gle::colorf(.7f, .7f, .7f, .2f);
-                    }
-                    else if (line.type == CON_CHAT_TEAM)
-                    {
-                        gle::colorf(0, 0, .1f, .8f);
-                    }
-                    else
-                    {
-                        draw_background = false;
-                    }
-
-                    if (draw_background)
-                    {
+                        std::array<float, 4> color = hist.type_background_colors[line.type];
+                        
+                        gle::colorf(color[0], color[1], color[2], color[3]);
                         draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
                     }
                 }

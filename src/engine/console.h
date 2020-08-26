@@ -4,6 +4,8 @@
 #include <string>
 #include <deque>
 #include <vector>
+#include <map>
+#include <array>
 
 static const int MAX_HISTORY = 1000;
 static const int MAX_INPUT_HISTORY = 100;
@@ -25,6 +27,24 @@ public:
     }
 };
 */
+class InputHistoryLine
+{
+public:
+    std::string text;
+    std::string icon;
+    std::string action;
+};
+
+class InputHistory
+{
+public:
+    std::deque<InputHistoryLine> history;
+    InputHistoryLine current_line;
+    int hist_pos = -1;
+
+    bool move(const int lines);
+    void save(InputHistoryLine line);
+};
 
 class ConsoleLine
 {
@@ -46,6 +66,9 @@ class History
 {
 public:
     std::deque<ConsoleLine> h;
+    std::map<const int, std::array<float, 4>> type_background_colors; 
+
+
     int max_line_width = 1000;
 
     int num_linebreaks = 0;
@@ -65,25 +88,6 @@ public:
     void calculate_all_wordwraps();
 };
 
-class InputHistoryLine
-{
-public:
-    std::string text;
-    std::string icon;
-    std::string action;
-};
-
-class InputHistory
-{
-public:
-    std::deque<InputHistoryLine> history;
-    InputHistoryLine current_line;
-    int hist_pos = -1;
-
-    bool move(const int lines);
-    void save(InputHistoryLine line);
-};
-
 class Console
 {
 private:
@@ -91,6 +95,7 @@ private:
     std::string curr_action;
     std::string curr_icon;
 public:
+    Console();
 
     enum
     {

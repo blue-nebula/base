@@ -206,6 +206,12 @@ void History::calculate_all_wordwraps()
     }
 }
 
+Console::Console()
+{
+    chat_history.type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
+    chat_history.type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
+}
+
 int Console::get_say_text_color()
 {
     if (saytextcolour < 0)
