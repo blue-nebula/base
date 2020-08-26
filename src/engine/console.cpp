@@ -12,7 +12,7 @@ VAR(IDF_PERSIST|IDF_HEX, saytextcolour, -1, 0xFFFFFF, 0xFFFFFF);
 
 bool InputHistory::move(const int lines)
 {
-    if (lines == 0)
+    if (lines == 0 || int(history.size()) == 0)
     {
         return false;
     }
@@ -21,7 +21,7 @@ bool InputHistory::move(const int lines)
         
     if (lines > 0)
     {
-        const int max_pos = int(history.size());
+        const int max_pos = int(history.size()) - 1;
         hist_pos = std::min(hist_pos + lines, max_pos);
     }
     else
@@ -37,6 +37,19 @@ bool InputHistory::move(const int lines)
 
 void InputHistory::save(InputHistoryLine line)
 {
+    // if there are any entries inside history, check if the last one is basically
+    // the same as the current one, because if so, we don't need to save it another time
+    if (int(history.size()) > 0)
+    {
+        InputHistoryLine& prev_line = history.front();
+        if (   line.text == prev_line.text
+            && line.icon == prev_line.icon
+            && line.action == prev_line.action)
+        {
+            return;
+        }
+    }
+
     history.push_front(line);
 }
 
@@ -237,6 +250,13 @@ History& Console::curr_hist()
 void Console::set_buffer(std::string text)
 {
     buffer = text;
+    if (buffer != input_history.current_line.text && input_history.hist_pos != -1)
+    {
+        // reset the InputHistory position because now we have changed it
+        // otherwise you wouldn't be able to get back to the text you changed before
+        input_history.hist_pos = -1;
+    }
+
     // update search or completion
     
     switch (get_mode())
