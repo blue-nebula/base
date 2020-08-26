@@ -768,6 +768,8 @@ bool Console::process_key(int code, bool isdown)
                 if (input_history.move(1))
                 {
                     set_buffer(input_history.current_line.text);
+                    curr_icon = input_history.current_line.icon;
+                    curr_action = input_history.current_line.action;
                 }
                 break;
 
@@ -788,6 +790,8 @@ bool Console::process_key(int code, bool isdown)
                 if (input_history.move(-1))
                 {
                     set_buffer(input_history.current_line.text);
+                    curr_icon = input_history.current_line.icon;
+                    curr_action = input_history.current_line.action;
                 }
                 break;
             case SDLK_v:
