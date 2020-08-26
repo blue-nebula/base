@@ -748,17 +748,6 @@ bool Console::process_key(int code, bool isdown)
                     new_console.set_buffer(new_console.input_history.current_line.text);
                 }
                 break;
-
-            case SDLK_TAB:
-                //TODO: Implement completion
-                /*if(commandflags&CF_COMPLETE)
-                {
-                    complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
-                    if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
-                }*/
-                printf("Completion isn't implemented yet\n");
-                break;
-
             case SDLK_v:
                 if (SDL_GetModState() & MOD_KEYS)
                 {
@@ -770,6 +759,17 @@ bool Console::process_key(int code, bool isdown)
                 break;
             case SDLK_F2:
                 selected_hist = HIST_CONSOLE;
+                break;
+            case SDLK_TAB:
+                // switch between tabs using "TAB"
+                if (selected_hist < HIST_MAX - 1)
+                {
+                    selected_hist++;
+                }
+                else
+                {
+                    selected_hist = 0;
+                }
                 break;
         }
     }

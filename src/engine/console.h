@@ -120,9 +120,9 @@ public:
     
     enum
     {
-        HIST_ALL =     0,
-        HIST_CHAT =    1,
-        HIST_CONSOLE = 2,
+        HIST_CHAT =    0,
+        HIST_CONSOLE = 1,
+        HIST_MAX
     };
 
     History all_history;

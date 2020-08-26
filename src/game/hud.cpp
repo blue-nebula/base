@@ -1975,7 +1975,7 @@ namespace hud
             gle::colorf(.05f, .05f, .05f, .6f);
             // 21 * 7 -> (tab_dimensions.w * (new_console.selected_hist - 1) + pos.x + (padding_left * 0.125f))
             // 21 * 8 -> (tab_dimensions.w * (new_console.selected_hist - 1) + pos.x)
-            draw_rect(vec2((tab_dimensions.w * (new_console.selected_hist - 1)) + pos.x , pos_y), tab_dimensions, false);
+            draw_rect(vec2((tab_dimensions.w * new_console.selected_hist) + pos.x , pos_y), tab_dimensions, false);
 
             // draw text            
             for (int i = 0; i < 2; i++)
