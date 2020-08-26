@@ -321,14 +321,15 @@ void Console::print(int type, const std::string text, const std::string raw_text
             break;
     }
 }
-
+// this is called when pressing enter
 void Console::run_buffer()
 {
     if (buffer[0] == command_prefix)
     {
         execute(buffer.c_str() + 1);
     }
-    else
+    // you can't send empty messages (checks if there are any non-space characters)
+    else if (buffer.find_first_not_of(' ') != std::string::npos)
     {
         client::toserver(0, buffer.c_str());
     }
