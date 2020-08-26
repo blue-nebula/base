@@ -128,7 +128,6 @@ struct VSlot;
 extern void packvslot(vector<uchar> &buf, int index);
 extern void packvslot(vector<uchar> &buf, const VSlot *vs);
 
-extern char *getcurcommand();
 extern void resetcomplete();
 
 

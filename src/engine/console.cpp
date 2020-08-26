@@ -268,6 +268,7 @@ std::string Console::get_buffer()
 {
     return buffer;
 }
+ICOMMAND(0, getconsolebuffer, "", (), stringret(newstring(new_console.get_buffer().c_str())));
 
 void Console::print(int type, const std::string text, const std::string raw_text)
 {
@@ -324,6 +325,23 @@ void Console::print(int type, const std::string text, const std::string raw_text
 // this is called when pressing enter
 void Console::run_buffer()
 {
+    printf("action: %s\n", curr_action.c_str());
+    if (buffer.find_first_not_of(' ') != std::string::npos)
+    {
+        if (buffer[0] == command_prefix)
+        {
+            // the + 1 is to remove the command_prefix from the beginning of the buffer
+            execute(buffer.c_str() + 1);
+        }
+        else
+        { 
+            execute(curr_action.c_str());
+        }
+        curr_hist().scroll_pos = 0;
+        curr_hist().recalc_scroll_info();
+    }
+
+    /*
     if (buffer[0] == command_prefix)
     {
         execute(buffer.c_str() + 1);
@@ -332,9 +350,8 @@ void Console::run_buffer()
     else if (buffer.find_first_not_of(' ') != std::string::npos)
     {
         client::toserver(0, buffer.c_str());
-    }
+    }*/
     // reset scrolling
-    curr_hist().scroll_pos = 0;
 }
 
 void Console::open_console()
@@ -568,8 +585,6 @@ bool paste_to_buffer()
 
     return true;
 }
-
-SVAR(0, commandbuffer, "");
 
 int histpos = 0;
 
@@ -817,12 +832,6 @@ void Console::clear_curr_hist()
     curr_hist().clear();
 }
 ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
-
-char *getcurcommand()
-{
-    char* buf = newstring(new_console.get_buffer().c_str());
-    return new_console.open ? buf : (char *)nullptr;
-}
 
 void writebinds(stream *f)
 {
@@ -1129,7 +1138,7 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
         std::string action = "";
         if (!consolecmd)
         {
-            action = "say $commandbuffer";
+            action = "say (getconsolebuffer)";
         }
         printf("Set input to %s\n", w);
         new_console.set_input(w, action);
