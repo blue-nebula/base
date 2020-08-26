@@ -653,33 +653,33 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_HOME:
-                if (new_console.get_buffer().length() != 0)
+                if (get_buffer().length() != 0)
                 {
-                    new_console.cursor_pos = 0;
+                    cursor_pos = 0;
                 }
                 break;
 
             case SDLK_END:
-                new_console.cursor_pos = -1;
+                cursor_pos = -1;
                 break;
 
             case SDLK_DELETE:
             {
-                int len = int(new_console.get_buffer().length());
+                int len = int(get_buffer().length());
                 
-                if (new_console.cursor_pos < 0)
+                if (cursor_pos < 0)
                 {
                     break;
                 }
 
-                std::string new_buffer = new_console.get_buffer();
-                new_buffer.erase(new_buffer.begin() + new_console.cursor_pos);
-                new_console.set_buffer(new_buffer);
+                std::string new_buffer = get_buffer();
+                new_buffer.erase(new_buffer.begin() + cursor_pos);
+                set_buffer(new_buffer);
 
                 resetcomplete();
-                if (new_console.cursor_pos >= len - 1)
+                if (cursor_pos >= len - 1)
                 {
-                    new_console.cursor_pos = -1;
+                    cursor_pos = -1;
                 }
 
                 break;
@@ -687,26 +687,26 @@ bool Console::process_key(int code, bool isdown)
 
             case SDLK_BACKSPACE:
             {
-                int len = int(new_console.get_buffer().length());
-                int i = new_console.cursor_pos >= 0 ? new_console.cursor_pos : len;
+                int len = int(get_buffer().length());
+                int i = cursor_pos >= 0 ? cursor_pos : len;
 
                 if (i < 1)
                 {
                     break;
                 }
 
-                std::string new_buffer = new_console.get_buffer();
+                std::string new_buffer = get_buffer();
                 new_buffer.erase(new_buffer.begin() + (i - 1));
-                new_console.set_buffer(new_buffer);
+                set_buffer(new_buffer);
                 
                 resetcomplete();
-                if (new_console.cursor_pos > 0)
+                if (cursor_pos > 0)
                 {
-                    new_console.cursor_pos--;
+                    cursor_pos--;
                 }
-                else if (new_console.cursor_pos == 0 && len <= 1)
+                else if (cursor_pos == 0 && len <= 1)
                 {
-                    new_console.cursor_pos = -1;
+                    cursor_pos = -1;
                 }
                 break;
             }
@@ -714,40 +714,40 @@ bool Console::process_key(int code, bool isdown)
             case -4:
                 if (SDL_GetModState() & KMOD_SHIFT)
                 {
-                    new_console.curr_hist().move(10);
+                    curr_hist().move(10);
                     break;
                 }
-                new_console.curr_hist().move(1);
+                curr_hist().move(1);
                 break;
             case -5:
                 if (SDL_GetModState() & KMOD_SHIFT)
                 {
-                    new_console.curr_hist().move(-10);
+                    curr_hist().move(-10);
                 }
-                new_console.curr_hist().move(-1);
+                curr_hist().move(-1);
                 break;
             case SDLK_PAGEUP:
-                new_console.curr_hist().move(10);
+                curr_hist().move(10);
                 break;
             case SDLK_PAGEDOWN:
-                new_console.curr_hist().move(-10);
+                curr_hist().move(-10);
                 break;
 
             case SDLK_LEFT:
-                if (new_console.cursor_pos > 0)
+                if (cursor_pos > 0)
                 {
-                    new_console.cursor_pos--;
+                    cursor_pos--;
                 }
-                else if (new_console.cursor_pos < 0)
+                else if (cursor_pos < 0)
                 {
-                    new_console.cursor_pos = int(new_console.get_buffer().length()) - 1;
+                    cursor_pos = int(get_buffer().length()) - 1;
                 }
                 break;
 
             case SDLK_RIGHT:
-                if (new_console.cursor_pos >= 0 && ++new_console.cursor_pos >= int(new_console.get_buffer().length()))
+                if (cursor_pos >= 0 && ++cursor_pos >= int(get_buffer().length()))
                 {
-                    new_console.cursor_pos = -1;
+                    cursor_pos = -1;
                 }
                 break;
 
@@ -761,13 +761,13 @@ bool Console::process_key(int code, bool isdown)
                         speed *= 10;
                     }
 
-                    new_console.curr_hist().move(speed);
+                    curr_hist().move(speed);
                     break;
                 }
                 
-                if (new_console.input_history.move(1))
+                if (input_history.move(1))
                 {
-                    new_console.set_buffer(new_console.input_history.current_line.text);
+                    set_buffer(input_history.current_line.text);
                 }
                 break;
 
@@ -781,13 +781,13 @@ bool Console::process_key(int code, bool isdown)
                         speed *= 10;
                     }
 
-                    new_console.curr_hist().move(speed);
+                    curr_hist().move(speed);
                     break;
                 }
 
-                if (new_console.input_history.move(-1))
+                if (input_history.move(-1))
                 {
-                    new_console.set_buffer(new_console.input_history.current_line.text);
+                    set_buffer(input_history.current_line.text);
                 }
                 break;
             case SDLK_v:
@@ -819,16 +819,18 @@ bool Console::process_key(int code, bool isdown)
     {
         if (code == SDLK_RETURN || code == SDLK_KP_ENTER)
         {
-            if (!new_console.get_buffer().empty())
+            if (!get_buffer().empty())
             {
                 // save this line to the history
                 InputHistoryLine line = InputHistoryLine();
-                line.text = new_console.get_buffer();
-                new_console.input_history.save(line);
+                line.text = get_buffer();
+                line.action = curr_action;
+                line.icon = curr_icon;
+                input_history.save(line);
             }
              
             interactive = true;
-            new_console.run_buffer();
+            run_buffer();
             interactive = false;
             
             close_console();
