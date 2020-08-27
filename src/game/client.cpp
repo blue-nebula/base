@@ -1172,8 +1172,8 @@ namespace client
                 type = CON_CHAT_WHISPER;
             }
 
-            // send msg as raw_text so search can function properly without formatted text
-            new_console.print(type, line, msg);
+            conoutft(type, "%s", line);
+            //new_console.print(type, line, msg);
 
             if (snd >= 0 && !issound(f->cschan))
             {

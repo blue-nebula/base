@@ -64,7 +64,7 @@ class InputHistoryLine
 public:
     std::string text;
     std::string icon;
-    std::string action;
+    int action;
 };
 
 class InputHistory
@@ -130,7 +130,7 @@ class Console
 {
 private:
     std::string buffer;
-    std::string curr_action;
+    int curr_action;
     std::string curr_icon;
     std::vector<CompletionBase*> completions_engines; 
     std::vector<CompletionEntryBase*> curr_completions;
@@ -154,7 +154,7 @@ public:
     int unseen_error_messages = 0;
 
     std::string get_icon();
-    void set_input(std::string init = "", std::string action = "", std::string icon = "");
+    void set_input(std::string init = "", int action = 0, std::string icon = "");
     void set_buffer(std::string text);
     std::string get_buffer();
     int cursor_pos = -1;

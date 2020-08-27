@@ -232,6 +232,8 @@ void console(int type, const char *s, ...)
 void conoutft(int type, const char *s, ...)
 {
     defvformatbigstring(sf, s, s);
+    
+    printf("Converted to %s\n", sf);
     console(type, "%s", sf);
     ircoutf(5, "%s", sf);
 }

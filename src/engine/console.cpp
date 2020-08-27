@@ -11,13 +11,40 @@
 
 VAR(IDF_PERSIST|IDF_HEX, saytextcolour, -1, 0xFFFFFF, 0xFFFFFF);
 
-/*
-bool CompletionBase::can_complete(Console& console)
+
+std::string unescapestring(std::string src)
 {
-    printf("Lmao what the fuck are you doing?\n");
-    return false;
+    // go through and replace every ^n, ^f and ^t with \n, \f and \t   
+    int len = int(src.length());
+    std::string dst = "";
+    for (int i = 0; i < len; i++)
+    {
+        char c = src[i];
+        char next_c = i + 1 < len ? src[i + 1] : ' ';
+
+        if (c == '^')
+        {
+            switch (next_c)
+            {
+                case 'n':
+                    dst += '\n';
+                    i++;
+                    continue;
+                case 't':
+                    dst += '\t';
+                    i++;
+                    continue;
+                case 'f':
+                    dst += '\f';
+                    i++;
+                    continue;
+            }
+        }
+        dst += c;
+    }
+
+    return dst;
 }
-*/
 
 bool InputHistory::move(const int lines)
 {
@@ -233,6 +260,8 @@ Console::Console()
     chat_history.type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
     chat_history.type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
 
+    console_history.type_background_colors[CON_DEBUG_ERROR] = { .8f, .1f, .1f, .8f };
+
     register_completion(new PlayerNameCompletion());
     register_completion(new CommandCompletion());
 }
@@ -375,8 +404,10 @@ void Console::run_buffer()
             execute(buffer.c_str() + 1);
         }
         else
-        { 
-            execute(curr_action.c_str());
+        {   
+            client::toserver(curr_action, unescapestring(buffer).c_str()); 
+            //client::toserver(0, unescapestring(buffer).c_str());
+            //execute(curr_action.c_str());
         }
 
         // reset scrolling
@@ -400,7 +431,7 @@ void Console::close_console()
 
     open = false;
     set_buffer("");
-    curr_action = "";
+    curr_action = 0;
     curr_icon = "";
     input_history.hist_pos = -1;
 }
@@ -518,9 +549,36 @@ void complete(char* s, size_t s_size, const char* cmdprefix);
 
 void conline(int type, const char *sf, int n)
 {
+    n = strlen(sf);
+    char* cref = newstring("", BIGSTRLEN-1);
+    if (n != 0)
+    {	
+        copystring(cref, "  ", BIGSTRLEN);	
+        concatstring(cref, sf, BIGSTRLEN);	
+        loopj(2)	
+        {	       
+            int off = n+j;	   
+            if(conlines.inrange(off))
+            {	
+                if(j) concatstring(conlines[off].cref, "\fs", BIGSTRLEN);	
+                else prependstring(conlines[off].cref, "\fS", BIGSTRLEN);	
+            }	
+        }	  
+    }
+    //else copystring(cref, sf, BIGSTRLEN);
+    
+    //printf("Conline: %s\n", cref);
+
+    std::string line = std::string("\fs") + sf + std::string("\fS");
+
+    if (std::string(cref) != std::string(sf))
+    {
+        printf("Sf: %s\n", line.c_str());
+    }
+
     if (sf && *sf)
     {
-        new_console.print(type, sf);
+        new_console.print(type, line);
     }
     else
     {
@@ -528,10 +586,10 @@ void conline(int type, const char *sf, int n)
     }
 }
 
-void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour = 0, char *flags = NULL) // turns input to the command line on or off
+void inputcommand(char *init, int action = 0, char *icon = NULL, int colour = 0, char *flags = NULL) // turns input to the command line on or off
 {
     new_console.set_input(init != nullptr ? init : "", 
-                        action != nullptr ? action : "", 
+                        action, 
                         icon != nullptr ? icon : "");
     /*
     commandmillis = init ? totalmillis : -totalmillis;
@@ -560,7 +618,7 @@ void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour
     */
 }
 
-void Console::set_input(std::string init, std::string action, std::string icon)
+void Console::set_input(std::string init, int action, std::string icon)
 {
     open_console();
 
@@ -571,8 +629,10 @@ void Console::set_input(std::string init, std::string action, std::string icon)
     curr_icon = icon;
 }
 
-ICOMMAND(0, saycommand, "C", (char *init), inputcommand(init));
-ICOMMAND(0, inputcommand, "sssis", (char *init, char *action, char *icon, int *colour, char *flags), inputcommand(init, action, icon, *colour, flags));
+ICOMMAND(0, saycommand, "C", (char *init), inputcommand(init, SAY_NONE, "textures/chat"));
+ICOMMAND(0, inputcommand, "sisis", (char *init, int* action, char *icon, int *colour, char *flags), inputcommand(init, *action, icon, *colour, flags));
+ICOMMAND(0, saytextcommand, "C", (char* init), inputcommand(init, SAY_NONE, "textures/chat"));
+ICOMMAND(0, sayteamcommand, "C", (char* init), inputcommand(init, SAY_TEAM));
 
 bool paste(char *buf, size_t len)
 {
@@ -1189,43 +1249,21 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
         //DELETEA(commandicon);
         //new_console.cursor_pos = new_console.get_buffer().length();
         //commandpos = strlen(commandbuf);
-        std::string action = "";
+        int action = 1;
         if (!consolecmd)
         {
-            action = "say (getconsolebuffer)";
+            action = 0;//action = "say (getconsolebuffer)";
         }
         printf("Set input to %s\n", w);
         new_console.set_input(w, action);
         //commandcolour = 0;
         //commandflags = CF_EXECUTE|CF_MESSAGE;
-        /*
-        hline *h = NULL;
-        if (!new_console.buffer.empty())
-        {
-            if(history.empty() || history.last()->shouldsave())
-            {
-                if(maxhistory && history.length() >= maxhistory)
-                {
-                    loopi(history.length()-maxhistory+1) delete history[i];
-                    history.remove(0, history.length()-maxhistory+1);
-                }
-                history.add(h = new hline)->save();
-            }
-            else h = history.last();
-        }
-        histpos = history.length();
-        */
-        new_console.open_console();
-
-        /*if(h)
-        {
-            interactive = true;
-            h->run();
-            interactive = false;
-        }*/
+       new_console.open_console();
+        
         printf("Run\n");
         UI::editoredit(UI::geteditor("console_input", EDITORFOREVER, init, "console_window"), init);
     }
     return true;
 }
+
 #endif
