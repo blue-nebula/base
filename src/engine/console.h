@@ -111,6 +111,7 @@ public:
     int scroll_info_hist_idx = 0;
     int scroll_info_line_idx = 0;
     bool scroll_info_outdated = false;
+    int missed_lines = 0;
 
     bool move(const int lines);
     void remove(const int idx);

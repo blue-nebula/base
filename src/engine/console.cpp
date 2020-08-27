@@ -200,8 +200,18 @@ void History::save(ConsoleLine& line)
         num_linebreaks -= h.back().num_linebreaks;
         h.pop_back();
     }
+
     h.push_front(line);
 
+    if (scroll_pos > 0)
+    {
+        h[0].seen = false;
+        missed_lines++;
+    
+        // move up by h[0].num_linebreaks to account for the lines shifting when
+        // adding the new lines
+        move(h[0].num_linebreaks);
+    }
     // set scroll info outdated to true, it will be recalculated
     // as soon the history is shown
     scroll_info_outdated = true;

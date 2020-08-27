@@ -1888,10 +1888,14 @@ namespace hud
                 // draw line background
                 if (full)
                 {
-                    if (line.type == CON_DEBUG_ERROR && !line.seen)
+                    if (!line.seen)
                     {
                         hist.h[line_info.first].seen = true;
-                        new_console.unseen_error_messages--;
+                        
+                        if (line.type == CON_DEBUG_ERROR)
+                        {
+                            new_console.unseen_error_messages--;
+                        }
                     }
                     
                     // draw the line background color if there is any specified
