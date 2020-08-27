@@ -1786,6 +1786,11 @@ namespace hud
 
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
+        if ((!showconsole || !showhud) && !new_console.open)
+        {
+            return;
+        }
+
         static vector<int> refs; refs.setsize(0);
         bool full = fullconsole || new_console.open;
         int tz = 0;
@@ -1801,7 +1806,8 @@ namespace hud
         
         History& hist = full ? new_console.curr_hist() : new_console.preview_history;
 
-        if((showconsole && showhud) || new_console.open)
+        //TODO: remove the entire if (true) thing
+        if (true)
         {
             // draw main view background only if full
             if (full)
