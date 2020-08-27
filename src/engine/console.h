@@ -37,6 +37,8 @@ class Console;
 class CompletionEntryBase
 {
 public:
+    int completion_length = 0;
+
     virtual std::string get_title() = 0;
     virtual std::string get_description() = 0;
 };
@@ -206,6 +208,7 @@ public:
     //////////////////
 
     int selected_completion = 0;
+    int completion_scroll_pos = 0;
     void register_completion(CompletionBase* completion);
     std::vector<CompletionEntryBase*> get_curr_completions();
 };

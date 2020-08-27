@@ -1887,7 +1887,8 @@ namespace hud
                         hist.h[line_info.first].seen = true;
                         new_console.unseen_error_messages--;
                     }
-
+                    
+                    // draw the line background color if there is any specified
                     if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
                     {
                         std::array<float, 4> color = hist.type_background_colors[line.type];
@@ -2053,7 +2054,7 @@ namespace hud
                 draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH * 1.5f), false);
 
                 // Info bar text
-                draw_textf(new_console.get_info_bar_text().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                draw_textf(new_console.get_info_bar_text().c_str(), text_q + text_r, pos_y, 0, FONTH * 0.25f, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
                 pos_y += FONTH * 1.5f;
                 popfont();
             }
@@ -2064,10 +2065,11 @@ namespace hud
 
             const std::vector<CompletionEntryBase*> curr_completions = new_console.get_curr_completions();
             int num_shown_completions = std::min(int(curr_completions.size()), 10);
-
+            
             // don't draw anything if there aren't any completions
             if (int(curr_completions.size()) > 0)
             {
+                pushfont("console");
                 gle::colorf(0.3f, 0.3f, 0.3f, 0.95f);
                 draw_rect(vec2(text_q + text_r - 5, pos_y), vec2(dims.w + pos.x, FONTH * num_shown_completions), false); 
                 
@@ -2075,7 +2077,15 @@ namespace hud
                 {
                     CompletionEntryBase* completion = curr_completions[i];
                     pos_y += draw_textf(completion->get_title().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+
+                    if (i == new_console.selected_completion)
+                    {
+                        pushfont("little");
+                        pos_y += draw_textf(completion->get_description().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                        popfont();
+                    }
                 }
+                popfont();
             }
 
             pophudmatrix();
