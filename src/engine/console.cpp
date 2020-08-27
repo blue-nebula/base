@@ -274,12 +274,12 @@ void Console::set_buffer(std::string text)
     // check for any completions
     if (buffer_before != buffer)
     {
+        curr_completions.clear();
         int i = 0;
         for (auto* completion_engine : completions_engines)
         {
             if (completion_engine->can_complete(*this))
             {
-                printf("Can complete with %d\n", i);
                 curr_completions = completion_engine->get_completions(this->buffer);
                 if (int(curr_completions.size()) > 0)
                 {
@@ -458,9 +458,6 @@ std::string Console::get_info_bar_text()
         case MODE_SEARCH:
             text = "\fgSearch Mode: \fwFound ";
             text += std::to_string(search_results.size()) + " match" + (search_results.size() == 1 ? "." : "es.");
-            break;
-        case MODE_COMMAND:
-            text = "\fbCommand Mode";
             break;
     }
     return text;
@@ -869,6 +866,15 @@ void Console::clear_curr_hist()
     curr_hist().clear();
 }
 ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
+
+
+/// COMPLETION ///
+//////////////////
+
+bool Console::completion_move(int lines)
+{
+    return false;
+}
 
 void Console::register_completion(CompletionBase* completion)
 {

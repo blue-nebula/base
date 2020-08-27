@@ -2050,11 +2050,11 @@ namespace hud
             //////////////
 
             std::string info_bar_text = new_console.get_info_bar_text();
+            pos_y += 15;
 
             if (!info_bar_text.empty())
             {
                 pushfont("default");
-                pos_y += 15;
                 // Info Bar background
                 gle::colorf(0.15f, 0.15f, 0.15f, 0.95f);
                 draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH * 1.5f), false);
@@ -2071,23 +2071,64 @@ namespace hud
 
             const std::vector<CompletionEntryBase*> curr_completions = new_console.get_curr_completions();
             int num_shown_completions = std::min(int(curr_completions.size()), 10);
-            
+           
             // don't draw anything if there aren't any completions
             if (int(curr_completions.size()) > 0)
             {
+
                 pushfont("console");
-                gle::colorf(0.3f, 0.3f, 0.3f, 0.95f);
-                draw_rect(vec2(text_q + text_r - 5, pos_y), vec2(dims.w + pos.x, FONTH * num_shown_completions), false); 
-                
+
+                const int max_width = text_t - text_q + text_r;
+                // iterate through the lines once before to get the complete height and max line width
+                vec2 completion_box_dimensions = vec2(0, 0);
+                vec2 description_dimensions = vec2(0, 0);
+
                 for (int i = 0; i < num_shown_completions; i++)
                 {
                     CompletionEntryBase* completion = curr_completions[i];
-                    pos_y += draw_textf(completion->get_title().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+
+                    float cw = 0;
+                    float ch = 0;
+
+                    text_boundsf(completion->get_title().c_str(), cw, ch, 0, 0, max_width, 0, 1);
+
+                    completion_box_dimensions.h += ch;
+                    completion_box_dimensions.w = std::max(completion_box_dimensions.w, cw);
 
                     if (i == new_console.selected_completion)
                     {
                         pushfont("little");
+                        text_boundsf(completion->get_description().c_str(), cw, ch, 0, 0, max_width, 0, 1);
+
+                        description_dimensions = vec2(cw,  ch);
+                        completion_box_dimensions.h += ch + 5;
+                        completion_box_dimensions.w = std::max(completion_box_dimensions.w, cw);
+
+                        popfont();
+                    }
+                }
+                completion_box_dimensions.add(vec2(5, 5));
+                description_dimensions.w = completion_box_dimensions.w;
+
+                gle::colorf(0.3f, 0.3f, 0.3f, 0.95f);
+                draw_rect(vec2(text_q + text_r - 5, pos_y), completion_box_dimensions, false); 
+                
+                for (int i = 0; i < num_shown_completions; i++)
+                {
+                    // draw the background for each line separately because line height has to be calculated
+                    // on the fly
+                    
+
+                    CompletionEntryBase* completion = curr_completions[i];
+                    pos_y += draw_textf(completion->get_title().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
+
+                    if (i == new_console.selected_completion)
+                    {
+                        pushfont("little");
+                        gle::colorf(.1f, .1f, .1f, .95f);
+                        draw_rect(vec2(text_q + text_r - 5, pos_y), description_dimensions, false);
                         pos_y += draw_textf(completion->get_description().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                        pos_y += 5;
                         popfont();
                     }
                 }

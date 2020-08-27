@@ -209,6 +209,7 @@ public:
 
     int selected_completion = 0;
     int completion_scroll_pos = 0;
+    bool completion_move(int lines);
     void register_completion(CompletionBase* completion);
     std::vector<CompletionEntryBase*> get_curr_completions();
 };
