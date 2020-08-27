@@ -2053,7 +2053,8 @@ namespace hud
                 draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH * 1.5f), false);
 
                 // Info bar text
-                pos_y += draw_textf(new_console.get_info_bar_text().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                draw_textf(new_console.get_info_bar_text().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                pos_y += FONTH * 1.5f;
                 popfont();
             }
 
@@ -2061,6 +2062,21 @@ namespace hud
             // Completion //
             ////////////////
 
+            const std::vector<CompletionEntryBase*> curr_completions = new_console.get_curr_completions();
+            int num_shown_completions = std::min(int(curr_completions.size()), 10);
+
+            // don't draw anything if there aren't any completions
+            if (int(curr_completions.size()) > 0)
+            {
+                gle::colorf(0.3f, 0.3f, 0.3f, 0.95f);
+                draw_rect(vec2(text_q + text_r - 5, pos_y), vec2(dims.w + pos.x, FONTH * num_shown_completions), false); 
+                
+                for (int i = 0; i < num_shown_completions; i++)
+                {
+                    CompletionEntryBase* completion = curr_completions[i];
+                    pos_y += draw_textf(completion->get_title().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
+                }
+            }
 
             pophudmatrix();
 

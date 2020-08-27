@@ -5,10 +5,19 @@
 #include <iostream>
 
 #include "console.h"
+#include "console_completion.h"
 #include "engine.h"
 #include "game.h"
 
 VAR(IDF_PERSIST|IDF_HEX, saytextcolour, -1, 0xFFFFFF, 0xFFFFFF);
+
+/*
+bool CompletionBase::can_complete(Console& console)
+{
+    printf("Lmao what the fuck are you doing?\n");
+    return false;
+}
+*/
 
 bool InputHistory::move(const int lines)
 {
@@ -223,6 +232,9 @@ Console::Console()
 {
     chat_history.type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
     chat_history.type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
+
+    register_completion(new PlayerNameCompletion());
+    register_completion(new CommandCompletion());
 }
 
 int Console::get_say_text_color()
@@ -247,8 +259,10 @@ History& Console::curr_hist()
     }
 }
 
+// is called whenever buffer changes
 void Console::set_buffer(std::string text)
 {
+    std::string buffer_before = buffer;
     buffer = text;
     if (buffer != input_history.current_line.text && input_history.hist_pos != -1)
     {
@@ -257,16 +271,23 @@ void Console::set_buffer(std::string text)
         input_history.hist_pos = -1;
     }
 
-    // update search or completion
-    
-    switch (get_mode())
+    // check for any completions
+    if (buffer_before != buffer)
     {
-        case MODE_COMMAND:
-            //update_completion();
-            break;
-        case MODE_SEARCH:
-            update_search();
-            break;
+        int i = 0;
+        for (auto* completion_engine : completions_engines)
+        {
+            if (completion_engine->can_complete(*this))
+            {
+                printf("Can complete with %d\n", i);
+                curr_completions = completion_engine->get_completions(this->buffer);
+                if (int(curr_completions.size()) > 0)
+                {
+                    break;
+                }
+            }
+            i++;
+        }
     }
 }
 
@@ -345,7 +366,7 @@ void Console::print(int type, const std::string text, const std::string raw_text
 // this is called when pressing enter
 void Console::run_buffer()
 {
-    printf("action: %s\n", curr_action.c_str());
+    // you can't send empty messages (checks if there are any non-space characters)
     if (buffer.find_first_not_of(' ') != std::string::npos)
     {
         if (buffer[0] == command_prefix)
@@ -357,21 +378,11 @@ void Console::run_buffer()
         { 
             execute(curr_action.c_str());
         }
+
+        // reset scrolling
         curr_hist().scroll_pos = 0;
         curr_hist().recalc_scroll_info();
     }
-
-    /*
-    if (buffer[0] == command_prefix)
-    {
-        execute(buffer.c_str() + 1);
-    }
-    // you can't send empty messages (checks if there are any non-space characters)
-    else if (buffer.find_first_not_of(' ') != std::string::npos)
-    {
-        client::toserver(0, buffer.c_str());
-    }*/
-    // reset scrolling
 }
 
 void Console::open_console()
@@ -858,6 +869,17 @@ void Console::clear_curr_hist()
     curr_hist().clear();
 }
 ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
+
+void Console::register_completion(CompletionBase* completion)
+{
+    completions_engines.push_back(completion);
+}
+
+std::vector<CompletionEntryBase*> Console::get_curr_completions()
+{
+    return curr_completions;
+}
+
 
 void writebinds(stream *f)
 {

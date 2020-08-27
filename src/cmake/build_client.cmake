@@ -6,6 +6,7 @@ if(BUILD_CLIENT)
         engine/blob.cpp
         engine/client.cpp
         engine/command.cpp
+        engine/console_completion.cpp
         engine/console.cpp
         engine/decal.cpp
         engine/dynlight.cpp

@@ -27,6 +27,36 @@ public:
     }
 };
 */
+
+class Console;
+
+////////////////////////
+/// COMPLETIONS BASE ///
+////////////////////////
+
+class CompletionEntryBase
+{
+public:
+    virtual std::string get_title() = 0;
+    virtual std::string get_description() = 0;
+};
+
+class CompletionBase
+{
+public:
+    int scroll_pos = 0;
+    int max_entries_per_page = 5;
+    bool stick_to_cursor = false;
+
+    virtual bool can_complete(Console& console) = 0;
+    virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer) = 0; 
+    virtual void select_entry(CompletionEntryBase* entry, Console& console) = 0;
+};
+
+
+/////////////////////
+/// INPUT HISTORY ///
+/////////////////////
 class InputHistoryLine
 {
 public:
@@ -46,6 +76,9 @@ public:
     void save(InputHistoryLine line);
 };
 
+///////////////////////
+/// CONSOLE HISTORY ///
+///////////////////////
 class ConsoleLine
 {
 public:
@@ -88,12 +121,17 @@ public:
     void calculate_all_wordwraps();
 };
 
+///////////////
+/// CONSOLE ///
+///////////////
 class Console
 {
 private:
     std::string buffer;
     std::string curr_action;
     std::string curr_icon;
+    std::vector<CompletionBase*> completions_engines; 
+    std::vector<CompletionEntryBase*> curr_completions;
 public:
     Console();
 
@@ -106,9 +144,10 @@ public:
 
     // constants
     const char command_prefix = ':';
+    const char playername_prefix = '@';
     const char search_prefix = '/';
     const int max_buffer_len = 4096;
-    
+ 
     bool open = false;    
     int unseen_error_messages = 0;
 
@@ -118,7 +157,6 @@ public:
     std::string get_buffer();
     int cursor_pos = -1;
 
-    /////////////////
     /// HISTORIES ///
     /////////////////
     InputHistory input_history;
@@ -157,14 +195,19 @@ public:
     void run_buffer();
     int get_mode();
 
-    //////////////
     /// SEARCH ///
     //////////////
-
     std::vector<std::string> search_results;
 
     // updates the search results, should be called semi-automatically to save performance
     void update_search();
+
+    /// COMPLETION ///
+    //////////////////
+
+    int selected_completion = 0;
+    void register_completion(CompletionBase* completion);
+    std::vector<CompletionEntryBase*> get_curr_completions();
 };
 
 #endif //CONSOLE_H
