@@ -20,6 +20,7 @@ public:
 
     std::array<std::string, 4> get_ident_values();
     std::string get_ident_args_text();
+    std::string get_ident_flags_text();
 };
 
 class CommandCompletion : public CompletionBase

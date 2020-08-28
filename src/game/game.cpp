@@ -2874,7 +2874,7 @@ namespace game
                     else if(*musicfile) playmusic(musicfile, type >= 4 ? "music" : NULL);
                 }
             }
-            player1.conopen = new_console.open || hud::hasinput(true);
+            player1.conopen = new_console.is_open() || hud::hasinput(true);
             checkoften(&player1, true);
             loopv(players) if(players[i]) checkoften(players[i], players[i]->ai != NULL);
             if(!allowmove(&player1)) player1.stopmoving(player1.state < CS_SPECTATOR);

@@ -10,24 +10,6 @@
 static const int MAX_HISTORY = 1000;
 static const int MAX_INPUT_HISTORY = 100;
 
-// behaves like normal queue, except when pushing to a "full" queue, the oldest element
-// gets popped
-/*
-template <typename T, int max_len, typename Container=std::queue<T>>
-class FixedQueue : public std::deque<T, Container> 
-{
-public:
-    void push_front(const T& value)
-    {
-        if (this->size() == max_len)
-        {
-            this->c.pop_back();
-        }
-        std::deque<T, Container>::push_front(value);
-    }
-};
-*/
-
 class Console;
 
 ////////////////////////
@@ -59,9 +41,8 @@ public:
 /////////////////////
 /// INPUT HISTORY ///
 /////////////////////
-class InputHistoryLine
+struct InputHistoryLine
 {
-public:
     std::string text;
     std::string icon;
     int action;
@@ -74,24 +55,24 @@ public:
     InputHistoryLine current_line;
     int hist_pos = -1;
 
-    bool move(const int lines);
+    bool scroll(const int lines);
     void save(InputHistoryLine line);
 };
 
 ///////////////////////
 /// CONSOLE HISTORY ///
 ///////////////////////
-class ConsoleLine
+struct ConsoleLine
 {
-public:
     std::string text = "";
     std::vector<std::string> lines;
-    std::string raw_text = "";
     int type;
+    
     int reftime;
     int out_time;
     int real_time;
-    int num_linebreaks = 0;
+    
+    int get_num_lines();
 
     bool seen = false;
     bool hide = false;
@@ -99,29 +80,40 @@ public:
 
 class History
 {
-public:
-    std::deque<ConsoleLine> h;
-    std::map<const int, std::array<float, 4>> type_background_colors; 
-
-
-    int max_line_width = 1000;
-
-    int num_linebreaks = 0;
+private:
+    int line_width = 1000;
     int scroll_pos = 0;
     int scroll_info_hist_idx = 0;
     int scroll_info_line_idx = 0;
-    bool scroll_info_outdated = false;
-    int missed_lines = 0;
+    bool scroll_info_outdated = false; 
+    int num_linebreaks = 0;
 
-    bool move(const int lines);
-    void remove(const int idx);
-    void clear();
-    void recalc_scroll_info();
-    //TODO: replace std::pair with smth more fitting
-    std::pair<int, int> get_relative_line_info(int n, int hist_idx, int line_idx);
-    void save(ConsoleLine& line);
     void calculate_wordwrap(ConsoleLine& line);
     void calculate_all_wordwraps();
+
+    void recalc_scroll_info();
+
+public:
+    std::deque<ConsoleLine> h;
+
+    std::map<const int, std::array<float, 4>> type_background_colors; 
+
+    int get_num_lines();
+    void set_line_width(int w);
+    //TODO: replace std::pair with smth more fitting
+    std::pair<int, int> get_relative_line_info(int n, int hist_idx, int line_idx);
+
+
+    int get_scroll_pos();
+    void reset_scroll();
+    std::array<int, 2> get_scroll_info();
+    bool scroll(const int lines);
+
+    int missed_lines = 0;
+
+    void remove(const int idx);
+    void clear();
+    void save(ConsoleLine& line);
 };
 
 ///////////////
@@ -135,6 +127,24 @@ private:
     std::string curr_icon;
     std::vector<CompletionBase*> completions_engines; 
     std::vector<CompletionEntryBase*> curr_completions;
+
+    /// KEY ACTIONS ///
+    ///////////////////
+
+    void cursor_jump_to_buffer_start();
+    void cursor_jump_to_buffer_end();
+    void cursor_move_left();
+    void cursor_move_right();
+    void buffer_delete_at_cursor();
+    void buffer_remove_at_cursor();
+
+    void set_buffer(std::string text);
+
+    bool open = false;
+    int cursor_pos = -1;
+
+    int completion_scroll_pos = -1;
+    InputHistory input_history;
 public:
     Console();
 
@@ -145,25 +155,28 @@ public:
         MODE_COMMAND = 2,
     };
 
+    int get_mode();
+
     // constants
     const char command_prefix = ':';
     const char playername_prefix = '@';
-    const char search_prefix = '/';
     const int max_buffer_len = 4096;
- 
-    bool open = false;    
-    int unseen_error_messages = 0;
 
-    std::string get_icon();
+    // buffer
     void set_input(std::string init = "", int action = 0, std::string icon = "");
-    void set_buffer(std::string text);
     std::string get_buffer();
-    int cursor_pos = -1;
+    void insert_in_buffer(const std::string text);
+    void run_buffer();
 
-    /// HISTORIES ///
-    /////////////////
-    InputHistory input_history;
+    // opened/closed state
+    bool is_open(); 
+    void open_console();
+    void close_console(); 
     
+    std::string get_icon();
+    int get_cursor_pos();
+ 
+    // history
     enum
     {
         HIST_CHAT =    0,
@@ -171,48 +184,32 @@ public:
         HIST_MAX
     };
 
-    History all_history;
     History chat_history;
     History console_history;
     History preview_history;
 
     int selected_hist = HIST_CHAT;
     History& curr_hist();
-
-    void set_max_line_width(int w);
-
-    int get_say_text_color();
+    void clear_curr_hist();
+    void print(int type, const std::string text);
 
     // info bar
     std::string get_info_bar_text();
 
-    void print(int type, const std::string text, const std::string raw_text = "");
-    void open_console();
-    void close_console();
-    void insert_in_buffer(const std::string text);
-    void clear_curr_hist();
-
+    // input/key processing
     bool process_key(int code, bool isdown);
     bool process_text_input(const char* str, int len);
 
-    void run_buffer();
-    int get_mode();
-
-    /// SEARCH ///
-    //////////////
-    std::vector<std::string> search_results;
-
-    // updates the search results, should be called semi-automatically to save performance
-    void update_search();
-
-    /// COMPLETION ///
-    //////////////////
-
-    int selected_completion = 0;
-    int completion_scroll_pos = 0;
-    bool completion_move(int lines);
+    // Completion //
+    bool completion_scroll(const int lines);
+    int get_completion_scroll_pos();
     void register_completion(CompletionBase* completion);
     std::vector<CompletionEntryBase*> get_curr_completions();
+    
+    // others
+    void set_max_line_width(int w);
+    int get_say_text_color();
+    int unseen_error_messages = -1;
 };
 
 #endif //CONSOLE_H

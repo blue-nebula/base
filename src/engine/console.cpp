@@ -10,7 +10,8 @@
 #include "game.h"
 
 VAR(IDF_PERSIST|IDF_HEX, saytextcolour, -1, 0xFFFFFF, 0xFFFFFF);
-
+VAR(IDF_PERSIST, enterclosesconsole, 0, 1, 1);
+VAR(IDF_PERSIST, consolesyntaxhighlight, 0, 0, 1);
 
 std::string unescapestring(std::string src)
 {
@@ -46,7 +47,12 @@ std::string unescapestring(std::string src)
     return dst;
 }
 
-bool InputHistory::move(const int lines)
+int ConsoleLine::get_num_lines()
+{
+    return int(lines.size());
+}
+
+bool InputHistory::scroll(const int lines)
 {
     if (lines == 0 || int(history.size()) == 0)
     {
@@ -89,7 +95,39 @@ void InputHistory::save(InputHistoryLine line)
     history.push_front(line);
 }
 
-bool History::move(const int lines)
+int History::get_num_lines()
+{
+    return num_linebreaks;
+}
+
+std::array<int, 2> History::get_scroll_info()
+{
+    return std::array<int, 2>{ scroll_info_hist_idx, scroll_info_line_idx };
+}
+
+void History::set_line_width(int w)
+{
+    int prev_line_width = line_width;
+
+
+    if (line_width != prev_line_width)
+    {
+        calculate_all_wordwraps();
+    }
+}
+
+int History::get_scroll_pos()
+{
+    return scroll_pos;
+}
+
+void History::reset_scroll()
+{
+    scroll_pos = 0;
+    recalc_scroll_info();
+}
+
+bool History::scroll(const int lines)
 {
     if (lines == 0)
     {
@@ -114,18 +152,18 @@ bool History::move(const int lines)
     // make sure scrollpos never gets below 0
     scroll_pos = std::max(scroll_pos, 0);
 
-    bool moved = scroll_pos != prev_scroll_pos;
-    if (moved)
+    bool scrolled = scroll_pos != prev_scroll_pos;
+    if (scrolled)
     {
         recalc_scroll_info();
     }
 
-    return moved;
+    return scrolled;
 }
 
 void History::remove(const int idx)
 {
-    num_linebreaks -= h[idx].num_linebreaks;
+    num_linebreaks -= h[idx].get_num_lines();
     h.erase(h.begin() + idx);
 }
 
@@ -193,11 +231,11 @@ std::pair<int, int> History::get_relative_line_info(int n, int hist_idx, int lin
 void History::save(ConsoleLine& line)
 {
     calculate_wordwrap(line);
-    num_linebreaks += line.num_linebreaks;
+    num_linebreaks += line.get_num_lines();
 
     if (int(h.size()) > 1000)
     {
-        num_linebreaks -= h.back().num_linebreaks;
+        num_linebreaks -= h.back().get_num_lines();
         h.pop_back();
     }
 
@@ -208,10 +246,11 @@ void History::save(ConsoleLine& line)
         h[0].seen = false;
         missed_lines++;
     
-        // move up by h[0].num_linebreaks to account for the lines shifting when
+        // scroll up by h[0].get_num_lines() to account for the lines shifting when
         // adding the new lines
-        move(h[0].num_linebreaks);
+        scroll(h[0].get_num_lines());
     }
+
     // set scroll info outdated to true, it will be recalculated
     // as soon the history is shown
     scroll_info_outdated = true;
@@ -233,7 +272,7 @@ void History::calculate_wordwrap(ConsoleLine& line)
    
     if (curfont != nullptr)
     {
-        std::vector<std::pair<int, std::string>> wraps = get_text_wraps(line.text.c_str(), max_line_width);
+        std::vector<std::pair<int, std::string>> wraps = get_text_wraps(line.text.c_str(), line_width);
 
         int prev_pos = 0;
         for (const auto& wrap : wraps)
@@ -251,17 +290,15 @@ void History::calculate_wordwrap(ConsoleLine& line)
     {
         line.lines.push_back(line.text);
     }
-    line.num_linebreaks = line.lines.size();
 }
 
 void History::calculate_all_wordwraps()
 {
     //TODO: measure time
-    num_linebreaks = 0;
     for (auto& line : h)
     {
         calculate_wordwrap(line);
-        num_linebreaks += line.num_linebreaks;
+        num_linebreaks += line.get_num_lines();
     }
 }
 
@@ -293,8 +330,6 @@ History& Console::curr_hist()
             return chat_history;
         case HIST_CONSOLE:
             return console_history;
-        default:
-            return all_history;
     }
 }
 
@@ -330,18 +365,15 @@ void Console::set_buffer(std::string text)
     }
 }
 
+bool Console::is_open()
+{
+    return open;
+}
+
 void Console::set_max_line_width(int w)
 {
-    // it's assumed that line_width of all histories are in sync
-    int prev_line_width = chat_history.max_line_width;
-    chat_history.max_line_width = w;
-    console_history.max_line_width = w;
-
-    if (prev_line_width != w)
-    {
-        chat_history.calculate_all_wordwraps();
-        console_history.calculate_all_wordwraps();
-    }
+    chat_history.set_line_width(w);
+    console_history.set_line_width(w);
 }
 
 std::string Console::get_buffer()
@@ -350,22 +382,26 @@ std::string Console::get_buffer()
 }
 ICOMMAND(0, getconsolebuffer, "", (), stringret(newstring(new_console.get_buffer().c_str())));
 
-void Console::print(int type, const std::string text, const std::string raw_text)
+int Console::get_cursor_pos()
 {
-    //psrintf("Adding %s\n", text.c_str());
-    ///std::cout << "Adding " << text << " at " << chat_history.h.size() << std::endl;
+    return cursor_pos == -1 ? int(get_buffer().length()) : cursor_pos;
+}
 
+int Console::get_completion_scroll_pos()
+{
+    return completion_scroll_pos;
+}
+
+void Console::print(int type, const std::string text)
+{
     if (text.empty())
     {
         printf("Error printing empty text of type %d\n", type);
         return;
     }
-    
-    //get_wraps_textf(text.c_str(), chat_history.line_width, 1);
 
     ConsoleLine line = ConsoleLine();
     line.text = text;
-    line.raw_text = raw_text;
     line.type = type;
     line.reftime = totalmillis;
     line.out_time = totalmillis;
@@ -421,8 +457,7 @@ void Console::run_buffer()
         }
 
         // reset scrolling
-        curr_hist().scroll_pos = 0;
-        curr_hist().recalc_scroll_info();
+        curr_hist().reset_scroll();
     }
 }
 
@@ -462,15 +497,17 @@ void Console::insert_in_buffer(const std::string text)
     if (cursor_pos < 0)
     {
         set_buffer(buffer + text);
-        cursor_pos = int(buffer.length());
     }
     else
     {
         std::string new_buffer = get_buffer();
         new_buffer.insert(std::max(0, cursor_pos), text);
         set_buffer(new_buffer);
+    }
 
-        cursor_pos += insert_len;
+    for (int i = 0; i < insert_len; i++)
+    {
+        cursor_move_right();
     }
 }
 
@@ -482,10 +519,6 @@ int Console::get_mode()
         {
             return MODE_COMMAND;
         }
-        else if (buffer[0] == search_prefix)
-        {
-            return MODE_SEARCH;
-        }
     }
     
     return MODE_NONE;
@@ -493,59 +526,7 @@ int Console::get_mode()
 
 std::string Console::get_info_bar_text()
 {
-    std::string text = "";
-    switch (get_mode())
-    {
-        case MODE_SEARCH:
-            text = "\fgSearch Mode: \fwFound ";
-            text += std::to_string(search_results.size()) + " match" + (search_results.size() == 1 ? "." : "es.");
-            break;
-    }
-    return text;
-}
-
-void Console::update_search()
-{
-    if (get_buffer().empty())
-    {
-        return;
-    }
-
-    const bool smartcase = true;
-
-    std::string search_term = get_buffer().substr(1, -1);
-    bool case_sensitive_search = true;
-    // if smartcase is on, and the search contains an uppercase letter,
-    // search is case sensitive
-    if (smartcase && !std::all_of(search_term.begin(), search_term.end(), islower))
-    {
-        case_sensitive_search = true;
-    }
-    else
-    {
-        case_sensitive_search = false;
-        //TODO: make search_term lowercase
-        std::transform(search_term.begin(), search_term.end(), search_term.begin(),
-            [](unsigned char c){ return std::tolower(c); });
-    }
-
-    search_results.clear();
-    for (const auto& line : curr_hist().h)
-    {
-        std::string line_text = line.type != CON_CHAT ? line.text : line.raw_text;
-        if (!case_sensitive_search)
-        {
-            std::transform(line_text.begin(), line_text.end(), line_text.begin(),
-                [](unsigned char c){ return std::tolower(c); });
-        }
-
-        if (line_text.find(search_term) != std::string::npos)
-        {
-            search_results.push_back(line.text);
-        }
-    }
-
-    //printf("%d: %s: %d\n", case_sensitive_search, search_term.c_str(), int(search_results.size()));
+    return "";
 }
 
 Console new_console = Console();
@@ -559,36 +540,9 @@ void complete(char* s, size_t s_size, const char* cmdprefix);
 
 void conline(int type, const char *sf, int n)
 {
-    n = strlen(sf);
-    char* cref = newstring("", BIGSTRLEN-1);
-    if (n != 0)
-    {	
-        copystring(cref, "  ", BIGSTRLEN);	
-        concatstring(cref, sf, BIGSTRLEN);	
-        loopj(2)	
-        {	       
-            int off = n+j;	   
-            if(conlines.inrange(off))
-            {	
-                if(j) concatstring(conlines[off].cref, "\fs", BIGSTRLEN);	
-                else prependstring(conlines[off].cref, "\fS", BIGSTRLEN);	
-            }	
-        }	  
-    }
-    //else copystring(cref, sf, BIGSTRLEN);
-    
-    //printf("Conline: %s\n", cref);
-
-    std::string line = std::string("\fs") + sf + std::string("\fS");
-
-    if (std::string(cref) != std::string(sf))
-    {
-        printf("Sf: %s\n", line.c_str());
-    }
-
     if (sf && *sf)
     {
-        new_console.print(type, line);
+        new_console.print(type, sf);
     }
     else
     {
@@ -673,7 +627,8 @@ bool paste_to_buffer()
     size_t cblen = strlen(cb);
     char* buf = newstring("");
     size_t start = strlen(buf);
-    size_t decoded = decodeutf8((uchar *)&buf[start], len-1-start, (const uchar *)cb, cblen);
+    
+    decodeutf8((uchar *)&buf[start], len - 1 - start, (const uchar *)cb, cblen);
    
 
     new_console.insert_in_buffer(buf);
@@ -715,6 +670,7 @@ bool Console::process_text_input(const char *str, int len)
     return true;
 }
 
+
 bool Console::process_key(int code, bool isdown)
 {
     if (!open)
@@ -731,119 +687,62 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_HOME:
-                if (get_buffer().length() != 0)
-                {
-                    cursor_pos = 0;
-                }
+                cursor_jump_to_buffer_start(); 
                 break;
 
             case SDLK_END:
-                cursor_pos = -1;
+                cursor_jump_to_buffer_end();
                 break;
 
             case SDLK_DELETE:
-            {
-                int len = int(get_buffer().length());
-                
-                if (cursor_pos < 0)
-                {
-                    break;
-                }
-
-                std::string new_buffer = get_buffer();
-                new_buffer.erase(new_buffer.begin() + cursor_pos);
-                set_buffer(new_buffer);
-
-                resetcomplete();
-                if (cursor_pos >= len - 1)
-                {
-                    cursor_pos = -1;
-                }
-
+                buffer_delete_at_cursor();
                 break;
-            }
 
             case SDLK_BACKSPACE:
-            {
-                int len = int(get_buffer().length());
-                int i = cursor_pos >= 0 ? cursor_pos : len;
-
-                if (i < 1)
-                {
-                    break;
-                }
-
-                std::string new_buffer = get_buffer();
-                new_buffer.erase(new_buffer.begin() + (i - 1));
-                set_buffer(new_buffer);
-                
-                resetcomplete();
-                if (cursor_pos > 0)
-                {
-                    cursor_pos--;
-                }
-                else if (cursor_pos == 0 && len <= 1)
-                {
-                    cursor_pos = -1;
-                }
+                buffer_remove_at_cursor();
                 break;
-            }
 
             case -4:
                 if (SDL_GetModState() & KMOD_SHIFT)
                 {
-                    curr_hist().move(10);
+                    curr_hist().scroll(10);
                     break;
                 }
-                curr_hist().move(1);
+                curr_hist().scroll(1);
                 break;
+
             case -5:
                 if (SDL_GetModState() & KMOD_SHIFT)
                 {
-                    curr_hist().move(-10);
+                    curr_hist().scroll(-10);
                 }
-                curr_hist().move(-1);
+                curr_hist().scroll(-1);
                 break;
+
             case SDLK_PAGEUP:
-                curr_hist().move(10);
+                curr_hist().scroll(10);
                 break;
+
             case SDLK_PAGEDOWN:
-                curr_hist().move(-10);
+                curr_hist().scroll(-10);
                 break;
 
             case SDLK_LEFT:
-                if (cursor_pos > 0)
-                {
-                    cursor_pos--;
-                }
-                else if (cursor_pos < 0)
-                {
-                    cursor_pos = int(get_buffer().length()) - 1;
-                }
+                cursor_move_left();
                 break;
 
             case SDLK_RIGHT:
-                if (cursor_pos >= 0 && ++cursor_pos >= int(get_buffer().length()))
-                {
-                    cursor_pos = -1;
-                }
+                cursor_move_right();
                 break;
 
-            case SDLK_UP:
-                if (SDL_GetModState() & KMOD_CTRL)
+            case SDLK_UP: 
+                if (completion_scroll_pos != -1)
                 {
-                    int speed = 1;
-                    // accelerate scroll speed with shift
-                    if (SDL_GetModState() & KMOD_SHIFT)
-                    {
-                        speed *= 10;
-                    }
-
-                    curr_hist().move(speed);
+                    completion_scroll(-1);
                     break;
                 }
-                
-                if (input_history.move(1))
+
+                if (input_history.scroll(1))
                 {
                     set_buffer(input_history.current_line.text);
                     curr_icon = input_history.current_line.icon;
@@ -852,40 +751,37 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_DOWN:
-                if (SDL_GetModState() & KMOD_CTRL)
+                if (int(curr_completions.size()) != 0)
                 {
-                    int speed = -1;
-                    // accelerate scroll speed with shift
-                    if (SDL_GetModState() & KMOD_SHIFT)
-                    {
-                        speed *= 10;
-                    }
-
-                    curr_hist().move(speed);
+                    completion_scroll(1);
                     break;
                 }
-
-                if (input_history.move(-1))
+                
+                if (input_history.scroll(-1))
                 {
                     set_buffer(input_history.current_line.text);
                     curr_icon = input_history.current_line.icon;
                     curr_action = input_history.current_line.action;
                 }
                 break;
+
             case SDLK_v:
                 if (SDL_GetModState() & MOD_KEYS)
                 {
                     paste_to_buffer();
                 }
                 break;
+
             case SDLK_F1:
                 selected_hist = HIST_CHAT;
                 break;
+
             case SDLK_F2:
                 selected_hist = HIST_CONSOLE;
                 break;
+
             case SDLK_TAB:
-                // switch between tabs using "TAB"
+                // switch between tabs using "TAB" 
                 if (selected_hist < HIST_MAX - 1)
                 {
                     selected_hist++;
@@ -893,7 +789,7 @@ bool Console::process_key(int code, bool isdown)
                 else
                 {
                     selected_hist = 0;
-                }
+                } 
                 break;
         }
     }
@@ -915,7 +811,10 @@ bool Console::process_key(int code, bool isdown)
             run_buffer();
             interactive = false;
             
-            close_console();
+            if (enterclosesconsole)
+            {
+                close_console();
+            }
         }
         else if (code == SDLK_ESCAPE || (code < 0 && code != -5 && code != -4))
         {
@@ -941,8 +840,42 @@ ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
 /// COMPLETION ///
 //////////////////
 
-bool Console::completion_move(int lines)
+bool Console::completion_scroll(const int lines)
 {
+    if (lines == 0
+        || int(curr_completions.size()) == 0)
+    {
+        return false;
+    }
+
+
+    if (lines < 0)
+    {
+        static const int max_pos = 0;
+        if (completion_scroll_pos + lines < max_pos)
+        {
+            completion_scroll_pos = -1;
+        }
+        else
+        {
+            completion_scroll_pos += lines;
+        }
+    }
+    else
+    {
+        const int max_pos = int(curr_completions.size()) - 1;
+        if (completion_scroll_pos + lines > max_pos)
+        {
+            completion_scroll_pos = -1;
+        }
+        else
+        {
+            completion_scroll_pos += lines;
+        }
+    }
+    
+    printf("Scrolled to %d\n", completion_scroll_pos);
+
     return false;
 }
 
@@ -956,6 +889,94 @@ std::vector<CompletionEntryBase*> Console::get_curr_completions()
     return curr_completions;
 }
 
+///////////////////
+/// KEY ACTIONS ///
+///////////////////
+
+
+void Console::cursor_jump_to_buffer_start()
+{
+    if (get_buffer().length() != 0)
+    {
+        cursor_pos = 0;
+    }
+}
+
+void Console::cursor_jump_to_buffer_end()
+{
+    cursor_pos = -1;
+}
+
+void Console::cursor_move_left()
+{
+    if (cursor_pos > 0)
+    {
+        cursor_pos--;
+    }
+    else if (cursor_pos == -1)
+    {
+        cursor_pos = int(get_buffer().length()) - 1;
+    }
+}
+
+void Console::cursor_move_right()
+{
+    if (cursor_pos >= int(get_buffer().length()) - 1)
+    {
+        cursor_pos = -1;
+    }
+    else if (cursor_pos >= 0)
+    {
+        cursor_pos = std::min(cursor_pos + 1, int(get_buffer().length()) - 1);
+    }
+}
+
+void Console::buffer_delete_at_cursor()
+{
+    if (cursor_pos == -1 || int(get_buffer().length()) == 0)
+    {
+        return;
+    }
+
+    std::string new_buffer = get_buffer();
+    new_buffer.erase(new_buffer.begin() + cursor_pos);
+    set_buffer(new_buffer);
+
+    if (cursor_pos > int(get_buffer().length()) - 1)
+    {
+        cursor_pos = -1;
+    }
+}
+
+void Console::buffer_remove_at_cursor()
+{
+    // if the cursor at -1 or 0, there is no text to remove
+    /*if (cursor_pos <= 0)
+    {
+        return;
+    }*/
+
+    int len = int(get_buffer().length());
+    int i = cursor_pos >= 0 ? cursor_pos : len;
+
+    if (i < 1)
+    {
+        return;
+    }
+
+    std::string new_buffer = get_buffer();
+    new_buffer.erase(new_buffer.begin() + (i - 1));
+    set_buffer(new_buffer);
+                
+    if (cursor_pos > 0)
+    {
+        cursor_pos--;
+    }
+    else if (cursor_pos == 0 && len <= 1)
+    {
+        cursor_pos = -1;
+    }
+}
 
 void writebinds(stream *f)
 {

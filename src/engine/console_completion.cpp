@@ -110,6 +110,13 @@ CommandCompletionEntry::CommandCompletionEntry(ident id, int completion_length)
             break;
     }
 
+    static const std::string TEXT_FLAGS = "\fwFlags: \fa";
+    std::string flags = get_ident_flags_text();
+    if (!flags.empty())
+    {
+        description_string += TEXT_FLAGS + flags + LINE_BREAK;
+    }
+
     if (id.desc != nullptr && *id.desc != 0)
     {
         description_string += id.desc;
@@ -165,21 +172,21 @@ std::array<std::string, 4> CommandCompletionEntry::get_ident_values()
 
 std::string CommandCompletionEntry::get_ident_args_text()
 {
-    std::string args = " ";
+    std::string args = "";
         
     switch (id.type)
     {
         case ID_ALIAS:
-            args += "<args>";
+            args = " <arguments>";
             break;
         case ID_VAR:
-            args += "<int>";
+            args = " (integer)";
             break;
         case ID_FVAR:
-            args += "<float>";
+            args = " (float)";
             break;
         case ID_SVAR:
-            args += "<string>";
+            args = " (string)";
             break;
         case ID_COMMAND:
             if (id.args == nullptr)
@@ -225,6 +232,26 @@ std::string CommandCompletionEntry::get_ident_args_text()
 
     return args;
 }
+
+std::string CommandCompletionEntry::get_ident_flags_text()
+{
+    std::string flags = "";
+    
+    if (id.flags & IDF_PERSIST)   { flags += "persistent, ";     }
+    if (id.flags & IDF_READONLY)  { flags += "read-only, ";      }
+    if (id.flags & IDF_CLIENT)    { flags += "client, ";         }
+    if (id.flags & IDF_SERVER)    { flags += "server, ";         }
+    if (id.flags & IDF_WORLD)     { flags += "world, ";          }
+    if (id.flags & IDF_ADMIN)     { flags += "admin-only, ";     }
+    if (id.flags & IDF_MODERATOR) { flags += "moderator-only, "; }
+    if (flags != "")
+    {
+        // cut away the ", " at the end
+        flags = flags.substr(0, flags.length() - 2);
+    }
+    return flags;
+}
+
 
 std::string CommandCompletionEntry::get_title()
 {

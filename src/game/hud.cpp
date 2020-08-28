@@ -721,7 +721,7 @@ namespace hud
 
     bool hasinput(bool pass, bool focus)
     {
-        if(focus && (new_console.open || curcompass)) return true;
+        if(focus && (new_console.is_open() || curcompass)) return true;
         return UI::active(pass);
     }
 
@@ -1384,7 +1384,7 @@ namespace hud
     void drawpointers(int w, int h)
     {
         int index = POINTER_NONE;
-        if(hasinput()) index = !hasinput(true) || new_console.open ? POINTER_NONE : POINTER_GUI;
+        if(hasinput()) index = !hasinput(true) || new_console.is_open() ? POINTER_NONE : POINTER_GUI;
         else if(!showhud || !showcrosshair || game::focus->state == CS_DEAD || !gs_playing(game::gamestate) || client::waiting() || (game::thirdpersonview(true) && game::focus != &game::player1))
             index = POINTER_NONE;
         else if(game::focus->state == CS_EDITING) index = POINTER_EDIT;
@@ -1745,7 +1745,7 @@ namespace hud
             flushhudmatrix();
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            if(!new_console.open && curcompass) rendercmenu();
+            if(!new_console.is_open() && curcompass) rendercmenu();
             else if(shownotices && !client::waiting() && !hasinput(false) && !texpaneltimer) drawnotices();
             if(overlaydisplay >= 2 || (game::focus->state == CS_ALIVE && (overlaydisplay || !game::thirdpersonview(true))))
             {
@@ -1759,7 +1759,7 @@ namespace hud
             }
             glDisable(GL_BLEND);
         }
-        if(progressing || (!new_console.open && !curcompass)) UI::render();
+        if(progressing || (!new_console.is_open() && !curcompass)) UI::render();
         if(!progressing) drawpointers(hudwidth, hudheight);
     }
 
@@ -1786,13 +1786,13 @@ namespace hud
 
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
-        if ((!showconsole || !showhud) && !new_console.open)
+        if ((!showconsole || !showhud) && !new_console.is_open())
         {
             return;
         }
 
         static vector<int> refs; refs.setsize(0);
-        bool full = fullconsole || new_console.open;
+        bool full = fullconsole || new_console.is_open();
         int tz = 0;
 
         pushfont("console");
@@ -1824,8 +1824,8 @@ namespace hud
             int text_r = concenter ? text_pos.x + text_scale / 2 : text_pos.x;
             tz = int(tz / conscale);
 
-            int histlen = hist.num_linebreaks;
-            int histpos = hist.scroll_pos;
+            int histlen = hist.get_num_lines();
+            int histpos = hist.get_scroll_pos();
 
             /////////////////
             /// SCROLLBAR ///
@@ -1862,8 +1862,9 @@ namespace hud
             int line_idx = -1;
             if (full)
             {
-                hist_idx = hist.scroll_info_hist_idx;
-                line_idx = hist.scroll_info_line_idx;
+                std::array<int, 2> scroll_info = hist.get_scroll_info();
+                hist_idx = scroll_info[0];
+                line_idx = scroll_info[1];
             }
 
             while (lines_drawn < max_drawable_lines)
@@ -1956,7 +1957,7 @@ namespace hud
             tz = int(tz * conscale);
         }
         
-        if (new_console.open)
+        if (new_console.is_open())
         {
             /////////////
             // TAB BAR //
@@ -2043,8 +2044,7 @@ namespace hud
             const int input_color_b = new_console.get_say_text_color() & 0xFF;
 
             // draw the input
-            int cp = new_console.cursor_pos >= 0 ? new_console.cursor_pos : int(new_console.get_buffer().length());
-            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, input_color_r, input_color_g, input_color_b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, text_t, 1,
+            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, input_color_r, input_color_g, input_color_b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, new_console.get_cursor_pos(), text_t, 1,
                     new_console.get_buffer().c_str());
                 
             popfont();
@@ -2079,10 +2079,12 @@ namespace hud
             // don't draw anything if there aren't any completions
             if (int(curr_completions.size()) > 0)
             {
-
                 pushfont("console");
 
+                const int show_description_for = new_console.get_completion_scroll_pos() == -1 ? 0 : new_console.get_completion_scroll_pos();
+
                 const int max_width = text_t - text_q + text_r;
+
                 // iterate through the lines once before to get the complete height and max line width
                 vec2 completion_box_dimensions = vec2(0, 0);
                 vec2 description_dimensions = vec2(0, 0);
@@ -2099,9 +2101,10 @@ namespace hud
                     completion_box_dimensions.h += ch;
                     completion_box_dimensions.w = std::max(completion_box_dimensions.w, cw);
 
-                    if (i == new_console.selected_completion)
+                    if (show_description_for == i)
                     {
                         pushfont("little");
+
                         text_boundsf(completion->get_description().c_str(), cw, ch, 0, 0, max_width, 0, 1);
 
                         description_dimensions = vec2(cw,  ch);
@@ -2114,25 +2117,32 @@ namespace hud
                 completion_box_dimensions.add(vec2(5, 5));
                 description_dimensions.w = completion_box_dimensions.w;
 
-                gle::colorf(0.3f, 0.3f, 0.3f, 0.95f);
+                // actually draw the completion box
+                gle::colorf(.3f, .3f, .3f, .95f);
                 draw_rect(vec2(text_q + text_r - 5, pos_y), completion_box_dimensions, false); 
                 
                 for (int i = 0; i < num_shown_completions; i++)
                 {
-                    // draw the background for each line separately because line height has to be calculated
-                    // on the fly
-                    
-
                     CompletionEntryBase* completion = curr_completions[i];
+                    
+                    if (i == new_console.get_completion_scroll_pos())
+                    {
+                        gle::colorf(.4f, .4f, .4f, .95f);
+                        draw_rect(vec2(text_q + text_r - 5, pos_y), vec2(completion_box_dimensions.w, FONTH), false); 
+                    }
+
                     pos_y += draw_textf(completion->get_title().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
 
-                    if (i == new_console.selected_completion)
+                    if (show_description_for == i)
                     {
                         pushfont("little");
+                        
                         gle::colorf(.1f, .1f, .1f, .95f);
                         draw_rect(vec2(text_q + text_r - 5, pos_y), description_dimensions, false);
+                        
                         pos_y += draw_textf(completion->get_description().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
                         pos_y += 5;
+                        
                         popfont();
                     }
                 }
@@ -3853,7 +3863,7 @@ namespace hud
         if(!progressing)
         {
             vec colour = vec(1, 1, 1);
-            if(commandfade && new_console.open)
+            if(commandfade && new_console.is_open())
             {
                 //float a = min(float(totalmillis-abs(commandmillis))/float(commandfade), 1.f)*commandfadeamt;
                 //if(commandmillis > 0) a = 1.f-a;
