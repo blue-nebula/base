@@ -330,7 +330,24 @@ std::vector<CompletionEntryBase*> CommandCompletion::get_completions(const std::
 
 void CommandCompletion::select_entry(CompletionEntryBase* entry, Console& console)
 {
-    printf("Selected an entry, lmao\n");
+    size_t cut_off_pos = console.get_buffer().find(' ');
+    std::string cut_off_string = "";
+
+    if (cut_off_pos == std::string::npos)
+    {
+        cut_off_pos = -1;
+    }
+    else
+    {
+        cut_off_string = console.get_buffer().substr(cut_off_pos, -1);
+    }
+
+    CommandCompletionEntry* c_entry = (CommandCompletionEntry*)entry;
+    std::string new_buffer = "";
+    new_buffer += console.command_prefix;
+    new_buffer += c_entry->id.name;
+    new_buffer += std::string(" ") + cut_off_string;
+    console.set_buffer(new_buffer);
 }
 
 //////////////////////////////
@@ -382,7 +399,7 @@ std::vector<CompletionEntryBase*> PlayerNameCompletion::get_completions(const st
         // and there is no need to check if it fits if the name of the player
         // is smaller than the entered text
         if (   game::players[i] == nullptr 
-            //|| game::players[i]->actortype == ENT_AI
+            || game::players[i]->actortype == ENT_AI
             || strlen(game::players[i]->name) < entered_name.length())
         {
             continue;
@@ -400,6 +417,16 @@ std::vector<CompletionEntryBase*> PlayerNameCompletion::get_completions(const st
 
 void PlayerNameCompletion::select_entry(CompletionEntryBase* entry, Console& console)
 {
-    // use str.find_last_of
-    
+    const std::string buffer = console.get_buffer();
+
+    size_t prefix_pos = buffer.find_last_of('@');
+
+    if (prefix_pos == std::string::npos)
+    {
+        return;
+    }
+
+    console.set_buffer(buffer.substr(0, prefix_pos));
+    PlayerNameCompletionEntry* name_entry = (PlayerNameCompletionEntry*)entry;
+    console.insert_in_buffer(name_entry->name);
 }

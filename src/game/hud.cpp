@@ -1784,6 +1784,14 @@ namespace hud
         hudshader->set();
     }
 
+    void draw_outline(int color, vec2 pos, vec2 dims)
+    {
+        hudnotextureshader->set();
+        gle::colorub(color >> 16, (color >> 8) & 0xFF, color & 0xFF, 0x80);
+        draw_rect(pos, dims, true);
+        hudshader->set();
+    }
+
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
         if ((!showconsole || !showhud) && !new_console.is_open())
@@ -2081,7 +2089,7 @@ namespace hud
             {
                 pushfont("console");
 
-                const int show_description_for = new_console.get_completion_scroll_pos() == -1 ? 0 : new_console.get_completion_scroll_pos();
+                int show_description_for = new_console.get_completion_scroll_pos() == -1 ? 0 : new_console.get_completion_scroll_pos();
 
                 const int max_width = text_t - text_q + text_r;
 
@@ -2103,15 +2111,22 @@ namespace hud
 
                     if (show_description_for == i)
                     {
-                        pushfont("little");
+                        std::string completion_text = completion->get_description();
+                        if (!completion_text.empty())
+                        {
+                            pushfont("little");
+                            text_boundsf(completion_text.c_str(), cw, ch, 0, 0, max_width, 0, 1);
+                            
+                            description_dimensions = vec2(cw,  ch);
+                            completion_box_dimensions.h += ch + 5;
+                            completion_box_dimensions.w = std::max(completion_box_dimensions.w, cw);
 
-                        text_boundsf(completion->get_description().c_str(), cw, ch, 0, 0, max_width, 0, 1);
-
-                        description_dimensions = vec2(cw,  ch);
-                        completion_box_dimensions.h += ch + 5;
-                        completion_box_dimensions.w = std::max(completion_box_dimensions.w, cw);
-
-                        popfont();
+                            popfont();
+                        }
+                        else
+                        {
+                            show_description_for = -1;
+                        }
                     }
                 }
                 completion_box_dimensions.add(vec2(5, 5));

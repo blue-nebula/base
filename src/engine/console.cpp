@@ -349,6 +349,7 @@ void Console::set_buffer(std::string text)
     if (buffer_before != buffer)
     {
         curr_completions.clear();
+        curr_completion_engine = -1;
         int i = 0;
         for (auto* completion_engine : completions_engines)
         {
@@ -357,6 +358,7 @@ void Console::set_buffer(std::string text)
                 curr_completions = completion_engine->get_completions(this->buffer);
                 if (int(curr_completions.size()) > 0)
                 {
+                    curr_completion_engine = i;
                     break;
                 }
             }
@@ -736,7 +738,7 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_UP: 
-                if (completion_scroll_pos != -1)
+                if (completion_scroll_pos > 0)
                 {
                     completion_scroll(-1);
                     break;
@@ -764,7 +766,7 @@ bool Console::process_key(int code, bool isdown)
                     curr_action = input_history.current_line.action;
                 }
                 break;
-
+            
             case SDLK_v:
                 if (SDL_GetModState() & MOD_KEYS)
                 {
@@ -781,22 +783,33 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_TAB:
-                // switch between tabs using "TAB" 
-                if (selected_hist < HIST_MAX - 1)
+                if (SDL_GetModState() & KMOD_CTRL)
                 {
-                    selected_hist++;
+                    // switch between tabs using "TAB" 
+                    if (selected_hist < HIST_MAX - 1)
+                    {
+                        selected_hist++;
+                    }
+                    else
+                    {
+                        selected_hist = 0;
+                    } 
+                    break;
                 }
-                else
+
+                if (int(curr_completions.size()) != 0 
+                    && completion_scroll_pos != -1
+                    && curr_completion_engine != -1)
                 {
-                    selected_hist = 0;
-                } 
+                    completions_engines[curr_completion_engine]->select_entry(curr_completions[completion_scroll_pos], *this);
+                }
                 break;
         }
     }
     else
     {
         if (code == SDLK_RETURN || code == SDLK_KP_ENTER)
-        {
+        { 
             if (!get_buffer().empty())
             {
                 // save this line to the history
@@ -854,7 +867,7 @@ bool Console::completion_scroll(const int lines)
         static const int max_pos = 0;
         if (completion_scroll_pos + lines < max_pos)
         {
-            completion_scroll_pos = -1;
+            completion_scroll_pos = 0;
         }
         else
         {
@@ -866,7 +879,7 @@ bool Console::completion_scroll(const int lines)
         const int max_pos = int(curr_completions.size()) - 1;
         if (completion_scroll_pos + lines > max_pos)
         {
-            completion_scroll_pos = -1;
+            completion_scroll_pos = 0;
         }
         else
         {

@@ -138,12 +138,11 @@ private:
     void buffer_delete_at_cursor();
     void buffer_remove_at_cursor();
 
-    void set_buffer(std::string text);
-
     bool open = false;
     int cursor_pos = -1;
 
-    int completion_scroll_pos = -1;
+    int completion_scroll_pos = 0;
+    int curr_completion_engine = -1;
     InputHistory input_history;
 public:
     Console();
@@ -163,6 +162,7 @@ public:
     const int max_buffer_len = 4096;
 
     // buffer
+    void set_buffer(std::string text);
     void set_input(std::string init = "", int action = 0, std::string icon = "");
     std::string get_buffer();
     void insert_in_buffer(const std::string text);

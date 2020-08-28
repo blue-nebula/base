@@ -283,6 +283,7 @@ static void debugcode(const char *fmt, ...)
     if(nodebug) return;
 
     defvformatbigstring(msg, fmt, fmt);
+    printf("DEBUG ERROR: %s\n", msg);
     conoutft(CON_DEBUG_ERROR, "%s", msg);
 
     debugalias();
