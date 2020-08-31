@@ -2191,7 +2191,7 @@ namespace hud
                     CompletionEntryBase* completion = curr_completions[i]; 
                     if (i == selection)
                     {
-                        gle::colorf(.4f, .4f, .4f, .95f);
+                        gle::colorf(.2f, .2f, .6f, .95f);
                     }
                     else
                     {
@@ -2200,6 +2200,7 @@ namespace hud
                     draw_rect(vec2(completion_box_x, pos_y), vec2(completion_box_width, FONTH), false);
                 
                     pos_y += draw_textf(completion->get_title().c_str(), completion_text_x, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
+                
                 }
                 popfont();
 
@@ -2209,6 +2210,28 @@ namespace hud
                     draw_scrollbar(vec2(completion_box_x - 18, scrollbar_start_y),
                                 vec2(18, pos_y - scrollbar_start_y), max_lines, scroll_pos, int(curr_completions.size()));
                 }
+
+                CompletionEntryBase* completion = curr_completions[selection];
+
+                if (completion != nullptr)
+                {
+                    if (!completion->get_description().empty())
+                    {
+                        pushfont("little");
+
+                        gle::colorf(.1f, .1f, .1f, .95f);
+                        vec2 desc_dims = vec2(0, 0);
+                        text_boundsf(completion->get_description().c_str(), desc_dims.w, desc_dims.h, 0, 0, max_width, 0, 1);
+                        desc_dims.w = std::max(desc_dims.w + 5, completion_box_width); 
+
+                        draw_rect(vec2(completion_box_x, pos_y), desc_dims, false);
+
+                        pos_y += draw_textf(completion->get_description().c_str(), completion_text_x, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), TEXT_LEFT_JUSTIFY, -1, max_width, 1);
+
+                        popfont();
+                    }
+                }
+ 
             }
 
             pophudmatrix();

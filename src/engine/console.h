@@ -144,7 +144,7 @@ private:
     int completion_scroll_pos = 0;
     int completion_selection_idx = 0;
     int curr_completion_engine = -1;
-    int completion_lines_per_view = 6;
+    int completion_lines_per_view = 4;
     InputHistory input_history;
 public:
     Console();

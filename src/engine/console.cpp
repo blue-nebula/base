@@ -350,6 +350,7 @@ void Console::set_buffer(std::string text)
     // check for any completions
     if (buffer_before != buffer)
     {
+        const size_t prev_length = curr_completions.size();
         curr_completions.clear();
         curr_completion_engine = -1;
         int i = 0;
@@ -365,6 +366,11 @@ void Console::set_buffer(std::string text)
                 }
             }
             i++;
+        }
+        if (prev_length != curr_completions.size())
+        {
+            completion_scroll_pos = 0;
+            completion_selection_idx = 0;
         }
     }
 }
