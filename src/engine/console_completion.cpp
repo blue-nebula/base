@@ -298,6 +298,7 @@ std::vector<CompletionEntryBase*> CommandCompletion::get_completions(const std::
         return results;
     }
 
+    bool stop = false;
     // this is just what enumerate usually does
     // I am not sure what it does exactly, but it works :/
     for (int i = 0; i < idents.size; ++i)
@@ -320,6 +321,18 @@ std::vector<CompletionEntryBase*> CommandCompletion::get_completions(const std::
             {
                 results.push_back(new CommandCompletionEntry(id, search_term.length()));
             }
+
+            if (int(results.size()) >= 50)
+            {
+                printf("Break\n");
+                stop = true;
+                break;
+            }
+        }
+
+        if (stop)
+        {
+            break;
         }
     }
     // sort by length of the name, shortest to longest

@@ -396,6 +396,16 @@ int Console::get_completion_scroll_pos()
     return completion_scroll_pos;
 }
 
+int Console::get_completion_selection()
+{
+    return completion_selection_idx;
+}
+
+int Console::get_completion_lines_per_view()
+{
+    return completion_lines_per_view;
+}
+
 void Console::print(int type, const std::string text)
 {
     if (text.empty())
@@ -740,7 +750,7 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_UP: 
-                if (completion_scroll_pos > 0)
+                if (int(curr_completions.size()) != 0)
                 {
                     completion_scroll(-1);
                     break;
@@ -803,7 +813,7 @@ bool Console::process_key(int code, bool isdown)
                     && completion_scroll_pos != -1
                     && curr_completion_engine != -1)
                 {
-                    completions_engines[curr_completion_engine]->select_entry(curr_completions[completion_scroll_pos], *this);
+                    completions_engines[curr_completion_engine]->select_entry(curr_completions[completion_selection_idx], *this);
                 }
                 break;
         }
@@ -893,34 +903,42 @@ bool Console::completion_scroll(const int lines)
         return false;
     }
 
+    static const int max_dist = 2;
 
     if (lines < 0)
     {
-        static const int max_pos = 0;
-        if (completion_scroll_pos + lines < max_pos)
+        int scroll_pos = completion_scroll_pos;
+        int selection = completion_selection_idx;
+
+        // scroll up selection
+        selection = std::max(selection - 1, 0);
+
+        // check if scroll_pos needs to be scrolled too
+        if ((selection - scroll_pos) <= max_dist - 1)
         {
-            completion_scroll_pos = 0;
+            scroll_pos = std::max(scroll_pos - 1, 0);
         }
-        else
-        {
-            completion_scroll_pos += lines;
-        }
+
+        completion_scroll_pos = scroll_pos;
+        completion_selection_idx = selection;
     }
     else
     {
-        const int max_pos = int(curr_completions.size()) - 1;
-        if (completion_scroll_pos + lines > max_pos)
-        {
-            completion_scroll_pos = 0;
-        }
-        else
-        {
-            completion_scroll_pos += lines;
-        }
-    }
-    
-    printf("Scrolled to %d\n", completion_scroll_pos);
+        int scroll_pos = completion_scroll_pos;
+        int selection = completion_selection_idx;
+        // first move down selection
+        const int max_pos = int(curr_completions.size());
+        selection = std::min(selection + lines, max_pos - 1);
 
+        // check if scroll_pos needs to be moved down too
+        if ((selection - scroll_pos) >= completion_lines_per_view - max_dist)
+        {
+            scroll_pos = std::min(scroll_pos + 1, max_pos - completion_lines_per_view);
+        }
+
+        completion_scroll_pos = scroll_pos;
+        completion_selection_idx = selection;
+    }
     return false;
 }
 

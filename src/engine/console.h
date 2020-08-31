@@ -142,7 +142,9 @@ private:
     int cursor_pos = -1;
 
     int completion_scroll_pos = 0;
+    int completion_selection_idx = 0;
     int curr_completion_engine = -1;
+    int completion_lines_per_view = 6;
     InputHistory input_history;
 public:
     Console();
@@ -204,6 +206,8 @@ public:
     // Completion //
     bool completion_scroll(const int lines);
     int get_completion_scroll_pos();
+    int get_completion_selection();
+    int get_completion_lines_per_view();
     void register_completion(CompletionBase* completion);
     std::vector<CompletionEntryBase*> get_curr_completions();
     

@@ -1790,6 +1790,22 @@ namespace hud
         hudshader->set();
     }
 
+    void draw_scrollbar(const vec2 pos, const vec2 dims, float page_size, float value, float max_val)
+    {
+        static const int min_scrollbar_height = 5;
+
+        int scrollbar_height = int((page_size / max_val) * dims.h);
+        scrollbar_height = std::min(std::max(min_scrollbar_height, scrollbar_height), int(dims.h));
+
+        int scrollbar_y = int((value / max_val) * dims.h);
+
+        gle::colorf(.1f, .1f, .1f, .95f);
+        draw_rect(pos, dims, false);
+
+        gle::colorf(.5f, .5f, 1.f, .95f);
+        draw_rect(vec2(pos.x, pos.y + scrollbar_y), vec2(dims.w, scrollbar_height), false);
+    }
+
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
         if ((!showconsole || !showhud) && !new_console.is_open())
@@ -1840,17 +1856,11 @@ namespace hud
             // only draw scrollbar when in full-mode, otherwise it's not relevant
             if (full)
             {
-                static const int scrollbar_width = 18;
-                static const int min_scrollbar_height = 5;
-
-                int scrollbar_height = int((max_lines_drawn / float(histlen)) * height_mainview);
-                scrollbar_height = std::min(std::max(min_scrollbar_height, scrollbar_height), height_mainview);
-
-                int scrollbar_y = (int(((histlen - histpos) / float(histlen)) * height_mainview)) - scrollbar_height;
-
-                // draw scrollbar
-                gle::colorf(.9f, .9f, 1.f, .95f);
-                draw_rect(vec2(0, pos.y + scrollbar_y), vec2(scrollbar_width, scrollbar_height), false);
+                draw_scrollbar(vec2(0, pos.y), 
+                        vec2(18, height_mainview), 
+                        max_lines_drawn, 
+                        std::max((histlen - histpos) - max_lines_drawn, 0), 
+                        histlen);
             }
             else
             {
@@ -2004,10 +2014,7 @@ namespace hud
             vec c(1, 1, 1);
             int icon_color = new_console.get_icon_color();
             c = vec::hexcolor(icon_color);
-            /*if (commandcolour)
-            {
-                c = vec::hexcolor(commandcolour);
-            }*/
+            
             float f = float(totalmillis % 1000) / 1000.f;
             if (f < 0.5f)
             {
@@ -2075,7 +2082,9 @@ namespace hud
             if (int(curr_completions.size()) > 0)
             {
                 pushfont("console");
+                
 
+                /*
                 int show_description_for = new_console.get_completion_scroll_pos() == -1 ? 0 : new_console.get_completion_scroll_pos();
 
                 const int max_width = text_t - text_q + text_r;
@@ -2147,8 +2156,59 @@ namespace hud
                         
                         popfont();
                     }
+                }*/
+                const int max_width = text_t - text_q + text_r;
+                const int completion_text_x = text_q + text_r;
+                const int completion_box_x = completion_text_x - 5;
+
+                const int scrollbar_start_y = pos_y;
+
+                float completion_box_width = 0;
+
+                // loop through all entries to get the max text length,
+                // that will result in a more consistent look while scrolling since the length
+                // doesn't change all the time
+                for (int i = 0; i < int(curr_completions.size()); i++)
+                {
+                    CompletionEntryBase* completion = curr_completions[i];
+
+                    float cw = 0;
+                    float ch = 0;
+                    text_boundsf(completion->get_title().c_str(), cw, ch, 0, 0, max_width, 0, 1);
+
+                    completion_box_width = std::max(completion_box_width, cw);
+                }
+
+                completion_box_width += 10;
+
+                const int scroll_pos = new_console.get_completion_scroll_pos();
+                const int max_lines = new_console.get_completion_lines_per_view();
+                const int selection = new_console.get_completion_selection();
+                const int max_pos = std::min(scroll_pos + max_lines, int(curr_completions.size()));
+
+                for (int i = scroll_pos; i < max_pos; i++)
+                {
+                    CompletionEntryBase* completion = curr_completions[i]; 
+                    if (i == selection)
+                    {
+                        gle::colorf(.4f, .4f, .4f, .95f);
+                    }
+                    else
+                    {
+                        gle::colorf(.3f, .3f, .3f, .95f);
+                    }
+                    draw_rect(vec2(completion_box_x, pos_y), vec2(completion_box_width, FONTH), false);
+                
+                    pos_y += draw_textf(completion->get_title().c_str(), completion_text_x, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
                 }
                 popfont();
+
+                if (max_lines < int(curr_completions.size()))
+                {
+                    // draw the scrollbar
+                    draw_scrollbar(vec2(completion_box_x - 18, scrollbar_start_y),
+                                vec2(18, pos_y - scrollbar_start_y), max_lines, scroll_pos, int(curr_completions.size()));
+                }
             }
 
             pophudmatrix();
