@@ -122,8 +122,6 @@ namespace hud
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, dominatingtex, "<grey>textures/dominating", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, dominatedtex, "<grey>textures/dominated", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, inputtex, "textures/menu", 3);
-    TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, console_search_tex, "textures/icons/fontawesome/find_servers", 3);
-    TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, console_command_tex, "textures/icons/fontawesome/command", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, waitingtex, "<grey>textures/waiting", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, spectatortex, "<grey>textures/spectator", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, chattex, "<grey>textures/chat", 3);
@@ -2001,26 +1999,15 @@ namespace hud
 
             pushfont("emphasis");
 
-            Texture* t = nullptr;
-                
-            switch (new_console.get_mode())
-            {
-                case Console::MODE_SEARCH:
-                    t = textureload(console_search_tex, 3);
-                    break;
-                case Console::MODE_COMMAND:
-                    t = textureload(console_command_tex, 3);
-                    break;
-                default:
-                    t = textureload(new_console.get_icon().empty() ? inputtex : new_console.get_icon().c_str(), 3);
-                    break;
-            }
+            Texture* t = textureload(new_console.get_icon().c_str(), 3);
 
             vec c(1, 1, 1);
-            if (commandcolour)
+            int icon_color = new_console.get_icon_color();
+            c = vec::hexcolor(icon_color);
+            /*if (commandcolour)
             {
                 c = vec::hexcolor(commandcolour);
-            }
+            }*/
             float f = float(totalmillis % 1000) / 1000.f;
             if (f < 0.5f)
             {

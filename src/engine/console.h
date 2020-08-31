@@ -174,6 +174,7 @@ public:
     void close_console(); 
     
     std::string get_icon();
+    int get_icon_color();
     int get_cursor_pos();
  
     // history

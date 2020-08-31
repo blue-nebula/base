@@ -12,6 +12,8 @@
 VAR(IDF_PERSIST|IDF_HEX, saytextcolour, -1, 0xFFFFFF, 0xFFFFFF);
 VAR(IDF_PERSIST, enterclosesconsole, 0, 1, 1);
 VAR(IDF_PERSIST, consolesyntaxhighlight, 0, 0, 1);
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, console_command_tex, "textures/icons/fontawesome/command", 3);
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, console_chat_tex, "textures/chat", 3);
 
 std::string unescapestring(std::string src)
 {
@@ -840,7 +842,37 @@ bool Console::process_key(int code, bool isdown)
 
 std::string Console::get_icon()
 {
+    switch (get_mode())
+    {
+        case MODE_NONE:
+            switch (curr_action)
+            {
+                case SAY_NONE:
+                    return console_chat_tex;
+                case SAY_TEAM:
+                    return hud::teamtexname(game::player1.team);
+            }
+            break;
+        case MODE_COMMAND:
+            return console_command_tex;
+    }
     return curr_icon;
+}
+
+int Console::get_icon_color()
+{
+    if (get_mode() == MODE_NONE)
+    {
+        switch (curr_action)
+        {
+            case SAY_NONE:
+                return 0xFFFFFF;
+            case SAY_TEAM:
+                return TEAM(game::player1.team, colour);
+        }
+    }
+
+    return 0xFFFFFF;
 }
 
 void Console::clear_curr_hist()
