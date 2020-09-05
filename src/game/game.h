@@ -1744,7 +1744,7 @@ namespace game
     extern float zoom_ratio();
     extern void zoomview(bool down);
     extern bool tvmode(bool check = true, bool force = true);
-    extern void resetcamera(bool cam = true, bool input = true);
+    extern void resetcamera(bool cam = true);
     extern void resetworld();
     extern void resetstate();
     extern void hiteffect(int weap, int flags, int damage, gameent *d, gameent *v, vec &dir, vec &vel, float dist, bool local = false);

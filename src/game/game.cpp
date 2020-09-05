@@ -2802,11 +2802,12 @@ namespace game
         }
     }
 
-    void resetcamera(bool cam, bool input)
+    void resetcamera(bool cam)
     {
         lastcamera = 0;
         zoomset(false, 0);
-        if(input && !hud::hasinput(true)) resetcursor();
+        crosshairx = 0.5f;
+        crosshairy = 0.5f;
         checkcamera();
         if(cam || !focus)
         {
