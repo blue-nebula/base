@@ -1763,13 +1763,15 @@ namespace hud
             glDisable(GL_BLEND);
         }
         if(progressing || (commandmillis <= 0 && !curcompass)) UI::render();
-        if(!progressing)
+
+        int pointertype = choose_pointer_type();
+        if(!progressing && pointertype != POINTER_NONE)
         {
             hudmatrix.ortho(0, hudwidth, hudheight, 0, -1, 1);
             flushhudmatrix();
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            draw_pointer(hudwidth, hudheight, choose_pointer_type());
+            draw_pointer(hudwidth, hudheight, pointertype);
             glDisable(GL_BLEND);
         }
     }
