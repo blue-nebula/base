@@ -3534,10 +3534,13 @@ namespace hud
         float fade = hudblend, consolefade = hudblend;
         if(!progressing)
         {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            draw_crosshair(hudwidth, hudheight, choose_crosshair_type());
-            glDisable(GL_BLEND);
+            if(compassmillis <= 0)
+            {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                draw_crosshair(hudwidth, hudheight, choose_crosshair_type());
+                glDisable(GL_BLEND);
+            }
 
             vec colour = vec(1, 1, 1);
             if(commandfade && (commandmillis > 0 || totalmillis-abs(commandmillis) <= commandfade))
