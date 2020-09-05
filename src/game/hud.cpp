@@ -1389,8 +1389,8 @@ namespace hud
                 if(accskew > 0) fade /= accskew;
             }
         }
-        int cx = int(hudwidth * cursorx);
-        int cy = int(hudheight * cursory);
+        int cx = int(hudwidth * crosshairx);
+        int cy = int(hudheight * crosshairy);
 
         drawpointertex(getpointer(pointertype, game::focus->weapselect), cx-size/2, cy-size/2, size, color.r, color.g, color.b, fade*hudblend);
         if(pointertype > POINTER_GUI)

@@ -222,7 +222,9 @@ extern int fog;
 extern float curfogstart, curfogend;
 
 extern float cursorx, cursory;
+extern float crosshairx, crosshairy;
 extern vec cursordir;
+extern vec crosshairdir;
 
 extern GLenum colormask[3];
 #define COLORMASK colormask[0], colormask[1], colormask[2]

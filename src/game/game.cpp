@@ -2228,19 +2228,19 @@ namespace game
                     if(vectocursor(pos, loc.x, loc.y, loc.z))
                     {
                         float amt = curtime/float(thirdpersoninterp);
-                        cursorx = clamp(cursorx+((loc.x-cursorx)*amt), 0.f, 1.f);
-                        cursory = clamp(cursory+((loc.y-cursory)*amt), 0.f, 1.f);
+                        crosshairx = clamp(crosshairx+((loc.x-crosshairx)*amt), 0.f, 1.f);
+                        crosshairy = clamp(crosshairy+((loc.y-crosshairy)*amt), 0.f, 1.f);
                     }
                     break;
                 }
                 case 2:
                 {
-                    cursorx = thirdpersoncursorx;
-                    cursory = thirdpersoncursory;
+                    crosshairx = thirdpersoncursorx;
+                    crosshairy = thirdpersoncursory;
                     break;
                 }
             }
-            vecfromcursor(cursorx, cursory, 1.f, cursordir);
+            vecfromcursor(crosshairx, crosshairy, 1.f, crosshairdir);
         }
     }
 
@@ -2973,7 +2973,7 @@ namespace game
             if(thirdpersoncursor != 1 && pthird)
             {
                 float yaw = camera1->yaw, pitch = camera1->pitch;
-                vectoyawpitch(cursordir, yaw, pitch);
+                vectoyawpitch(crosshairdir, yaw, pitch);
                 findorientation(camera1->o, yaw, pitch, worldpos);
             }
             else findorientation(focus->o, focus->yaw, focus->pitch, worldpos);
