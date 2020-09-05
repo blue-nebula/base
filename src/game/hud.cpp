@@ -1310,12 +1310,54 @@ namespace hud
         }
     }
 
-    void drawpointer(int w, int h, int pointertype)
+    static int choose_pointer_type()
     {
-        int size = int((pointertype == POINTER_GUI ? cursorsize : crosshairsize)*hudsize);
-        float fade = pointertype == POINTER_GUI ? cursorblend : crosshairblend;
+        return hasinput() && !(!hasinput(true) || commandmillis > 0)
+            ? POINTER_GUI
+            : POINTER_NONE;
+    }
+
+    static void draw_pointer(int w, int h, int pointertype)
+    {
+        if(pointertype == POINTER_NONE) return;
+        int size = int(cursorsize * hudsize);
+        float fade = cursorblend;
         vec color(1, 1, 1);
-        if(game::focus->state == CS_ALIVE && pointertype >= POINTER_HAIR)
+        int cx = int(hudwidth * cursorx);
+        int cy = int(hudheight * cursory);
+
+        if(ui_cursor_type == 2)
+        {
+            cy -= size / 2;
+            cx -= size / 2;
+        }
+        drawpointertex(getpointer(pointertype, game::focus->weapselect), cx, cy, size, color.r, color.g, color.b, fade*hudblend);
+    }
+
+    static int choose_crosshair_type()
+    {
+        if(!showhud || !showcrosshair || game::focus->state == CS_DEAD || !gs_playing(game::gamestate) || client::waiting() || (game::thirdpersonview(true) && game::focus != &game::player1))
+            return POINTER_NONE;
+        else if(game::focus->state == CS_EDITING) return POINTER_EDIT;
+        else if(game::focus->state >= CS_SPECTATOR) return POINTER_SPEC;
+        else if(game::inzoom()) return POINTER_ZOOM;
+        else if(m_team(game::gamemode, game::mutators))
+        {
+            vec pos = game::focus->headpos();
+            gameent *d = game::intersectclosest(pos, worldpos, game::focus);
+            if(d && d->actortype < A_ENEMY && d->team == game::focus->team) return POINTER_TEAM;
+            else return POINTER_HAIR;
+        }
+        else return POINTER_HAIR;
+    }
+
+    static void draw_crosshair(int w, int h, int pointertype)
+    {
+        if(pointertype == POINTER_NONE) return;
+        int size = int(crosshairsize * hudsize);
+        float fade = crosshairblend;
+        vec color(1, 1, 1);
+        if(game::focus->state == CS_ALIVE)
         {
             if(crosshairweapons&2) color = vec::hexcolor(W(game::focus->weapselect, colour));
             if(pointertype == POINTER_ZOOM && game::inzoom())
@@ -1347,64 +1389,26 @@ namespace hud
                 if(accskew > 0) fade /= accskew;
             }
         }
-        int cx = int(hudwidth*cursorx), cy = int(hudheight*cursory);
-        if(pointertype != POINTER_GUI)
-        {
-            drawpointertex(getpointer(pointertype, game::focus->weapselect), cx-size/2, cy-size/2, size, color.r, color.g, color.b, fade*hudblend);
-            if(pointertype > POINTER_GUI)
-            {
-                if(minimal(showcirclebar)) drawcirclebar(cx, cy, hudsize);
-                if(game::focus->state == CS_ALIVE && game::focus->hasweap(game::focus->weapselect, m_weapon(game::focus->actortype, game::gamemode, game::mutators)))
-                {
-                    if(minimal(showclips, true)) drawclip(game::focus->weapselect, cx, cy, hudsize);
-                    if(showindicator) drawindicator(game::focus->weapselect, cx, cy, int(indicatorsize*hudsize), physics::secondaryweap(game::focus));
-                }
-                if(crosshairhitspeed && totalmillis-game::focus->lasthit <= crosshairhitspeed)
-                {
-                    vec color2(1, 1, 1);
-                    if(hitcrosshairtone) skewcolour(color2.r, color2.g, color2.b, hitcrosshairtone);
-                    else color2 = color;
-                    drawpointertex(getpointer(POINTER_HIT, game::focus->weapselect), cx-size/2, cy-size/2, size, color2.r, color2.g, color2.b, crosshairblend*hudblend);
-                }
-                if(crosshairdistance && game::focus->state == CS_EDITING) draw_textf("\fa%.1f\fwm", cx+crosshairdistancex, cy+crosshairdistancey, 0, 0, 255, 255, 255, int(hudblend*255), TEXT_RIGHT_JUSTIFY, -1, -1, 1, game::focus->o.dist(worldpos)/8.f);
-            }
-        }
-        else
-        {
-            if(ui_cursor_type == 2)
-            {
-                cy -= size / 2;
-                cx -= size / 2;
-            }
-            drawpointertex(getpointer(pointertype, game::focus->weapselect), cx, cy, size, color.r, color.g, color.b, fade*hudblend);
-        }
-    }
+        int cx = int(hudwidth * cursorx);
+        int cy = int(hudheight * cursory);
 
-    void drawpointers(int w, int h)
-    {
-        int pointertype = POINTER_NONE;
-        if(hasinput()) pointertype = !hasinput(true) || commandmillis > 0 ? POINTER_NONE : POINTER_GUI;
-        else if(!showhud || !showcrosshair || game::focus->state == CS_DEAD || !gs_playing(game::gamestate) || client::waiting() || (game::thirdpersonview(true) && game::focus != &game::player1))
-            pointertype = POINTER_NONE;
-        else if(game::focus->state == CS_EDITING) pointertype = POINTER_EDIT;
-        else if(game::focus->state >= CS_SPECTATOR) pointertype = POINTER_SPEC;
-        else if(game::inzoom()) pointertype = POINTER_ZOOM;
-        else if(m_team(game::gamemode, game::mutators))
+        drawpointertex(getpointer(pointertype, game::focus->weapselect), cx-size/2, cy-size/2, size, color.r, color.g, color.b, fade*hudblend);
+        if(pointertype > POINTER_GUI)
         {
-            vec pos = game::focus->headpos();
-            gameent *d = game::intersectclosest(pos, worldpos, game::focus);
-            if(d && d->actortype < A_ENEMY && d->team == game::focus->team) pointertype = POINTER_TEAM;
-            else pointertype = POINTER_HAIR;
-        }
-        else pointertype = POINTER_HAIR;
-        if(pointertype > POINTER_NONE)
-        {
-            hudmatrix.ortho(0, hudwidth, hudheight, 0, -1, 1);
-            flushhudmatrix();
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            drawpointer(w, h, pointertype);
-            glDisable(GL_BLEND);
+            if(minimal(showcirclebar)) drawcirclebar(cx, cy, hudsize);
+            if(game::focus->state == CS_ALIVE && game::focus->hasweap(game::focus->weapselect, m_weapon(game::focus->actortype, game::gamemode, game::mutators)))
+            {
+                if(minimal(showclips, true)) drawclip(game::focus->weapselect, cx, cy, hudsize);
+                if(showindicator) drawindicator(game::focus->weapselect, cx, cy, int(indicatorsize*hudsize), physics::secondaryweap(game::focus));
+            }
+            if(crosshairhitspeed && totalmillis-game::focus->lasthit <= crosshairhitspeed)
+            {
+                vec color2(1, 1, 1);
+                if(hitcrosshairtone) skewcolour(color2.r, color2.g, color2.b, hitcrosshairtone);
+                else color2 = color;
+                drawpointertex(getpointer(POINTER_HIT, game::focus->weapselect), cx-size/2, cy-size/2, size, color2.r, color2.g, color2.b, crosshairblend*hudblend);
+            }
+            if(crosshairdistance && game::focus->state == CS_EDITING) draw_textf("\fa%.1f\fwm", cx+crosshairdistancex, cy+crosshairdistancey, 0, 0, 255, 255, 255, int(hudblend*255), TEXT_RIGHT_JUSTIFY, -1, -1, 1, game::focus->o.dist(worldpos)/8.f);
         }
     }
 
@@ -1738,6 +1742,15 @@ namespace hud
 
     void drawlast()
     {
+        if(!progressing)
+        {
+            hudmatrix.ortho(0, hudwidth, hudheight, 0, -1, 1);
+            flushhudmatrix();
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            draw_crosshair(hudwidth, hudheight, choose_crosshair_type());
+            glDisable(GL_BLEND);
+        }
         if(!progressing && showhud)
         {
             hudmatrix.ortho(0, hudwidth, hudheight, 0, -1, 1);
@@ -1759,7 +1772,15 @@ namespace hud
             glDisable(GL_BLEND);
         }
         if(progressing || (commandmillis <= 0 && !curcompass)) UI::render();
-        if(!progressing) drawpointers(hudwidth, hudheight);
+        if(!progressing)
+        {
+            hudmatrix.ortho(0, hudwidth, hudheight, 0, -1, 1);
+            flushhudmatrix();
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            draw_pointer(hudwidth, hudheight, choose_pointer_type());
+            glDisable(GL_BLEND);
+        }
     }
 
     void drawconsole(int type, int w, int h, int x, int y, int s, float fade)
