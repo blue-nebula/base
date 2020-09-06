@@ -49,24 +49,26 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_C_FLAGS} ${COMMON_CXX_FLAGS}")
 
+# override from outside or in the platform specific code to exclude targets from being built
+set(BUILD_CLIENT ON CACHE STRING "Build client")
+set(BUILD_SERVER ON CACHE STRING "Build server")
+set(BUILD_GENKEY ON CACHE STRING "Build genkey")
+
 # we use find_package instead of pkg_check_modules etc. so we do not depend on .pc files for libraries used across all platforms
 # this allows for easier cross-compiling with MinGW, as we can use the precompiled libraries
 find_package(ZLIB REQUIRED)
 
 # for SDL2* we need to ship custom configs
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(SDL2_mixer REQUIRED)
+if(BUILD_CLIENT)
+    find_package(SDL2 REQUIRED)
+    find_package(SDL2_image REQUIRED)
+    find_package(SDL2_mixer REQUIRED)
+endif()
 
 # OpenGL may be imported with pkg-config on Unix, but that doesn't work on macOS
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
-
-# override from outside or in the platform specific code to exclude targets from being built
-set(BUILD_CLIENT ON)
-set(BUILD_SERVER ON)
-set(BUILD_GENKEY ON)
 
 # platform specific code
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
