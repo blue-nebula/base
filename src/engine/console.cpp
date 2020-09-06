@@ -102,6 +102,11 @@ int History::get_num_lines()
     return num_linebreaks;
 }
 
+int History::get_num_unseen_messages()
+{
+    return unseen_messages;
+}
+
 std::array<int, 2> History::get_scroll_info()
 {
     return std::array<int, 2>{ scroll_info_hist_idx, scroll_info_line_idx };
@@ -158,6 +163,16 @@ bool History::scroll(const int lines)
     if (scrolled)
     {
         recalc_scroll_info();
+    
+        // recalc the number of unseen messages
+        unseen_messages = 0;
+        for (int i = 0; i < scroll_pos; i++)
+        {
+            if (h[i].seen == false)
+            {
+                unseen_messages++;
+            }
+        }
     }
 
     return scrolled;
@@ -380,6 +395,19 @@ void Console::set_buffer(std::string text)
     }
 }
 
+void Console::see_line(ConsoleLine& line)
+{
+    if (!line.seen)
+    {
+        line.seen = true;
+        
+        if (line.type == CON_DEBUG_ERROR)
+        {
+            new_console.unseen_error_messages--;
+        }
+    }
+}
+
 bool Console::is_open()
 {
     return open;
@@ -551,6 +579,13 @@ int Console::get_mode()
 
 std::string Console::get_info_bar_text()
 {
+    if (curr_hist().get_num_unseen_messages() > 0)
+    {
+        static const std::string UNSEEN_MESSAGES_COLOR = "\fzyw";
+        static const std::string UNSEEN_MESSAGES = " Unseen Messages";
+
+        return UNSEEN_MESSAGES_COLOR + std::to_string(curr_hist().get_num_unseen_messages()) + UNSEEN_MESSAGES;
+    }
     return "";
 }
 
@@ -694,7 +729,6 @@ bool Console::process_text_input(const char *str, int len)
 
     return true;
 }
-
 
 bool Console::process_key(int code, bool isdown)
 {

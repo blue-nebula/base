@@ -115,7 +115,7 @@ namespace hud
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, teamomegatex, "<grey>textures/teamomega", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, teamkappatex, "<grey>textures/teamkappa", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, teamsigmatex, "<grey>textures/teamsigma", 3);
-
+        
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, insigniatex, "<grey>textures/action", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, playertex, "<grey>textures/player", 3);
     TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, deadtex, "<grey>textures/dead", 3);
@@ -1849,10 +1849,6 @@ namespace hud
             int histlen = hist.get_num_lines();
             int histpos = hist.get_scroll_pos();
 
-            /////////////////
-            /// SCROLLBAR ///
-            /////////////////
-
             // only draw scrollbar when in full-mode, otherwise it's not relevant
             if (full)
             {
@@ -1876,8 +1872,10 @@ namespace hud
             int lines_drawn = 0;
             int hist_idx = 0;
             int line_idx = -1;
+
             if (full)
             {
+                // when the console is in full mode, you can scroll
                 std::array<int, 2> scroll_info = hist.get_scroll_info();
                 hist_idx = scroll_info[0];
                 line_idx = scroll_info[1];
@@ -1905,16 +1903,8 @@ namespace hud
                 // draw line background
                 if (full)
                 {
-                    if (!line.seen)
-                    {
-                        hist.h[line_info.first].seen = true;
-                        
-                        if (line.type == CON_DEBUG_ERROR)
-                        {
-                            new_console.unseen_error_messages--;
-                        }
-                    }
-                    
+                    new_console.see_line(line);
+  
                     // draw the line background color if there is any specified
                     if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
                     {
