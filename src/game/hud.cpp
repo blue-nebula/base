@@ -2157,6 +2157,7 @@ namespace hud
                         popfont();
                     }
                 }*/
+                static const int completion_icon_width = 32;
                 const int max_width = text_t - text_q + text_r;
                 const int completion_text_x = text_q + text_r;
                 const int completion_box_x = completion_text_x - 5;
@@ -2175,6 +2176,12 @@ namespace hud
                     float cw = 0;
                     float ch = 0;
                     text_boundsf(completion->get_title().c_str(), cw, ch, 0, 0, max_width, 0, 1);
+                    
+                    const std::string completion_icon = completion->get_icon();
+                    if (!completion_icon.empty())
+                    {
+                        cw += completion_icon_width + 5;
+                    }
 
                     completion_box_width = std::max(completion_box_width, cw);
                 }
@@ -2198,8 +2205,19 @@ namespace hud
                         gle::colorf(.3f, .3f, .3f, .95f);
                     }
                     draw_rect(vec2(completion_box_x, pos_y), vec2(completion_box_width, FONTH), false);
-                
-                    pos_y += draw_textf(completion->get_title().c_str(), completion_text_x, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
+              
+                    const std::string completion_icon = completion->get_icon();
+                    int icon_width = 0;
+                    if (!completion_icon.empty())
+                    {
+                        const Texture* t = textureload(completion_icon.c_str(), 3);
+                        glBindTexture(GL_TEXTURE_2D, t->id);
+                        gle::color(vec::hexcolor(completion->get_icon_color()), 1);
+                        drawtexture(completion_text_x, pos_y + 5, completion_icon_width, completion_icon_width); 
+                        icon_width = completion_icon_width;
+                    }
+
+                    pos_y += draw_textf(completion->get_title().c_str(), completion_text_x + icon_width + 5, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
                 
                 }
                 popfont();

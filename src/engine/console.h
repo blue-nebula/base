@@ -21,6 +21,8 @@ class CompletionEntryBase
 public:
     int completion_length = 0;
 
+    virtual std::string get_icon() = 0;
+    virtual int get_icon_color() = 0;
     virtual std::string get_title() = 0;
     virtual std::string get_description() = 0;
 };

@@ -3,6 +3,15 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "game.h"
+#include "engine.h"
+
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, iddefaulticon, "textures/icons/identifiers/default", 3);
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idfloatvaricon, "textures/icons/identifiers/float", 3);
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idintvaricon, "textures/icons/identifiers/integer", 3);
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idstringvaricon, "textures/icons/identifiers/string", 3);
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idcommandicon, "textures/icons/identifiers/command", 3);
+TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idaliasicon, "textures/icons/identifiers/alias", 3);
 
 void remove_trailing_zeros(std::string& s)
 {
@@ -252,6 +261,29 @@ std::string CommandCompletionEntry::get_ident_flags_text()
     return flags;
 }
 
+int CommandCompletionEntry::get_icon_color()
+{
+    return 0xFFFFFF;
+}
+
+std::string CommandCompletionEntry::get_icon()
+{
+    switch (id.type)
+    {
+        case ID_VAR:
+            return idintvaricon;
+        case ID_FVAR:
+            return idfloatvaricon;
+        case ID_SVAR:
+            return idstringvaricon;
+        case ID_COMMAND:
+            return idcommandicon;
+        case ID_ALIAS:
+            return idaliasicon;
+    }
+
+    return iddefaulticon;
+}
 
 std::string CommandCompletionEntry::get_title()
 {
@@ -367,10 +399,22 @@ void CommandCompletion::select_entry(CompletionEntryBase* entry, Console& consol
 /// PLAYER NAME COMPLETION ///
 //////////////////////////////
 
-PlayerNameCompletionEntry::PlayerNameCompletionEntry(std::string name, int completion_length)
+PlayerNameCompletionEntry::PlayerNameCompletionEntry(std::string name, std::string icon, int icon_color, int completion_length)
 {
     this->name = name;
+    this->icon = icon;
+    this->icon_color = icon_color;
     this->completion_length = completion_length;
+}
+
+int PlayerNameCompletionEntry::get_icon_color()
+{
+    return icon_color;
+}
+
+std::string PlayerNameCompletionEntry::get_icon()
+{
+    return icon;
 }
 
 std::string PlayerNameCompletionEntry::get_title()
@@ -421,7 +465,14 @@ std::vector<CompletionEntryBase*> PlayerNameCompletion::get_completions(const st
         bool fits = std::string(game::players[i]->name).find(entered_name) == 0;
         if (fits)
         {
-            results.push_back(new PlayerNameCompletionEntry(game::players[i]->name, entered_name.length()));
+            static const std::string ICON_START = "priv";
+            static const std::string ICON_END = "tex";
+
+            const std::string name = game::players[i]->name;
+            const std::string icon_name = ICON_START + server::privnamex(game::players[i]->privilege, game::players[i]->actortype, true) + ICON_END;
+            const std::string icon = *idents[icon_name.c_str()].storage.s;
+            const int icon_color = game::findcolour(game::players[i]);
+            results.push_back(new PlayerNameCompletionEntry(name, icon, icon_color, entered_name.length()));
         }
     }
 

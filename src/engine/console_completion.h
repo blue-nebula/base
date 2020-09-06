@@ -15,6 +15,8 @@ public:
     ident id;
     CommandCompletionEntry(ident id, int completion_length);
 
+    virtual std::string get_icon();
+    virtual int get_icon_color();
     virtual std::string get_title();
     virtual std::string get_description();
 
@@ -38,9 +40,13 @@ class PlayerNameCompletionEntry : public CompletionEntryBase
 {
 public:
     std::string name;
-    
-    PlayerNameCompletionEntry(std::string name, int completion_length);
+    std::string icon;
+    int icon_color;
 
+    PlayerNameCompletionEntry(std::string name, std::string icon, int icon_color, int completion_length);
+
+    virtual std::string get_icon();
+    virtual int get_icon_color();
     virtual std::string get_title();
     virtual std::string get_description();
 };
