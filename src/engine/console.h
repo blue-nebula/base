@@ -140,6 +140,7 @@ private:
     void buffer_delete_at_cursor();
     void buffer_remove_at_cursor();
 
+
     bool open = false;
     int cursor_pos = -1;
 
@@ -161,6 +162,7 @@ public:
     int get_mode();
 
     // constants
+    const int get_page_size();
     const char command_prefix = ':';
     const char playername_prefix = '@';
     const int max_buffer_len = 4096;

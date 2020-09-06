@@ -142,7 +142,7 @@ bool History::scroll(const int lines)
     {
         // go up
         //TODO: Find alternative to using idents hashnameset
-        const int max_pos = num_linebreaks - (*idents["consize"].storage.i + *idents["conoverflow"].storage.i);
+        const int max_pos = num_linebreaks - new_console.get_page_size();
         scroll_pos = std::min(scroll_pos + lines, max_pos);
     }
     else
@@ -313,6 +313,11 @@ Console::Console()
 
     register_completion(new PlayerNameCompletion());
     register_completion(new CommandCompletion());
+}
+
+const int Console::get_page_size()
+{
+    return (*idents["consize"].storage.i + *idents["conoverflow"].storage.i);
 }
 
 int Console::get_say_text_color()
@@ -740,11 +745,11 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_PAGEUP:
-                curr_hist().scroll(10);
+                curr_hist().scroll(get_page_size());
                 break;
 
             case SDLK_PAGEDOWN:
-                curr_hist().scroll(-10);
+                curr_hist().scroll(-get_page_size());
                 break;
 
             case SDLK_LEFT:

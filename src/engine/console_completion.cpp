@@ -456,7 +456,7 @@ std::vector<CompletionEntryBase*> PlayerNameCompletion::get_completions(const st
         // and there is no need to check if it fits if the name of the player
         // is smaller than the entered text
         if (   game::players[i] == nullptr 
-            || game::players[i]->actortype == ENT_AI
+            //|| game::players[i]->actortype == ENT_AI
             || strlen(game::players[i]->name) < entered_name.length())
         {
             continue;
