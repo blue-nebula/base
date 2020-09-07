@@ -1816,8 +1816,7 @@ namespace hud
             return;
         }
 
-        static vector<int> refs; refs.setsize(0);
-        bool full = fullconsole || new_console.is_open();
+        const bool full = fullconsole || new_console.is_open();
         int tz = 0;
 
         pushfont("console");

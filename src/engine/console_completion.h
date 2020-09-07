@@ -58,3 +58,28 @@ private:
     virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer);
     virtual void select_entry(CompletionEntryBase* entry, Console& console);
 };
+
+class MapNameCompletionEntry : public CompletionEntryBase
+{
+public:
+    std::string name;
+    std::string icon;
+    std::string title;
+
+    MapNameCompletionEntry(std::string name, std::string icon, int completion_length);
+
+    virtual int get_icon_color();
+    virtual std::string get_icon();
+    virtual std::string get_title();
+    virtual std::string get_description();
+};
+
+class MapNameCompletion : public CompletionBase
+{
+private:
+    const std::string prefix = ":m";
+    virtual bool can_complete(Console& console);
+    virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer);
+    virtual void select_entry(CompletionEntryBase* entry, Console& console);
+};
+

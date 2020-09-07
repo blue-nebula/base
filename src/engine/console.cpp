@@ -349,6 +349,7 @@ Console::Console()
     
 
     register_completion(new PlayerNameCompletion());
+    register_completion(new MapNameCompletion());
     register_completion(new CommandCompletion());
 }
 

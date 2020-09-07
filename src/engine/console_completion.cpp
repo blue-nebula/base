@@ -13,6 +13,12 @@ TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idstringvaricon, "textures/icons/identifiers/s
 TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idcommandicon, "textures/icons/identifiers/command", 3);
 TVAR(IDF_PERSIST|IDF_GAMEPRELOAD, idaliasicon, "textures/icons/identifiers/alias", 3);
 
+static const int COLOR_WHITE = 0xFFFFFF;
+static const std::string COLOR_A = "\fa";
+static const std::string COLOR_G = "\fg";
+static const std::string COLOR_W = "\fw";
+static const char LINE_BREAK = '\n';
+
 void remove_trailing_zeros(std::string& s)
 {
     s.erase(s.find_last_not_of('0') + 1, std::string::npos);
@@ -66,12 +72,7 @@ CommandCompletionEntry::CommandCompletionEntry(ident id, int completion_length)
 {
     this->id = id;
     this->completion_length = completion_length;
-  
-    static const std::string COLOR_A = "\fa";
-    static const std::string COLOR_G = "\fg";
-    static const std::string COLOR_W = "\fw";
-    static const char LINE_BREAK = '\n';
-
+    
     /// TITLE ///
     /////////////
     title_string = COLOR_G + id.name;
@@ -263,7 +264,7 @@ std::string CommandCompletionEntry::get_ident_flags_text()
 
 int CommandCompletionEntry::get_icon_color()
 {
-    return 0xFFFFFF;
+    return COLOR_WHITE;
 }
 
 std::string CommandCompletionEntry::get_icon()
@@ -494,3 +495,99 @@ void PlayerNameCompletion::select_entry(CompletionEntryBase* entry, Console& con
     PlayerNameCompletionEntry* name_entry = (PlayerNameCompletionEntry*)entry;
     console.insert_in_buffer(name_entry->name);
 }
+
+
+///////////////////////////
+/// MAP NAME COMPLETION ///
+///////////////////////////
+
+MapNameCompletionEntry::MapNameCompletionEntry(std::string name, std::string icon, int completion_length)
+{
+    title = COLOR_G + name;
+    title.insert(completion_length + 2, COLOR_W);
+
+    this->name = name;
+    this->icon = icon;
+}
+
+int MapNameCompletionEntry::get_icon_color()
+{
+    return COLOR_WHITE;
+}
+
+std::string MapNameCompletionEntry::get_icon()
+{
+    return icon;
+}
+
+std::string MapNameCompletionEntry::get_title()
+{
+    return title;
+}
+
+std::string MapNameCompletionEntry::get_description()
+{
+    return "";
+}
+
+bool MapNameCompletion::can_complete(Console& console)
+{
+    const std::string buffer = console.get_buffer();
+    return buffer.find(prefix) != std::string::npos;
+}
+
+std::vector<CompletionEntryBase*> MapNameCompletion::get_completions(const std::string buffer)
+{
+    std::vector<CompletionEntryBase*> results;
+   
+    size_t prefix_pos = buffer.rfind(prefix);
+    // this shouldn't be necessary, but for now I'll leave it in
+    if (prefix_pos == std::string::npos)
+    {
+        return results;
+    }
+
+    std::string map_name = buffer.substr(prefix_pos + 2, -1);
+
+    vector<char *> files;
+    listfiles("maps", "mpz", files);
+
+    for (int i = 0; i < files.length(); i++)
+    {
+        std::string m = files[i];
+        if (m.size() < map_name.size())
+        {
+            continue;
+        }
+
+        bool fits = std::string(m).find(map_name) == 0;
+        if (fits)
+        {
+            results.push_back(new MapNameCompletionEntry(m, "", map_name.length()));
+           
+            // Don't collect more than 50 entries
+            if (results.size() >= 50)
+            {
+                return results;
+            }
+        }
+    }
+
+    return results;
+}
+
+void MapNameCompletion::select_entry(CompletionEntryBase* entry, Console& console)
+{
+    const std::string buffer = console.get_buffer();
+    size_t prefix_pos = buffer.rfind(prefix);
+    
+    if (prefix_pos == std::string::npos)
+    {
+        return;
+    }
+
+    console.set_buffer(buffer.substr(0, prefix_pos));
+    MapNameCompletionEntry* map_entry = (MapNameCompletionEntry*)entry;
+    console.insert_in_buffer(map_entry->name);
+}
+
