@@ -89,6 +89,7 @@ private:
     bool scroll_info_outdated = false; 
     int num_linebreaks = 0;
     int unseen_messages = 0;
+    int max_num_entries = 1000;
 
     void calculate_wordwrap(ConsoleLine& line);
     void calculate_all_wordwraps();
@@ -105,7 +106,7 @@ public:
     //TODO: replace std::pair with smth more fitting
     std::pair<int, int> get_relative_line_info(int n, int hist_idx, int line_idx);
 
-
+    void set_max_entries(const int entries);
     int get_scroll_pos();
     void reset_scroll();
     std::array<int, 2> get_scroll_info();
@@ -152,6 +153,8 @@ private:
 public:
     Console();
 
+    std::map<const int, std::array<short, 3>> type_fade_times; 
+
     enum
     {
         MODE_NONE =    0,
@@ -163,7 +166,7 @@ public:
 
     // constants
     const int get_page_size();
-    const char command_prefix = ':';
+    const char command_prefix = '/';
     const char playername_prefix = '@';
     const int max_buffer_len = 4096;
 

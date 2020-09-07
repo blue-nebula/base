@@ -1,5 +1,6 @@
 #include <vector>
 #include "game.h"
+#include <algorithm>
 
 namespace hud
 {
@@ -1818,8 +1819,10 @@ namespace hud
         int tz = 0;
 
         pushfont("console");
-        // I've found out that / 30 seems to work best
+        
+        // dims.w / 30 seems to work best
         new_console.set_max_line_width(dims.w / 30);
+
         pos.x += 10;
         int max_lines_drawn = full ? consize + conoverflow : consize;
 
@@ -1827,141 +1830,149 @@ namespace hud
         const int height_mainview = int(FONTH / 2) + FONTH * max_lines_drawn;
         
         History& hist = full ? new_console.curr_hist() : new_console.preview_history;
-
-        //TODO: remove the entire if (true) thing
-        if (true)
+ 
+        // draw main view background only if full
+        if (full)
         {
-            // draw main view background only if full
-            if (full)
-            {
-                gle::colorf(.1f, .1f, .1f, .95f);
-                draw_rect(vec2(0, pos.y), vec2(pos.x + dims.w, height_mainview), false);
-            }
-
-            pushhudscale(conscale);
-            ivec2 text_pos = ivec2(
-                    int(pos.x / conscale),
-                    int(pos.y / conscale));
-            int text_scale = int(s / conscale);
-            int text_r = concenter ? text_pos.x + text_scale / 2 : text_pos.x;
-            tz = int(tz / conscale);
-
-            int histlen = hist.get_num_lines();
-            int histpos = hist.get_scroll_pos();
-
-            // only draw scrollbar when in full-mode, otherwise it's not relevant
-            if (full)
-            {
-                draw_scrollbar(vec2(0, pos.y), 
-                        vec2(18, height_mainview), 
-                        max_lines_drawn, 
-                        std::max((histlen - histpos) - max_lines_drawn, 0), 
-                        histlen);
-            }
-            else
-            {
-                if (new_console.unseen_error_messages > 0)
-                {
-                    tz += draw_textf("\fr%d Unseen error messages", pos.x, pos.y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, 100 * FONTW, 1, new_console.unseen_error_messages);
-                }
-            }
-
-            int max_drawable_lines = std::min(max_lines_drawn, histlen);
-            tz += FONTH * (max_drawable_lines - 1);
-
-            int lines_drawn = 0;
-            int hist_idx = 0;
-            int line_idx = -1;
-
-            if (full)
-            {
-                // when the console is in full mode, you can scroll
-                std::array<int, 2> scroll_info = hist.get_scroll_info();
-                hist_idx = scroll_info[0];
-                line_idx = scroll_info[1];
-            }
-
-            while (lines_drawn < max_drawable_lines)
-            {
-                const std::pair<int, int> line_info = hist.get_relative_line_info(lines_drawn, hist_idx, line_idx);
-                
-                ConsoleLine& line = hist.h[line_info.first];
-
-                if (line_info.first > (int(hist.h.size()) - 1))
-                {
-                    printf("Breaking apaaaaaaaaart, fix pls pls pls pls\n");
-                    printf("[%d, %d], %d, %d, %d, %d", line_info.first, line_info.second, full, lines_drawn, max_drawable_lines, new_console.selected_hist);
-                    break;
-                }
-
-                if (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1))
-                {
-                    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH\n");
-                    break;
-                }
-
-                // draw line background
-                if (full)
-                {
-                    new_console.see_line(line);
-  
-                    // draw the line background color if there is any specified
-                    if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
-                    {
-                        std::array<float, 4> color = hist.type_background_colors[line.type];
-                        
-                        gle::colorf(color[0], color[1], color[2], color[3]);
-                        draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
-                    }
-                }
-                int max_time = 60;
-                float a = 1;
-                if (!full)
-                {
-                    line.out_time = totalmillis - line.reftime;
-                    switch (line.type)
-                    {
-                        case CON_GAME:
-                        case CON_INFO:
-                            max_time = 3;
-                            break;
-                        case CON_FRAG:
-                            max_time = 4;
-                            break;
-                        case CON_SELF:
-                            max_time = 5;
-                            break;
-                        case CON_GAME_INFO:
-                            max_time = 10;
-                            break;
-                    }
-                    if (line.type != CON_CHAT)
-                    {
-                        a = 1 - (line.out_time / float(max_time * 1000));
-                    }
-                }
-
-
-                // draw line
-                tz -= draw_textf("%s", text_r, text_pos.y + tz, 0, 0, 255, 255, 255, int(fade * a * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
-                    line.lines[line_info.second].c_str());
-                lines_drawn++;
-
-                if (!full)
-                {
-                    // convert max_time into milliseconds
-                    max_time *= 1000;
-                    
-                    if (line.out_time >= max_time)
-                    {
-                        hist.remove(line_info.first);
-                    }
-                }
-            }
-
-            pophudmatrix();
-            tz = int(tz * conscale);
+            gle::colorf(.1f, .1f, .1f, .95f);
+            draw_rect(vec2(0, pos.y), vec2(pos.x + dims.w, height_mainview), false);
         }
+
+        pushhudscale(conscale);
+        ivec2 text_pos = ivec2(
+                int(pos.x / conscale),
+                int(pos.y / conscale));
+        int text_scale = int(s / conscale);
+        int text_r = concenter ? text_pos.x + text_scale / 2 : text_pos.x;
+        tz = int(tz / conscale);
+
+        int histlen = hist.get_num_lines();
+        int histpos = hist.get_scroll_pos();
+
+        // only draw scrollbar when in full-mode, otherwise it's not relevant
+        if (full)
+        {
+            draw_scrollbar(vec2(0, pos.y), 
+                    vec2(18, height_mainview), 
+                    max_lines_drawn, 
+                    std::max((histlen - histpos) - max_lines_drawn, 0), 
+                    histlen);
+        }
+        else
+        {
+            if (new_console.unseen_error_messages > 0)
+            {
+                tz += draw_textf("\fr%d Unseen error messages", pos.x, pos.y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, 100 * FONTW, 1, new_console.unseen_error_messages);
+            }
+        }
+
+        //////////////////
+        /// DRAW LINES ///
+        //////////////////
+
+        int hist_idx = 0;
+        int line_idx = -1;
+        if (full)
+        {
+            // when the console is in full mode, you can scroll
+            std::array<int, 2> scroll_info = hist.get_scroll_info();
+            hist_idx = scroll_info[0];
+            line_idx = scroll_info[1];
+        }
+
+        const int max_drawable_lines = std::min(max_lines_drawn, histlen);
+        // we're drawing from bottom to top, thus move the "draw head" to the lowest position we'll get
+        tz += FONTH * (max_drawable_lines - 1);
+
+        
+
+        int lines_drawn = 0;
+        while (lines_drawn < max_drawable_lines)
+        {
+            const std::pair<int, int> line_info = hist.get_relative_line_info(lines_drawn, hist_idx, line_idx); 
+            ConsoleLine& line = hist.h[line_info.first];
+
+            if (line_info.first > (int(hist.h.size()) - 1))
+            {
+                printf("Breaking apaaaaaaaaart, fix pls pls pls pls\n");
+                printf("[%d, %d], %d, %d, %d, %d", line_info.first, line_info.second, full, lines_drawn, max_drawable_lines, new_console.selected_hist);
+                break;
+            }
+
+            if (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1))
+            {
+                printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH\n");
+                break;
+            }
+
+            // draw line background
+            if (full)
+            {
+                new_console.see_line(line);
+
+                // draw the line background color if there is any specified
+                if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
+                {
+                    std::array<float, 4> color = hist.type_background_colors[line.type];
+                    
+                    gle::colorf(color[0], color[1], color[2], color[3]);
+                    draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
+                }
+            }
+
+            float max_time = 1000;
+            float alpha = 1;
+            float offset = 0;
+            if (!full)
+            {
+                short fade_in_time = 250;
+                short wait_time = 3000;
+                short fade_out_time = 250;
+
+                if (new_console.type_fade_times.find(line.type) != new_console.type_fade_times.end())
+                {
+                    const std::array<short, 3> fade_times = new_console.type_fade_times[line.type];
+
+                    // if any of the values is smaller than 0, use the default
+                    fade_in_time = fade_times[0] >= 0 ? fade_times[0] : fade_in_time;
+                    wait_time = fade_times[0] ? fade_times[1] : wait_time;
+                    fade_out_time = fade_times[2] >= 0 ? fade_times[2] : fade_out_time;
+                }
+
+                line.out_time = totalmillis - line.reftime;
+                max_time = fade_in_time + wait_time + fade_out_time; 
+               
+                if (line.out_time >= 0 && line.out_time < fade_in_time)
+                {
+                    // fade in
+                    alpha = line.out_time / float(fade_in_time); 
+                    offset = FONTH * (alpha - 1);
+                }
+                else if (line.out_time >= wait_time + fade_in_time)
+                {
+                    // fade out
+                    alpha = 1 - ((line.out_time - (wait_time + fade_in_time)) / float(fade_out_time));
+                    offset = FONTH * (alpha - 1);
+                }
+
+            }
+
+            // draw the line
+            tz -= draw_textf("%s", text_r, text_pos.y + tz + offset, 0, 0, 255, 255, 255, int(fade * alpha * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
+                line.lines[line_info.second].c_str());
+
+            if (!full)
+            { 
+                if (line.out_time >= max_time)
+                {
+                    hist.remove(line_info.first);
+                }
+            }
+            lines_drawn++;
+        }
+
+        pophudmatrix();
+        tz = int(tz * conscale);
         
         if (new_console.is_open())
         {
@@ -2046,7 +2057,7 @@ namespace hud
             //////////////
 
             std::string info_bar_text = new_console.get_info_bar_text();
-            pos_y += 15;
+            pos_y += 15; 
 
             if (!info_bar_text.empty())
             {
@@ -2066,87 +2077,12 @@ namespace hud
             ////////////////
 
             const std::vector<CompletionEntryBase*> curr_completions = new_console.get_curr_completions();
-            int num_shown_completions = std::min(int(curr_completions.size()), 10);
            
             // don't draw anything if there aren't any completions
             if (int(curr_completions.size()) > 0)
             {
                 pushfont("console");
                 
-
-                /*
-                int show_description_for = new_console.get_completion_scroll_pos() == -1 ? 0 : new_console.get_completion_scroll_pos();
-
-                const int max_width = text_t - text_q + text_r;
-
-                // iterate through the lines once before to get the complete height and max line width
-                vec2 completion_box_dimensions = vec2(0, 0);
-                vec2 description_dimensions = vec2(0, 0);
-
-                for (int i = 0; i < num_shown_completions; i++)
-                {
-                    CompletionEntryBase* completion = curr_completions[i];
-
-                    float cw = 0;
-                    float ch = 0;
-
-                    text_boundsf(completion->get_title().c_str(), cw, ch, 0, 0, max_width, 0, 1);
-
-                    completion_box_dimensions.h += ch;
-                    completion_box_dimensions.w = std::max(completion_box_dimensions.w, cw);
-
-                    if (show_description_for == i)
-                    {
-                        std::string completion_text = completion->get_description();
-                        if (!completion_text.empty())
-                        {
-                            pushfont("little");
-                            text_boundsf(completion_text.c_str(), cw, ch, 0, 0, max_width, 0, 1);
-                            
-                            description_dimensions = vec2(cw,  ch);
-                            completion_box_dimensions.h += ch + 5;
-                            completion_box_dimensions.w = std::max(completion_box_dimensions.w, cw);
-
-                            popfont();
-                        }
-                        else
-                        {
-                            show_description_for = -1;
-                        }
-                    }
-                }
-                completion_box_dimensions.add(vec2(5, 5));
-                description_dimensions.w = completion_box_dimensions.w;
-
-                // actually draw the completion box
-                gle::colorf(.3f, .3f, .3f, .95f);
-                draw_rect(vec2(text_q + text_r - 5, pos_y), completion_box_dimensions, false); 
-                
-                for (int i = 0; i < num_shown_completions; i++)
-                {
-                    CompletionEntryBase* completion = curr_completions[i];
-                    
-                    if (i == new_console.get_completion_scroll_pos())
-                    {
-                        gle::colorf(.4f, .4f, .4f, .95f);
-                        draw_rect(vec2(text_q + text_r - 5, pos_y), vec2(completion_box_dimensions.w, FONTH), false); 
-                    }
-
-                    pos_y += draw_textf(completion->get_title().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
-
-                    if (show_description_for == i)
-                    {
-                        pushfont("little");
-                        
-                        gle::colorf(.1f, .1f, .1f, .95f);
-                        draw_rect(vec2(text_q + text_r - 5, pos_y), description_dimensions, false);
-                        
-                        pos_y += draw_textf(completion->get_description().c_str(), text_q + text_r, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_t, 1);
-                        pos_y += 5;
-                        
-                        popfont();
-                    }
-                }*/
                 static const int completion_icon_width = 32;
                 const int max_width = text_t - text_q + text_r;
                 const int completion_text_x = text_q + text_r;
@@ -2162,9 +2098,11 @@ namespace hud
                 for (int i = 0; i < int(curr_completions.size()); i++)
                 {
                     CompletionEntryBase* completion = curr_completions[i];
-
+                    
+                    // text_boundsf will modify these values
                     float cw = 0;
                     float ch = 0;
+                    
                     text_boundsf(completion->get_title().c_str(), cw, ch, 0, 0, max_width, 0, 1);
                     
                     const std::string completion_icon = completion->get_icon();

@@ -245,12 +245,17 @@ std::pair<int, int> History::get_relative_line_info(int n, int hist_idx, int lin
     return std::make_pair(hist_idx, line_idx);
 }
 
+void History::set_max_entries(const int entries)
+{
+    max_num_entries = entries;
+}
+
 void History::save(ConsoleLine& line)
 {
     calculate_wordwrap(line);
     num_linebreaks += line.get_num_lines();
 
-    if (int(h.size()) > 1000)
+    if (int(h.size()) > max_num_entries)
     {
         num_linebreaks -= h.back().get_num_lines();
         h.pop_back();
@@ -321,10 +326,27 @@ void History::calculate_all_wordwraps()
 
 Console::Console()
 {
+    chat_history.set_max_entries(1000);
+    console_history.set_max_entries(1000);
+    //TODO: make preview_history max size dynamic
+    preview_history.set_max_entries(7);
+    
     chat_history.type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
     chat_history.type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
 
     console_history.type_background_colors[CON_DEBUG_ERROR] = { .8f, .1f, .1f, .8f };
+
+    // in milliseconds, < 0 means use default (defined in hud.cpp)
+    /*                                 fade in | wait | fade out            */
+    type_fade_times[CON_CHAT] =         std::array<short, 3>{ -1, 5000, -1 };
+    type_fade_times[CON_CHAT_TEAM] =    std::array<short, 3>{ -1, 5000, -1 };
+    type_fade_times[CON_CHAT_WHISPER] = std::array<short, 3>{ -1, 5000, -1 };
+    type_fade_times[CON_GAME] =         std::array<short, 3>{ -1, 2000, -1 };
+    type_fade_times[CON_INFO] =         std::array<short, 3>{ -1, 2000, -1 };
+    type_fade_times[CON_FRAG] =         std::array<short, 3>{ -1, 3000, -1 };
+    type_fade_times[CON_SELF] =         std::array<short, 3>{ -1, 4000, -1 };
+    type_fade_times[CON_GAME_INFO] =    std::array<short, 3>{ -1, 9000, -1 };
+    
 
     register_completion(new PlayerNameCompletion());
     register_completion(new CommandCompletion());
