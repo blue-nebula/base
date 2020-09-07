@@ -947,7 +947,7 @@ int draw_textf(const char *fstr, int left, int top, int xpad, int ypad, int r, i
 // the linebreak should be
 std::vector<std::pair<int, std::string>> get_text_wraps(const char* str, const int mwidth)
 {
-    const int maxwidth = mwidth * FONTW;
+    const int maxwidth = mwidth;
     static const int flags = 0;
     const int linespace = textlinespacing;
     const int realwidth = 0;

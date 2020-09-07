@@ -1817,13 +1817,10 @@ namespace hud
         }
 
         const bool full = fullconsole || new_console.is_open();
-        int tz = 0;
+        int tz = 0;   
 
         pushfont("console");
         
-        // dims.w / 30 seems to work best
-        new_console.set_max_line_width(dims.w / 30);
-
         pos.x += 10;
         const int num_console_lines = full ? consize + conoverflow : consize;
 
@@ -1846,6 +1843,8 @@ namespace hud
         int text_scale = int(s / conscale);
         int text_r = concenter ? text_pos.x + text_scale / 2 : text_pos.x;
         tz = int(tz / conscale);
+
+        new_console.set_max_line_width(text_scale);
 
         int histlen = hist.get_num_lines();
         int histpos = hist.get_scroll_pos();
@@ -2026,7 +2025,7 @@ namespace hud
             int text_scale = int(s / commandscale);
             int text_q = (concenter ? text_pos.x + text_scale / 2 - FONTW * 3 : text_pos.x);
             int text_r = int(text_dims.x + FONTW);
-            int text_t = text_scale - (FONTH + FONTW);
+            const int text_t = text_scale - (FONTH + FONTW);
             tz = int(tz / commandscale);
 
             const int text_padding_y = 10;

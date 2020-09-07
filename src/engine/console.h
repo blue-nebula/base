@@ -82,7 +82,7 @@ struct ConsoleLine
 class History
 {
 private:
-    int line_width = 1000;
+    int line_width = 0;
     int scroll_pos = 0;
     int scroll_info_hist_idx = 0;
     int scroll_info_line_idx = 0;

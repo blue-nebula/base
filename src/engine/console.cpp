@@ -116,6 +116,7 @@ void History::set_line_width(int w)
 {
     int prev_line_width = line_width;
 
+    line_width = w;
 
     if (line_width != prev_line_width)
     {
@@ -165,8 +166,8 @@ bool History::scroll(const int lines)
         recalc_scroll_info();
     
         // recalc the number of unseen messages
-        unseen_messages = 0;
-        for (int i = 0; i < scroll_pos; i++)
+        unseen_messages = 0; 
+        for (int i = 0; i < scroll_info_hist_idx; i++)
         {
             if (h[i].seen == false)
             {
@@ -254,9 +255,10 @@ void History::save(ConsoleLine& line)
 {
     calculate_wordwrap(line);
     num_linebreaks += line.get_num_lines();
-
+    //TODO: call remove instead of doing it the same way again
     if (int(h.size()) > max_num_entries)
     {
+        printf("Remove shit\n");
         num_linebreaks -= h.back().get_num_lines();
         h.pop_back();
     }
@@ -290,11 +292,15 @@ void History::clear()
 
 void History::calculate_wordwrap(ConsoleLine& line)
 {
+    int len = line.lines.size();
     line.lines.clear();
-   
+
     if (curfont != nullptr)
     {
+        // works best when using fontsize default
+        pushfont("default");
         std::vector<std::pair<int, std::string>> wraps = get_text_wraps(line.text.c_str(), line_width);
+        popfont();
 
         int prev_pos = 0;
         for (const auto& wrap : wraps)
@@ -306,7 +312,7 @@ void History::calculate_wordwrap(ConsoleLine& line)
             line.lines.push_back(text);
             prev_pos += wrap.first - prev_pos;
         }
-    }
+    } 
     
     if (int(line.lines.size()) == 0)
     {
@@ -316,11 +322,14 @@ void History::calculate_wordwrap(ConsoleLine& line)
 
 void History::calculate_all_wordwraps()
 {
+    num_linebreaks = 0;
     //TODO: measure time
-    for (auto& line : h)
+    for (int i = 0; i < int(h.size()); i++)
     {
+        ConsoleLine line = h[i];
         calculate_wordwrap(line);
         num_linebreaks += line.get_num_lines();
+        h[i] = line;
     }
 }
 
@@ -376,6 +385,7 @@ History& Console::curr_hist()
         case HIST_CONSOLE:
             return console_history;
     }
+    return chat_history;
 }
 
 // is called whenever buffer changes
@@ -440,6 +450,7 @@ void Console::set_max_line_width(int w)
 {
     chat_history.set_line_width(w);
     console_history.set_line_width(w);
+    preview_history.set_line_width(w);
 }
 
 std::string Console::get_buffer()
@@ -676,9 +687,9 @@ void Console::set_input(std::string init, int action, std::string icon)
     curr_icon = icon;
 }
 
-ICOMMAND(0, saycommand, "C", (char *init), inputcommand(init, SAY_NONE, "textures/chat"));
+ICOMMAND(0, saycommand, "C", (char *init), inputcommand(init, SAY_NONE));
 ICOMMAND(0, inputcommand, "sisis", (char *init, int* action, char *icon, int *colour, char *flags), inputcommand(init, *action, icon, *colour, flags));
-ICOMMAND(0, saytextcommand, "C", (char* init), inputcommand(init, SAY_NONE, "textures/chat"));
+ICOMMAND(0, saytextcommand, "C", (char* init), inputcommand(init, SAY_NONE));
 ICOMMAND(0, sayteamcommand, "C", (char* init), inputcommand(init, SAY_TEAM));
 
 bool paste(char *buf, size_t len)
