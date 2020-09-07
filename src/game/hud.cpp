@@ -1946,15 +1946,18 @@ namespace hud
                 {
                     // fade in
                     alpha = line.out_time / float(fade_in_time); 
+                    // (alpha - 1) makes it so it transitions between -1 and 0, thus moving from the line above to it's intended
+                    // place
                     offset = FONTH * (alpha - 1);
                 }
                 else if (line.out_time >= wait_time + fade_in_time)
                 {
                     // fade out
                     alpha = 1 - ((line.out_time - (wait_time + fade_in_time)) / float(fade_out_time));
+                    // (alpha - 1) makes it so it transitions between 0 and -1, thus moving from it's intended place
+                    // to the line above
                     offset = FONTH * (alpha - 1);
                 }
-
             }
 
             // draw the line
