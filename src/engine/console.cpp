@@ -292,7 +292,6 @@ void History::clear()
 
 void History::calculate_wordwrap(ConsoleLine& line)
 {
-    int len = line.lines.size();
     line.lines.clear();
 
     if (curfont != nullptr)
@@ -570,7 +569,10 @@ void Console::close_console()
 
 void Console::insert_in_buffer(const std::string text)
 {
-    int maxlen = std::min(client::maxmsglen(), max_buffer_len);
+    // client::maxmsglen() - "^f[0x000000]".length(), because
+    // when sending we will append the saytextcolour to the beginning,
+    // if we don't account for that the message will be cut short
+    int maxlen = std::min(client::maxmsglen() - 13, max_buffer_len);
 
     int remaining_space = maxlen - int(buffer.length());
     int insert_len = std::min(int(text.length()), remaining_space);

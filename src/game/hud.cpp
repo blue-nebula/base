@@ -1890,16 +1890,10 @@ namespace hud
             const std::pair<int, int> line_info = hist.get_relative_line_info(lines_drawn, hist_idx, line_idx); 
             ConsoleLine& line = hist.h[line_info.first];
 
-            if (line_info.first > (int(hist.h.size()) - 1))
+            if ((line_info.first > (int(hist.h.size()) - 1))
+                || (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1)))
             {
-                printf("Breaking apaaaaaaaaart, fix pls pls pls pls\n");
-                printf("[%d, %d], %d, %d, %d, %d", line_info.first, line_info.second, full, lines_drawn, max_drawable_lines, new_console.selected_hist);
-                break;
-            }
-
-            if (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1))
-            {
-                printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH\n");
+                printf("Warning: fix this, no need to hurry tho, I caught the error and prevented the crash, you're welcome :)\n");
                 break;
             }
 
@@ -1918,7 +1912,7 @@ namespace hud
                 }
             }
 
-            float max_time = 1000;
+            short max_time = 1000;
             float alpha = 1;
             float offset = 0;
             if (!full)

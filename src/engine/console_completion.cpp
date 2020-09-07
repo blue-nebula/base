@@ -357,7 +357,7 @@ std::vector<CompletionEntryBase*> CommandCompletion::get_completions(const std::
 
             if (int(results.size()) >= 50)
             {
-                printf("Break\n");
+                // can't just return results because it has to be sorted first
                 stop = true;
                 break;
             }
