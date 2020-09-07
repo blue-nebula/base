@@ -1800,10 +1800,12 @@ namespace hud
 
         int scrollbar_y = int((value / max_val) * dims.h);
 
-        gle::colorf(.1f, .1f, .1f, .95f);
+        // draw scrollbar background
+        gle::color(vec::hexcolor(0x23283D), .95f);
         draw_rect(pos, dims, false);
 
-        gle::colorf(.5f, .5f, 1.f, .95f);
+        // draw scrollbar handle
+        gle::color(vec::hexcolor(0x233EAD), .95f);
         draw_rect(vec2(pos.x, pos.y + scrollbar_y), vec2(dims.w, scrollbar_height), false);
     }
 
@@ -1824,10 +1826,10 @@ namespace hud
         new_console.set_max_line_width(dims.w / 30);
 
         pos.x += 10;
-        int max_lines_drawn = full ? consize + conoverflow : consize;
+        const int num_console_lines = full ? consize + conoverflow : consize;
 
         int pos_y = pos.y;
-        const int height_mainview = int(FONTH / 2) + FONTH * max_lines_drawn;
+        const int height_mainview = int(FONTH / 2) + FONTH * num_console_lines;
         
         History& hist = full ? new_console.curr_hist() : new_console.preview_history;
  
@@ -1854,8 +1856,8 @@ namespace hud
         {
             draw_scrollbar(vec2(0, pos.y), 
                     vec2(18, height_mainview), 
-                    max_lines_drawn, 
-                    std::max((histlen - histpos) - max_lines_drawn, 0), 
+                    num_console_lines, 
+                    std::max((histlen - histpos) - num_console_lines, 0), 
                     histlen);
         }
         else
@@ -1880,11 +1882,9 @@ namespace hud
             line_idx = scroll_info[1];
         }
 
-        const int max_drawable_lines = std::min(max_lines_drawn, histlen);
+        const int max_drawable_lines = std::min(num_console_lines, histlen);
         // we're drawing from bottom to top, thus move the "draw head" to the lowest position we'll get
         tz += FONTH * (max_drawable_lines - 1);
-
-        
 
         int lines_drawn = 0;
         while (lines_drawn < max_drawable_lines)
@@ -1984,7 +1984,7 @@ namespace hud
             /////////////
             pos_y += height_mainview;
             
-            gle::colorf(.5f, .5f, .5f, .9f);
+            gle::color(vec::hexcolor(0x2D323D), .9f);
             draw_rect(vec2(0, pos_y), vec2(dims.w + pos.x, FONTH), false);
 
             static const std::string console_tabs[2] = { "\fgChat", "\frConsole" };
@@ -2015,10 +2015,6 @@ namespace hud
 
             Texture* t = textureload(new_console.get_icon().c_str(), 3);
 
-            vec c(1, 1, 1);
-            int icon_color = new_console.get_icon_color();
-            c = vec::hexcolor(icon_color);
-            
             float f = float(totalmillis % 1000) / 1000.f;
             if (f < 0.5f)
             {
@@ -2039,18 +2035,15 @@ namespace hud
             // draw the background
             gle::colorf(.05f, .05f, .05f, 1.f);
             draw_rect(vec2(0, pos_y), vec2(pos.x + dims.w, text_padding_y * 2 + FONTH), false);
-
+ 
             // draw the icon
             glBindTexture(GL_TEXTURE_2D, t->id);
-            gle::color(c, fullconblend * fade * f);
+            gle::color(vec::hexcolor(new_console.get_icon_color()), fullconblend * fade * f);
             drawtexture(text_pos.x, pos_y + text_padding_y, text_dims.y, text_dims.x);
-            
-            const int input_color_r = (new_console.get_say_text_color() >> 16) & 0xFF;
-            const int input_color_g = (new_console.get_say_text_color() >> 8) & 0xFF;
-            const int input_color_b = new_console.get_say_text_color() & 0xFF;
-
+          
+            const ivec input_color = ivec::fromcolor(new_console.get_say_text_color()); 
             // draw the input
-            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, input_color_r, input_color_g, input_color_b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, new_console.get_cursor_pos(), text_t, 1,
+            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, input_color.r, input_color.g, input_color.b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, new_console.get_cursor_pos(), text_t, 1,
                     new_console.get_buffer().c_str());
                 
             popfont();
@@ -2090,7 +2083,6 @@ namespace hud
                 const int max_width = text_t - text_q + text_r;
                 const int completion_text_x = text_q + text_r;
                 const int completion_box_x = completion_text_x - 5;
-
                 const int scrollbar_start_y = pos_y;
 
                 float completion_box_width = 0;
@@ -2127,16 +2119,14 @@ namespace hud
                 for (int i = scroll_pos; i < max_pos; i++)
                 {
                     CompletionEntryBase* completion = curr_completions[i]; 
-                    if (i == selection)
-                    {
-                        gle::colorf(.2f, .2f, .6f, .95f);
-                    }
-                    else
-                    {
-                        gle::colorf(.3f, .3f, .3f, .95f);
-                    }
+                    
+                    // draw background 
+                    const int color = i == selection ? 0x1855C7 : 0x2D323D;
+                    gle::color(vec::hexcolor(color), .95f);
+                    
                     draw_rect(vec2(completion_box_x, pos_y), vec2(completion_box_width, FONTH), false);
-              
+                    
+                    // draw icon if there is one
                     const std::string completion_icon = completion->get_icon();
                     int icon_width = 0;
                     if (!completion_icon.empty())
@@ -2148,6 +2138,7 @@ namespace hud
                         icon_width = completion_icon_width;
                     }
 
+                    // draw the text
                     pos_y += draw_textf(completion->get_title().c_str(), completion_text_x + icon_width + 5, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, max_width, 1);
                 
                 }
@@ -2160,6 +2151,7 @@ namespace hud
                                 vec2(18, pos_y - scrollbar_start_y), max_lines, scroll_pos, int(curr_completions.size()));
                 }
 
+                // draw the description
                 CompletionEntryBase* completion = curr_completions[selection];
 
                 if (completion != nullptr)
@@ -2168,7 +2160,7 @@ namespace hud
                     {
                         pushfont("little");
 
-                        gle::colorf(.1f, .1f, .1f, .95f);
+                        gle::color(vec::hexcolor(0x1E2B42), .95f);
                         vec2 desc_dims = vec2(0, 0);
                         text_boundsf(completion->get_description().c_str(), desc_dims.w, desc_dims.h, 0, 0, max_width, 0, 1);
                         desc_dims.w = std::max(desc_dims.w + 5, completion_box_width); 
