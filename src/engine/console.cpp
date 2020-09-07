@@ -334,15 +334,20 @@ void History::calculate_all_wordwraps()
 
 Console::Console()
 {
-    chat_history.set_max_entries(1000);
-    console_history.set_max_entries(1000);
-    //TODO: make preview_history max size dynamic
-    preview_history.set_max_entries(7);
-    
-    chat_history.type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
-    chat_history.type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
+    histories[HIST_CHAT] = History();
+    histories[HIST_CONSOLE] = History();
+    histories[HIST_PREVIEW] = History();
 
-    console_history.type_background_colors[CON_DEBUG_ERROR] = { .8f, .1f, .1f, .8f };
+    histories[HIST_CHAT].set_max_entries(1000);
+    histories[HIST_CONSOLE].set_max_entries(1000);
+    histories[HIST_PREVIEW].set_max_entries(7);
+
+    //TODO: make preview_history max size dynamic
+    
+    histories[HIST_CHAT].type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
+    histories[HIST_CHAT].type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
+
+    histories[HIST_CONSOLE].type_background_colors[CON_DEBUG_ERROR] = { .8f, .1f, .1f, .8f };
 
     // in milliseconds, < 0 means use default (defined in hud.cpp)
     /*                                 fade in | wait | fade out            */
@@ -377,14 +382,12 @@ int Console::get_say_text_color()
 
 History& Console::curr_hist()
 {
-    switch (selected_hist)
+    if (selected_hist < HIST_MAX && selected_hist >= 0)
     {
-        case HIST_CHAT:
-            return chat_history;
-        case HIST_CONSOLE:
-            return console_history;
+        return histories[selected_hist];
     }
-    return chat_history;
+    // fallback
+    return histories[HIST_CHAT];
 }
 
 // is called whenever buffer changes
@@ -447,9 +450,10 @@ bool Console::is_open()
 
 void Console::set_max_line_width(int w)
 {
-    chat_history.set_line_width(w);
-    console_history.set_line_width(w);
-    preview_history.set_line_width(w);
+    for (int i = 0; i < HIST_MAX; i++)
+    {
+        histories[i].set_line_width(w);
+    }
 }
 
 std::string Console::get_buffer()
@@ -501,12 +505,12 @@ void Console::print(int type, const std::string text)
         case CON_CHAT_WHISPER:
         case CON_SELF:
         case CON_GAME_INFO:
-            chat_history.save(line);
+            histories[HIST_CHAT].save(line);
             break;
         case CON_DEBUG_ERROR: /* FALLTHROUGH */
             unseen_error_messages++;
         default:
-            console_history.save(line);
+            histories[HIST_CONSOLE].save(line);
             break;
     }
 
@@ -520,7 +524,7 @@ void Console::print(int type, const std::string text)
         case CON_FRAG:
         case CON_GAME:
         case CON_GAME_INFO:
-            preview_history.save(line);
+            histories[HIST_PREVIEW].save(line);
             break;
     }
 }

@@ -195,9 +195,7 @@ public:
         HIST_MAX
     };
 
-    History chat_history;
-    History console_history;
-    History preview_history;
+    std::map<const int, History> histories;
 
     int selected_hist = HIST_CHAT;
     History& curr_hist();

@@ -1827,7 +1827,7 @@ namespace hud
         int pos_y = pos.y;
         const int height_mainview = int(FONTH / 2) + FONTH * num_console_lines;
         
-        History& hist = full ? new_console.curr_hist() : new_console.preview_history;
+        History& hist = full ? new_console.curr_hist() : new_console.histories[Console::HIST_PREVIEW];
  
         // draw main view background only if full
         if (full)

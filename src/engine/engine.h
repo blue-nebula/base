@@ -56,7 +56,7 @@ extern void setverinfo(const char *bin);
 #include "irc.h"
 #include "sound.h"
 
-enum { CON_DEBUG = 0, CON_DEBUG_ERROR, CON_MESG, CON_INFO, CON_SELF, CON_GAMESPECIFIC };
+enum { CON_DEBUG = 0, CON_DEBUG_ERROR, CON_INPUT, CON_MESG, CON_INFO, CON_SELF, CON_GAMESPECIFIC };
 
 enum { PACKAGEDIR_OCTA = 1<<0 };
 extern const char * const disc_reasons[];
