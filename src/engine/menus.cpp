@@ -192,10 +192,8 @@ bool showgui(const char *name, int tab, bool *keep)
     return true;
 }
 
-extern bool closetexgui();
 int cleargui(int n, bool skip)
 {
-    if(closetexgui()) n--;
     int clear = menustack.length();
     if(n>0) clear = min(clear, n);
     loopi(clear) if(!pop_ui(skip)) break;

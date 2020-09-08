@@ -688,7 +688,6 @@ extern char *ui_skin_texture, *ui_skin_border_texture, *ui_overlay_texture, *ui_
 
 extern void menu_progress();
 extern void menu_main();
-extern void menu_texture();
 extern bool menuactive();
 extern int cleargui(int n = 0, bool skip = true);
 
