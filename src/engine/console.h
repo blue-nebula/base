@@ -95,11 +95,17 @@ private:
     void calculate_all_wordwraps();
 
     void recalc_scroll_info();
+    std::vector<int> type_filter; 
 
 public:
+    History();
+    History(std::vector<int> type_filter);
+
     std::deque<ConsoleLine> h;
 
     std::map<const int, std::array<float, 4>> type_background_colors; 
+
+    bool accepts_type(int type);
 
     int get_num_lines();
     void set_line_width(int w);

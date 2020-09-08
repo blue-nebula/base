@@ -1901,17 +1901,27 @@ namespace hud
             if (full)
             {
                 new_console.see_line(line);
-
-                // draw the line background color if there is any specified
-                if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
+            }
+            
+            // draw the line background color if there is any specified
+            if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
+            {
+                std::array<float, 4> color = hist.type_background_colors[line.type];
+                
+                gle::colorf(color[0], color[1], color[2], color[3]);
+                
+                if (full)
                 {
-                    std::array<float, 4> color = hist.type_background_colors[line.type];
-                    
-                    gle::colorf(color[0], color[1], color[2], color[3]);
                     draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
                 }
+                else
+                {
+                    // only draw a small rectangle on the left side next to the text, so it doesn't
+                    // take up the entire length of the screen and distract from gameplay
+                    draw_rect(vec2(text_r, text_pos.y + tz), vec2(FONTW, FONTH), false);
+                }
             }
-
+            
             short max_time = 1000;
             float alpha = 1;
             float offset = 0;

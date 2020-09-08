@@ -97,6 +97,13 @@ void InputHistory::save(InputHistoryLine line)
     history.push_front(line);
 }
 
+History::History() {} 
+
+History::History(std::vector<int> type_filter)
+{
+    this->type_filter = type_filter;
+}
+
 int History::get_num_lines()
 {
     return num_linebreaks;
@@ -251,6 +258,11 @@ void History::set_max_entries(const int entries)
     max_num_entries = entries;
 }
 
+bool History::accepts_type(int type)
+{
+    return std::find(type_filter.begin(), type_filter.end(), type) != type_filter.end();
+}
+
 void History::save(ConsoleLine& line)
 {
     calculate_wordwrap(line);
@@ -334,26 +346,53 @@ void History::calculate_all_wordwraps()
 
 Console::Console()
 {
-    histories[HIST_CHAT] = History();
-    histories[HIST_CONSOLE] = History();
-    histories[HIST_PREVIEW] = History();
+    histories[HIST_CHAT] = History(std::vector<int>{
+            CON_CHAT, 
+            CON_CHAT_WHISPER, 
+            CON_CHAT_TEAM,
+            CON_SELF,
+            CON_INFO,
+            CON_GAME_INFO,
+        });
+    histories[HIST_CONSOLE] = History(std::vector<int>{
+            CON_DEBUG,
+            CON_DEBUG_ERROR,
+            CON_INPUT,
+            CON_MESG,
+            CON_EVENT,
+            CON_GAME,
+            CON_GAME_INFO,
+            CON_FRAG
+        });
+    histories[HIST_PREVIEW] = History(std::vector<int>{
+            CON_CHAT,
+            CON_CHAT_TEAM,
+            CON_CHAT_WHISPER,
+            CON_INFO,
+            CON_SELF,
+            CON_FRAG,
+            CON_GAME,
+            CON_GAME_INFO
+        });
 
     histories[HIST_CHAT].set_max_entries(1000);
     histories[HIST_CONSOLE].set_max_entries(1000);
+    //TODO: make preview history max size dynamic
     histories[HIST_PREVIEW].set_max_entries(7);
-
-    //TODO: make preview_history max size dynamic
-    
+ 
     histories[HIST_CHAT].type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
     histories[HIST_CHAT].type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
+
+    histories[HIST_PREVIEW].type_background_colors[CON_CHAT_WHISPER] = { .7f, .7f, .7f, .2f };
+    histories[HIST_PREVIEW].type_background_colors[CON_CHAT_TEAM] = { 0, 0, .1f, .8f };
 
     histories[HIST_CONSOLE].type_background_colors[CON_DEBUG_ERROR] = { .8f, .1f, .1f, .8f };
 
     // in milliseconds, < 0 means use default (defined in hud.cpp)
     /*                                 fade in | wait | fade out            */
-    type_fade_times[CON_CHAT] =         std::array<short, 3>{ -1, 5000, -1 };
-    type_fade_times[CON_CHAT_TEAM] =    std::array<short, 3>{ -1, 5000, -1 };
-    type_fade_times[CON_CHAT_WHISPER] = std::array<short, 3>{ -1, 5000, -1 };
+    type_fade_times[CON_CHAT] =         std::array<short, 3>{ -1, 7500, -1 };
+    type_fade_times[CON_CHAT_TEAM] =    std::array<short, 3>{ -1, 7500, -1 };
+    type_fade_times[CON_CHAT_WHISPER] = std::array<short, 3>{ -1, 7500, -1 };
     type_fade_times[CON_GAME] =         std::array<short, 3>{ -1, 2000, -1 };
     type_fade_times[CON_INFO] =         std::array<short, 3>{ -1, 2000, -1 };
     type_fade_times[CON_FRAG] =         std::array<short, 3>{ -1, 3000, -1 };
@@ -498,6 +537,15 @@ void Console::print(int type, const std::string text)
     line.real_time = clocktime;
 
     // filter
+    
+    for (int i = 0; i < HIST_MAX; i++)
+    {
+        if (histories[i].accepts_type(line.type))
+        {
+            histories[i].save(line);
+        }
+    }
+
     switch (line.type)
     {
         case CON_CHAT:
@@ -505,12 +553,12 @@ void Console::print(int type, const std::string text)
         case CON_CHAT_WHISPER:
         case CON_SELF:
         case CON_GAME_INFO:
-            histories[HIST_CHAT].save(line);
+            //histories[HIST_CHAT].save(line);
             break;
         case CON_DEBUG_ERROR: /* FALLTHROUGH */
             unseen_error_messages++;
         default:
-            histories[HIST_CONSOLE].save(line);
+           // histories[HIST_CONSOLE].save(line);
             break;
     }
 
@@ -524,7 +572,7 @@ void Console::print(int type, const std::string text)
         case CON_FRAG:
         case CON_GAME:
         case CON_GAME_INFO:
-            histories[HIST_PREVIEW].save(line);
+            //histories[HIST_PREVIEW].save(line);
             break;
     }
 }
