@@ -173,7 +173,6 @@ public:
     // constants
     const int get_page_size();
     const char command_prefix = '/';
-    const char playername_prefix = '@';
     const int max_buffer_len = 4096;
 
     // buffer

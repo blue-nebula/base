@@ -55,6 +55,8 @@ public:
 class PlayerNameCompletion : public CompletionEngineBase
 {
 private:
+    const char prefix = '@';
+
     int stick_to_buffer_pos = 0;
     virtual int stick_to_buffer_idx();
     virtual bool can_complete(Console& console);

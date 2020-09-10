@@ -443,7 +443,7 @@ int PlayerNameCompletion::stick_to_buffer_idx()
 bool PlayerNameCompletion::can_complete(Console& console)
 {
     const std::string buffer = console.get_buffer();
-    const size_t pos = buffer.find_last_of(console.playername_prefix);
+    const size_t pos = buffer.find_last_of(prefix);
     // add 1 so it doesn't stick to @ but to the character after that
     stick_to_buffer_pos = pos + 1;
     return pos != std::string::npos;
