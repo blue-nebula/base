@@ -109,9 +109,42 @@ int History::get_num_lines()
     return num_linebreaks;
 }
 
-int History::get_num_unseen_messages()
+int History::get_num_unread_messages()
 {
-    return unseen_messages;
+    return unread_messages;
+}
+
+void History::mark_all_read()
+{
+    int i = 0;
+    while (unread_messages > 0)
+    {
+        if (i < 0 || i > int(h.size()) - 1)
+        {
+            continue;
+        }
+        
+        if (!h[i].read)
+        {
+            read_message(i);
+        }
+        i++;
+    }
+}
+
+void History::read_message(int idx)
+{
+    if (idx < 0 || idx > int(h.size()) - 1)
+    {
+        // idx is out of bounds
+        return;
+    }
+
+    if (!h[idx].read)
+    {
+        h[idx].read = true;
+        unread_messages--;
+    }
 }
 
 std::array<int, 2> History::get_scroll_info()
@@ -172,8 +205,9 @@ bool History::scroll(const int lines)
     {
         recalc_scroll_info();
     
+        /*
         // recalc the number of unseen messages
-        unseen_messages = 0; 
+        unseen_messages = -1; 
         for (int i = 0; i < scroll_info_hist_idx; i++)
         {
             if (h[i].seen == false)
@@ -181,14 +215,21 @@ bool History::scroll(const int lines)
                 unseen_messages++;
             }
         }
+        */
     }
 
     return scrolled;
 }
 
-void History::remove(const int idx)
+void History::remove_message(const int idx)
 {
     num_linebreaks -= h[idx].get_num_lines();
+
+    if (h[idx].read == false)
+    {
+        unread_messages--;
+    }
+    
     h.erase(h.begin() + idx);
 }
 
@@ -253,9 +294,9 @@ std::pair<int, int> History::get_relative_line_info(int n, int hist_idx, int lin
     return std::make_pair(hist_idx, line_idx);
 }
 
-void History::set_max_entries(const int entries)
+void History::set_max_num_messages(const int max_messages)
 {
-    max_num_entries = entries;
+    max_num_messages = max_messages;
 }
 
 bool History::accepts_type(int type)
@@ -268,18 +309,22 @@ void History::save(ConsoleLine& line)
     calculate_wordwrap(line);
     num_linebreaks += line.get_num_lines();
     //TODO: call remove instead of doing it the same way again
-    if (int(h.size()) > max_num_entries)
+    if (int(h.size()) > max_num_messages)
     {
+        remove_message(h.size() - 1);
+        /*
         printf("Remove shit\n");
         num_linebreaks -= h.back().get_num_lines();
         h.pop_back();
+        */
     }
 
+    unread_messages++;
     h.push_front(line);
 
     if (scroll_pos > 0)
     {
-        h[0].seen = false;
+        h[0].read = false;
         missed_lines++;
     
         // scroll up by h[0].get_num_lines() to account for the lines shifting when
@@ -375,10 +420,10 @@ Console::Console()
             CON_GAME_INFO
         });
 
-    histories[HIST_CHAT].set_max_entries(1000);
-    histories[HIST_CONSOLE].set_max_entries(1000);
+    histories[HIST_CHAT].set_max_num_messages(1000);
+    histories[HIST_CONSOLE].set_max_num_messages(1000);
     //TODO: make preview history max size dynamic
-    histories[HIST_PREVIEW].set_max_entries(7);
+    histories[HIST_PREVIEW].set_max_num_messages(7);
  
     histories[HIST_CHAT].type_background_colors[CON_CHAT_WHISPER] = std::make_pair(0xB2B2B2, .2f);
     histories[HIST_CHAT].type_background_colors[CON_CHAT_TEAM] = std::make_pair(0x000019, .8f);
@@ -469,18 +514,6 @@ void Console::set_buffer(std::string text)
     }
 }
 
-void Console::see_line(ConsoleLine& line)
-{
-    if (!line.seen)
-    {
-        line.seen = true;
-        
-        if (line.type == CON_DEBUG_ERROR)
-        {
-            new_console.unseen_error_messages--;
-        }
-    }
-}
 
 bool Console::is_open()
 {
@@ -546,34 +579,9 @@ void Console::print(int type, const std::string text)
         }
     }
 
-    switch (line.type)
+    if (line.type == CON_DEBUG_ERROR)
     {
-        case CON_CHAT:
-        case CON_CHAT_TEAM:
-        case CON_CHAT_WHISPER:
-        case CON_SELF:
-        case CON_GAME_INFO:
-            //histories[HIST_CHAT].save(line);
-            break;
-        case CON_DEBUG_ERROR: /* FALLTHROUGH */
-            unseen_error_messages++;
-        default:
-           // histories[HIST_CONSOLE].save(line);
-            break;
-    }
-
-    switch (line.type)
-    {
-        case CON_CHAT:
-        case CON_CHAT_TEAM:
-        case CON_CHAT_WHISPER:
-        case CON_INFO:
-        case CON_SELF:
-        case CON_FRAG:
-        case CON_GAME:
-        case CON_GAME_INFO:
-            //histories[HIST_PREVIEW].save(line);
-            break;
+        unseen_error_messages++;
     }
 }
 // this is called when pressing enter
@@ -667,13 +675,6 @@ int Console::get_mode()
 
 std::string Console::get_info_bar_text()
 {
-    if (curr_hist().get_num_unseen_messages() > 0)
-    {
-        static const std::string UNSEEN_MESSAGES_COLOR = "\fzyw";
-        static const std::string UNSEEN_MESSAGES = " Unseen Messages";
-
-        return UNSEEN_MESSAGES_COLOR + std::to_string(curr_hist().get_num_unseen_messages()) + UNSEEN_MESSAGES;
-    }
     return "";
 }
 
@@ -1022,8 +1023,9 @@ void Console::clear_curr_hist()
 {
     curr_hist().clear();
 }
-ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
 
+ICOMMAND(0, clear, "", (), new_console.clear_curr_hist());
+ICOMMAND(0, markallread, "", (), new_console.curr_hist().mark_all_read());
 
 /// COMPLETION ///
 //////////////////

@@ -76,7 +76,7 @@ struct ConsoleLine
     
     int get_num_lines();
 
-    bool seen = false;
+    bool read = false;
 };
 
 class History
@@ -88,8 +88,8 @@ private:
     int scroll_info_line_idx = 0;
     bool scroll_info_outdated = false; 
     int num_linebreaks = 0;
-    int unseen_messages = 0;
-    int max_num_entries = 1000;
+    int unread_messages = 0;
+    int max_num_messages = 1000;
 
     void calculate_wordwrap(ConsoleLine& line);
     void calculate_all_wordwraps();
@@ -112,16 +112,19 @@ public:
     //TODO: replace std::pair with smth more fitting
     std::pair<int, int> get_relative_line_info(int n, int hist_idx, int line_idx);
 
-    void set_max_entries(const int entries);
+    void set_max_num_messages(const int max_messages);
     int get_scroll_pos();
     void reset_scroll();
     std::array<int, 2> get_scroll_info();
     bool scroll(const int lines);
-    int get_num_unseen_messages();
+
+    void mark_all_read();
+    void read_message(int idx);
+    int get_num_unread_messages();
+    void remove_message(const int idx);
 
     int missed_lines = 0;
 
-    void remove(const int idx);
     void clear();
     void save(ConsoleLine& line);
 };
@@ -206,7 +209,6 @@ public:
     History& curr_hist();
     void clear_curr_hist();
     void print(int type, const std::string text);
-    void see_line(ConsoleLine& line);
 
     // info bar
     std::string get_info_bar_text();

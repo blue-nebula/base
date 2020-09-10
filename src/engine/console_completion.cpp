@@ -347,7 +347,7 @@ std::vector<CompletionEntryBase*> CommandCompletion::get_completions(const std::
             ec = idents.enumnext(ec);
 
             std::string id_name = id.name;
-            if (   (id.type == ID_ALIAS && !(id.flags & IDF_COMPLETE) 
+            if (   ((id.type == ID_ALIAS) && !(id.flags & IDF_COMPLETE) 
                 || id.type == IDF_TEXTURE)
                 || id_name.length() < search_term.length())
             {
