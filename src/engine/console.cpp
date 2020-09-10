@@ -448,7 +448,7 @@ void Console::set_buffer(std::string text)
         curr_completions.clear();
         curr_completion_engine = -1;
         int i = 0;
-        for (auto* completion_engine : completions_engines)
+        for (auto* completion_engine : completion_engines)
         {
             if (completion_engine->can_complete(*this))
             {
@@ -946,7 +946,7 @@ bool Console::process_key(int code, bool isdown)
                     && completion_scroll_pos != -1
                     && curr_completion_engine != -1)
                 {
-                    completions_engines[curr_completion_engine]->select_entry(curr_completions[completion_selection_idx], *this);
+                    completion_engines[curr_completion_engine]->select_entry(curr_completions[completion_selection_idx], *this);
                 }
                 break;
         }
@@ -1077,7 +1077,7 @@ bool Console::completion_scroll(const int lines)
 
 void Console::register_completion(CompletionBase* completion)
 {
-    completions_engines.push_back(completion);
+    completion_engines.push_back(completion);
 }
 
 std::vector<CompletionEntryBase*> Console::get_curr_completions()
@@ -1087,7 +1087,7 @@ std::vector<CompletionEntryBase*> Console::get_curr_completions()
 
 CompletionBase* Console::get_curr_completion_engine()
 {
-    return completions_engines[curr_completion_engine];
+    return completion_engines[curr_completion_engine];
 }
 
 ///////////////////

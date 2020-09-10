@@ -135,7 +135,7 @@ private:
     std::string buffer;
     int curr_action;
     std::string curr_icon; 
-    std::vector<CompletionBase*> completions_engines; 
+    std::vector<CompletionBase*> completion_engines; 
     std::vector<CompletionEntryBase*> curr_completions;
 
     /// KEY ACTIONS ///
