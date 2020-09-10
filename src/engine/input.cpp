@@ -365,6 +365,7 @@ void InputSystem::on_release(const char* s)
 {
     add_release_action(newstring(s));
 }
+
 ICOMMAND(0, onrelease, "s", (const char* s), input_system.on_release(s));
 
 void InputSystem::exec_bind(KeyMap& key, bool isdown)
@@ -380,6 +381,7 @@ void InputSystem::exec_bind(KeyMap& key, bool isdown)
             }
             delete[] release_action.action;
             key_release_actions.erase(key_release_actions.begin() + i);
+            i--;
         }
     }
 
