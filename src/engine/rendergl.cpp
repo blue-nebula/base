@@ -1855,7 +1855,6 @@ void drawfadedslice(float start, float length, float x, float y, float size, flo
 
 float cursorx = 0.5f, cursory = 0.5f;
 float crosshairx = 0.5f, crosshairy = 0.5f;
-vec cursordir(0, 0, 0);
 vec crosshairdir(0, 0, 0);
 
 struct framebuffercopy

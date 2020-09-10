@@ -223,7 +223,6 @@ extern float curfogstart, curfogend;
 
 extern float cursorx, cursory;
 extern float crosshairx, crosshairy;
-extern vec cursordir;
 extern vec crosshairdir;
 
 extern GLenum colormask[3];
