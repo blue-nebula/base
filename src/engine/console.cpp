@@ -1085,6 +1085,11 @@ std::vector<CompletionEntryBase*> Console::get_curr_completions()
     return curr_completions;
 }
 
+CompletionBase* Console::get_curr_completion_engine()
+{
+    return completions_engines[curr_completion_engine];
+}
+
 ///////////////////
 /// KEY ACTIONS ///
 ///////////////////

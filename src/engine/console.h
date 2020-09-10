@@ -32,8 +32,8 @@ class CompletionBase
 public:
     int scroll_pos = 0;
     int max_entries_per_page = 5;
-    bool stick_to_cursor = false;
 
+    virtual int stick_to_buffer_idx() = 0;
     virtual bool can_complete(Console& console) = 0;
     virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer) = 0; 
     virtual void select_entry(CompletionEntryBase* entry, Console& console) = 0;
@@ -134,7 +134,7 @@ class Console
 private:
     std::string buffer;
     int curr_action;
-    std::string curr_icon;
+    std::string curr_icon; 
     std::vector<CompletionBase*> completions_engines; 
     std::vector<CompletionEntryBase*> curr_completions;
 
@@ -223,7 +223,9 @@ public:
     int get_completion_lines_per_view();
     void register_completion(CompletionBase* completion);
     std::vector<CompletionEntryBase*> get_curr_completions();
-    
+    CompletionBase* get_curr_completion_engine();
+
+
     // others
     void set_max_line_width(int w);
     int get_say_text_color();

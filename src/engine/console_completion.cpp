@@ -296,6 +296,11 @@ std::string CommandCompletionEntry::get_description()
     return description_string;
 }
 
+int CommandCompletion::stick_to_buffer_idx()
+{
+    return 0;
+}
+
 bool CommandCompletion::can_complete(Console& console)
 {
     const std::string buffer = console.get_buffer();
@@ -429,11 +434,19 @@ std::string PlayerNameCompletionEntry::get_description()
 }
 
 
+int PlayerNameCompletion::stick_to_buffer_idx()
+{
+    return stick_to_buffer_pos; 
+}
+
 #include "game.h"
 bool PlayerNameCompletion::can_complete(Console& console)
 {
     const std::string buffer = console.get_buffer();
-    return buffer.find_last_of(console.playername_prefix) != std::string::npos;
+    const size_t pos = buffer.find_last_of(console.playername_prefix);
+    // add 1 so it doesn't stick to @ but to the character after that
+    stick_to_buffer_pos = pos + 1;
+    return pos != std::string::npos;
 }
 
 std::vector<CompletionEntryBase*> PlayerNameCompletion::get_completions(const std::string buffer)
@@ -528,6 +541,11 @@ std::string MapNameCompletionEntry::get_title()
 std::string MapNameCompletionEntry::get_description()
 {
     return "";
+}
+
+int MapNameCompletion::stick_to_buffer_idx()
+{
+    return 0;
 }
 
 bool MapNameCompletion::can_complete(Console& console)

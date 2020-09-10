@@ -28,6 +28,7 @@ public:
 class CommandCompletion : public CompletionBase
 {
 private:
+    virtual int stick_to_buffer_idx();
     virtual bool can_complete(Console& console);
     virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer);
     virtual void select_entry(CompletionEntryBase* entry, Console& console);
@@ -54,6 +55,8 @@ public:
 class PlayerNameCompletion : public CompletionBase
 {
 private:
+    int stick_to_buffer_pos = 0;
+    virtual int stick_to_buffer_idx();
     virtual bool can_complete(Console& console);
     virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer);
     virtual void select_entry(CompletionEntryBase* entry, Console& console);
@@ -78,6 +81,8 @@ class MapNameCompletion : public CompletionBase
 {
 private:
     const std::string prefix = ":m";
+
+    virtual int stick_to_buffer_idx();
     virtual bool can_complete(Console& console);
     virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer);
     virtual void select_entry(CompletionEntryBase* entry, Console& console);

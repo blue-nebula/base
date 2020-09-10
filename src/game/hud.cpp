@@ -2031,7 +2031,6 @@ namespace hud
             int text_r = int(text_dims.x + FONTW);
             const int text_t = text_scale - (FONTH + FONTW);
             tz = int(tz / commandscale);
-
             const int text_padding_y = 10;
 
             // draw the background
@@ -2047,9 +2046,9 @@ namespace hud
             // draw the input
             pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, input_color.r, input_color.g, input_color.b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, new_console.get_cursor_pos(), text_t, 1,
                     new_console.get_buffer().c_str());
-                
+ 
             popfont();
-                
+
             //////////////
             // Info bar //
             //////////////
@@ -2080,12 +2079,29 @@ namespace hud
             if (int(curr_completions.size()) > 0)
             {
                 pushfont("console");
-                
+                 
                 static const int completion_icon_width = 32;
                 const int max_width = text_t - text_q + text_r;
-                const int completion_text_x = text_q + text_r;
-                const int completion_box_x = completion_text_x - 5;
+                int completion_text_x = text_q + text_r;
                 const int scrollbar_start_y = pos_y;
+
+                if (new_console.get_curr_completion_engine()->stick_to_buffer_idx() > 0)
+                {
+                    // if the current completion engine wants to stick to the cursor, then 
+                    // modify the completion_text_x, which modifies completion_box_x later so it is next to the cursor 
+                    
+                    pushfont("emphasis");
+                    const std::string stick_buffer_cut = new_console.get_buffer().substr(0, new_console.get_curr_completion_engine()->stick_to_buffer_idx());
+
+                    float input_text_len = 0;
+                    float _temp_var = 0;
+                    text_boundsf(stick_buffer_cut.c_str(), input_text_len, _temp_var, 0, 0, text_t, 0, 1);
+                    popfont();
+                    
+
+                    completion_text_x += input_text_len;
+                }
+                const int completion_box_x = completion_text_x - 5;
 
                 float completion_box_width = 0;
 
