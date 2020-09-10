@@ -103,7 +103,7 @@ public:
 
     std::deque<ConsoleLine> h;
 
-    std::map<const int, std::array<float, 4>> type_background_colors; 
+    std::map<const int, std::pair<int, float>> type_background_colors; 
 
     bool accepts_type(int type);
 

@@ -1906,9 +1906,9 @@ namespace hud
             // draw the line background color if there is any specified
             if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
             {
-                std::array<float, 4> color = hist.type_background_colors[line.type];
+                std::pair<int, float> color = hist.type_background_colors[line.type];
                 
-                gle::colorf(color[0], color[1], color[2], color[3]);
+                gle::color(vec::hexcolor(color.first), color.second);
                 
                 if (full)
                 {

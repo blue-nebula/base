@@ -380,13 +380,13 @@ Console::Console()
     //TODO: make preview history max size dynamic
     histories[HIST_PREVIEW].set_max_entries(7);
  
-    histories[HIST_CHAT].type_background_colors[CON_CHAT_WHISPER] = {.7f, .7f, .7f, .2f};
-    histories[HIST_CHAT].type_background_colors[CON_CHAT_TEAM] = {0, 0, .1f, .8f};
+    histories[HIST_CHAT].type_background_colors[CON_CHAT_WHISPER] = std::make_pair(0xB2B2B2, .2f);
+    histories[HIST_CHAT].type_background_colors[CON_CHAT_TEAM] = std::make_pair(0x000019, .8f);
 
-    histories[HIST_PREVIEW].type_background_colors[CON_CHAT_WHISPER] = { .7f, .7f, .7f, .2f };
-    histories[HIST_PREVIEW].type_background_colors[CON_CHAT_TEAM] = { 0, 0, .1f, .8f };
+    histories[HIST_PREVIEW].type_background_colors[CON_CHAT_WHISPER] = histories[HIST_CHAT].type_background_colors[CON_CHAT_WHISPER];
+    histories[HIST_PREVIEW].type_background_colors[CON_CHAT_TEAM] = histories[HIST_CHAT].type_background_colors[CON_CHAT_TEAM];
 
-    histories[HIST_CONSOLE].type_background_colors[CON_DEBUG_ERROR] = { .8f, .1f, .1f, .8f };
+    histories[HIST_CONSOLE].type_background_colors[CON_DEBUG_ERROR] = std::make_pair(0xCC1919, .8f);
 
     // in milliseconds, < 0 means use default (defined in hud.cpp)
     /*                                 fade in | wait | fade out            */
@@ -883,7 +883,7 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_UP: 
-                if (int(curr_completions.size()) != 0)
+                if (int(curr_completions.size()) != 0 && completion_selection_idx > 0)
                 {
                     completion_scroll(-1);
                     break;
