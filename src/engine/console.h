@@ -27,7 +27,7 @@ public:
     virtual std::string get_description() = 0;
 };
 
-class CompletionBase
+class CompletionEngineBase
 {
 public:
     int scroll_pos = 0;
@@ -135,7 +135,7 @@ private:
     std::string buffer;
     int curr_action;
     std::string curr_icon; 
-    std::vector<CompletionBase*> completion_engines; 
+    std::vector<CompletionEngineBase*> completion_engines; 
     std::vector<CompletionEntryBase*> curr_completions;
 
     /// KEY ACTIONS ///
@@ -221,9 +221,9 @@ public:
     int get_completion_scroll_pos();
     int get_completion_selection();
     int get_completion_lines_per_view();
-    void register_completion(CompletionBase* completion);
+    void register_completion(CompletionEngineBase* completion);
     std::vector<CompletionEntryBase*> get_curr_completions();
-    CompletionBase* get_curr_completion_engine();
+    CompletionEngineBase* get_curr_completion_engine();
 
 
     // others

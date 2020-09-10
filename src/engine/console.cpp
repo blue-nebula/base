@@ -1075,7 +1075,7 @@ bool Console::completion_scroll(const int lines)
     return false;
 }
 
-void Console::register_completion(CompletionBase* completion)
+void Console::register_completion(CompletionEngineBase* completion)
 {
     completion_engines.push_back(completion);
 }
@@ -1085,7 +1085,7 @@ std::vector<CompletionEntryBase*> Console::get_curr_completions()
     return curr_completions;
 }
 
-CompletionBase* Console::get_curr_completion_engine()
+CompletionEngineBase* Console::get_curr_completion_engine()
 {
     return completion_engines[curr_completion_engine];
 }

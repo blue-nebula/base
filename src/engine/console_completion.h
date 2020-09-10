@@ -25,7 +25,7 @@ public:
     std::string get_ident_flags_text();
 };
 
-class CommandCompletion : public CompletionBase
+class CommandCompletion : public CompletionEngineBase
 {
 private:
     virtual int stick_to_buffer_idx();
@@ -52,7 +52,7 @@ public:
     virtual std::string get_description();
 };
 
-class PlayerNameCompletion : public CompletionBase
+class PlayerNameCompletion : public CompletionEngineBase
 {
 private:
     int stick_to_buffer_pos = 0;
@@ -77,7 +77,7 @@ public:
     virtual std::string get_description();
 };
 
-class MapNameCompletion : public CompletionBase
+class MapNameCompletion : public CompletionEngineBase
 {
 private:
     const std::string prefix = ":m";
