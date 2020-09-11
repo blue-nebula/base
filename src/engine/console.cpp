@@ -316,23 +316,18 @@ bool History::accepts_type(int type)
     return std::find(type_filter.begin(), type_filter.end(), type) != type_filter.end();
 }
 
-void History::save(ConsoleMessage& line)
+void History::save(ConsoleMessage& msg)
 {
-    calculate_wordwrap(line);
-    num_linebreaks += line.get_num_lines();
-    //TODO: call remove instead of doing it the same way again
+    calculate_wordwrap(msg);
+    num_linebreaks += msg.get_num_lines();
+    
     if (int(h.size()) > max_num_messages)
     {
         remove_message(h.size() - 1);
-        /*
-        printf("Remove shit\n");
-        num_linebreaks -= h.back().get_num_lines();
-        h.pop_back();
-        */
     }
 
     unread_messages++;
-    h.push_front(line);
+    h.push_front(msg);
 
     if (scroll_pos > 0)
     {
@@ -359,32 +354,32 @@ void History::clear()
     scroll_info_outdated = false;
 }
 
-void History::calculate_wordwrap(ConsoleMessage& line)
+void History::calculate_wordwrap(ConsoleMessage& msg)
 {
-    line.lines.clear();
+    msg.lines.clear();
 
     if (curfont != nullptr)
     {
         // works best when using fontsize default
         pushfont("default");
-        std::vector<std::pair<int, std::string>> wraps = get_text_wraps(line.text.c_str(), line_width);
+        std::vector<std::pair<int, std::string>> wraps = get_text_wraps(msg.text.c_str(), line_width);
         popfont();
 
         int prev_pos = 0;
         for (const auto& wrap : wraps)
         {
             std::string text = wrap.second.empty() ? "" : "\f" + wrap.second; 
-            text += line.text.substr(prev_pos, wrap.first - prev_pos);
+            text += msg.text.substr(prev_pos, wrap.first - prev_pos);
             // remove every occurence of \n from text, as it has already been accounted for in get_text_wraps
             text.erase(std::remove(text.begin(), text.end(), '\n'), text.end());
-            line.lines.push_back(text);
+            msg.lines.push_back(text);
             prev_pos += wrap.first - prev_pos;
         }
     } 
     
-    if (int(line.lines.size()) == 0)
+    if (int(msg.lines.size()) == 0)
     {
-        line.lines.push_back(line.text);
+        msg.lines.push_back(msg.text);
     }
 }
 
@@ -394,10 +389,9 @@ void History::calculate_all_wordwraps()
     //TODO: measure time
     for (int i = 0; i < int(h.size()); i++)
     {
-        ConsoleMessage line = h[i];
-        calculate_wordwrap(line);
-        num_linebreaks += line.get_num_lines();
-        h[i] = line;
+        ConsoleMessage& msg = h[i];
+        calculate_wordwrap(msg);
+        num_linebreaks += msg.get_num_lines();
     }
 }
 

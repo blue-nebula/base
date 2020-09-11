@@ -91,7 +91,7 @@ private:
     int unread_messages = 0;
     int max_num_messages = 1000;
 
-    void calculate_wordwrap(ConsoleMessage& line);
+    void calculate_wordwrap(ConsoleMessage& msg);
     void calculate_all_wordwraps();
 
     void recalc_scroll_info();

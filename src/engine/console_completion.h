@@ -7,11 +7,11 @@
 //////////////////////////
 class CommandCompletionEntry : public CompletionEntryBase
 {
-public:
+private:
     std::string arguments_string;
     std::string title_string;
     std::string description_string;
-    
+public: 
     ident id;
     CommandCompletionEntry(ident id, int completion_length);
 
@@ -28,7 +28,6 @@ public:
 class CommandCompletion : public CompletionEngineBase
 {
 public:
-    int stick_to_buffer_idx();
     bool can_complete(Console& console);
     std::vector<CompletionEntryBase*> get_completions(const std::string buffer);
     void select_entry(CompletionEntryBase* entry, Console& console);
@@ -40,6 +39,8 @@ public:
 //////////////////////////////
 class PlayerNameCompletionEntry : public CompletionEntryBase
 {
+private:
+    std::string title;
 public:
     std::string name;
     std::string icon;
@@ -50,7 +51,6 @@ public:
     std::string get_icon();
     int get_icon_color();
     std::string get_title();
-    std::string get_description();
 };
 
 class PlayerNameCompletion : public CompletionEngineBase
@@ -78,7 +78,6 @@ public:
     int get_icon_color();
     std::string get_icon();
     std::string get_title();
-    std::string get_description();
 
 };
 
@@ -87,7 +86,6 @@ class MapNameCompletion : public CompletionEngineBase
 private:
     const std::string prefix = ":m";
 public:
-    int stick_to_buffer_idx();
     bool can_complete(Console& console);
     std::vector<CompletionEntryBase*> get_completions(const std::string buffer);
     void select_entry(CompletionEntryBase* entry, Console& console);

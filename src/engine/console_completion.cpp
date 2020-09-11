@@ -296,11 +296,6 @@ std::string CommandCompletionEntry::get_description()
     return description_string;
 }
 
-int CommandCompletion::stick_to_buffer_idx()
-{
-    return 0;
-}
-
 bool CommandCompletion::can_complete(Console& console)
 {
     const std::string buffer = console.get_buffer();
@@ -407,6 +402,9 @@ void CommandCompletion::select_entry(CompletionEntryBase* entry, Console& consol
 
 PlayerNameCompletionEntry::PlayerNameCompletionEntry(std::string name, std::string icon, int icon_color, int completion_length)
 {
+    title = COLOR_G + name;
+    title.insert(completion_length + 2, COLOR_W);
+    
     this->name = name;
     this->icon = icon;
     this->icon_color = icon_color;
@@ -425,12 +423,7 @@ std::string PlayerNameCompletionEntry::get_icon()
 
 std::string PlayerNameCompletionEntry::get_title()
 {
-    return name;
-}
-
-std::string PlayerNameCompletionEntry::get_description()
-{
-    return "";
+    return title;
 }
 
 
@@ -536,16 +529,6 @@ std::string MapNameCompletionEntry::get_icon()
 std::string MapNameCompletionEntry::get_title()
 {
     return title;
-}
-
-std::string MapNameCompletionEntry::get_description()
-{
-    return "";
-}
-
-int MapNameCompletion::stick_to_buffer_idx()
-{
-    return 0;
 }
 
 bool MapNameCompletion::can_complete(Console& console)

@@ -2103,13 +2103,16 @@ namespace hud
             // draw the icon
             glBindTexture(GL_TEXTURE_2D, t->id);
             gle::color(vec::hexcolor(new_console.get_icon_color()), fullconblend * fade * f);
-            drawtexture(text_pos.x, pos_y + text_padding_y, text_dims.y, text_dims.x);
+            pos_y += text_padding_y;
+            drawtexture(text_pos.x, pos_y, text_dims.y, text_dims.x);
           
             const ivec input_color = ivec::fromcolor(new_console.get_say_text_color()); 
             // draw the input
-            pos_y += draw_textf("%s", text_q + text_r, pos_y + text_padding_y, 0, 0, input_color.r, input_color.g, input_color.b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, new_console.get_cursor_pos(), text_t, 1,
+            pos_y += draw_textf("%s", text_q + text_r, pos_y, 0, 0, input_color.r, input_color.g, input_color.b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, new_console.get_cursor_pos(), text_t, 1,
                     new_console.get_buffer().c_str());
- 
+
+            pos_y += text_padding_y; 
+
             popfont();
 
             ////////////////
