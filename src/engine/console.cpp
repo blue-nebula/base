@@ -891,10 +891,13 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_UP: 
-                if (int(curr_completions.size()) != 0 && completion_selection_idx > 0)
+                if (SDL_GetModState() & KMOD_SHIFT)
                 {
-                    completion_scroll(-1);
-                    break;
+                    if (int(curr_completions.size()) != 0 && completion_selection_idx > 0)
+                    {
+                        completion_scroll(-1);
+                        break;
+                    }
                 }
 
                 if (input_history.scroll(1))
@@ -906,10 +909,13 @@ bool Console::process_key(int code, bool isdown)
                 break;
 
             case SDLK_DOWN:
-                if (int(curr_completions.size()) != 0)
+                if (SDL_GetModState() & KMOD_SHIFT)
                 {
-                    completion_scroll(1);
-                    break;
+                    if (int(curr_completions.size()) != 0)
+                    {
+                        completion_scroll(1);
+                        break;
+                    }
                 }
                 
                 if (input_history.scroll(-1))
