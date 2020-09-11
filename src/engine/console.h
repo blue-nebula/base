@@ -21,10 +21,10 @@ class CompletionEntryBase
 public:
     int completion_length = 0;
 
-    virtual std::string get_icon() = 0;
-    virtual int get_icon_color() = 0;
-    virtual std::string get_title() = 0;
-    virtual std::string get_description() = 0;
+    virtual std::string get_icon() { return ""; };
+    virtual int get_icon_color() { return 0; };
+    virtual std::string get_title() { return ""; };
+    virtual std::string get_description() { return ""; };
 };
 
 class CompletionEngineBase
@@ -33,10 +33,10 @@ public:
     int scroll_pos = 0;
     int max_entries_per_page = 5;
 
-    virtual int stick_to_buffer_idx() = 0;
-    virtual bool can_complete(Console& console) = 0;
-    virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer) = 0; 
-    virtual void select_entry(CompletionEntryBase* entry, Console& console) = 0;
+    virtual int stick_to_buffer_idx() { return 0; };
+    virtual bool can_complete(Console& console) { return false; };
+    virtual std::vector<CompletionEntryBase*> get_completions(const std::string buffer) { return std::vector<CompletionEntryBase*>(); }; 
+    virtual void select_entry(CompletionEntryBase* entry, Console& console) { };
 };
 
 
@@ -117,6 +117,8 @@ public:
     void reset_scroll();
     std::array<int, 2> get_scroll_info();
     bool scroll(const int lines);
+    
+    ConsoleLine last_message_of_type(int type);
 
     void mark_all_read();
     void read_message(int idx);

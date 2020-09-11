@@ -221,6 +221,18 @@ bool History::scroll(const int lines)
     return scrolled;
 }
 
+ConsoleLine History::last_message_of_type(int type)
+{
+    for (int i = 0; i < int(h.size()); i++)
+    {
+        if (h[i].type == type)
+        {
+            return h[i];
+        }
+    }
+    return ConsoleLine();
+}
+
 void History::remove_message(const int idx)
 {
     num_linebreaks -= h[idx].get_num_lines();
@@ -417,7 +429,8 @@ Console::Console()
             CON_SELF,
             CON_FRAG,
             CON_GAME,
-            CON_GAME_INFO
+            CON_GAME_INFO,
+            CON_DEBUG_ERROR
         });
 
     histories[HIST_CHAT].set_max_num_messages(1000);
@@ -432,7 +445,7 @@ Console::Console()
     histories[HIST_PREVIEW].type_background_colors[CON_CHAT_TEAM] = histories[HIST_CHAT].type_background_colors[CON_CHAT_TEAM];
 
     histories[HIST_CONSOLE].type_background_colors[CON_DEBUG_ERROR] = std::make_pair(0xCC1919, .8f);
-
+    
     // in milliseconds, < 0 means use default (defined in hud.cpp)
     /*                                 fade in | wait | fade out            */
     type_fade_times[CON_CHAT] =         std::array<short, 3>{ -1, 7500, -1 };
@@ -443,7 +456,7 @@ Console::Console()
     type_fade_times[CON_FRAG] =         std::array<short, 3>{ -1, 3000, -1 };
     type_fade_times[CON_SELF] =         std::array<short, 3>{ -1, 4000, -1 };
     type_fade_times[CON_GAME_INFO] =    std::array<short, 3>{ -1, 9000, -1 };
-    
+    type_fade_times[CON_DEBUG_ERROR] =  std::array<short, 3>{ -1, 5000, -1 };
 
     register_completion(new PlayerNameCompletion());
     register_completion(new MapNameCompletion());
@@ -1070,6 +1083,8 @@ bool Console::completion_scroll(const int lines)
         {
             scroll_pos = std::min(scroll_pos + 1, max_pos - completion_lines_per_view);
         }
+        // make sure scroll_pos is never smaller than 0
+        scroll_pos = std::max(scroll_pos, 0);
 
         completion_scroll_pos = scroll_pos;
         completion_selection_idx = selection;

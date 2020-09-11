@@ -1950,7 +1950,8 @@ namespace hud
         {
             if (new_console.unseen_error_messages > 0)
             {
-                tz += draw_textf("\fr%d Unseen error messages", pos.x, pos.y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, 100 * FONTW, 1, new_console.unseen_error_messages);
+                tz += draw_textf("\frUnseen Error Messages: %d", pos.x, pos.y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, 100 * FONTW, 1, 
+                        new_console.unseen_error_messages);
             }
         }
 
@@ -2011,7 +2012,7 @@ namespace hud
             float offset = 0;
             if (!full)
             {
-                short fade_in_time = 250;
+                short fade_in_time = 200;
                 short wait_time = 3000;
                 short fade_out_time = 250;
 
