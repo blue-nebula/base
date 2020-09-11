@@ -64,7 +64,7 @@ public:
 ///////////////////////
 /// CONSOLE HISTORY ///
 ///////////////////////
-struct ConsoleLine
+struct ConsoleMessage
 {
     std::string text = "";
     std::vector<std::string> lines;
@@ -91,7 +91,7 @@ private:
     int unread_messages = 0;
     int max_num_messages = 1000;
 
-    void calculate_wordwrap(ConsoleLine& line);
+    void calculate_wordwrap(ConsoleMessage& line);
     void calculate_all_wordwraps();
 
     void recalc_scroll_info();
@@ -101,7 +101,7 @@ public:
     History();
     History(std::vector<int> type_filter);
 
-    std::deque<ConsoleLine> h;
+    std::deque<ConsoleMessage> h;
 
     std::map<const int, std::pair<int, float>> type_background_colors; 
 
@@ -118,7 +118,7 @@ public:
     std::array<int, 2> get_scroll_info();
     bool scroll(const int lines);
     
-    ConsoleLine last_message_of_type(int type);
+    ConsoleMessage last_message_of_type(int type);
 
     void mark_all_read();
     void read_message(int idx);
@@ -128,7 +128,7 @@ public:
     int missed_lines = 0;
 
     void clear();
-    void save(ConsoleLine& line);
+    void save(ConsoleMessage& msg);
 };
 
 ///////////////

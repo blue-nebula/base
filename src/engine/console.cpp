@@ -49,7 +49,7 @@ std::string unescapestring(std::string src)
     return dst;
 }
 
-int ConsoleLine::get_num_lines()
+int ConsoleMessage::get_num_lines()
 {
     return int(lines.size());
 }
@@ -221,7 +221,7 @@ bool History::scroll(const int lines)
     return scrolled;
 }
 
-ConsoleLine History::last_message_of_type(int type)
+ConsoleMessage History::last_message_of_type(int type)
 {
     for (int i = 0; i < int(h.size()); i++)
     {
@@ -230,7 +230,7 @@ ConsoleLine History::last_message_of_type(int type)
             return h[i];
         }
     }
-    return ConsoleLine();
+    return ConsoleMessage();
 }
 
 void History::remove_message(const int idx)
@@ -316,7 +316,7 @@ bool History::accepts_type(int type)
     return std::find(type_filter.begin(), type_filter.end(), type) != type_filter.end();
 }
 
-void History::save(ConsoleLine& line)
+void History::save(ConsoleMessage& line)
 {
     calculate_wordwrap(line);
     num_linebreaks += line.get_num_lines();
@@ -359,7 +359,7 @@ void History::clear()
     scroll_info_outdated = false;
 }
 
-void History::calculate_wordwrap(ConsoleLine& line)
+void History::calculate_wordwrap(ConsoleMessage& line)
 {
     line.lines.clear();
 
@@ -394,7 +394,7 @@ void History::calculate_all_wordwraps()
     //TODO: measure time
     for (int i = 0; i < int(h.size()); i++)
     {
-        ConsoleLine line = h[i];
+        ConsoleMessage line = h[i];
         calculate_wordwrap(line);
         num_linebreaks += line.get_num_lines();
         h[i] = line;
@@ -575,24 +575,24 @@ void Console::print(int type, const std::string text)
         return;
     }
 
-    ConsoleLine line = ConsoleLine();
-    line.text = text;
-    line.type = type;
-    line.reftime = totalmillis;
-    line.out_time = totalmillis;
-    line.real_time = clocktime;
+    ConsoleMessage msg = ConsoleMessage();
+    msg.text = text;
+    msg.type = type;
+    msg.reftime = totalmillis;
+    msg.out_time = totalmillis;
+    msg.real_time = clocktime;
 
     // filter
     
     for (int i = 0; i < HIST_MAX; i++)
     {
-        if (histories[i].accepts_type(line.type))
+        if (histories[i].accepts_type(msg.type))
         {
-            histories[i].save(line);
+            histories[i].save(msg);
         }
     }
 
-    if (line.type == CON_DEBUG_ERROR)
+    if (msg.type == CON_DEBUG_ERROR)
     {
         unseen_error_messages++;
     }

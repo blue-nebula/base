@@ -1977,7 +1977,7 @@ namespace hud
         while (lines_drawn < max_drawable_lines)
         {
             const std::pair<int, int> line_info = hist.get_relative_line_info(lines_drawn, msg_idx, line_idx); 
-            ConsoleLine& line = hist.h[line_info.first];
+            ConsoleMessage& msg = hist.h[line_info.first];
 
             if ((line_info.first > (int(hist.h.size()) - 1))
                 || (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1)))
@@ -1989,9 +1989,9 @@ namespace hud
             hist.read_message(line_info.first);
             
             // draw the line background color if there is any specified
-            if (hist.type_background_colors.find(line.type) != hist.type_background_colors.end())
+            if (hist.type_background_colors.find(msg.type) != hist.type_background_colors.end())
             {
-                std::pair<int, float> color = hist.type_background_colors[line.type];
+                std::pair<int, float> color = hist.type_background_colors[msg.type];
                 
                 gle::color(vec::hexcolor(color.first), color.second);
                 
@@ -2016,9 +2016,9 @@ namespace hud
                 short wait_time = 3000;
                 short fade_out_time = 250;
 
-                if (new_console.type_fade_times.find(line.type) != new_console.type_fade_times.end())
+                if (new_console.type_fade_times.find(msg.type) != new_console.type_fade_times.end())
                 {
-                    const std::array<short, 3> fade_times = new_console.type_fade_times[line.type];
+                    const std::array<short, 3> fade_times = new_console.type_fade_times[msg.type];
 
                     // if any of the values is smaller than 0, use the default
                     fade_in_time = fade_times[0] >= 0 ? fade_times[0] : fade_in_time;
@@ -2026,21 +2026,21 @@ namespace hud
                     fade_out_time = fade_times[2] >= 0 ? fade_times[2] : fade_out_time;
                 }
 
-                line.out_time = totalmillis - line.reftime;
+                msg.out_time = totalmillis - msg.reftime;
                 max_time = fade_in_time + wait_time + fade_out_time; 
                
-                if (line.out_time >= 0 && line.out_time < fade_in_time)
+                if (msg.out_time >= 0 && msg.out_time < fade_in_time)
                 {
                     // fade in
-                    alpha = line.out_time / float(fade_in_time); 
+                    alpha = msg.out_time / float(fade_in_time); 
                     // (alpha - 1) makes it so it transitions between -1 and 0, thus moving from the line above to it's intended
                     // place
                     offset = FONTH * (alpha - 1);
                 }
-                else if (line.out_time >= wait_time + fade_in_time)
+                else if (msg.out_time >= wait_time + fade_in_time)
                 {
                     // fade out
-                    alpha = 1 - ((line.out_time - (wait_time + fade_in_time)) / float(fade_out_time));
+                    alpha = 1 - ((msg.out_time - (wait_time + fade_in_time)) / float(fade_out_time));
                     // (alpha - 1) makes it so it transitions between 0 and -1, thus moving from it's intended place
                     // to the line above
                     offset = FONTH * (alpha - 1);
@@ -2049,11 +2049,11 @@ namespace hud
 
             // draw the line
             tz -= draw_textf("%s", text_r, text_pos.y + tz + offset, 0, 0, 255, 255, 255, int(fade * alpha * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
-                line.lines[line_info.second].c_str());
+                msg.lines[line_info.second].c_str());
 
             if (!full)
             { 
-                if (line.out_time >= max_time)
+                if (msg.out_time >= max_time)
                 {
                     hist.remove_message(line_info.first);
                 }
