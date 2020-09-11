@@ -205,6 +205,7 @@ public:
         HIST_MAX
     };
 
+    const std::vector<int> selectable_histories = { HIST_CHAT, HIST_CONSOLE };
     std::map<const int, History> histories;
 
     int selected_hist = HIST_CHAT;

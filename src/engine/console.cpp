@@ -682,6 +682,17 @@ int Console::get_mode()
 
 std::string Console::get_info_bar_text()
 {
+    static const std::string COMMAND_INFO_BEGIN = "\frCommand Mode \fw- everything after ";
+    static const std::string COMMAND_INFO_END = "will be run as a command.";
+    const std::string COMMAND_TEXT = COMMAND_INFO_BEGIN +
+                                std::string("\fg") + command_prefix + std::string(" \fw")
+                                + COMMAND_INFO_END;
+
+    switch (get_mode())
+    {
+        case MODE_COMMAND:
+            return COMMAND_TEXT;
+    }
     return "";
 }
 
@@ -945,14 +956,15 @@ bool Console::process_key(int code, bool isdown)
                 if (SDL_GetModState() & KMOD_CTRL)
                 {
                     // switch between tabs using "TAB" 
-                    if (selected_hist < HIST_MAX - 1)
+                    if (selected_hist < int(selectable_histories.size()) - 1)
                     {
                         selected_hist++;
                     }
                     else
                     {
                         selected_hist = 0;
-                    } 
+                    }
+
                     break;
                 }
 

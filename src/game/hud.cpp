@@ -1809,29 +1809,31 @@ namespace hud
         draw_rect(vec2(pos.x, pos.y + scrollbar_y), vec2(dims.w, scrollbar_height), false);
     }
 
+    VAR(IDF_PERSIST, showcontabbarhelp, 0, 1, 1);
     int draw_console_tab_bar(int y, int w)
     {
-        pushfont("console");
-        int offset = 0;
-        gle::color(vec::hexcolor(0x2D323D), .9f);
-        draw_rect(vec2(0, y), vec2(w, FONTH), false);
-
+        const int y_begin = y;
+        static const int padding_vertical = 3;
         static const int tabs = 2;
-        
         const int num_messages[tabs] = {
             new_console.histories[Console::HIST_CHAT].get_num_unread_messages(),
             new_console.histories[Console::HIST_CONSOLE].get_num_unread_messages()
         };
 
         const std::string console_tabs[tabs] = { 
-            "\fgChat \fw(\fc" + (num_messages[0] > 99 ? "99+" : std::to_string(num_messages[0])) + "\fw)", 
-            "\frConsole \fw(\fc" + (num_messages[1] > 99 ? "99+" : std::to_string(num_messages[1])) + "\fw)" 
+            "\fg\f(textures/keys/f1) Chat \fw(\fc" + (num_messages[0] > 99 ? "99+" : std::to_string(num_messages[0])) + "\fw)", 
+            "\fr\f(textures/keys/f2) Console \fw(\fc" + (num_messages[1] > 99 ? "99+" : std::to_string(num_messages[1])) + "\fw)" 
         };
         static const std::string console_tabs_max_len[tabs] = {
-            "Chat (99+)",
-            "Console (99+)"
+            "\f(textures/keys/f1) Chat (99+)",
+            "\f(textures/keys/f2) Console (99+)"
         };
-        static const float min_horizontal_tab_padding = FONTW;
+
+        static const float min_horizontal_tab_padding = FONTW; 
+        static const int padding_left = 112;
+
+        pushfont("console");
+        const int middle_bar_height = FONTH + (padding_vertical * 2);
 
         float tab_width = 0;
         float text_widths[tabs];
@@ -1857,12 +1859,16 @@ namespace hud
             offsets[i] = (tab_width / 2.f) - (text_widths[i] / 2.f);
         }
 
-        static const int padding_left = 112;
+
+
+        // draw background
+        gle::color(vec::hexcolor(0x2D323D), .9f);
+        draw_rect(vec2(0, y), vec2(w, middle_bar_height), false);
 
         // draw highlight, as it should be shown below the text
         gle::colorf(.05f, .05f, .05f, .6f);
-        draw_rect(vec2(padding_left + (tab_width * new_console.selected_hist), y), vec2(tab_width, 42), false);
-
+        draw_rect(vec2(padding_left + (tab_width * new_console.selected_hist), y), vec2(tab_width, middle_bar_height), false);
+        y += padding_vertical;
         
         draw_textf("Tabs:", 10, y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, tab_width);
         
@@ -1872,9 +1878,16 @@ namespace hud
         {
             draw_textf(console_tabs[i].c_str(), padding_left + (tab_width * i) + offsets[i], y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, tab_width);
         }
-        offset = FONTH;
+       
+        if (showcontabbarhelp)
+        {
+            draw_textf(" - or navigate with \f(textures/keys/lctrl) + \f(textures/keys/tab) --- Scroll Messages using (\f(textures/keys/lshift))+\f(textures/keys/mouse3) or \f(textures/keys/pageup)/\f(textures/keys/pagedown)", padding_left + (tab_width * tabs), y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1);
+        }
+
+        y += FONTH + padding_vertical;
         popfont();
-        return offset;
+
+        return y - y_begin;
     }
 
     int draw_console_info_bar(int y, int text_len, int w, int fade, int align)
