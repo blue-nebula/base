@@ -385,7 +385,9 @@ void CommandCompletion::select_entry(CompletionEntryBase* entry, Console& consol
     }
     else
     {
-        cut_off_string = console.get_buffer().substr(cut_off_pos, -1);
+        // cut_off_pos + 1, so we cut off any ' ' that potientially already exists
+        // instead of just adding more and more spaces between the command and the first arg
+        cut_off_string = console.get_buffer().substr(cut_off_pos + 1, -1);
     }
 
     CommandCompletionEntry* c_entry = (CommandCompletionEntry*)entry;
