@@ -1984,94 +1984,104 @@ namespace hud
 
         const int max_drawable_lines = std::min(num_console_lines, histlen);
         // we're drawing from bottom to top, thus move the "draw head" to the lowest position we'll get
-        tz += FONTH * (max_drawable_lines - 1);
+        //tz += FONTH * (max_drawable_lines - 1);
 
-        int lines_drawn = 0;
-        while (lines_drawn < max_drawable_lines)
+        if (max_drawable_lines == 0 && full)
         {
-            const std::pair<int, int> line_info = hist.get_relative_line_info(lines_drawn, msg_idx, line_idx); 
-            ConsoleMessage& msg = hist.h[line_info.first];
-
-            if ((line_info.first > (int(hist.h.size()) - 1))
-                || (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1)))
+            pushfont("super");
+            draw_textf("Nothing to see here", pos.x + FONTTAB, pos.y, 0, (height_mainview / 2.f), 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, dims.w);
+            popfont();
+        }
+        else
+        {
+            tz += FONTH * (max_drawable_lines - 1);
+            int lines_drawn = 0;
+            while (lines_drawn < max_drawable_lines)
             {
-                printf("Warning: fix this, no need to hurry tho, I caught the error and prevented the crash, you're welcome :)\n");
-                break;
-            }
+                const std::pair<int, int> line_info = hist.get_relative_line_info(lines_drawn, msg_idx, line_idx); 
+                ConsoleMessage& msg = hist.h[line_info.first];
 
-            hist.read_message(line_info.first);
-            
-            // draw the line background color if there is any specified
-            if (hist.type_background_colors.find(msg.type) != hist.type_background_colors.end())
-            {
-                std::pair<int, float> color = hist.type_background_colors[msg.type];
+                if ((line_info.first > (int(hist.h.size()) - 1))
+                    || (line_info.second > (int(hist.h[line_info.first].lines.size()) - 1)))
+                {
+                    printf("Warning: fix this, no need to hurry tho, I caught the error and prevented the crash, you're welcome :)\n");
+                    break;
+                }
+
+                hist.read_message(line_info.first);
                 
-                gle::color(vec::hexcolor(color.first), color.second);
+                // draw the line background color if there is any specified
+                if (hist.type_background_colors.find(msg.type) != hist.type_background_colors.end())
+                {
+                    std::pair<int, float> color = hist.type_background_colors[msg.type];
+                    
+                    gle::color(vec::hexcolor(color.first), color.second);
+                    
+                    if (full)
+                    {
+                        draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
+                    }
+                    else
+                    {
+                        // only draw a small rectangle on the left side next to the text, so it doesn't
+                        // take up the entire length of the screen and distract from gameplay
+                        draw_rect(vec2(text_r, text_pos.y + tz), vec2(FONTW, FONTH), false);
+                    }
+                }
                 
-                if (full)
+                short max_time = 1000;
+                float alpha = 1;
+                float offset = 0;
+                if (!full)
                 {
-                    draw_rect(vec2(text_r, text_pos.y + tz), vec2(dims.w, FONTH), false);
+                    short fade_in_time = 200;
+                    short wait_time = 3000;
+                    short fade_out_time = 250;
+
+                    if (new_console.type_fade_times.find(msg.type) != new_console.type_fade_times.end())
+                    {
+                        const std::array<short, 3> fade_times = new_console.type_fade_times[msg.type];
+
+                        // if any of the values is smaller than 0, use the default
+                        fade_in_time = fade_times[0] >= 0 ? fade_times[0] : fade_in_time;
+                        wait_time = fade_times[0] ? fade_times[1] : wait_time;
+                        fade_out_time = fade_times[2] >= 0 ? fade_times[2] : fade_out_time;
+                    }
+
+                    msg.out_time = totalmillis - msg.reftime;
+                    max_time = fade_in_time + wait_time + fade_out_time; 
+                   
+                    if (msg.out_time >= 0 && msg.out_time < fade_in_time)
+                    {
+                        // fade in
+                        alpha = msg.out_time / float(fade_in_time); 
+                        // (alpha - 1) makes it so it transitions between -1 and 0, thus moving from the line above to it's intended
+                        // place
+                        offset = FONTH * (alpha - 1);
+                    }
+                    else if (msg.out_time >= wait_time + fade_in_time)
+                    {
+                        // fade out
+                        alpha = 1 - ((msg.out_time - (wait_time + fade_in_time)) / float(fade_out_time));
+                        // (alpha - 1) makes it so it transitions between 0 and -1, thus moving from it's intended place
+                        // to the line above
+                        offset = FONTH * (alpha - 1);
+                    }
                 }
-                else
-                {
-                    // only draw a small rectangle on the left side next to the text, so it doesn't
-                    // take up the entire length of the screen and distract from gameplay
-                    draw_rect(vec2(text_r, text_pos.y + tz), vec2(FONTW, FONTH), false);
+
+                // draw the line
+                tz -= draw_textf("%s", text_r, text_pos.y + tz + offset, 0, 0, 255, 255, 255, int(fade * alpha * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
+                    msg.lines[line_info.second].c_str());
+
+                if (!full)
+                { 
+                    if (msg.out_time >= max_time)
+                    {
+                        hist.remove_message(line_info.first);
+                    }
                 }
+                lines_drawn++;
             }
-            
-            short max_time = 1000;
-            float alpha = 1;
-            float offset = 0;
-            if (!full)
-            {
-                short fade_in_time = 200;
-                short wait_time = 3000;
-                short fade_out_time = 250;
-
-                if (new_console.type_fade_times.find(msg.type) != new_console.type_fade_times.end())
-                {
-                    const std::array<short, 3> fade_times = new_console.type_fade_times[msg.type];
-
-                    // if any of the values is smaller than 0, use the default
-                    fade_in_time = fade_times[0] >= 0 ? fade_times[0] : fade_in_time;
-                    wait_time = fade_times[0] ? fade_times[1] : wait_time;
-                    fade_out_time = fade_times[2] >= 0 ? fade_times[2] : fade_out_time;
-                }
-
-                msg.out_time = totalmillis - msg.reftime;
-                max_time = fade_in_time + wait_time + fade_out_time; 
-               
-                if (msg.out_time >= 0 && msg.out_time < fade_in_time)
-                {
-                    // fade in
-                    alpha = msg.out_time / float(fade_in_time); 
-                    // (alpha - 1) makes it so it transitions between -1 and 0, thus moving from the line above to it's intended
-                    // place
-                    offset = FONTH * (alpha - 1);
-                }
-                else if (msg.out_time >= wait_time + fade_in_time)
-                {
-                    // fade out
-                    alpha = 1 - ((msg.out_time - (wait_time + fade_in_time)) / float(fade_out_time));
-                    // (alpha - 1) makes it so it transitions between 0 and -1, thus moving from it's intended place
-                    // to the line above
-                    offset = FONTH * (alpha - 1);
-                }
-            }
-
-            // draw the line
-            tz -= draw_textf("%s", text_r, text_pos.y + tz + offset, 0, 0, 255, 255, 255, int(fade * alpha * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, text_scale, 1,
-                msg.lines[line_info.second].c_str());
-
-            if (!full)
-            { 
-                if (msg.out_time >= max_time)
-                {
-                    hist.remove_message(line_info.first);
-                }
-            }
-            lines_drawn++;
         }
 
         pophudmatrix();
@@ -2200,7 +2210,7 @@ namespace hud
                     // draw background 
                     const int color = i == selection ? 0x1855C7 : 0x2D323D;
                     gle::color(vec::hexcolor(color), .95f);
-                    
+ 
                     draw_rect(vec2(completion_box_x, pos_y), vec2(completion_box_width, FONTH), false);
                     
                     // draw icon if there is one

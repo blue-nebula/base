@@ -974,6 +974,14 @@ bool Console::process_key(int code, bool isdown)
                 {
                     completion_engines[curr_completion_engine]->select_entry(curr_completions[completion_selection_idx], *this);
                 }
+
+                if (int(get_buffer().size()) > 0)
+                {
+                    if (get_buffer()[0] != command_prefix)
+                    {
+                        set_buffer(command_prefix + get_buffer());
+                    }
+                }
                 break;
         }
     }
