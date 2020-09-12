@@ -1028,8 +1028,32 @@ static inline void skipcomments(const char *&p)
     for(;;)
     {
         p += strspn(p, " \t\r");
-        if(p[0]!='/' || p[1]!='/') break;
-        p += strcspn(p, "\n\0");
+        if(p[0] == '/' && p[1] == '/')
+        {
+            p += strcspn(p, "\n\0");
+        }
+        else if(p[0] == '/' && p[1] == '*')
+        {
+            p += 2;
+            for(;;)
+            {
+                p += strcspn(p, "*\0");
+                if(p[0] == '*' && p[1] == '/')
+                {
+                    p += 2;
+                    break;
+                }
+                else if(p[0] == '\0')
+                {
+                    break;
+                }
+                p++;
+            }
+        }
+        else
+        {
+            break;
+        }
     }
 }
 
