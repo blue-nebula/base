@@ -1822,7 +1822,7 @@ namespace hud
 
         const std::string console_tabs[tabs] = { 
             "\fg\f(textures/keys/f1) Chat \fw(\fc" + (num_messages[0] > 99 ? "99+" : std::to_string(num_messages[0])) + "\fw)", 
-            "\fr\f(textures/keys/f2) Console \fw(\fc" + (num_messages[1] > 99 ? "99+" : std::to_string(num_messages[1])) + "\fw)" 
+            "\fb\f(textures/keys/f2) Console \fw(\fc" + (num_messages[1] > 99 ? "99+" : std::to_string(num_messages[1])) + "\fw)" 
         };
         static const std::string console_tabs_max_len[tabs] = {
             "\f(textures/keys/f1) Chat (99+)",
@@ -1983,8 +1983,6 @@ namespace hud
         }
 
         const int max_drawable_lines = std::min(num_console_lines, histlen);
-        // we're drawing from bottom to top, thus move the "draw head" to the lowest position we'll get
-        //tz += FONTH * (max_drawable_lines - 1);
 
         if (max_drawable_lines == 0 && full)
         {
@@ -1994,6 +1992,7 @@ namespace hud
         }
         else
         {
+            // we're drawing from bottom to top, thus move the "draw head" to the lowest position position
             tz += FONTH * (max_drawable_lines - 1);
             int lines_drawn = 0;
             while (lines_drawn < max_drawable_lines)
