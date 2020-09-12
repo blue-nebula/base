@@ -1798,7 +1798,7 @@ namespace hud
         int scrollbar_height = int((page_size / max_val) * dims.h);
         scrollbar_height = std::min(std::max(min_scrollbar_height, scrollbar_height), int(dims.h));
 
-        int scrollbar_y = int((value / max_val) * dims.h);
+        const int scrollbar_y = int((value / max_val) * dims.h);
 
         // draw scrollbar background
         gle::color(vec::hexcolor(0x23283D), .95f);
@@ -2137,7 +2137,7 @@ namespace hud
             // don't draw anything if there aren't any completions
             if (int(curr_completions.size()) > 0)
             {
-                pushfont("console");
+                pushfont("default");
                  
                 static const int completion_icon_width = 32;
                 const int max_width = text_t - text_q + text_r;
