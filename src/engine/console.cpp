@@ -634,12 +634,17 @@ void Console::close_console()
     input_history.hist_pos = -1;
 }
 
-void Console::insert_in_buffer(const std::string text)
+int Console::max_buffer_len()
 {
     // client::maxmsglen() - "^f[0x000000]".length(), because
     // when sending we will append the saytextcolour to the beginning,
     // if we don't account for that the message will be cut short
-    int maxlen = std::min(client::maxmsglen() - 13, max_buffer_len);
+    return std::min(client::maxmsglen() - 13, 4096);
+}
+
+void Console::insert_in_buffer(const std::string text)
+{
+    const int maxlen = max_buffer_len();
 
     int remaining_space = maxlen - int(buffer.length());
     int insert_len = std::min(int(text.length()), remaining_space);
@@ -687,13 +692,24 @@ std::string Console::get_info_bar_text()
     const std::string COMMAND_TEXT = COMMAND_INFO_BEGIN +
                                 std::string("\fg") + command_prefix + std::string(" \fw")
                                 + COMMAND_INFO_END;
+    static const std::string REACHED_CHARACTER_LIMIT = "\frYou've reached the message character limit";
 
+    std::string ret = "";
     switch (get_mode())
     {
         case MODE_COMMAND:
-            return COMMAND_TEXT;
+            ret = COMMAND_TEXT;
+            break;
     }
-    return "";
+    if (int(get_buffer().size()) >= max_buffer_len())
+    {
+        if (ret.size() > 0)
+        {
+            ret += " \fw- ";
+        }
+        ret += REACHED_CHARACTER_LIMIT;
+    }
+    return ret;
 }
 
 Console new_console = Console();
@@ -790,7 +806,7 @@ bool paste_to_buffer()
     {
         return false;
     }
-    size_t len = new_console.max_buffer_len;
+    size_t len = new_console.max_buffer_len();
     size_t cblen = strlen(cb);
     char* buf = newstring("");
     size_t start = strlen(buf);

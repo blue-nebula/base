@@ -153,6 +153,8 @@ private:
     void buffer_delete_at_cursor();
     void buffer_remove_at_cursor();
 
+
+
     bool open = false;
     int cursor_pos = -1;
 
@@ -178,7 +180,6 @@ public:
     // constants
     const int get_page_size();
     const char command_prefix = '/';
-    const int max_buffer_len = 4096;
 
     // buffer
     void set_buffer(std::string text);
@@ -186,6 +187,7 @@ public:
     std::string get_buffer();
     void insert_in_buffer(const std::string text);
     void run_buffer();
+    int max_buffer_len();
 
     // opened/closed state
     bool is_open(); 
