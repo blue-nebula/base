@@ -2253,7 +2253,10 @@ namespace hud
 
                         draw_rect(vec2(completion_box_x, pos_y), desc_dims, false);
 
-                        pos_y += draw_textf(completion->get_description().c_str(), completion_text_x, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), TEXT_LEFT_JUSTIFY, -1, max_width, 1);
+                        // use %s to prevent any kind of formatting symbols in the description from fucking up the
+                        // draw_text formatting, e.g. when it contains %1 %2 etc
+                        pos_y += draw_textf("%s", completion_text_x, pos_y, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), TEXT_LEFT_JUSTIFY, -1, max_width, 1,
+                                completion->get_description().c_str());
 
                         popfont();
                     }
