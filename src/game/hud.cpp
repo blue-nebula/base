@@ -1910,6 +1910,9 @@ namespace hud
         return offset;
     }
 
+    const char* privtex(int priv, int actortype);
+
+    VAR(IDF_PERSIST, showconprivicon, 0, 1, 1);
     void drawconsole(int type, ivec2 dims, ivec2 pos, int s, float fade)
     {
         if ((!showconsole || !showhud) && !new_console.is_open())
@@ -2126,8 +2129,16 @@ namespace hud
             glBindTexture(GL_TEXTURE_2D, t->id);
             gle::color(vec::hexcolor(new_console.get_icon_color()), fullconblend * fade * f);
             pos_y += text_padding_y;
-            drawtexture(text_pos.x, pos_y, text_dims.y, text_dims.x);
-          
+            drawtexture(text_pos.x, pos_y, text_dims.h, text_dims.w);
+            if (showconprivicon)
+            {
+                // draw the privilege icon above the command icon
+                Texture* priv_icon = textureload(privtex(game::player1.privilege, game::player1.actortype), 3);
+                glBindTexture(GL_TEXTURE_2D, priv_icon->id);
+                gle::color(vec::hexcolor(game::findcolour(&game::player1)), 1);
+                drawtexture(text_pos.x + (text_dims.w / 2.f), pos_y + (text_dims.h / 2.f), text_dims.h / 1.5f, text_dims.w / 1.5f);
+            }
+
             const ivec input_color = ivec::fromcolor(new_console.get_say_text_color()); 
             // draw the input
             pos_y += draw_textf("%s", text_q + text_r, pos_y, 0, 0, input_color.r, input_color.g, input_color.b, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, new_console.get_cursor_pos(), text_t, 1,
