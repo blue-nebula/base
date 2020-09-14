@@ -1962,14 +1962,17 @@ namespace hud
                     std::max((histlen - histpos) - num_console_lines, 0), 
                     histlen);
         }
+        //TODO: Remove this
+        /*
         else
         {
             if (new_console.unseen_error_messages > 0)
             {
-                tz += draw_textf("\frUnseen Error Messages: %d", pos.x, pos.y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, 100 * FONTW, 1, 
+                tz += draw_textf("\frUnread Error Messages: %d", pos.x, pos.y, 0, 0, 255, 255, 255, 255, TEXT_LEFT_JUSTIFY, -1, 100 * FONTW, 1, 
                         new_console.unseen_error_messages);
             }
         }
+        */
 
         //////////////////
         /// DRAW LINES ///
