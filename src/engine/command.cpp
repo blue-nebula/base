@@ -1033,7 +1033,7 @@ static inline void skipcomments(const char *&p)
         // Skip single-line comment if found.
         if(p[0] == '/' && p[1] == '/')
         {
-            p += strcspn(p, "\n\0");
+            p += strcspn(p, "\n");
         }
 
         // Skip multi-line comment if found.
@@ -1042,7 +1042,7 @@ static inline void skipcomments(const char *&p)
             p += 2;
             for(;;)
             {
-                p += strcspn(p, "*\0");
+                p += strcspn(p, "*");
                 if(p[0] == '*' && p[1] == '/')
                 {
                     p += 2;
