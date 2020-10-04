@@ -808,7 +808,7 @@ void resetfps()
     fpspos = 0;
 }
 
-void updatefps(int frames, int millis)
+void updatefps(int millis)
 {
     fpshistory[fpspos++] = max(1, min(1000, millis));
     if(fpspos >= MAXFPSHISTORY) fpspos = 0;
@@ -1120,15 +1120,15 @@ int main(int argc, char **argv)
         blue_nebula_protocol_arg = NULL;
     }
 
-    for(int frameloops = 0; ; frameloops = frameloops >= INT_MAX-1 ? MAXFPSHISTORY+1 : frameloops+1)
+    for (bool first_frame = true; ; first_frame = false)
     {
         curtextscale = textscale;
         int elapsed = updatetimer(true);
-        updatefps(frameloops, elapsed);
+        updatefps(elapsed);
         checkinput();
         menuprocess();
 
-        if(frameloops)
+        if (!first_frame)
         {
             RUNWORLD("on_update");
             game::updateworld();
@@ -1137,7 +1137,7 @@ int main(int argc, char **argv)
         checksleep(lastmillis);
         serverslice();
         ircslice();
-        if(frameloops)
+        if (!first_frame)
         {
             game::recomputecamera(screenw, screenh);
             hud::update(screenw, screenh);
