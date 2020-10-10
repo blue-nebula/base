@@ -1948,58 +1948,8 @@ void viewproject(int targtype = VP_CAMERA)
     }
 }
 
-void drawnoviewtype(int targtype)
-{
-    if(targtype == VP_LEFT || targtype == VP_RIGHT)
-    {
-        if(viewtype >= VW_STEREO)
-        {
-            switch(viewtype)
-            {
-                case VW_STEREO_BLEND: setcolormask(targtype == VP_LEFT, false, targtype == VP_RIGHT); break;
-                case VW_STEREO_AVG: setcolormask(targtype == VP_LEFT, true, targtype == VP_RIGHT); break;
-                case VW_STEREO_BLEND_REDCYAN:
-                case VW_STEREO_REDCYAN: setcolormask(targtype == VP_LEFT, targtype == VP_RIGHT, targtype == VP_RIGHT); break;
-            }
-            glColorMask(COLORMASK, GL_TRUE);
-        }
-    }
-
-    xtravertsva = xtraverts = glde = gbatches = 0;
-
-    int w = screenw, h = screenh;
-    if(forceaspect) w = int(ceil(h*forceaspect));
-    gettextres(w, h);
-
-    hudmatrix.ortho(0, w, h, 0, -1, 1);
-    resethudmatrix();
-
-    glClearColor(0.f, 0.f, 0.f, 1);
-    if(clearview(viewtype, targtype)) glClear(GL_COLOR_BUFFER_BIT);
-
-    hudshader->set();
-
-    hud::update(screenw, screenh);
-    hud::drawhud(true);
-    hud::drawlast();
-
-    if(targtype == VP_LEFT || targtype == VP_RIGHT)
-    {
-        if(viewtype >= VW_STEREO)
-        {
-            setcolormask();
-            glColorMask(COLORMASK, GL_TRUE);
-        }
-    }
-}
-
 void drawviewtype(int targtype)
 {
-    updatedynlights();
-
-    setfog(fogmat, fogblend, abovemat);
-    viewproject(targtype);
-    setcamprojmatrix();
     if(targtype == VP_LEFT || targtype == VP_RIGHT)
     {
         if(viewtype >= VW_STEREO)
@@ -2015,123 +1965,152 @@ void drawviewtype(int targtype)
         }
     }
 
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-
-    xtravertsva = xtraverts = glde = gbatches = 0;
-
-    visiblecubes();
-
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_DEPTH_BUFFER_BIT | (wireframe && editmode && clearview(viewtype, targtype) ? GL_COLOR_BUFFER_BIT : 0));
-
-    if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    if(limitsky()) drawskybox(farplane, true);
-
-    rendergeom(causticspass);
-    if(!wireframe && editmode && (outline || (fullbright && blankgeom))) renderoutline();
-
-    queryreflections();
-    generategrass();
-
-    if(!limitsky()) drawskybox(farplane, false);
-
-    renderdecals(true);
-    renderavatar(true);
-
-    rendermapmodels();
-    rendergame();
-
-    if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    drawglaretex();
-    drawdepthfxtex();
-    drawreflections();
-
-    if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    renderwater();
-    rendergrass();
-
-    rendermaterials();
-    renderalphageom();
-
-    if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    renderparticles(true);
-
-    if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    renderavatar(false, true);
-
-    if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-
-    if(!viewtype)
+    if(!hasnoview())
     {
-        addmotionblur();
-        addglare();
-    }
-    if(isliquid(fogmat&MATF_VOLUME)) drawfogoverlay(fogmat, fogblend, abovemat);
-    if(!viewtype) renderpostfx();
+        updatedynlights();
 
-    if(editmode && !pixeling)
-    {
+        setfog(fogmat, fogblend, abovemat);
+        viewproject(targtype);
+        setcamprojmatrix();
+
+        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_FALSE);
 
-        renderblendbrush();
-        rendereditcursor();
+        xtravertsva = xtraverts = glde = gbatches = 0;
 
-        glDepthMask(GL_TRUE);
+        visiblecubes();
+
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_DEPTH_BUFFER_BIT | (wireframe && editmode && clearview(viewtype, targtype) ? GL_COLOR_BUFFER_BIT : 0));
+
+        if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        if(limitsky()) drawskybox(farplane, true);
+
+        rendergeom(causticspass);
+        if(!wireframe && editmode && (outline || (fullbright && blankgeom))) renderoutline();
+
+        queryreflections();
+        generategrass();
+
+        if(!limitsky()) drawskybox(farplane, false);
+
+        renderdecals(true);
+        renderavatar(true);
+
+        rendermapmodels();
+        rendergame();
+
+        if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        drawglaretex();
+        drawdepthfxtex();
+        drawreflections();
+
+        if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        renderwater();
+        rendergrass();
+
+        rendermaterials();
+        renderalphageom();
+
+        if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        renderparticles(true);
+
+        if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        renderavatar(false, true);
+
+        if(wireframe && editmode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
+
+        if(!viewtype)
+        {
+            addmotionblur();
+            addglare();
+        }
+        if(isliquid(fogmat&MATF_VOLUME)) drawfogoverlay(fogmat, fogblend, abovemat);
+        if(!viewtype) renderpostfx();
+
+        if(editmode && !pixeling)
+        {
+            glEnable(GL_DEPTH_TEST);
+            glDepthMask(GL_FALSE);
+
+            renderblendbrush();
+            rendereditcursor();
+
+            glDepthMask(GL_TRUE);
+            glDisable(GL_DEPTH_TEST);
+        }
+
+        int w = screenw, h = screenh;
+        if(forceaspect) w = int(ceil(h*forceaspect));
+        gettextres(w, h);
+
+        hudmatrix.ortho(0, w, h, 0, -1, 1);
+        resethudmatrix();
+
+        gle::colorf(1, 1, 1);
+
+        if(!pixeling || !editmode)
+        {
+            extern int debugsm;
+            if(debugsm)
+            {
+                extern void viewshadowmap();
+                viewshadowmap();
+            }
+
+            extern int debugglare;
+            if(debugglare)
+            {
+                extern void viewglaretex();
+                viewglaretex();
+            }
+
+            extern int debugdepthfx;
+            if(debugdepthfx)
+            {
+                extern void viewdepthfxtex();
+                viewdepthfxtex();
+            }
+
+            extern void debugparticles();
+            debugparticles();
+
+            hudshader->set();
+            hud::drawhud();
+            rendertexturepanel(w, h);
+            hud::drawlast();
+        }
+
+        renderedgame = false;
     }
-
-    int w = screenw, h = screenh;
-    if(forceaspect) w = int(ceil(h*forceaspect));
-    gettextres(w, h);
-
-    hudmatrix.ortho(0, w, h, 0, -1, 1);
-    resethudmatrix();
-
-    gle::colorf(1, 1, 1);
-
-    if(!pixeling || !editmode)
+    else
     {
-        extern int debugsm;
-        if(debugsm)
-        {
-            extern void viewshadowmap();
-            viewshadowmap();
-        }
+        xtravertsva = xtraverts = glde = gbatches = 0;
 
-        extern int debugglare;
-        if(debugglare)
-        {
-            extern void viewglaretex();
-            viewglaretex();
-        }
+        int w = screenw, h = screenh;
+        if(forceaspect) w = int(ceil(h*forceaspect));
+        gettextres(w, h);
 
-        extern int debugdepthfx;
-        if(debugdepthfx)
-        {
-            extern void viewdepthfxtex();
-            viewdepthfxtex();
-        }
+        hudmatrix.ortho(0, w, h, 0, -1, 1);
+        resethudmatrix();
 
-        extern void debugparticles();
-        debugparticles();
+        glClearColor(0.f, 0.f, 0.f, 1);
+        if(clearview(viewtype, targtype)) glClear(GL_COLOR_BUFFER_BIT);
 
         hudshader->set();
-        hud::drawhud();
-        rendertexturepanel(w, h);
+
+        hud::update(screenw, screenh);
+        hud::drawhud(true);
         hud::drawlast();
     }
-
-    renderedgame = false;
 
     if(targtype == VP_LEFT || targtype == VP_RIGHT)
     {
@@ -2177,22 +2156,21 @@ void gl_drawframe()
         game::project(w, h);
     }
 
-    void (*drawviewtype_fn)(int) = hasnoview() ? drawnoviewtype : drawviewtype;
     int oldcurtime = curtime;
 
     switch(viewtype)
     {
         case VW_NORMAL:
-            drawviewtype_fn(VP_CAMERA);
+            drawviewtype(VP_CAMERA);
             break;
 
         case VW_LEFTRIGHT:
         case VW_CROSSEYED:
-            drawviewtype_fn(VP_LEFT);
+            drawviewtype(VP_LEFT);
             views[VP_LEFT].copy();
             curtime = 0;
 
-            drawviewtype_fn(VP_RIGHT);
+            drawviewtype(VP_RIGHT);
             views[VP_RIGHT].copy();
             curtime = oldcurtime;
 
@@ -2213,14 +2191,14 @@ void gl_drawframe()
 
         case VW_STEREO_BLEND:
         case VW_STEREO_BLEND_REDCYAN:
-            drawviewtype_fn(VP_LEFT);
+            drawviewtype(VP_LEFT);
             curtime = 0;
 
-            drawviewtype_fn(VP_RIGHT);
+            drawviewtype(VP_RIGHT);
             views[VP_RIGHT].copy();
             curtime = 0;
 
-            drawviewtype_fn(VP_CAMERA);
+            drawviewtype(VP_CAMERA);
             curtime = oldcurtime;
 
             glDisable(GL_BLEND);
@@ -2236,13 +2214,13 @@ void gl_drawframe()
 
         case VW_STEREO_AVG:
         case VW_STEREO_REDCYAN:
-            drawviewtype_fn(VP_LEFT);
+            drawviewtype(VP_LEFT);
             if(viewtype == VW_STEREO_AVG)
             {
                 views[VP_LEFT].copy();
             }
             curtime = 0;
-            drawviewtype_fn(VP_RIGHT);
+            drawviewtype(VP_RIGHT);
             curtime = oldcurtime;
 
             glDisable(GL_BLEND);
