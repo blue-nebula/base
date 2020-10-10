@@ -865,7 +865,7 @@ void progress(float bar1, const char *text1, float bar2, const char *text2)
     }
 
     progressing = true;
-    loopi(2) { drawnoview(); swapbuffers(false); }
+    loopi(2) { gl_drawframe(); swapbuffers(false); }
     progressing = false;
 }
 
