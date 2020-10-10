@@ -1924,34 +1924,6 @@ void setcolormask(bool r, bool g, bool b)
     colormask[2] = b ? GL_TRUE : GL_FALSE;
 }
 
-bool needsview(int v, int targtype)
-{
-    switch(v)
-    {
-        case VW_NORMAL: return targtype == VP_CAMERA;
-        case VW_LEFTRIGHT:
-        case VW_CROSSEYED: return targtype == VP_LEFT || targtype == VP_RIGHT;
-        case VW_STEREO_BLEND:
-        case VW_STEREO_BLEND_REDCYAN: return targtype >= VP_LEFT && targtype <= VP_CAMERA;
-        case VW_STEREO_AVG:
-        case VW_STEREO_REDCYAN: return targtype == VP_LEFT || targtype == VP_RIGHT;
-    }
-    return false;
-}
-
-bool copyview(int v, int targtype)
-{
-    switch(v)
-    {
-        case VW_LEFTRIGHT:
-        case VW_CROSSEYED: return targtype == VP_LEFT || targtype == VP_RIGHT;
-        case VW_STEREO_BLEND:
-        case VW_STEREO_BLEND_REDCYAN: return targtype == VP_RIGHT;
-        case VW_STEREO_AVG: return targtype == VP_LEFT;
-    }
-    return false;
-}
-
 bool clearview(int v, int targtype)
 {
     switch(v)
@@ -2017,64 +1989,6 @@ void drawnoviewtype(int targtype)
         {
             setcolormask();
             glColorMask(COLORMASK, GL_TRUE);
-        }
-    }
-}
-
-void drawnoview()
-{
-    int copies = 0, oldcurtime = curtime;
-    loopi(VP_MAX) if(needsview(viewtype, i))
-    {
-        drawnoviewtype(i);
-        if(copyview(viewtype, i))
-        {
-            views[i].copy();
-            copies++;
-        }
-        curtime = 0;
-    }
-    if(needsview(viewtype, VP_CAMERA)) drawnoviewtype(VP_CAMERA);
-    curtime = oldcurtime;
-
-    if(!copies) return;
-
-    glDisable(GL_BLEND);
-    gle::colorf(1.f, 1.f, 1.f);
-    switch(viewtype)
-    {
-        case VW_LEFTRIGHT:
-        {
-            views[VP_LEFT].draw(0, 0, 0.5f, 1);
-            views[VP_RIGHT].draw(0.5f, 0, 0.5f, 1);
-            break;
-        }
-        case VW_CROSSEYED:
-        {
-            views[VP_LEFT].draw(0.5f, 0, 0.5f, 1);
-            views[VP_RIGHT].draw(0, 0, 0.5f, 1);
-            break;
-        }
-        case VW_STEREO_BLEND:
-        case VW_STEREO_BLEND_REDCYAN:
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            if(viewtype == VW_STEREO_BLEND) glColorMask(GL_TRUE, GL_FALSE, GL_TRUE, GL_TRUE);
-            gle::colorf(1.f, 1.f, 1.f, stereoblend); views[VP_RIGHT].draw(0, 0, 1, 1);
-            if(viewtype == VW_STEREO_BLEND) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            glDisable(GL_BLEND);
-            break;
-        }
-        case VW_STEREO_AVG:
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_CONSTANT_COLOR);
-            glBlendColor_(0.f, 0.5f, 1.f, 1.f);
-            gle::colorf(1.f, 0.5f, 0.f);
-            views[VP_LEFT].draw(0, 0, 1, 1);
-            glDisable(GL_BLEND);
-            break;
         }
     }
 }
@@ -2236,8 +2150,7 @@ bool hasnoview()
 
 void gl_drawframe()
 {
-    if(hasnoview()) drawnoview();
-    else
+    if(!hasnoview())
     {
         if(deferdrawtextures) drawtextures();
 
@@ -2262,88 +2175,89 @@ void gl_drawframe()
         viewproject();
         setcamprojmatrix();
         game::project(w, h);
+    }
 
-        int oldcurtime = curtime;
+    void (*drawviewtype_fn)(int) = hasnoview() ? drawnoviewtype : drawviewtype;
+    int oldcurtime = curtime;
 
-        switch(viewtype)
-        {
-            case VW_NORMAL:
-                drawviewtype(VP_CAMERA);
-                break;
+    switch(viewtype)
+    {
+        case VW_NORMAL:
+            drawviewtype_fn(VP_CAMERA);
+            break;
 
-            case VW_LEFTRIGHT:
-            case VW_CROSSEYED:
-                drawviewtype(VP_LEFT);
+        case VW_LEFTRIGHT:
+        case VW_CROSSEYED:
+            drawviewtype_fn(VP_LEFT);
+            views[VP_LEFT].copy();
+            curtime = 0;
+
+            drawviewtype_fn(VP_RIGHT);
+            views[VP_RIGHT].copy();
+            curtime = oldcurtime;
+
+            glDisable(GL_BLEND);
+            gle::colorf(1.f, 1.f, 1.f);
+            if(viewtype == VW_LEFTRIGHT)
+            {
+                views[VP_LEFT].draw(0, 0, 0.5f, 1);
+                views[VP_RIGHT].draw(0.5f, 0, 0.5f, 1);
+            }
+            else if(viewtype == VW_CROSSEYED)
+            {
+                views[VP_LEFT].draw(0.5f, 0, 0.5f, 1);
+                views[VP_RIGHT].draw(0, 0, 0.5f, 1);
+            }
+
+            break;
+
+        case VW_STEREO_BLEND:
+        case VW_STEREO_BLEND_REDCYAN:
+            drawviewtype_fn(VP_LEFT);
+            curtime = 0;
+
+            drawviewtype_fn(VP_RIGHT);
+            views[VP_RIGHT].copy();
+            curtime = 0;
+
+            drawviewtype_fn(VP_CAMERA);
+            curtime = oldcurtime;
+
+            glDisable(GL_BLEND);
+            gle::colorf(1.f, 1.f, 1.f);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            if(viewtype == VW_STEREO_BLEND) glColorMask(GL_TRUE, GL_FALSE, GL_TRUE, GL_TRUE);
+            gle::colorf(1.f, 1.f, 1.f, stereoblend); views[VP_RIGHT].draw(0, 0, 1, 1);
+            if(viewtype == VW_STEREO_BLEND) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+            glDisable(GL_BLEND);
+
+            break;
+
+        case VW_STEREO_AVG:
+        case VW_STEREO_REDCYAN:
+            drawviewtype_fn(VP_LEFT);
+            if(viewtype == VW_STEREO_AVG)
+            {
                 views[VP_LEFT].copy();
-                curtime = 0;
+            }
+            curtime = 0;
+            drawviewtype_fn(VP_RIGHT);
+            curtime = oldcurtime;
 
-                drawviewtype(VP_RIGHT);
-                views[VP_RIGHT].copy();
-                curtime = oldcurtime;
-
-                glDisable(GL_BLEND);
-                gle::colorf(1.f, 1.f, 1.f);
-                if(viewtype == VW_LEFTRIGHT)
-                {
-                    views[VP_LEFT].draw(0, 0, 0.5f, 1);
-                    views[VP_RIGHT].draw(0.5f, 0, 0.5f, 1);
-                }
-                else if(viewtype == VW_CROSSEYED)
-                {
-                    views[VP_LEFT].draw(0.5f, 0, 0.5f, 1);
-                    views[VP_RIGHT].draw(0, 0, 0.5f, 1);
-                }
-
-                break;
-
-            case VW_STEREO_BLEND:
-            case VW_STEREO_BLEND_REDCYAN:
-                drawviewtype(VP_LEFT);
-                curtime = 0;
-
-                drawviewtype(VP_RIGHT);
-                views[VP_RIGHT].copy();
-                curtime = 0;
-
-                drawviewtype(VP_CAMERA);
-                curtime = oldcurtime;
-
-                glDisable(GL_BLEND);
-                gle::colorf(1.f, 1.f, 1.f);
+            glDisable(GL_BLEND);
+            gle::colorf(1.f, 1.f, 1.f);
+            if(viewtype == VW_STEREO_AVG)
+            {
                 glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                if(viewtype == VW_STEREO_BLEND) glColorMask(GL_TRUE, GL_FALSE, GL_TRUE, GL_TRUE);
-                gle::colorf(1.f, 1.f, 1.f, stereoblend); views[VP_RIGHT].draw(0, 0, 1, 1);
-                if(viewtype == VW_STEREO_BLEND) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                glBlendFunc(GL_ONE, GL_CONSTANT_COLOR);
+                glBlendColor_(0.f, 0.5f, 1.f, 1.f);
+                gle::colorf(1.f, 0.5f, 0.f);
+                views[VP_LEFT].draw(0, 0, 1, 1);
                 glDisable(GL_BLEND);
+            }
 
-                break;
-
-            case VW_STEREO_AVG:
-            case VW_STEREO_REDCYAN:
-                drawviewtype(VP_LEFT);
-                if(viewtype == VW_STEREO_AVG)
-                {
-                    views[VP_LEFT].copy();
-                }
-                curtime = 0;
-                drawviewtype(VP_RIGHT);
-                curtime = oldcurtime;
-
-                glDisable(GL_BLEND);
-                gle::colorf(1.f, 1.f, 1.f);
-                if(viewtype == VW_STEREO_AVG)
-                {
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_ONE, GL_CONSTANT_COLOR);
-                    glBlendColor_(0.f, 0.5f, 1.f, 1.f);
-                    gle::colorf(1.f, 0.5f, 0.f);
-                    views[VP_LEFT].draw(0, 0, 1, 1);
-                    glDisable(GL_BLEND);
-                }
-
-                break;
-        }
+            break;
     }
 }
 
