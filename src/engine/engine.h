@@ -250,7 +250,6 @@ extern void rendergame();
 extern void setavatarscale(float zscale);
 extern void renderavatar(bool early = false, bool project = false);
 extern void invalidatepostfx();
-extern void drawnoview();
 extern bool hasnoview();
 extern void gl_drawframe();
 extern void drawminimap();
