@@ -2173,7 +2173,6 @@ void gl_drawframe()
 
             drawviewtype(VP_RIGHT);
             views[VP_RIGHT].copy();
-            curtime = oldcurtime;
 
             glDisable(GL_BLEND);
             gle::colorf(1.f, 1.f, 1.f);
@@ -2200,7 +2199,6 @@ void gl_drawframe()
             curtime = 0;
 
             drawviewtype(VP_CAMERA);
-            curtime = oldcurtime;
 
             glDisable(GL_BLEND);
             gle::colorf(1.f, 1.f, 1.f);
@@ -2222,7 +2220,6 @@ void gl_drawframe()
             }
             curtime = 0;
             drawviewtype(VP_RIGHT);
-            curtime = oldcurtime;
 
             glDisable(GL_BLEND);
             gle::colorf(1.f, 1.f, 1.f);
@@ -2238,6 +2235,8 @@ void gl_drawframe()
 
             break;
     }
+
+    curtime = oldcurtime;
 }
 
 void usetexturing(bool on)
