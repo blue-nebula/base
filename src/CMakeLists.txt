@@ -6,6 +6,13 @@ cmake_minimum_required(VERSION 3.8)
 set(COMMON_C_FLAGS "-Wall -fsigned-char")
 set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math -fexceptions")
 
+# "fix" (well, hide) annoying GL deprecation warnings spam on macOS
+if(APPLE)
+    message(WARNING "macOS build detected, hiding annoying GL deprecation warnings")
+    set(COMMON_CXX_FLAGS "${COMMON_CXX_FLAGS} -DGL_SILENCE_DEPRECATION")
+endif()
+
+
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     message(STATUS "Release build detected, adding release flags")
     set(COMMON_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fomit-frame-pointer -fstack-protector-all -fpic -fpie -D_FORTIFY_SOURCE=2")
