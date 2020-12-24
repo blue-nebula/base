@@ -42,9 +42,3 @@ bool mac_capslock()
     NSUInteger flags = [NSEvent modifierFlags]&NSDeviceIndependentModifierFlagsMask;
     return (flags&NSAlphaShiftKeyMask)!=0;
 }
-
-bool mac_numlock()
-{
-    NSUInteger flags = [NSEvent modifierFlags]&NSDeviceIndependentModifierFlagsMask;
-    return (flags&NSNumericPadKeyMask)!=0;
-}
