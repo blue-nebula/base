@@ -937,10 +937,6 @@ void writecompletions(stream *f)
     }
 }
 
-#ifdef __APPLE__
-extern bool mac_capslock();
-#endif
-
 bool capslockon = false;
 #if !defined(WIN32) && !defined(__APPLE__)
 #include <X11/XKBlib.h>

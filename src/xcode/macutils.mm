@@ -36,9 +36,3 @@ const char *mac_sauerbratendir() {
     if(path) path = [path stringByAppendingPathComponent:@"Contents/gamedata"];
     return path ? copystring(dir, [path fileSystemRepresentation]) : NULL;
 }
-
-bool mac_capslock()
-{
-    NSUInteger flags = [NSEvent modifierFlags]&NSDeviceIndependentModifierFlagsMask;
-    return (flags&NSAlphaShiftKeyMask)!=0;
-}
