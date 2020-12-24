@@ -938,9 +938,6 @@ void writecompletions(stream *f)
 }
 
 bool capslockon = false;
-#if !defined(WIN32) && !defined(__APPLE__)
-#include <X11/XKBlib.h>
-#endif
 bool capslocked()
 {
     // returns 1 if capslock is on
