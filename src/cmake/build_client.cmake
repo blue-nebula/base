@@ -132,15 +132,9 @@ if(BUILD_CLIENT)
             xcode/ConsoleView.m
         )
         list(APPEND client_sources ${mac_client_sources})
-    elseif(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(x11 x11 REQUIRED IMPORTED_TARGET)
-        list(APPEND client_deps PkgConfig::x11)
-
-        # apparently, OpenBSD doesn't ship with librt, but provides these symbols elsewhere
-        if(NOT CMAKE_HOST_SYSTEM_NAME MATCHES "OpenBSD")
+    # apparently, OpenBSD doesn't ship with librt, but provides these symbols elsewhere
+    elseif(NOT CMAKE_SYSTEM_NAME MATCHES "OpenBSD|Windows")
             list(APPEND client_deps rt)
-        endif()
     endif()
 
     # finally, add the executable build configuration

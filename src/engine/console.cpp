@@ -626,10 +626,7 @@ void processkey(int code, bool isdown)
             break;
 #endif
         case SDLK_CAPSLOCK:
-            if(!isdown) capslockon = capslocked();
-            break;
-        case SDLK_NUMLOCKCLEAR:
-            if(!isdown) numlockon = numlocked();
+            if(!isdown || !capslockon) capslockon = capslocked();
             break;
         default: break;
     }
@@ -940,54 +937,13 @@ void writecompletions(stream *f)
     }
 }
 
-#ifdef __APPLE__
-extern bool mac_capslock();
-extern bool mac_numlock();
-#endif
-
-bool capslockon = false, numlockon = false;
-#if !defined(WIN32) && !defined(__APPLE__)
-#include <X11/XKBlib.h>
-#endif
+bool capslockon = false;
 bool capslocked()
 {
-    #ifdef WIN32
-    if(GetKeyState(VK_CAPITAL)) return true;
-    #elif defined(__APPLE__)
-    if(mac_capslock()) return true;
-    #else
-    Display *d = XOpenDisplay((char*)0);
-    if(d)
-    {
-        uint n = 0;
-        XkbGetIndicatorState(d, XkbUseCoreKbd, &n);
-        XCloseDisplay(d);
-        return (n&0x01)!=0;
-    }
-    #endif
-    return false;
+    // returns 1 if capslock is on
+    return (SDL_GetModState() & KMOD_CAPS) == KMOD_CAPS;
 }
 ICOMMAND(0, getcapslock, "", (), intret(capslockon ? 1 : 0));
-
-bool numlocked()
-{
-    #ifdef WIN32
-    if(GetKeyState(VK_NUMLOCK)) return true;
-    #elif defined(__APPLE__)
-    if(mac_numlock()) return true;
-    #else
-    Display *d = XOpenDisplay((char*)0);
-    if(d)
-    {
-        uint n = 0;
-        XkbGetIndicatorState(d, XkbUseCoreKbd, &n);
-        XCloseDisplay(d);
-        return (n&0x02)!=0;
-    }
-    #endif
-    return false;
-}
-ICOMMAND(0, getnumlock, "", (), intret(numlockon ? 1 : 0));
 
 #ifndef STANDALONE
 bool consolegui(guient *g, int width, int height, const char *init, int &update)
