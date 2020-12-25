@@ -626,7 +626,7 @@ void processkey(int code, bool isdown)
             break;
 #endif
         case SDLK_CAPSLOCK:
-            if(!isdown) capslockon = capslocked();
+            if(!isdown || !capslockon) capslockon = capslocked();
             break;
         default: break;
     }
