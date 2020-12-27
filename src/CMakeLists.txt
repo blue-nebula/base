@@ -77,24 +77,27 @@ endif()
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
 
+# import enet
+# note that we have to include this before setting CMAKE_EXECUTABLE_SUFFIX
+# otherwise, enet's platform tests fail with cryptic error messages
+set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
+add_subdirectory(${ENET_SOURCE_DIRECTORY})
+
 # platform specific code
+# the binary suffix is appended to all executables' filenames
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(BIN_SUFFIX "_linux")
+    set(CMAKE_EXECUTABLE_SUFFIX "_linux")
 elseif(APPLE)
-    set(BIN_SUFFIX "_osx")
+    set(CMAKE_EXECUTABLE_SUFFIX "_osx")
 
     # TODO: fix genkey on macOS
     set(BUILD_GENKEY OFF)
 elseif(MINGW)
-    set(BIN_SUFFIX "_windows")
+    set(CMAKE_EXECUTABLE_SUFFIX "_windows")
 else()
     message(WARNING "Unknown build platform")
-    set(BIN_SUFFIX "_unknown")
+    set(CMAKE_EXECUTABLE_SUFFIX "_unknown")
 endif()
-
-# import enet
-set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
-add_subdirectory(${ENET_SOURCE_DIRECTORY})
 
 # configure local includes
 include_directories(
