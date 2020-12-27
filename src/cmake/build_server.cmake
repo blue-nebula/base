@@ -61,16 +61,16 @@ if(BUILD_SERVER)
     endif()
 
     # add the server executable and link it to enet
-    add_blue_nebula_executable(${APPNAME}_server${BIN_SUFFIX} ${server_sources})
+    add_blue_nebula_executable(${APPNAME}_server ${server_sources})
 
     # server only depends on enet
-    target_link_libraries(${APPNAME}_server${BIN_SUFFIX} ${server_deps})
+    target_link_libraries(${APPNAME}_server ${server_deps})
 
     # (define STANDALONE to "notify" the preprocessor that the server is built this time)
-    set_target_properties(${APPNAME}_server${BIN_SUFFIX} PROPERTIES
+    set_target_properties(${APPNAME}_server PROPERTIES
         COMPILE_FLAGS "-DSTANDALONE"
     )
 
     # make sure .rc file is added
-    add_windows_rc_file(${APPNAME}_server${BIN_SUFFIX})
+    add_windows_rc_file(${APPNAME}_server)
 endif()
