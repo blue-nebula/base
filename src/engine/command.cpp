@@ -1027,9 +1027,40 @@ static inline void skipcomments(const char *&p)
 {
     for(;;)
     {
+        // Skip whitespace before comments.
         p += strspn(p, " \t\r");
-        if(p[0]!='/' || p[1]!='/') break;
-        p += strcspn(p, "\n\0");
+
+        // Skip single-line comment if found.
+        if(p[0] == '/' && p[1] == '/')
+        {
+            p += strcspn(p, "\n");
+        }
+
+        // Skip multi-line comment if found.
+        else if(p[0] == '/' && p[1] == '*')
+        {
+            p += 2;
+            for(;;)
+            {
+                p += strcspn(p, "*");
+                if(p[0] == '*' && p[1] == '/')
+                {
+                    p += 2;
+                    break;
+                }
+                else if(p[0] == '\0')
+                {
+                    break;
+                }
+                p++;
+            }
+        }
+
+        // No comment found means we're done.
+        else
+        {
+            break;
+        }
     }
 }
 

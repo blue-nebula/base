@@ -6,6 +6,13 @@ cmake_minimum_required(VERSION 3.8)
 set(COMMON_C_FLAGS "-Wall -fsigned-char")
 set(COMMON_CXX_FLAGS "-fno-rtti -ffast-math -fexceptions")
 
+# "fix" (well, hide) annoying GL deprecation warnings spam on macOS
+if(APPLE)
+    message(WARNING "macOS build detected, hiding annoying GL deprecation warnings")
+    set(COMMON_CXX_FLAGS "${COMMON_CXX_FLAGS} -DGL_SILENCE_DEPRECATION")
+endif()
+
+
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     message(STATUS "Release build detected, adding release flags")
     set(COMMON_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fomit-frame-pointer -fstack-protector-all -fpic -fpie -D_FORTIFY_SOURCE=2")
@@ -49,43 +56,48 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_C_FLAGS} ${COMMON_CXX_FLAGS}")
 
+# override from outside or in the platform specific code to exclude targets from being built
+set(BUILD_CLIENT ON CACHE STRING "Build client")
+set(BUILD_SERVER ON CACHE STRING "Build server")
+set(BUILD_GENKEY ON CACHE STRING "Build genkey")
+
 # we use find_package instead of pkg_check_modules etc. so we do not depend on .pc files for libraries used across all platforms
 # this allows for easier cross-compiling with MinGW, as we can use the precompiled libraries
 find_package(ZLIB REQUIRED)
 
 # for SDL2* we need to ship custom configs
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(SDL2_mixer REQUIRED)
+if(BUILD_CLIENT)
+    find_package(SDL2 REQUIRED)
+    find_package(SDL2_image REQUIRED)
+    find_package(SDL2_mixer REQUIRED)
+endif()
 
 # OpenGL may be imported with pkg-config on Unix, but that doesn't work on macOS
 set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
 
-# override from outside or in the platform specific code to exclude targets from being built
-set(BUILD_CLIENT ON)
-set(BUILD_SERVER ON)
-set(BUILD_GENKEY ON)
+# import enet
+# note that we have to include this before setting CMAKE_EXECUTABLE_SUFFIX
+# otherwise, enet's platform tests fail with cryptic error messages
+set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
+add_subdirectory(${ENET_SOURCE_DIRECTORY})
 
 # platform specific code
+# the binary suffix is appended to all executables' filenames
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(BIN_SUFFIX "_linux")
+    set(CMAKE_EXECUTABLE_SUFFIX "_linux")
 elseif(APPLE)
-    set(BIN_SUFFIX "_osx")
+    set(CMAKE_EXECUTABLE_SUFFIX "_osx")
 
     # TODO: fix genkey on macOS
     set(BUILD_GENKEY OFF)
 elseif(MINGW)
-    set(BIN_SUFFIX "_windows")
+    set(CMAKE_EXECUTABLE_SUFFIX "_windows")
 else()
     message(WARNING "Unknown build platform")
-    set(BIN_SUFFIX "_unknown")
+    set(CMAKE_EXECUTABLE_SUFFIX "_unknown")
 endif()
-
-# import enet
-set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
-add_subdirectory(${ENET_SOURCE_DIRECTORY})
 
 # configure local includes
 include_directories(

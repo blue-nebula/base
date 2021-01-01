@@ -132,18 +132,17 @@ if(BUILD_CLIENT)
             xcode/ConsoleView.m
         )
         list(APPEND client_sources ${mac_client_sources})
-    elseif(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(x11 x11 REQUIRED IMPORTED_TARGET)
-        list(APPEND client_deps PkgConfig::x11 rt)
+    # apparently, OpenBSD doesn't ship with librt, but provides these symbols elsewhere
+    elseif(NOT CMAKE_SYSTEM_NAME MATCHES "OpenBSD|Windows")
+            list(APPEND client_deps rt)
     endif()
 
     # finally, add the executable build configuration
-    add_blue_nebula_executable(${APPNAME}${BIN_SUFFIX} ${client_sources})
+    add_blue_nebula_executable(${APPNAME} ${client_sources})
 
     # CMake will also configure include dirs etc. for all targets linked against with target_link_libraries
-    target_link_libraries(${APPNAME}${BIN_SUFFIX} ${client_deps})
+    target_link_libraries(${APPNAME} ${client_deps})
 
     # make sure .rc file is added
-    add_windows_rc_file(${APPNAME}${BIN_SUFFIX})
+    add_windows_rc_file(${APPNAME})
 endif()
