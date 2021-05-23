@@ -20,7 +20,7 @@ The builds are, as of yet, **fully compatible with Red Eclipse 1.5.8 to 1.6.0**.
 
 ## Get in touch
 
-This project is still very young. We provide an official chatroom on the [freenode IRC network](https://freenode.net/). Our channel is [`#blue-nebula`](irc://chat.freenode.net/blue-nebula) ([webchat](https://webchat.freenode.net/#blue-nebula)).
+This project is still very young. We provide an official chatroom on the [Libera.Chat IRC network](https://libera.chat/). Our channel is [`#blue-nebula`](ircs://irc.libera.chat/blue-nebula).
 Please do not hesitate to get in touch with us!
 
 
