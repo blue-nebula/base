@@ -1,7 +1,7 @@
 = Blue Nebula IRC Channel =
 
 The Blue Nebula IRC (Internet Relay Chat) channel is located in #blue-nebula on
-the Freenode Network (chat.freenode.net). If you don't have an IRC client
+the Libera.Chat Network (irc.libera.chat). If you don't have an IRC client
 installed, you may access the channel from your web browser at
 https://go.blue-nebula.org/irc-chat
 
