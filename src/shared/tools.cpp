@@ -1,39 +1,43 @@
 // implementation of generic tools
 
+#include <random>
 #include "cube.h"
 
 ////////////////////////// rnd numbers ////////////////////////////////////////
 
-#define N (624)
-#define M (397)
-#define K (0x9908B0DFU)
+// seed stored statically to avoid excessive syscall overhead
+std::random_device rndseed;
+std::mt19937 rndalg(rndseed());
 
-static uint state[N];
-static int next = N;
-
-void seedMT(uint seed)
+// generate a random number up to a certain amount (value),
+// but start counting from 0
+int rnd(int value)
 {
-    state[0] = seed;
-    for(uint i = 1; i < N; i++)
-        state[i] = seed = 1812433253U * (seed ^ (seed >> 30)) + i;
-    next = 0;
+    std::uniform_int_distribution<> rndint(0, value-1);
+    return rndint(rndalg);
 }
 
-uint randomMT()
+// rndscale has been renamed to rndfloat:
+// it doesn't necessarily have to do anything with scaling
+float rndfloat(int value)
 {
-    int cur = next;
-    if(++next >= N)
-    {
-        if(next > N) { seedMT(5489U + time(NULL)); cur = next++; }
-        else next = 0;
-    }
-    uint y = (state[cur] & 0x80000000U) | (state[next] & 0x7FFFFFFFU);
-    state[cur] = y = state[cur < N-M ? cur + M : cur + M-N] ^ (y >> 1) ^ (-int(y & 1U) & K);
-    y ^= (y >> 11);
-    y ^= (y <<  7) & 0x9D2C5680U;
-    y ^= (y << 15) & 0xEFC60000U;
-    y ^= (y >> 18);
-    return y;
+    std::uniform_real_distribution<> rndreal(0, value-1);
+    return rndreal(rndalg);
+}
+
+// deterministic RNG:
+// used to generate closer results by having the same seed
+int detrnd(int seed, int value)
+{
+    std::mt19937 algseed(seed);
+    std::uniform_int_distribution<> rnddet(0, value-1);
+    return rnddet(algseed);
+}
+
+// randomMT has been renamed to tmprnd for adhoc RNG
+uint tmprnd()
+{
+    return rndalg();
 }
 
 ///////////////////////// network ///////////////////////
