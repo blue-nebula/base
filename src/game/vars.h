@@ -89,11 +89,20 @@ GVAR(IDF_ADMIN, floodtime, 250, 10000, VAR_MAX); // time span to check for flood
 GVAR(IDF_ADMIN, floodlines, 1, 5, VAR_MAX); // number of lines in aforementioned span before too many
 
 GVAR(IDF_ADMIN, teamkilllock, 0, PRIV_OPERATOR, PRIV_MAX);
+GVAR(IDF_ADMIN, teamkillsplitactortype, 0, 0, 3); // pick what sort of teamkills to count/punish (0: bots and players, 1: bots and players separately, 2: players only, 3: bots only)
 GVAR(IDF_ADMIN, teamkillwarn, 1, 3, VAR_MAX); // automatically warn player every this many team kills
 GVAR(IDF_ADMIN, teamkillkick, 0, 3, VAR_MAX); // automatically kick player at this many warnings
 GVAR(IDF_ADMIN, teamkillban, 0, 4, VAR_MAX); // automatically ban player at this many warnings
 GVAR(IDF_ADMIN, teamkilltime, 0, 5, VAR_MAX); // time threshold (in minutes) to count
 GVAR(IDF_ADMIN, teamkillrestore, 0, 1, VAR_MAX); // restore the team score as if the offender was never there if it was by this much
+
+GVAR(IDF_ADMIN, playerteamkillwarn, 1, 3, VAR_MAX); // automatically warn player every this many team kills
+GVAR(IDF_ADMIN, playerteamkillkick, 0, 3, VAR_MAX); // automatically kick player at this many warnings
+GVAR(IDF_ADMIN, playerteamkillban, 0, 4, VAR_MAX); // automatically ban player at this many warnings
+
+GVAR(IDF_ADMIN, botteamkillwarn, 1, 3, VAR_MAX); // automatically warn player every this many team kills
+GVAR(IDF_ADMIN, botteamkillkick, 0, 3, VAR_MAX); // automatically kick player at this many warnings
+GVAR(IDF_ADMIN, botteamkillban, 0, 4, VAR_MAX); // automatically ban player at this many warnings
 
 GVAR(IDF_ADMIN, autospectate, 0, 1, 1); // auto spectate if idle, 1 = auto spectate when remaining dead for autospecdelay
 GVAR(IDF_ADMIN, autospecdelay, 0, 60000, VAR_MAX);
