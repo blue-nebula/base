@@ -6460,8 +6460,14 @@ namespace server
                             defformatstring(t, " (to team %s)", colourteam(fcp->team));
                             concatstring(m, t);
                         }
-                        if(flags&SAY_ACTION) relayf(0, "\fv* %s %s", m, output);
-                        else relayf(0, "\fw<%s> %s", m, output);
+                        if (flags&SAY_ACTION) {
+                            relayf(0, "\fv* %s %s", m, output);
+                        } else if (flags&SAY_WARNING) {
+                            defformatstring(t, "%s\fzwy, ", colourname(tcp));
+                            prependstring(m, t);
+                        } else {
+                            relayf(0, "\fw<%s> %s", m, output);
+                        }
                     }
                     break;
                 }
@@ -6887,6 +6893,7 @@ namespace server
                     switch(value)
                     {
                         CONTROLSWITCH(-1, kick);
+                        CONTROLSWITCH(-2, warn);
                         CONTROLSWITCH(ipinfo::ALLOW, allow);
                         CONTROLSWITCH(ipinfo::BAN, ban);
                         CONTROLSWITCH(ipinfo::MUTE, mute);
