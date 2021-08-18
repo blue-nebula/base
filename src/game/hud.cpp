@@ -85,6 +85,7 @@ namespace hud
     FVAR(IDF_PERSIST, chatconblend, 0, 1, 1);
     FVAR(IDF_PERSIST, chatconscale, FVAR_NONZERO, 1, FVAR_MAX);
     SVAR(IDF_PERSIST, chatcondateformat, "%H:%M:%S");
+    VAR(IDF_PERSIST, chatdisabled, 0, 0, 1);
 
     FVAR(IDF_PERSIST, selfconblend, 0, 1, 1);
     FVAR(IDF_PERSIST, fullconblend, 0, 1, 1);
