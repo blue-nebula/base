@@ -1147,8 +1147,16 @@ namespace client
             defformatstring(st, " (to team %s)", game::colourteam(f->team));
             concatstring(name, st);
         }
-        if(flags&SAY_ACTION) formatstring(line, "\fv* %s %s", name, msg);
-        else formatstring(line, "\fw<%s> %s", name, msg);
+        else if (flags&SAY_WARNING)
+        {
+            defformatstring(swarn, "%s\fzwy, ", game::colourname(t));
+            prependstring(msg, swarn);
+        }
+
+        if (flags&SAY_ACTION)
+            formatstring(line, "\fv* %s %s", name, msg);
+        else
+            formatstring(line, "\fw<%s> %s", name, msg);
 
         int snd = S_CHAT;
         ident *wid = idents.access(flags&SAY_ACTION ? "on_action" : "on_text");
@@ -1178,7 +1186,7 @@ namespace client
         {
             bigstring output;
             copystring(output, text, messagelength);
-            if(flags&SAY_WHISPER)
+            if (flags&SAY_WHISPER || flags&SAY_WARNING)
             {
                 gameent *e = game::getclient(parseplayer(target));
                 if(e && e->clientnum != game::player1.clientnum)
@@ -1198,6 +1206,7 @@ namespace client
     ICOMMAND(0, meteam, "C", (char *s), toserver(SAY_ACTION|SAY_TEAM, s));
     ICOMMAND(0, whisper, "ss", (char *t, char *s), toserver(SAY_WHISPER, s, t));
     ICOMMAND(0, mewhisper, "ss", (char *t, char *s), toserver(SAY_ACTION|SAY_WHISPER, s, t));
+    ICOMMAND(0, warn, "ss", (char *t, char *s), if (haspriv(&game::player1, G(warnlock))) toserver(SAY_WARNING, s, t));
 
     void parsecommand(gameent *d, const char *cmd, const char *arg)
     {
