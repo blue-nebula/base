@@ -7,8 +7,8 @@ env:
 
 jobs:
   build-nix:
-    name: Ubuntu xenial (x86_64) debug
-    runs-on: ubuntu-16.04
+    name: Ubuntu bionic (x86_64) debug
+    runs-on: ubuntu-18.04
     env:
       BUILD_TYPE: Debug
     steps:
@@ -21,8 +21,8 @@ jobs:
         run: bash -xe ci/build-nix.sh
 
   build-nix-release:
-    name: Ubuntu xenial (x86_64) release
-    runs-on: ubuntu-16.04
+    name: Ubuntu bionic (x86_64) release
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - name: Checkout enet submodule
