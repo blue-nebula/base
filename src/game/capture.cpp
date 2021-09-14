@@ -217,14 +217,6 @@ namespace capture
                 }
                 else if(millis <= 1000) skew += (1.f-skew)-(clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew));
                 int oldy = y-sy;
-                sy += hud::drawitem(hud::flagtex, x, oldy, size, 0, true, false, c.r, c.g, c.b, blend, skew);
-                if(f.owner)
-                {
-                    vec c2 = vec::hexcolor(TEAM(f.owner->team, colour));
-                    hud::drawitem(hud::flagtakentex, x, oldy, size, 0.5f, true, false, c2.r, c2.g, c2.b, blend, skew);
-                }
-                else if(f.droptime) hud::drawitem(hud::flagdroptex, x, oldy, size, 0.5f, true, false, 0.25f, 1.f, 1.f, blend, skew);
-                else hud::drawitem(hud::teamtexname(f.team), x, oldy, size, 0.5f, true, false, c.r, c.g, c.b, blend, skew);
                 if(gs_playing(game::gamestate) && (f.droptime || (m_ctf_protect(game::gamemode, game::mutators) && f.taketime && f.owner && f.owner->team != f.team)))
                 {
                     float wait = f.droptime ? clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f);
@@ -235,6 +227,18 @@ namespace capture
                         flashcolour(c.r, c.g, c.b, 0.65f, 0.65f, 0.65f, amt);
                     }
                     hud::drawitembar(x, oldy, size, false, c.r, c.g, c.b, blend, skew, wait);
+                    sy += hud::drawitem(hud::flagtex, x, oldy, size, 0, true, false, c.r, c.g, c.b, blend, skew, "super", "%d%%", int(wait*100.f));
+                } else {
+                    sy += hud::drawitem(hud::flagtex, x, oldy, size, 0, true, false, c.r, c.g, c.b, blend, skew);
+                }
+
+                if (f.owner) {
+                    vec c2 = vec::hexcolor(TEAM(f.owner->team, colour));
+                    hud::drawitem(hud::flagtakentex, x, oldy, size, 0.5f, true, false, c2.r, c2.g, c2.b, blend, skew);
+                } else if (f.droptime) {
+                    hud::drawitem(hud::flagdroptex, x, oldy, size, 0.5f, true, false, 0.25f, 1.f, 1.f, blend, skew);
+                } else {
+                    hud::drawitem(hud::teamtexname(f.team), x, oldy, size, 0.5f, true, false, c.r, c.g, c.b, blend, skew);
                 }
             }
         }
