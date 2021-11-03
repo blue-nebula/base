@@ -4022,6 +4022,40 @@ namespace server
         return false;
     }
 
+    void moderate_team_kills (clientinfo *actor, int action) {
+        uint ip = getclientip(actor->clientnum);
+        actor->warnings[WARN_TEAMKILL][0]++;
+        actor->warnings[WARN_TEAMKILL][1] = totalmillis ? totalmillis : 1;
+
+        // availible actions are the following:
+        // 1: ban, 2: kick, 3: warn (chat warning only)
+        switch (action) {
+            case 1:
+                if (ip && !haspriv(actor, PRIV_MODERATOR) && !checkipinfo(control, ipinfo::EXCEPT, ip))
+                {
+                    ipinfo &c = control.add();
+                    c.ip = ip;
+                    c.mask = 0xFFFFFFFF;
+                    c.type = ipinfo::BAN;
+                    c.flag = ipinfo::INTERNAL;
+                    c.time = totalmillis ? totalmillis : 1;
+                    c.reason = newstring("team killing is not permitted");
+                    srvoutf(-3, "\fs\fcbanned\fS %s: %s", colourname(actor), c.reason);
+                    updatecontrols = true;
+                }
+                break;
+            case 2:
+                srvoutf(-3, "\fs\fckicked\fS %s: team killing is not permitted", colourname(actor));
+                actor->kicked = updatecontrols = true;
+                break;
+            case 3:
+                srvmsgft(actor->clientnum, CON_CHAT, "\fy\fs\fzoyWARNING:\fS team killing is not permitted, action will be taken if you continue");
+                break;
+            default:
+                break;
+        }
+    }
+
     void dodamage(clientinfo *m, clientinfo *v, int damage, int weap, int fromweap, int fromflags, int flags, int material, const ivec &hitpush = ivec(0, 0, 0), const ivec &hitvel = ivec(0, 0, 0), float dist = 0, bool first = true)
     {
         int realdamage = damage, realflags = flags, nodamage = 0, hurt = 0, statweap = fromweap, statalt = WS(fromflags);
@@ -4287,33 +4321,66 @@ namespace server
                 v->teamkills.add(teamkill(totalmillis, v->team, 0-pointvalue));
                 if(G(teamkilllock) && !haspriv(v, G(teamkilllock)))
                 {
-                    int numkills = 0;
-                    if(!G(teamkilltime)) numkills = v->teamkills.length();
-                    else loopv(v->teamkills)
-                        if(totalmillis-v->teamkills[i].millis <= G(teamkilltime)*1000*60) numkills++;
-                    if(numkills >= G(teamkillwarn) && numkills%G(teamkillwarn) == 0)
-                    {
-                        uint ip = getclientip(v->clientnum);
-                        v->warnings[WARN_TEAMKILL][0]++;
-                        v->warnings[WARN_TEAMKILL][1] = totalmillis ? totalmillis : 1;
-                        if(ip && G(teamkillban) && v->warnings[WARN_TEAMKILL][0] >= G(teamkillban) && !haspriv(v, PRIV_MODERATOR) && !checkipinfo(control, ipinfo::EXCEPT, ip))
-                        {
-                            ipinfo &c = control.add();
-                            c.ip = ip;
-                            c.mask = 0xFFFFFFFF;
-                            c.type = ipinfo::BAN;
-                            c.flag = ipinfo::INTERNAL;
-                            c.time = totalmillis ? totalmillis : 1;
-                            c.reason = newstring("team killing is not permitted");
-                            srvoutf(-3, "\fs\fcbanned\fS %s: %s", colourname(v), c.reason);
-                            updatecontrols = true;
+                    int numkills = 0, playernumkills = 0, botnumkills = 0;
+                    if (!G(teamkilltime)) {
+                        if (m->actortype == A_BOT)
+                            botnumkills = v->teamkills.length();
+                        else
+                            playernumkills = v->teamkills.length();
+
+                        // count teamkills on both player and bot actor types
+                        if (!G(teamkillsplitactortype))
+                           numkills = botnumkills + playernumkills;
+
+                    } else loopv(v->teamkills) {
+                        if (totalmillis-v->teamkills[i].millis <= G(teamkilltime)*1000*60) {
+                            if (m->actortype == A_BOT)
+                                botnumkills++;
+                            else
+                                playernumkills++;
+
+                            if (!G(teamkillsplitactortype))
+                                numkills = botnumkills + playernumkills;
                         }
-                        else if(G(teamkillkick) && v->warnings[WARN_TEAMKILL][0] >= G(teamkillkick))
-                        {
-                            srvoutf(-3, "\fs\fckicked\fS %s: team killing is not permitted", colourname(v));
-                            v->kicked = updatecontrols = true;
-                        }
-                        else srvmsgft(v->clientnum, CON_CHAT, "\fy\fs\fzoyWARNING:\fS team killing is not permitted, action will be taken if you continue");
+                    }
+                    switch (G(teamkillsplitactortype)) {
+                        case 0:
+                            if (numkills >= G(teamkillwarn) && numkills%G(teamkillwarn) == 0)
+                                moderate_team_kills(v, 3);
+                            else if (G(teamkillkick) && v->warnings[WARN_TEAMKILL][0] >= G(teamkillkick))
+                                moderate_team_kills(v, 2);
+                            else if (G(teamkillban) && v->warnings[WARN_TEAMKILL][0] >= G(teamkillban))
+                                moderate_team_kills(v, 1);
+                            break;
+                        case 1:
+                            if ((playernumkills >= G(playerteamkillwarn) && playernumkills%G(playerteamkillwarn) == 0) ||
+                            (botnumkills >= G(botteamkillwarn) && botnumkills%G(botteamkillwarn) == 0))
+                                moderate_team_kills(v, 3);
+                            else if ((G(playerteamkillkick) && v->warnings[WARN_TEAMKILL][0] >= G(playerteamkillkick)) ||
+                                (G(botteamkillkick) && v->warnings[WARN_TEAMKILL][0] >= G(botteamkillkick)))
+                                moderate_team_kills(v, 2);
+                            else if ((G(playerteamkillban) && v->warnings[WARN_TEAMKILL][0] >= G(playerteamkillban)) ||
+                                (G(botteamkillban) && v->warnings[WARN_TEAMKILL][0] >= G(botteamkillban)))
+                                moderate_team_kills(v, 1);
+                            break;
+                        case 2:
+                            if (playernumkills >= G(playerteamkillwarn) && playernumkills%G(playerteamkillwarn) == 0)
+                                moderate_team_kills(v, 3);
+                            else if (G(playerteamkillkick) && v->warnings[WARN_TEAMKILL][0] >= G(playerteamkillkick))
+                                moderate_team_kills(v, 2);
+                            else if (G(playerteamkillban) && v->warnings[WARN_TEAMKILL][0] >= G(playerteamkillban))
+                                moderate_team_kills(v, 1);
+                            break;
+                        case 3:
+                            if (botnumkills >= G(botteamkillwarn) && botnumkills%G(botteamkillwarn) == 0)
+                                moderate_team_kills(v, 3);
+                            else if (G(botteamkillkick) && v->warnings[WARN_TEAMKILL][0] >= G(botteamkillkick))
+                                moderate_team_kills(v, 2);
+                            else if (G(botteamkillban) && v->warnings[WARN_TEAMKILL][0] >= G(botteamkillban))
+                                moderate_team_kills(v, 1);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
