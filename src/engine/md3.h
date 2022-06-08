@@ -93,7 +93,7 @@ struct md3 : vertmodel, vertloader<md3>
                 f->seek(mesh_offset + mheader.ofs_triangles, SEEK_SET);
                 loopj(m.numtris)
                 {
-                    md3triangle tri;
+                    md3triangle tri{};
                     f->read(&tri, sizeof(md3triangle)); // read the triangles
                     lilswap(tri.vertexindices, 3);
                     loopk(3) m.tris[j].vert[k] = (ushort)tri.vertexindices[k];
@@ -109,7 +109,7 @@ struct md3 : vertmodel, vertloader<md3>
                 f->seek(mesh_offset + mheader.ofs_vertices, SEEK_SET);
                 loopj(numframes*m.numverts)
                 {
-                    md3vertex v;
+                    md3vertex v{};
                     f->read(&v, sizeof(md3vertex)); // read the vertices
                     lilswap(v.vertex, 4);
 
