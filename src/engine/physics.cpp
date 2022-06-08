@@ -26,7 +26,7 @@ void resetclipplanes()
     clipcacheversion += 2;
     if(!clipcacheversion)
     {
-        memset(clipcache, 0, sizeof(clipcache));
+        *clipcache = {};
         clipcacheversion = 2;
     }
 }
@@ -404,7 +404,7 @@ void resetshadowraycache(ShadowRayCache *cache)
     cache->version++;
     if(!cache->version)
     {
-        memset(cache->clipcache, 0, sizeof(cache->clipcache));
+        *cache->clipcache = {};
         cache->version = 1;
     }
 }

@@ -193,7 +193,8 @@ void visiblecubes(bool cull)
     }
     else
     {
-        memset(vfcP, 0, sizeof(vfcP));
+        *vfcP = {};
+
         vfcDfog = 1000000;
         memset(vfcDnear, 0, sizeof(vfcDnear));
         memset(vfcDfar, 0, sizeof(vfcDfar));
