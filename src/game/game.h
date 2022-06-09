@@ -552,7 +552,7 @@ struct clientstate
     int actortype, spawnpoint, ownernum, skill, points, frags, deaths, totalpoints, totalfrags, totaldeaths, spree, lasttimeplayed, timeplayed, cpmillis, cptime, queuepos;
     bool quarantine;
     string vanity;
-    vector<int> loadweap, lastweap, randweap;
+    std::vector<int> loadweap, lastweap, randweap;
     verinfo version;
 
     clientstate() : colour(0), model(0), checkpointspawn(1), weapselect(W_CLAW), lastdeath(0), lastspawn(0), lastpain(0), lastregen(0), lastregenamt(0), lastbuff(0), lastshoot(0),
@@ -560,9 +560,7 @@ struct clientstate
         cpmillis(0), cptime(0), queuepos(-1), quarantine(false)
     {
         vanity[0] = '\0';
-        loadweap.shrink(0);
-        lastweap.shrink(0);
-        randweap.shrink(0);
+
         resetresidual();
     }
     ~clientstate() {}
@@ -608,8 +606,11 @@ struct clientstate
 
     void addlastweap(int weap)
     {
-        lastweap.add(weap);
-        if(lastweap.length() >= W_ALL) lastweap.remove(0);
+        lastweap.emplace_back(weap);
+
+        if (lastweap.size() >= W_ALL) {
+            lastweap.erase(lastweap.begin());
+        }
     }
 
     int getlastweap(int sweap, int exclude = -1)
@@ -659,7 +660,9 @@ struct clientstate
             weapwait[i] = weaptime[i] = weapload[i] = weapshot[i] = prevtime[0] = 0;
             if(full) ammo[i] = entid[i] = -1;
         }
-        if(full) lastweap.shrink(0);
+        if (full) {
+            lastweap.clear();
+        }
     }
 
     void setweapstate(int weap, int state, int delay, int millis, int offtime = 0, bool blank = false)
@@ -685,7 +688,7 @@ struct clientstate
         {
             if(isweap(weapselect))
             {
-                lastweap.add(weapselect);
+                lastweap.emplace_back(weapselect);
                 setweapstate(weapselect, W_S_SWITCH, delay, millis);
             }
             weapselect = weap;
@@ -830,7 +833,10 @@ struct clientstate
     bool canrandweap(int weap)
     {
         int cweap = weap-W_OFFSET;
-        if(!randweap.inrange(cweap)) return true;
+        if (!inrange(randweap, cweap)) {
+            return true;
+        }
+
         return randweap[cweap];
     }
 
@@ -862,7 +868,7 @@ struct clientstate
         if(AA(actortype, maxcarry) && m_loadout(gamemode, mutators))
         {
             vector<int> aweap;
-            loopj(AA(actortype, maxcarry)) aweap.add(loadweap.inrange(j) ? loadweap[j] : 0);
+            loopj(AA(actortype, maxcarry)) aweap.add(inrange(loadweap, j) ? loadweap[j] : 0);
             vector<int> rand, forcerand;
             for(int t = W_OFFSET; t < W_ITEM; t++)
                 if(!hasweap(t, sweap) && m_check(W(t, modes), W(t, muts), gamemode, mutators) && !W(t, disabled) && aweap.find(t) < 0)
@@ -1373,10 +1379,10 @@ struct gameent : dynent, clientstate
         colour = c;
         model = m;
         setvanity(v);
-        loadweap.shrink(0);
-        loopv(w) loadweap.add(w[i]);
-        randweap.shrink(0);
-        loopv(r) randweap.add(r[i]);
+        loadweap.clear();
+        loopv(w) loadweap.emplace_back(w[i]);
+        randweap.clear();
+        loopv(r) randweap.emplace_back(r[i]);
     }
 
     void addstun(int weap, int millis, int delay, float scale, float gravity)
