@@ -465,7 +465,7 @@ namespace client
 
     void setloadweap(const char *list)
     {
-        vector<int> items;
+        std::vector<int> items;
         if(list && *list)
         {
             std::vector<std::string> chunk;
@@ -477,11 +477,18 @@ namespace client
                 items.emplace_back(v >= W_OFFSET && v < W_ITEM ? v : 0);
             }
         }
-        game::player1.loadweap.shrink(0);
-        loopv(items) if(game::player1.loadweap.find(items[i]) < 0)
-        {
-            game::player1.loadweap.add(items[i]);
-            if(game::player1.loadweap.length() >= W_LOADOUT) break;
+        game::player1.loadweap.clear();
+        for (const auto i : items) {
+            bool no_weap = std::none_of(game::player1.loadweap.begin(),
+                game::player1.loadweap.end(), [=](auto d) { return d == i; });
+
+            if (no_weap) {
+                game::player1.loadweap.emplace_back(i);
+
+                if (game::player1.loadweap.size() >= W_LOADOUT) {
+                    break;
+                }
+            }
         }
         sendplayerinfo = true;
     }
@@ -501,18 +508,21 @@ namespace client
                 items.emplace_back(v != 0 ? 1 : 0);
             }
         }
-        game::player1.randweap.shrink(0);
+        game::player1.randweap.clear();
         loopv(items)
         {
-            game::player1.randweap.add(items[i]);
-            if(game::player1.randweap.length() >= W_LOADOUT) break;
+            game::player1.randweap.emplace_back(items[i]);
+
+            if (game::player1.randweap.size() >= W_LOADOUT) {
+                break;
+            }
         }
         sendplayerinfo = true;
     }
     SVARF(IDF_PERSIST, playerrandweap, "", setrandweap(playerrandweap));
 
-    ICOMMAND(0, getrandweap, "i", (int *n), intret(game::player1.randweap.inrange(*n) ? game::player1.randweap[*n] : 1));
-    ICOMMAND(0, getloadweap, "i", (int *n), intret(game::player1.loadweap.inrange(*n) ? game::player1.loadweap[*n] : -1));
+    ICOMMAND(0, getrandweap, "i", (int *n), intret(inrange(game::player1.randweap, *n) ? game::player1.randweap[*n] : 1));
+    ICOMMAND(0, getloadweap, "i", (int *n), intret(inrange(game::player1.loadweap, *n) ? game::player1.loadweap[*n] : -1));
     ICOMMAND(0, allowedweap, "i", (int *n), intret(isweap(*n) && m_check(W(*n, modes), W(*n, muts), game::gamemode, game::mutators) && !W(*n, disabled) ? 1 : 0));
     ICOMMAND(0, hasloadweap, "bb", (int *g, int *m), intret(m_loadout(m_game(*g) ? *g : game::gamemode, *m >= 0 ? *m : game::mutators) ? 1 : 0));
 
@@ -722,7 +732,7 @@ namespace client
     int getclientloadweap(int cn, int n)
     {
         gameent *d = game::getclient(cn);
-        return d ? (d->loadweap.inrange(n) ? d->loadweap[n] : 0) : -1;
+        return d ? (inrange(d->loadweap, n) ? d->loadweap[n] : 0) : -1;
     }
     ICOMMAND(0, getclientloadweap, "si", (char *who, int *n), intret(getclientloadweap(parsewho(who), *n)));
 
@@ -1668,9 +1678,9 @@ namespace client
         putint(p, game::player1.colour);
         putint(p, game::player1.model);
         sendstring(game::player1.vanity, p);
-        putint(p, game::player1.loadweap.length());
+        putint(p, game::player1.loadweap.size());
         loopv(game::player1.loadweap) putint(p, game::player1.loadweap[i]);
-        putint(p, game::player1.randweap.length());
+        putint(p, game::player1.randweap.size());
         loopv(game::player1.randweap) putint(p, game::player1.randweap[i]);
 
         string hash = "";
@@ -1802,9 +1812,9 @@ namespace client
                 putint(p, game::player1.model);
                 putint(p, game::player1.checkpointspawn);
                 sendstring(game::player1.vanity, p);
-                putint(p, game::player1.loadweap.length());
+                putint(p, game::player1.loadweap.size());
                 loopv(game::player1.loadweap) putint(p, game::player1.loadweap[i]);
-                putint(p, game::player1.randweap.length());
+                putint(p, game::player1.randweap.size());
                 loopv(game::player1.randweap) putint(p, game::player1.randweap[i]);
             }
             if(sendcrcinfo)

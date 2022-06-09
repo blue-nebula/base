@@ -4,6 +4,7 @@
 #define _TOOLS_H
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #ifdef NULL
 #undef NULL
@@ -139,6 +140,13 @@ static inline int bitscan(uint mask)
 #else
 #define PRINTFARGS(fmt, args)
 #endif
+
+template<class T, class U>
+constexpr bool inrange(const std::vector<T> &vec, U val)
+{
+    static_assert(std::is_integral<U>::value, "Second argument is not an integral, could not safely cast to size_t");
+    return static_cast<size_t>(val) < vec.size();
+}
 
 // easy safe strings
 
