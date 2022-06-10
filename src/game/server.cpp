@@ -3380,12 +3380,10 @@ namespace server
             {
                 std::vector<std::string> prev;
                 explodelist(sv_previousmaps, prev);
-                loopvrev(prev) if(prev[i] == smapname)
-                {
+                loopvrev(prev) if (prev[i] == smapname) {
                     prev.erase( prev.begin() + i );
                 }
-                while(prev.size() >= G(maphistory))
-                {
+                while (prev.size() >= static_cast<size_t>(G(maphistory))) {
                     prev.pop_back();
                 }
                 loopv(prev)
@@ -3395,7 +3393,10 @@ namespace server
                 }
                 prev.clear();
             }
-            if(!buf.empty()) setmods(sv_previousmaps, buf.c_str());
+
+            if (!buf.empty()) {
+                setmods(sv_previousmaps, buf.c_str());
+            }
         }
         else setmods(sv_previousmaps, "");
 
