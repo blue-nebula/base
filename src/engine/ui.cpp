@@ -14,7 +14,7 @@ enum {FIELDCOMMIT, FIELDABORT, FIELDEDIT, FIELDSHOW, FIELDKEY};
 static int fieldmode = FIELDSHOW;
 static bool fieldsactive = false;
 
-FVAR(IDF_PERSIST, ui_scale, FVAR_NONZERO, 0.00055f, VAR_MAX);
+FVAR(IDF_PERSIST, ui_scale, FVAR_NONZERO, 0.00055f, FVAR_MAX);
 VAR(IDF_PERSIST, ui_size_skin, 0, 48, VAR_MAX); // 0 = texture size, otherwise = size in pixels for skin scaling
 VAR(IDF_PERSIST, ui_size_slider, 1, 58, VAR_MAX);
 VAR(IDF_PERSIST, ui_size_separator, 1, 6, VAR_MAX);
