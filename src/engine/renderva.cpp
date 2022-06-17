@@ -1339,11 +1339,10 @@ void renderzpass(renderstate &cur, vtxarray *va)
     if(cur.vbuf!=va->vbuf) changevbuf(cur, RENDERPASS_Z, va);
     if(!cur.depthmask) { cur.depthmask = true; glDepthMask(GL_TRUE); }
     if(cur.colormask) { cur.colormask = false; glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); }
-    int firsttex = 0, numtris = va->tris;
+    int numtris = va->tris;
     ushort *edata = va->edata;
     if(cur.alphaing)
     {
-        firsttex += va->texs + va->blends;
         edata += 3*(va->tris + va->blendtris);
         numtris = va->alphabacktris + va->alphafronttris;
         xtravertsva += 3*numtris;
