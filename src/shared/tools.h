@@ -5,11 +5,7 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
-
-#ifdef NULL
-#undef NULL
-#endif
-#define NULL 0
+#include <cstddef>
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
