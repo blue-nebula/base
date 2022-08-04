@@ -700,14 +700,23 @@ namespace game
 
     bool tvmode(bool check, bool force)
     {
-        if(!m_edit(gamemode) && (!check || !cameras.empty()))
-        {
-            if(!gs_playing(gamestate) && intermmode) return true;
-            else switch(player1.state)
-            {
-                case CS_SPECTATOR: if(specmode || (force && focus != &player1 && followmode && followaim())) return true; break;
-                case CS_WAITING: if((waitmode && (!player1.lastdeath || lastmillis-player1.lastdeath >= 500)) || (force && focus != &player1 && followmode && followaim())) return true; break;
-                default: break;
+        if (!m_edit(gamemode) && (!check || !cameras.empty())) {
+            if (!gs_playing(gamestate) && intermmode) {
+                return true;
+            } else switch(player1.state) {
+                case CS_SPECTATOR:
+                    if (specmode || (force && focus != &player1 && followmode && followaim())) {
+                        return true;
+                    }
+                    break;
+                case CS_WAITING:
+                    if ((waitmode && (!player1.lastdeath || lastmillis-player1.lastdeath >= 500)) ||
+                        (force && focus != &player1 && followmode && followaim())) {
+                            return true;
+                        }
+                    break;
+                default:
+                    break;
             }
         }
         return false;
