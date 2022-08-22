@@ -49,7 +49,6 @@ if(BUILD_CLIENT)
         engine/lensflare.h
         engine/lightmap.h
         engine/lightning.h
-        engine/md2.h
         engine/md3.h
         engine/md5.h
         engine/model.h
