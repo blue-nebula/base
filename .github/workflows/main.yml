@@ -16,7 +16,7 @@ jobs:
       - name: Checkout enet submodule
         run: git submodule update --init src/enet
       - name: Install dependencies
-        run: sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev zlib1g-dev
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev zlib1g-dev
       - name: Build for nix
         run: bash -xe ci/build-nix.sh
 
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout enet submodule
         run: git submodule update --init src/enet
       - name: Install dependencies
-        run: sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev zlib1g-dev
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev zlib1g-dev
       - name: Build for nix
         run: bash -xe ci/build-nix.sh
 
@@ -52,6 +52,6 @@ jobs:
       - name: Checkout enet submodule
         run: git submodule update --init src/enet
       - name: Install dependencies
-        run: sudo apt-get install -y mingw-w64
+        run: sudo apt-get update && sudo apt-get install -y mingw-w64
       - name: Build for win cross
         run: bash -xe ci/build-win-cross.sh
