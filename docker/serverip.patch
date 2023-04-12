@@ -1,0 +1,20 @@
+diff --git a/src/engine/server.cpp b/src/engine/server.cpp
+index a8530e43..89e63f4f 100644
+--- a/src/engine/server.cpp
++++ b/src/engine/server.cpp
+@@ -1329,6 +1329,7 @@ int setupserversockets()
+     if(!servertype || (serverhost && pongsock != ENET_SOCKET_NULL)) return servertype;
+
+     ENetAddress address = { ENET_HOST_ANY, enet_uint16(serverport) };
++#if 0
+     if(*serverip)
+     {
+         if(enet_address_set_host(&address, serverip) < 0)
+@@ -1338,6 +1339,7 @@ int setupserversockets()
+         }
+         else serveraddress.host = address.host;
+     }
++#endif
+
+     if(!serverhost)
+     {

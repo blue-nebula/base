@@ -1,0 +1,16 @@
+# remember: the last(!) line that matches a specific file defines the behavior
+
+# ignore everything, then unblock one by one (note: . does not work "for historical reasons")
+*
+
+#!.git/
+!README.md
+!CMakeLists.txt
+!config/
+!data/
+!doc/
+!docker/
+!src/
+
+# ignore the Dockerfile so changes in it don't retrigger an entire build
+!docker/Dockerfile
