@@ -28,6 +28,9 @@ int detrnd(int seed, int value) {
     return rnddet(algseed);
 }
 
+// Generate a positive, ad-hoc random number
+uint tmprnd() { return rndalg(); }
+
 ///////////////////////// network ///////////////////////
 
 // all network traffic is in 32bit ints, which are then compressed using the following simple scheme (assumes that most values are small).

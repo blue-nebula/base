@@ -244,7 +244,7 @@ void reqauth(masterclient &c, uint id, char *name, char *hostname)
     a.reqtime = totalmillis;
     a.id = id;
     copystring(a.hostname, host);
-    uint seed[3] = { uint(starttime), uint(totalmillis), randomMT() };
+    uint seed[3] = { uint(starttime), uint(totalmillis), tmprnd() };
     static vector<char> buf;
     buf.setsize(0);
     a.answer = genchallenge(u->pubkey, seed, sizeof(seed), buf);
@@ -270,7 +270,7 @@ void reqserverauth(masterclient &c, char *name)
 
     c.serverauthreq.user = u;
     c.serverauthreq.reqtime = totalmillis;
-    uint seed[3] = { uint(starttime), uint(totalmillis), randomMT() };
+    uint seed[3] = { uint(starttime), uint(totalmillis), tmprnd() };
     static vector<char> buf;
     buf.setsize(0);
     c.serverauthreq.answer = genchallenge(u->pubkey, seed, sizeof(seed), buf);

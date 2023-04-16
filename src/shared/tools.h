@@ -1685,6 +1685,7 @@ extern void endianswap(void *, int, int);
 extern int rnd(int);
 extern float rndfloat(int);
 extern int detrnd(int, int);
+extern uint tmprnd();
 extern void putint(ucharbuf &p, int n);
 extern void putint(packetbuf &p, int n);
 extern void putint(vector<uchar> &p, int n);
