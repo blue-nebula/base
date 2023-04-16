@@ -1,39 +1,44 @@
 // implementation of generic tools
 
+#include <random>
 #include "cube.h"
 
 ////////////////////////// rnd numbers ////////////////////////////////////////
 
-#define N (624)
-#define M (397)
-#define K (0x9908B0DFU)
+// Store seed statically to avoid excessive syscall overhead
+static std::random_device rndseed;
+static std::mt19937 rndalg(rndseed());
 
-static uint state[N];
-static int next = N;
-
-void seedMT(uint seed)
-{
-    state[0] = seed;
-    for(uint i = 1; i < N; i++)
-        state[i] = seed = 1812433253U * (seed ^ (seed >> 30)) + i;
-    next = 0;
+/*
+ * Generate a random integer number
+ *
+ * @param value Upper limit for the generated random value
+ * @return Random integer number from 0 up to value
+ */
+int rnd(int value) {
+    std::uniform_int_distribution<> rndint(0, value - 1);
+    return rndint(rndalg);
 }
 
-uint randomMT()
-{
-    int cur = next;
-    if(++next >= N)
-    {
-        if(next > N) { seedMT(5489U + time(NULL)); cur = next++; }
-        else next = 0;
-    }
-    uint y = (state[cur] & 0x80000000U) | (state[next] & 0x7FFFFFFFU);
-    state[cur] = y = state[cur < N-M ? cur + M : cur + M-N] ^ (y >> 1) ^ (-int(y & 1U) & K);
-    y ^= (y >> 11);
-    y ^= (y <<  7) & 0x9D2C5680U;
-    y ^= (y << 15) & 0xEFC60000U;
-    y ^= (y >> 18);
-    return y;
+float rndscale(int value) {
+    std::uniform_real_distribution<> rndreal(0, value - 1);
+    return rndreal(rndalg);
+}
+
+/*
+ * Generate a random integer number with a specified seed
+ *
+ * This function is used in-game for elements like flashing textures to obtain
+ * more consistent results
+ *
+ * @param seed Seed for RNG engine
+ * @param value Upper limit for the generated random value
+ * @return Random integer number from 0 up to value
+ */
+int detrnd(int seed, int value) {
+    std::mt19937 algseed(seed);
+    std::uniform_int_distribution<> rnddet(0, value - 1);
+    return rnddet(algseed);
 }
 
 ///////////////////////// network ///////////////////////
