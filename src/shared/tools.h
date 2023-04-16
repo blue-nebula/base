@@ -1683,7 +1683,7 @@ extern void backup(const char *fname, const char *ext, int revision = 0, int sta
 
 extern void endianswap(void *, int, int);
 extern int rnd(int);
-extern float rndscale(int);
+extern float rndfloat(int);
 extern int detrnd(int, int);
 extern void putint(ucharbuf &p, int n);
 extern void putint(packetbuf &p, int n);

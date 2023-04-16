@@ -20,7 +20,13 @@ int rnd(int value) {
     return rndint(rndalg);
 }
 
-float rndscale(int value) {
+/**
+ * Generate a random floating point number
+ *
+ * @param value Upper limit for the generated random value
+ * @return Random floating point number from 0 up to value
+ */
+float rndfloat(int value) {
     std::uniform_real_distribution<> rndreal(0, value - 1);
     return rndreal(rndalg);
 }
