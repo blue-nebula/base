@@ -81,9 +81,6 @@ static inline int bitscan(uint mask)
 #endif
 #endif
 
-#define rnd(x) ((int)(randomMT()&0x7FFFFFFF)%(x))
-#define rndscale(x) (float((randomMT()&0x7FFFFFFF)*double(x)/double(0x7FFFFFFF)))
-#define detrnd(s, x) ((int)(((((uint)(s))*1103515245+12345)>>16)%(x)))
 #define isnumeric(c) (isdigit(c) || c == '+' || c == '-')
 
 #define loop(v,m) for(int v = 0; v < int(m); ++v)
@@ -1685,8 +1682,9 @@ extern int listzipfiles(const char *dir, const char *ext, vector<char *> &files)
 extern void backup(const char *fname, const char *ext, int revision = 0, int start = 1, bool store = false, bool full = true);
 
 extern void endianswap(void *, int, int);
-extern void seedMT(uint seed);
-extern uint randomMT();
+extern int rnd(int);
+extern float rndscale(int);
+extern int detrnd(int, int);
 extern void putint(ucharbuf &p, int n);
 extern void putint(packetbuf &p, int n);
 extern void putint(vector<uchar> &p, int n);
