@@ -93,7 +93,7 @@ elseif(APPLE)
     # TODO: fix genkey on macOS
     set(BUILD_GENKEY OFF)
 elseif(MINGW)
-    set(CMAKE_EXECUTABLE_SUFFIX "_windows")
+    set(CMAKE_EXECUTABLE_SUFFIX "_windows.exe")
 else()
     message(WARNING "Unknown build platform")
     set(CMAKE_EXECUTABLE_SUFFIX "_unknown")
