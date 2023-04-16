@@ -15,7 +15,8 @@ int rnd(int value) {
     return rndint(rndalg);
 }
 
-float rndscale(int value) {
+// Like rnd(), but generate a floating point number instead
+float rndfloat(int value) {
     std::uniform_real_distribution<> rndreal(0, value - 1);
     return rndreal(rndalg);
 }
