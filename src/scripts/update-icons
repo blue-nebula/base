@@ -1,0 +1,14 @@
+#! /bin/sh
+#
+# This script updates the application icons defined in install/nix/blue_nebula_**.png from a 1:1 ratio logo using ImageMagick.
+# The sizes we want (used in the for loop) must also be defined in install_nix.cmake
+
+for i in 16 32 48 64 128 256 512; do
+    echo "Scaling icon to ${i}x${i}..."
+    convert -resize "${i}x${i}" "$1" "../install/nix/blue-nebula_${i}.png"
+    if [ "$i" -eq 512 ]; then
+        cp "../install/nix/blue-nebula_${i}.png" ../../data/textures/icon.png
+        break
+    fi
+done
+echo "Done!"
