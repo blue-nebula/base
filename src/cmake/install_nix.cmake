@@ -13,7 +13,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 
     # install icons
-    foreach(res IN ITEMS 16 32 48 64 128)
+    foreach(res IN ITEMS 16 32 48 64 128 256 512)
         file(
             COPY ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/blue-nebula_${res}.png
             DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}x${res}/apps/
