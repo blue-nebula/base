@@ -15,13 +15,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # install icons
     foreach(res IN ITEMS 16 32 48 64 128)
         file(
-            COPY ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/blue-nebula_x${res}.png
-            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/
+            COPY ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/blue-nebula_${res}.png
+            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}x${res}/apps/
         )
         file(RENAME
-            ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/blue-nebula_x${res}.png
-            ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}/apps/blue-nebula.png
-            )
+            ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}x${res}/apps/blue-nebula_${res}.png
+            ${CMAKE_CURRENT_BINARY_DIR}/icons/hicolor/${res}x${res}/apps/blue-nebula.png
+        )
     endforeach()
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/icons
