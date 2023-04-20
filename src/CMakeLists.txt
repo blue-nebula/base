@@ -175,5 +175,8 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_general.cmake)
 # add support for release archive generation
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_archive.cmake)
 
+# support Windows installer generation
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_nsis.cmake)
+
 # must be the last instruction
 include(CPack)
