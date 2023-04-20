@@ -24,3 +24,10 @@ execute_process(
 set(CPACK_PACKAGE_NAME blue-nebula)
 set(CPACK_PACKAGE_VERSION ${_CPACK_VERSION})
 
+set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/doc/all-licenses.txt")
+set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.md")
+
+# used by installers like NSIS
+# we do not want this directory name to contain a version number typically, as we don't support multiple installations in parallel
+# people can use the generated archive if need be
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "Blue Nebula")
