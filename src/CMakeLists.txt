@@ -65,17 +65,17 @@ set(BUILD_GENKEY ON CACHE STRING "Build genkey")
 # this allows for easier cross-compiling with MinGW, as we can use the precompiled libraries
 find_package(ZLIB REQUIRED)
 
+# OpenGL may be imported with pkg-config on Unix, but that doesn't work on macOS
+set(OpenGL_GL_PREFERENCE LEGACY)
+
 # for SDL2* we need to ship custom configs
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 if(BUILD_CLIENT)
     find_package(SDL2 REQUIRED)
     find_package(SDL2_image REQUIRED)
     find_package(SDL2_mixer REQUIRED)
+    find_package(OpenGL REQUIRED)
 endif()
-
-# OpenGL may be imported with pkg-config on Unix, but that doesn't work on macOS
-set(OpenGL_GL_PREFERENCE LEGACY)
-find_package(OpenGL REQUIRED)
 
 # import enet
 # note that we have to include this before setting CMAKE_EXECUTABLE_SUFFIX
