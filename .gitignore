@@ -56,3 +56,4 @@ GRTAGS
 .idea/
 *build*/
 *.*swp*
+docker-compose.yml
