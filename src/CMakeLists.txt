@@ -135,7 +135,7 @@ endfunction()
 
 function(add_windows_rc_file target)
     if(MINGW OR WIN32)
-        target_sources(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/blue-nebula.rc)
+        target_sources(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/install/win/blue-nebula.rc)
     endif()
 endfunction()
 
