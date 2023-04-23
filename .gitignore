@@ -54,3 +54,4 @@ GTAGS
 GRTAGS
 .idea/
 *build*/
+*.*swp*
