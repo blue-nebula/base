@@ -15,3 +15,8 @@ set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${APPNAME}_windows.exe")
 set(CPACK_NSIS_UNINSTALL_NAME "Uninstall ${CPACK_NSIS_DISPLAY_NAME}")
 
 set(CPACK_NSIS_INSTALLED_ICON_NAME "bin/${APPNAME}_windows.exe")
+
+# add (or remove) start menu entry and desktop link
+set(CPACK_NSIS_MENU_LINKS "bin/${APPNAME}_windows.exe" "${CPACK_NSIS_DISPLAY_NAME}")
+set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut '$DESKTOP\\\\${CPACK_NSIS_DISPLAY_NAME}.lnk' '$INSTDIR\\\\bin\\\\${APPNAME}_windows.exe'")
+set(CPACK_NSIS_DELETE_ICONS_EXTRA "Delete '$DESKTOP\\\\${CPACK_NSIS_DISPLAY_NAME}.lnk'")
