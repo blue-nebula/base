@@ -9,6 +9,13 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      include_arm64:
+        description: Build arm64 Docker image
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build-and-push:
@@ -55,8 +62,7 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
-          # enable arm64 once native runners are available
-          #platforms: linux/amd64,linux/arm64
-          platforms: linux/amd64
+          # enable arm64 by default once native runners are available
+          platforms: ${{ inputs.include_arm64 && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
