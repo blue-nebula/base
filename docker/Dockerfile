@@ -38,7 +38,7 @@ RUN python3 /generate-servinit-template.py /servinit.cfg > /servinit.tmpl
 # finally, let's build the final runtime image (doesn't need all of the build dependencies)
 FROM alpine:3.17
 
-MAINTAINER "TheAssassin <theassassin@assassinate-you.net>"
+LABEL maintainer="https://blue-nebula.org"
 
 RUN apk add tini && \
     apk add --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing dockerize
@@ -56,7 +56,7 @@ RUN mkdir /blue-nebula/.blue-nebula && \
     install -o blue-nebula -m 0644 /dev/null /blue-nebula/.blue-nebula/servinit.cfg
 
 # install runtime dependencies
-RUN apk add --no-cache libstdc++ libgcc
+RUN apk add libstdc++ libgcc
 
 # keep files copied from elsewhere read-only to prevent the process from writing files
 USER blue-nebula
