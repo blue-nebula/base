@@ -275,6 +275,7 @@ VAR(0, serveruprate, 0, 0, VAR_MAX);
 VAR(0, serverport, 1, SERVER_PORT, VAR_MAX);
 VAR(0, serverlanport, 0, LAN_PORT, VAR_MAX);
 SVAR(0, serverip, "");
+SVAR(0, serverpublicip, "");
 
 bool filterword(char *src, const char *list)
 {
@@ -1415,10 +1416,22 @@ void changeservertype()
 void setupserver()
 {
     server::changemap(load && *load ? load : NULL);
-    if(!servertype) return;
+
+    if (servertype <= 0) {
+        return;
+    }
+
     setupmaster();
+
     conoutf("loading server (%s:%d)..", *serverip ? serverip : "*", serverport);
-    if(setupserversockets() && verbose) conoutf("game server started");
+    if (*serverpublicip != '\0') {
+        conoutf("public server IP is %s", serverpublicip);
+    }
+
+    if (setupserversockets() && verbose) {
+        conoutf("game server started");
+    }
+
 #ifndef STANDALONE
     if(servertype >= 3) serverloop();
 #endif
@@ -1470,6 +1483,7 @@ bool serveroption(char *opt)
             {
                 case 'u': setvar("serveruprate", atoi(opt+3)); return true;
                 case 'i': setsvar("serverip", opt+3); return true;
+                case 'j': setsvar("serverpublicip", opt+3); return true;
                 case 'm': setsvar("servermaster", opt+3); return true;
                 case 'l': load = opt+3; return true;
                 case 's': setvar("servertype", atoi(opt+3)); return true;

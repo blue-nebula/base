@@ -32,7 +32,6 @@ out
 *.core
 *.diff
 *.patch
-!docker/serverip.patch
 *.out
 home/
 cache/

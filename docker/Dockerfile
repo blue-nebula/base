@@ -14,11 +14,8 @@ COPY data/ /blue-nebula/data
 
 COPY CMakeLists.txt /blue-nebula/
 COPY README.md /blue-nebula/
-COPY docker/serverip.patch /serverip.patch
 
-RUN git apply < /serverip.patch && \
-    ls -al && \
-    mkdir build && \
+RUN mkdir build && \
     cd build && \
     # TODO: server-only build configuration
     cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_INSTALL_PREFIX=/blue-nebula/install -DBUILD_CLIENT=OFF && \
