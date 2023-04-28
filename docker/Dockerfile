@@ -15,6 +15,13 @@ COPY data/ /blue-nebula/data
 COPY CMakeLists.txt /blue-nebula/
 COPY README.md /blue-nebula/
 
+RUN mkdir build && \
+    cd build && \
+    # TODO: server-only build configuration
+    cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_INSTALL_PREFIX=/blue-nebula/install -DBUILD_CLIENT=OFF && \
+    ninja -v && \
+    ninja install
+
 
 # next, we convert the example server config to a template
 # this is done in no time, so we do not have to benefit from Docker's caching a lot there
