@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  bn-server:
+    image: ghcr.io/blue-nebula/server:latest
+    restart: unless-stopped
+
+    # adjust accordingly if you change the ports in the config
+    # note: the ports must be in sync! otherwise, the server will announce the wrong ports to the master
+    ports:
+      - "0.0.0.0:28801:28801/udp"
+      - "0.0.0.0:28802:28802/udp"
+
+    # most-if-not-all environment variables are exposed as upper-case environment variables as shown below
+    environment:
+      ADMIN_PASS: "so-secret"
+      SERVER_TYPE: 1
+      SERVER_PORT: 28801
+      SV_SERVERCLIENTS: 16
+      SV_SERVERDESC: "Example BN server running in Docker"
+      SV_SERVERMOTD: "Welcome to this example Blue Nebula server hosted in a Docker container!"
+
+    # to add additional maps, you can mount a directory as shown below
+    volumes:
+      - ./custom-maps:/blue-nebula/.blue-nebula/maps/

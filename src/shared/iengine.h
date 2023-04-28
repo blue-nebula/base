@@ -6,7 +6,7 @@ extern int verbose, curtime, lastmillis, totalmillis, timescale, paused;
 extern uint totalsecs;
 extern time_t clocktime, currenttime, clockoffset;
 extern int servertype, serverport, serverlanport, servermasterport;
-extern char *servermaster, *serverip;
+extern char *servermaster, *serverip, *serverpublicip;
 #ifdef STANDALONE
 #define ifserver(x) if(x)
 #define ifnserver(x) if(x)

@@ -1,0 +1,68 @@
+name: Build Docker images for Blue Nebula server
+
+on:
+  push:
+    tags:
+      - "*"
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      include_arm64:
+        description: Build arm64 Docker image
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Fetch relevant submodules
+        run: |
+          git submodule update --init src/enet
+          git submodule update --init data/maps
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/blue-nebula/server
+          tags: |
+            type=semver,pattern={{version}},event=tag
+            type=ref,event=branch
+            type=sha
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: docker/Dockerfile
+          # enable arm64 by default once native runners are available
+          platforms: ${{ inputs.include_arm64 && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}

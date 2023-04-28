@@ -7321,6 +7321,7 @@ namespace server
         {
             case 'P': setsvar("adminpass", &arg[3]); return true;
             case 'k': setsvar("serverpass", &arg[3]); return true;
+            case 'j': setsvar("serverpublicip", &arg[3]); return true;
             default: break;
         }
         return false;
