@@ -438,7 +438,16 @@ namespace auth
             conoutf("Updating master server");
             // the position of the 0 was used to signalize support for the global stats system, which has been removed
             // to retain compatibility, we just send a 0, pretending it was simply disabled by the administrator
-            requestmasterf("server %d %s %d %s 0 %s\n", serverport, *serverip ? serverip : "*", CUR_VERSION, escapestring(limitstring(G(serverdesc), MAXSDESCLEN+1)), escapestring(versionbranch));
+            const char *advertisedIp;
+            if (*serverpublicip != '\0') {
+                advertisedIp = serverpublicip;
+            } else if (*serverip != '\0') {
+                advertisedIp = serverip;
+            } else {
+                advertisedIp = "*";
+            }
+
+            requestmasterf("server %d %s %d %s 0 %s\n", serverport, advertisedIp, CUR_VERSION, escapestring(limitstring(G(serverdesc), MAXSDESCLEN+1)), escapestring(versionbranch));
         }
         reqserverauth();
     }
