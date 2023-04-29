@@ -1,5 +1,6 @@
 #include <vector>
 #include "game.h"
+#include "completions.h"
 
 namespace hud
 {
@@ -1865,149 +1866,135 @@ namespace hud
                 pophudmatrix();
                 tz = int(tz*conscale);
             }
+            // draw completions
             if(commandmillis > 0)
             {
                 pushfont("command");
                 Texture *t = textureload(commandicon ? commandicon : inputtex, 3);
                 vec c(1, 1, 1);
                 if(commandcolour) c = vec::hexcolor(commandcolour);
-                float f = float(totalmillis%1000)/1000.f;
+                float f = float(totalmillis % 1000) / 1000.f;
                 if(f < 0.5f) f = 1.f-f;
                 pushhudscale(commandscale);
-                float th = FONTH, tw = float(t->w)/float(t->h)*th;
-                int tx = int(x/commandscale), ty = int(y/commandscale),
-                    ts = int(s/commandscale), tq = (concenter ? tx+ts/2-FONTW*3 : tx), tr = int(tw+FONTW), tt = ts-(FONTH+FONTW);
-                tz = int(tz/commandscale);
+                float th = FONTH;
+                float tw = float(t->w) / float(t->h) * th;
+                int tx = int(x / commandscale);
+                int ty = int(y / commandscale);
+                int ts = int(s / commandscale);
+                int tq = (concenter ? tx + ts / 2 - FONTW * 3 : tx);
+                int tr = int(tw + FONTW);
+                int tt = ts - (FONTH + FONTW);
+                tz = int(tz / commandscale);
                 glBindTexture(GL_TEXTURE_2D, t->id);
-                gle::color(c, fullconblend*fade*f);
-                drawtexture(tx, ty+tz, th, tw);
+                gle::color(c, fullconblend * fade * f);
+                drawtexture(tx, ty + tz, th, tw);
                 int cp = commandpos >= 0 ? commandpos : strlen(commandbuf);//, fp = completesize && completeoffset >= 0 ? min(pos, completeoffset+completesize) : -1;
-                tz += draw_textf("%s", tq+tr, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, tt, 1, commandbuf);
-                if(capslockwarn && capslockon)
+                // draw the text input
+                tz += draw_textf("%s", tq+tr, ty+tz, 0, 0, 255, 255, 255, int(fullconblend * fade * 255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, cp, tt, 1, commandbuf);
+
+                if (capslockwarn && capslockon) {
                     tz += draw_textf("\fs\fzoy^\fS \fs\fw\f{CAPSLOCK}\fS is \fs\fcON\fS", tq+tr, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1);
+                }
+
+                tq += tr + FONTW * completion::completion_pos;
                 popfont();
-                if(commandbuf[0] == '/' && commandbuf[1])
+
+                if (completion::could_contain_completion(commandbuf))
                 {
-                    char *start = &commandbuf[1];
-                    const char chrlist[7] = { ';', '(', ')', '[', ']', '\"', '$', };
-                    loopi(7)
+                    int completion_num = 0;
+                    const int text_alignment = concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY;
+                    const int text_fade = int(fullconblend * fade * 255);
+
+                    for (auto& completion : completion::available_completions)
                     {
-                        char *semi = strrchr(start, chrlist[i]);
-                        if(semi) start = semi+1;
-                    }
-                    while(*start == ' ') start++;
-                    if(*start)
-                    {
-                        char *end = start;
-                        end += strcspn(start, " \t\0");
-                        if(end)
+                        std::string formatting = "%s";
+                        int offset = 0;
+
+                        if (completion.type == completion.IDENTIFIER)
                         {
-                            string idname;
-                            copystring(idname, start, min(size_t(end-start+1), sizeof(idname)));
-                            ident *id = idents.access(idname);
-                            if(id)
-                            {
-                                string idtype = "";
-                                if(id->flags&IDF_CLIENT || id->flags&IDF_SERVER)
-                                {
-                                    if(id->flags&IDF_ADMIN) concatstring(idtype, "admin-only ");
-                                    else if(id->flags&IDF_MODERATOR) concatstring(idtype, "moderator-only ");
-                                    concatstring(idtype, id->flags&IDF_CLIENT ? "game " : "server ");
-                                }
-                                if(id->type != ID_COMMAND)
-                                {
-                                    if(id->flags&IDF_READONLY) concatstring(idtype, "read-only ");
-                                    if(id->flags&IDF_PERSIST) concatstring(idtype, "persistent ");
-                                    if(id->flags&IDF_WORLD) concatstring(idtype, "world ");
-                                }
-                                switch(id->type)
-                                {
-                                    case ID_ALIAS:
-                                    {
-                                        tz += draw_textf("%salias", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, idtype);
-                                        break;
-                                    }
-                                    case ID_COMMAND:
-                                    {
-                                        tz += draw_textf("%scommand", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, idtype);
-                                        if(strlen(id->args)) tz += draw_textf("\faargs: \fw%d \fa(\fw%s\fa)", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, strlen(id->args), id->args);
-                                        else tz += draw_textf("\faargs: \fwnone", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1);
-                                        break;
-                                    }
-                                    case ID_VAR:
-                                    {
-                                        tz += draw_textf("%sinteger", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, idtype);
-                                        if(id->flags&IDF_HEX)
-                                        {
-                                            if(id->maxval == 0xFFFFFF)
-                                                tz += draw_textf("\famin: \fw0x%.6X\fa (\fw%d\fa,\fw%d\fa,\fw%d\fa), max: \fw0x%.6X\fa (\fw%d\fa,\fw%d\fa,\fw%d\fa), default: \fw0x%.6X\fa (\fw%d\fa,\fw%d\fa,\fw%d\fa), current: \fw0x%.6X (\fw%d\fa,\fw%d\fa,\fw%d\fa) [\fs\f[%d]#\fS]", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1,
-                                                        id->minval, (id->minval>>16)&0xFF, (id->minval>>8)&0xFF, id->minval&0xFF,
-                                                        id->maxval, (id->maxval>>16)&0xFF, (id->maxval>>8)&0xFF, id->maxval&0xFF,
-                                                        id->def.i, (id->def.i>>16)&0xFF, (id->def.i>>8)&0xFF, id->def.i&0xFF,
-                                                        *id->storage.i, (*id->storage.i>>16)&0xFF, (*id->storage.i>>8)&0xFF, *id->storage.i&0xFF, *id->storage.i);
-                                            else tz += draw_textf("\famin: \fw0x%X\fa, max: \fw0x%X\fa, default: \fw0x%X\fa, current: \fw0x%X", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, id->minval, id->maxval, id->def.i, *id->storage.i);
-                                        }
-                                        else tz += draw_textf("\famin: \fw%d\fa, max: \fw%d\fa, default: \fw%d\fa, current: \fw%d", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, id->minval, id->maxval, id->def.i, *id->storage.i);
-                                        break;
-                                    }
-                                    case ID_FVAR:
-                                    {
-                                        tz += draw_textf("%sfloat", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, idtype);
-                                        tz += draw_textf("\famin: \fw%f\fa, max: \fw%f\fa, default: \fw%f\fa, current: \fw%f", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, id->minvalf, id->maxvalf, id->def.f, *id->storage.f);
-                                        break;
-                                    }
-                                    case ID_SVAR:
-                                    {
-                                        tz += draw_textf("%s%s", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, idtype, id->flags&IDF_TEXTURE ? "texture" : "string");
-                                        tz += draw_textf("\fadefault: \fw%s\fa, current: \fw%s", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, id->def.s, *id->storage.s);
-                                        break;
-                                    }
+                            const ident& id = completion.id;
+                            std::string id_name = id.name;
+
+                            if (completion_num == completion::selected_completion) {
+                                pushfont("command");
+                                // make the selected completion offset to the right by a little bit so it's easier to see
+                                // unless there is only one completion, then it'd look weird
+                                if (completion::available_completions.size() > 1) {
+                                    offset = FONTW;
                                 }
 
-                                string fields = "";
-                                if(id->type == ID_VAR && id->fields.length() > 1)
+                                formatting = "\fc%s";
+
+                                id_name += completion.get_ident_args_text();
+                            }
+                            tz += draw_textf(formatting.c_str(), tq + offset, ty + tz, 0, 0, 255, 255, 255, text_fade, text_alignment, -1, tt, 1,
+                                            id_name.c_str());
+
+                            if (completion_num == completion::selected_completion) {
+                                popfont();
+
+                                // min, max and current value
+                                std::string values[4];
+                                completion.get_ident_values(values);
+
+                                if (id.type == ID_VAR || id.type == ID_FVAR)
                                 {
-                                    concatstring(fields, "<bitfield>");
-                                    loopvj(id->fields) if(id->fields[j])
-                                        concformatstring(fields, "\n%d [0x%x] = %s", 1<<j, 1<<j, id->fields[j]);
-                                }
-                                else loopvj(id->fields) if(id->fields[j])
-                                    concformatstring(fields, "%s<%s>", j ? " " : "", id->fields[j]);
-                                if(!*fields) switch(id->type)
-                                {
-                                    case ID_ALIAS: concatstring(fields, "<arguments>"); break;
-                                    case ID_VAR: concatstring(fields, "<integer>"); break;
-                                    case ID_FVAR: concatstring(fields, "<float>"); break;
-                                    case ID_SVAR: concatstring(fields, "<string>"); break;
-                                    case ID_COMMAND:
+                                    if (completion.is_ident_bool())
                                     {
-                                        loopj(strlen(id->args)) switch(id->args[j])
-                                        {
-                                            case 's': concformatstring(fields, "%s<string>", j ? " " : ""); break;
-                                            case 'i': case 'b': case 'N': concformatstring(fields, "%s<%s>", j ? " " : "", id->flags&IDF_HEX ? "bitfield" : "integer"); break;
-                                            case 'f': case 'g': concformatstring(fields, "%s<float>", j ? " " : ""); break;
-                                            case 't': concformatstring(fields, "%s<null>", j ? " " : ""); break;
-                                            case 'e': concformatstring(fields, "%s<commands>", j ? " " : ""); break;
-                                            case 'r': case '$': concformatstring(fields, "%s<ident>", j ? " " : ""); break;
-                                            default: concformatstring(fields, "%s<?>", j ? " " : ""); break;
-                                        }
-                                        break;
+                                        tz += draw_textf("\fyCurrent: \fw%s \fgDefault: \fw%s", tq + offset, ty + tz, 0, 0, 255, 255, 255, text_fade, text_alignment, -1, tt, 1,
+                                                        values[3].c_str(), values[2].c_str());
                                     }
-                                    default: break;
+                                    else
+                                    {
+                                        tz += draw_textf("\fyCurrent: \fw%s \fbMin: \fw%s \frMax: \fw%s \fgDefault: \fw%s", tq + offset, ty + tz, 0, 0, 255, 255, 255, text_fade, text_alignment, -1, tt, 1,
+                                                        values[3].c_str(), values[0].c_str(), values[1].c_str(), values[2].c_str());
+                                    }
                                 }
-                                tz += draw_textf("usage: \fa/%s %s", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, id->name, fields);
-
-                                if(id->desc)
-                                    tz += draw_textf("\fa%s", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, id->desc);
-
-                                if(id->type == ID_ALIAS)
+                                else if (id.type == ID_SVAR)
                                 {
-                                    pushfont("consub");
-                                    tz += draw_textf("\facontents: \fw%s", tq, ty+tz, 0, 0, 255, 255, 255, int(fullconblend*fade*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, tt, 1, id->getstr());
+                                    // strings only have default and current value
+                                    tz += draw_textf("\fgCurrent: \fw%s \fyDefault: \fw%s", tq + offset, ty + tz, 0, 0, 255, 255, 255, text_fade, text_alignment, -1, tt, 1,
+                                                    values[2].c_str(), values[3].c_str());
+                                }
+
+                                // flags
+                                std::string flags = completion.get_ident_flags_text();
+                                if (flags != "")
+                                {
+                                    pushfont("small");
+                                    tz += draw_textf("\faFlags: \fw%s", tq + offset, ty + tz, 0, 0, 255, 255, 255, text_fade, text_alignment, -1, tt, 1,
+                                                    flags.c_str());
                                     popfont();
                                 }
+
+                                // description
+                                const std::string description = id.desc != nullptr ? id.desc : "No Description Available.";
+                                tz += draw_textf("\fa%s\fw", tq + offset, ty + tz, 0, 0, 255, 255, 255, text_fade, text_alignment, -1, tt, 1,
+                                                description.c_str());
                             }
                         }
+                        else if (completion.type == completion.OTHER)
+                        {
+                            if (completion_num == completion::selected_completion) {
+                                pushfont("command");
+                                // make the selected completion offset to the right by a little bit so it's easier to see
+                                // unless there is only one completion, then it'd look weird
+                                if (completion::available_completions.size() > 1) {
+                                    offset = FONTW;
+                                }
+
+                                formatting = "\fc%s";
+                            }
+
+                            tz += draw_textf(formatting.c_str(), tq + offset, ty + tz, 0, 0, 255, 255, 255, text_fade, text_alignment, -1, tt, 1, 
+                                            completion.text.c_str());
+
+                            if (completion_num == completion::selected_completion) {
+                                popfont();
+                            }
+                        }
+
+                        completion_num++;
                     }
                 }
                 pophudmatrix();

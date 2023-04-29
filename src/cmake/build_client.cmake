@@ -100,12 +100,14 @@ if(BUILD_CLIENT)
         game/weapdef.h
         game/weapons.h
         shared/crypto.cpp
+        shared/completions.cpp
         shared/geom.cpp
         shared/glemu.cpp
         shared/stream.cpp
         shared/tools.cpp
         shared/zip.cpp
         shared/command.h
+        shared/completions.h
         shared/cube.h
         shared/ents.h
         shared/geom.h
