@@ -774,6 +774,14 @@ extern void renderblendbrush();
 extern bool loadblendmap(stream *f);
 extern void saveblendmap(stream *f);
 extern uchar shouldsaveblendmap();
+
+// recorder
+namespace recorder
+{
+    extern void stop();
+    extern void capture(bool overlay = true);
+    extern void cleanup();
+}
 #endif // STANDALONE
 
 #endif
