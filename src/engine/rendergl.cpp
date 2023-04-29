@@ -2337,21 +2337,29 @@ void cleanupgl()
 
 void drawskin(Texture *t, int x1, int y1, int x2, int y2, int colour, float blend, int size, const matrix4x3 *m)
 {
-    int w = max(x2-x1, 2), h = max(y2-y1, 2), tw = size ? size : t->w, th = size ? size : t->h;
-    float pw = tw*0.25f, ph = th*0.25f, qw = tw*0.5f, qh = th*0.5f, px = 0, py = 0, tx = 0, ty = 0;
-    if(w < qw)
+    int width = max(x2 - x1, 2);
+    int height = max(y2 - y1, 2);
+    int tw = size ? size : t->w;
+    int th = size ? size : t->h;
+    int corner_w = tw * 0.25f;
+    int corner_h = th * 0.25f;
+
+    if(width < corner_w * 2)
     {
-        float scale = w/qw;
-        qw *= scale; qh *= scale;
-        pw *= scale; ph *= scale;
+        float scale = width / (corner_w * 2);
+        corner_w *= scale;  corner_h *= scale;
     }
-    if(h < qh)
+    if(height < corner_h * 2)
     {
-        float scale = h/qh;
-        qw *= scale; qh *= scale;
-        pw *= scale; ph *= scale;
+        float scale = height / (corner_h * 2);
+        corner_w *= scale;  corner_h *= scale;
     }
-    int cw = max(int(floorf(w/qw))-1, 0), ch = max(int(floorf(h/qh))+1, 2);
+
+    // Inner coordinates.
+    int xs[] = {x1, x1 + corner_w, x2 - corner_w, x2};
+    int ys[] = {y1, y1 + corner_h, y2 - corner_h, y2};
+    float txs[] = {0.0f, 0.25f, 0.75f, 1.0f};
+    float tys[] = {0.0f, 0.25f, 0.75f, 1.0f};
 
     glBindTexture(GL_TEXTURE_2D, t->id);
     gle::color(vec::hexcolor(colour), blend);
@@ -2364,63 +2372,16 @@ void drawskin(Texture *t, int x1, int y1, int x2, int y2, int colour, float blen
         else gle::attribf(vx, vy); \
     } while(0)
 
-    loopi(ch)
+    for(int row = 0; row < 3; row++)
     {
-        bool cond = !i || i == ch-1;
-        float vph = cond ? ph : qh, vth = cond ? 0.25f : 0.5f;
-        if(i && cond)
+        for(int col = 0; col < 3; col++)
         {
-            float off = h-py;
-            if(off > vph)
-            {
-                float part = off/vph;
-                vph *= part;
-                vth *= part;
-            }
-            ty = 1-vth;
+            mtxvert(xs[col], ys[row]);      gle::attribf(txs[col], tys[row]);
+            mtxvert(xs[col+1], ys[row]);    gle::attribf(txs[col+1], tys[row]);
+            mtxvert(xs[col+1], ys[row+1]);  gle::attribf(txs[col+1], tys[row+1]);
+            mtxvert(xs[col], ys[row+1]);    gle::attribf(txs[col], tys[row+1]);
         }
-        loopj(3) switch(j)
-        {
-            case 0: case 2:
-            {
-                mtxvert(x1+px, y1+py); gle::attribf(tx, ty);
-                mtxvert(x1+px+pw, y1+py); gle::attribf(tx+0.25f, ty);
-                mtxvert(x1+px+pw, y1+py+vph); gle::attribf(tx+0.25f, ty+vth);
-                mtxvert(x1+px, y1+py+vph); gle::attribf(tx, ty+vth);
-                tx += 0.25f;
-                px += pw;
-                xtraverts += 4;
-                break;
-            }
-            case 1:
-            {
-                for(int xx = 0; xx < cw; xx++)
-                {
-                    mtxvert(x1+px, y1+py); gle::attribf(tx, ty);
-                    mtxvert(x1+px+qw, y1+py); gle::attribf(tx+0.5f, ty);
-                    mtxvert(x1+px+qw, y1+py+vph); gle::attribf(tx+0.5f, ty+vth);
-                    mtxvert(x1+px, y1+py+vph); gle::attribf(tx, ty+vth);
-                    px += qw;
-                    xtraverts += 4;
-                }
-                float want = w-pw, off = want-px;
-                if(off > 0)
-                {
-                    float part = 0.5f*off/qw;
-                    mtxvert(x1+px, y1+py); gle::attribf(tx, ty);
-                    mtxvert(x1+want, y1+py); gle::attribf(tx+part, ty);
-                    mtxvert(x1+want, y1+py+vph); gle::attribf(tx+part, ty+vth);
-                    mtxvert(x1+px, y1+py+vph); gle::attribf(tx, ty+vth);
-                    px = want;
-                }
-                tx += 0.5f;
-                break;
-            }
-            default: break;
-        }
-        px = tx = 0;
-        py += vph;
-        if(!i) ty += vth;
     }
+
     xtraverts += gle::end();
 }
