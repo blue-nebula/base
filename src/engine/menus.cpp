@@ -192,10 +192,8 @@ bool showgui(const char *name, int tab, bool *keep)
     return true;
 }
 
-extern bool closetexgui();
 int cleargui(int n, bool skip)
 {
-    if(closetexgui()) n--;
     int clear = menustack.length();
     if(n>0) clear = min(clear, n);
     loopi(clear) if(!pop_ui(skip)) break;
@@ -975,3 +973,18 @@ void ui_console(int width, int height, const char *init)
     }
 }
 ICOMMAND(0, consolegui, "iis", (int *w, int *h, char *i), ui_console(*w, *h, i));
+
+void ui_texture_list()
+{
+    if(!cgui) return;
+    void ui_texture_list_(guient &);
+    ui_texture_list_(*cgui);
+}
+COMMAND(0, ui_texture_list, "");
+
+void ui_texture_list_init()
+{
+    void ui_texture_list_init_();
+    ui_texture_list_init_();
+}
+COMMAND(0, ui_texture_list_init, "");
