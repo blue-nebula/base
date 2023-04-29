@@ -370,7 +370,7 @@ struct hline
             setsvar("commandbuffer", buf, true);
             execute(action);
         }
-        else client::toserver(0, buf);
+        else client::toserver(0, buf, -1);
     }
 };
 vector<hline *> history;

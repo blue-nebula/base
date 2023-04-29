@@ -34,7 +34,8 @@ namespace client
     extern void gameconnect(bool _remote);
     extern bool allowedittoggle(bool edit);
     extern void edittoggled(bool edit);
-    extern void toserver(int flags, const char *text, const char *target = NULL);
+    extern void toserver(int flags, const char* text, const int target_cn = -1);
+    extern void toserver(int flags, const char *text, const char* target = NULL);
     extern void editvar(ident *id, bool local);
     extern void edittrigger(const selinfo &sel, int op, int arg1 = 0, int arg2 = 0, int arg3 = 0, const VSlot *vs = NULL);
     extern void changemap(const char *name);
@@ -126,6 +127,8 @@ namespace game
     extern vec thirdpos(const vec &pos, float yaw, float pitch, float dist = 1, float side = 0);
     extern vec camerapos(physent *d, bool hasfoc = false, bool hasyp = false, float yaw = 0, float pitch = 0);
     extern void start();
+
+    extern int last_whisperer_cn;
 }
 #endif
 namespace server
