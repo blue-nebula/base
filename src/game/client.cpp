@@ -1482,6 +1482,142 @@ namespace client
     }
     //ICOMMAND(0, sendmap, "", (), sendmap());
 
+    static void startcmd(char *map, char *mode_str, char *muts_str)
+    {
+        static const struct {const char *name; int val;} mode_names[] =
+        {
+            {"demo",       G_DEMO},
+            {"edit",       G_EDITMODE},
+            {"deathmatch", G_DEATHMATCH},
+            {"dm",         G_DEATHMATCH},
+            {"capture",    G_CAPTURE},
+            {"ctf",        G_CAPTURE},
+            {"defend",     G_DEFEND},
+            {"dac",        G_DEFEND},
+            {"bomber",     G_BOMBER},
+            {"bb",         G_BOMBER},
+            {"race",       G_RACE},
+        };
+        static const struct {const char *name; int val; int modes;} mut_names[] =
+        {
+            {"multi",      1 << G_M_MULTI,      G_ALL},
+            {"ffa",        1 << G_M_FFA,        G_ALL},
+            {"coop",       1 << G_M_COOP,       G_ALL},
+            {"insta",      1 << G_M_INSTA,      G_ALL},
+            {"instagib",   1 << G_M_INSTA,      G_ALL},
+            {"medieval",   1 << G_M_MEDIEVAL,   G_ALL},
+            {"kaboom",     1 << G_M_KABOOM,     G_ALL},
+            {"duel",       1 << G_M_DUEL,       G_ALL},
+            {"survivor",   1 << G_M_SURVIVOR,   G_ALL},
+            {"classic",    1 << G_M_CLASSIC,    G_ALL},
+            {"onslaught",  1 << G_M_ONSLAUGHT,  G_ALL},
+            {"freestyle",  1 << G_M_FREESTYLE,  G_ALL},
+            {"vampire",    1 << G_M_VAMPIRE,    G_ALL},
+            {"resize",     1 << G_M_RESIZE,     G_ALL},
+            {"hard",       1 << G_M_HARD,       G_ALL},
+            {"basic",      1 << G_M_BASIC,      G_ALL},
+            {"gladiator",  1 << G_M_GSP1,       1 << G_DEATHMATCH},
+            {"oldscool",   1 << G_M_GSP2,       1 << G_DEATHMATCH},
+            {"quick",      1 << G_M_GSP1,       1 << G_CAPTURE},
+            {"defend",     1 << G_M_GSP2,       1 << G_CAPTURE},
+            {"protect",    1 << G_M_GSP3,       1 << G_CAPTURE},
+            {"quick",      1 << G_M_GSP1,       1 << G_DEFEND},
+            {"king",       1 << G_M_GSP2,       1 << G_DEFEND},
+            {"hold",       1 << G_M_GSP1,       1 << G_BOMBER},
+            {"basket",     1 << G_M_GSP2,       1 << G_BOMBER},
+            {"attack",     1 << G_M_GSP3,       1 << G_BOMBER},
+            {"timed",      1 << G_M_GSP1,       1 << G_RACE},
+            {"endurance",  1 << G_M_GSP2,       1 << G_RACE},
+            {"gauntlet",   1 << G_M_GSP3,       1 << G_RACE},
+        };
+
+        int nextmode = G_DEATHMATCH;
+        int nextmuts = 0;
+
+        if(mode_str && isnumeric(*mode_str))
+        {
+            nextmode = atoi(mode_str);
+        }
+        else if(mode_str && *mode_str)
+        {
+            bool found_one = false;
+            for(auto possible_mode : mode_names)
+            {
+                if(strcmp(possible_mode.name, mode_str) == 0)
+                {
+                    nextmode = possible_mode.val;
+                    found_one = true;
+                    break;
+                }
+            }
+            if(!found_one)
+            {
+                conoutft(CON_MESG, "\frgame mode \"%s\" not found", mode_str);
+                return;
+            }
+        }
+
+        if(muts_str && *muts_str)
+        {
+            std::vector<std::string> muts_vec;
+            char *begin = muts_str;
+            char *end = NULL;
+            // Split the muts string on ' ' and '-' into muts_vec.
+            while(*begin)
+            {
+                if(end)
+                {
+                    if(*end == ' ' || *end == '-' || *end == '\0')
+                    {
+                        muts_vec.emplace_back(begin, end - begin);
+                        begin = end;
+                        end = NULL;
+                    }
+                    else end++;
+                }
+                else
+                {
+                    if(*begin != ' ' && *begin != '-')
+                    {
+                        end = begin;
+                    }
+                    else begin++;
+                }
+            }
+
+            for(const std::string &mut : muts_vec)
+            {
+                if(isnumeric(*mut.c_str()))
+                {
+                    nextmuts |= atoi(mut.c_str());
+                }
+                else
+                {
+                    bool found_one = false;
+                    for(auto possible_mut : mut_names)
+                    {
+                        if(strcmp(possible_mut.name, mut.c_str()) == 0 && (1 << nextmode) & possible_mut.modes)
+                        {
+                            nextmuts |= possible_mut.val;
+                            found_one = true;
+                            break;
+                        }
+                    }
+                    if(!found_one)
+                    {
+                        conoutft(CON_MESG, "\frmutator \"%s\" not found or incompatible with mode \"%s\"", mut.c_str(), mode_str);
+                        return;
+                    }
+                }
+            }
+        }
+
+        game::nextmode = nextmode;
+        game::nextmuts = nextmuts;
+        changemap(map);
+    }
+    ICOMMAND(0, start, "sss", (char *map, char *mode, char *muts), startcmd(map, mode, muts));
+
     void gotoplayer(const char *arg)
     {
         if(game::player1.state!=CS_SPECTATOR && game::player1.state!=CS_EDITING) return;
