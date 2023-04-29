@@ -96,12 +96,12 @@ static void gengrassquads(grassgroup *&group, const grasswedge &w, const grasstr
     int tstep = int(ceil(t/grassstep));
     float tstart = tstep*grassstep,
           t0 = w.dir.dot(g.v[0]), t1 = w.dir.dot(g.v[1]), t2 = w.dir.dot(g.v[2]), t3 = w.dir.dot(g.v[3]),
-          tmin = min(min(t0, t1), min(t2, t3)),
-          tmax = max(max(t0, t1), max(t2, t3));
+          tmin = std::min(std::min(t0, t1), std::min(t2, t3)),
+          tmax = std::max(std::max(t0, t1), std::max(t2, t3));
     if(tmax < tstart || tmin > t + grassdist) return;
 
-    int minstep = max(int(ceil(tmin/grassstep)) - tstep, 1),
-        maxstep = int(floor(min(tmax, t + grassdist)/grassstep)) - tstep,
+    int minstep = std::max(int(ceil(tmin/grassstep)) - tstep, 1),
+        maxstep = int(floor(std::min(tmax, t + grassdist)/grassstep)) - tstep,
         numsteps = maxstep - minstep + 1,
         gs = scale > 0 ? scale : grassscale,
         gh = height > 0 ? height : grassheight;
@@ -286,7 +286,7 @@ void generategrass()
     if(!grassvbo) glGenBuffers_(1, &grassvbo);
     gle::bindvbo(grassvbo);
     int size = grassverts.length()*sizeof(grassvert);
-    grassvbosize = max(grassvbosize, size);
+    grassvbosize = std::max(grassvbosize, size);
     glBufferData_(GL_ARRAY_BUFFER, grassvbosize, size == grassvbosize ? grassverts.getbuf() : NULL, GL_STREAM_DRAW);
     if(size != grassvbosize) glBufferSubData_(GL_ARRAY_BUFFER, 0, size, grassverts.getbuf());
     gle::clearvbo();

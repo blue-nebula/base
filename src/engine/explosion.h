@@ -166,8 +166,8 @@ struct explosionrenderer : sharedlistrenderer
 
             loopk(3)
             {
-                bbmin[k] = min(bbmin[k], p->o[k] - psize);
-                bbmax[k] = max(bbmax[k], p->o[k] + psize);
+                bbmin[k] = std::min(bbmin[k], p->o[k] - psize);
+                bbmax[k] = std::max(bbmax[k], p->o[k] + psize);
             }
 
             int pos = numranges;
@@ -176,7 +176,7 @@ struct explosionrenderer : sharedlistrenderer
 
             if(numranges > pos)
             {
-                int moved = min(numranges-pos, maxranges-(pos+1));
+                int moved = std::min(numranges-pos, maxranges-(pos+1));
                 memmove(&ranges[pos+1], &ranges[pos], moved*sizeof(float));
                 memmove(&owners[pos+1], &owners[pos], moved*sizeof(void *));
             }

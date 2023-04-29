@@ -36,7 +36,7 @@ namespace aiman
         if(m_coop(gamemode, mutators))
         {
             int people = numclients(-1, true, -1), numt = numteams(gamemode, mutators)-1;
-            return min(int(ceilf(people*numt*(m_multi(gamemode, mutators) ? G(coopmultibalance) : G(coopbalance)))), MAXAI);
+            return std::min(int(ceilf(people*numt*(m_multi(gamemode, mutators) ? G(coopmultibalance) : G(coopbalance)))), MAXAI);
         }
         return G(botlimit);
     }
@@ -48,8 +48,8 @@ namespace aiman
             case A_BOT:
                 if(m_coop(gamemode, mutators))
                 {
-                    m = max(G(coopskillmax), G(coopskillmin));
-                    n = min(G(coopskillmin), m);
+                    m = std::max(G(coopskillmax), G(coopskillmin));
+                    n = std::min(G(coopskillmin), m);
                     if(deaths != 0 && G(coopskilldeaths) != 0)
                     {
                         int amt = G(coopskilldeaths)*deaths;
@@ -65,8 +65,8 @@ namespace aiman
                 }
                 else
                 {
-                    m = max(G(botskillmax), G(botskillmin));
-                    n = min(G(botskillmin), m);
+                    m = std::max(G(botskillmax), G(botskillmin));
+                    n = std::min(G(botskillmin), m);
                     if(deaths != 0 && G(botskilldeaths) != 0)
                     {
                         int amt = G(botskilldeaths)*deaths;
@@ -82,12 +82,12 @@ namespace aiman
                 }
                 break;
             default:
-                m = max(G(enemyskillmax), G(enemyskillmin));
-                n = min(G(enemyskillmin), m);
+                m = std::max(G(enemyskillmax), G(enemyskillmin));
+                n = std::min(G(enemyskillmin), m);
                 break;
         }
-        m = min(m, 101);
-        n = min(n, m);
+        m = std::min(m, 101);
+        n = std::min(n, m);
     }
 
     void setskill(clientinfo *ci)
@@ -188,7 +188,7 @@ namespace aiman
         if(owner) owner->bots.removeobj(ci);
         clients.removeobj(ci);
         delclient(cn);
-        dorefresh = max(dorefresh, 1);
+        dorefresh = std::max(dorefresh, 1);
     }
 
     bool delai(int type, bool skip)
@@ -283,9 +283,9 @@ namespace aiman
             int bb = m_botbal(gamemode, mutators);
             switch(bb)
             {
-                case -1: balance = max(people, G(numplayers)); break; // use distributed map players
+                case -1: balance = std::max(people, G(numplayers)); break; // use distributed map players
                 case  0: balance = 0; break; // no bots
-                default: balance = max(people, bb); break; // balance to at least this
+                default: balance = std::max(people, bb); break; // balance to at least this
             }
             balance += G(botoffset)*numt;
             if(!m_duke(gamemode, mutators) && G(botbalancescale) != 1) balance = int(ceilf(balance*G(botbalancescale)));
@@ -354,7 +354,7 @@ namespace aiman
                 }
                 if(numenemies < G(enemylimit) && count < G(enemybalance))
                 {
-                    int amt = min(G(enemybalance)-count, G(enemylimit)-numenemies);
+                    int amt = std::min(G(enemybalance)-count, G(enemylimit)-numenemies);
                     loopk(amt) addai(sents[j].attrs[0]+A_ENEMY, j);
                     sents[j].millis = gamemillis+G(enemyspawntime);
                 }
@@ -371,7 +371,7 @@ namespace aiman
 
     void poke()
     {
-        dorefresh = max(dorefresh, G(airefreshdelay));
+        dorefresh = std::max(dorefresh, G(airefreshdelay));
     }
 
     void checkai()

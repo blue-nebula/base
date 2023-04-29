@@ -123,7 +123,7 @@ struct lightningrenderer : sharedlistrenderer
 
     void renderpart(sharedlistparticle *p, int blend, int ts, float size)
     {
-        blend = int(min(blend<<2, 255)*p->blend);
+        blend = int(std::min(blend<<2, 255)*p->blend);
         bvec4 midcol, endcol;
         if(type&PT_MOD) //multiply alpha into color
         {

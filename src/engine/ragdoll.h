@@ -214,9 +214,9 @@ struct ragdolldata
         radius = ztop = zbottom = 0;
         loopv(skel->verts)
         {
-            radius = max(radius, verts[i].pos.dist(center));
-            ztop = max(ztop, verts[i].pos.z);
-            zbottom = min(zbottom, verts[i].pos.z);
+            radius = std::max(radius, verts[i].pos.dist(center));
+            ztop = std::max(ztop, verts[i].pos.z);
+            zbottom = std::min(zbottom, verts[i].pos.z);
         }
         ztop -= center.z;
         zbottom -= center.z;
@@ -487,7 +487,7 @@ void ragdolldata::move(dynent *pl, float ts)
 
     calcrotfriction();
     float tsfric = timestep ? ts/timestep : 1,
-          airfric = ragdollairfric + min((ragdollbodyfricscale*collisions)/skel->verts.length(), 1.0f)*(ragdollbodyfric - ragdollairfric);
+          airfric = ragdollairfric + std::min((ragdollbodyfricscale*collisions)/skel->verts.length(), 1.0f)*(ragdollbodyfric - ragdollairfric);
     bool liquid = physics::liquidcheck(pl);
     collisions = 0;
     loopv(skel->verts)
@@ -547,7 +547,7 @@ void moveragdoll(dynent *d, bool smooth)
         int lastmove = d->ragdoll->lastmove;
         while(d->ragdoll->lastmove + (lastmove == d->ragdoll->lastmove ? ragdolltimestepmin : ragdolltimestepmax) <= lastmillis)
         {
-            int timestep = min(ragdolltimestepmax, lastmillis - d->ragdoll->lastmove);
+            int timestep = std::min(ragdolltimestepmax, lastmillis - d->ragdoll->lastmove);
             d->ragdoll->move(d, timestep/1000.0f);
             d->ragdoll->lastmove += timestep;
         }

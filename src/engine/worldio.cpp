@@ -703,8 +703,8 @@ void loadvslot(stream *f, VSlot &vs, int changed)
         {
             SlotShaderParam &p = vs.params.add();
             int nlen = f->getlil<ushort>();
-            f->read(name, min(nlen, MAXSTRLEN-1));
-            name[min(nlen, MAXSTRLEN-1)] = '\0';
+            f->read(name, std::min(nlen, MAXSTRLEN-1));
+            name[std::min(nlen, MAXSTRLEN-1)] = '\0';
             if(nlen >= MAXSTRLEN) f->seek(nlen - (MAXSTRLEN-1), SEEK_CUR);
             p.name = getshaderparamname(name);
             p.loc = -1;
@@ -1493,8 +1493,8 @@ bool load_world(const char *mname, int crc)       // still supports all map form
             {
                 int type = f->getchar(), ilen = f->getlil<ushort>();
                 string name;
-                f->read(name, min(ilen, OCTASTRLEN-1));
-                name[min(ilen, OCTASTRLEN-1)] = '\0';
+                f->read(name, std::min(ilen, OCTASTRLEN-1));
+                name[std::min(ilen, OCTASTRLEN-1)] = '\0';
                 if(ilen >= OCTASTRLEN) f->seek(ilen - (OCTASTRLEN-1), SEEK_CUR);
                 if(!strcmp(name, "cloudblend")) copystring(name, "cloudlayerblend");
                 if(!strcmp(name, "cloudalpha")) copystring(name, "cloudblend");
@@ -1524,8 +1524,8 @@ bool load_world(const char *mname, int crc)       // still supports all map form
                     {
                         int slen = f->getlil<ushort>();
                         string val;
-                        f->read(val, min(slen, OCTASTRLEN-1));
-                        val[min(slen, OCTASTRLEN-1)] = '\0';
+                        f->read(val, std::min(slen, OCTASTRLEN-1));
+                        val[std::min(slen, OCTASTRLEN-1)] = '\0';
                         if(slen >= OCTASTRLEN) f->seek(slen - (OCTASTRLEN-1), SEEK_CUR);
                         if(exists) setsvar(name, val, true);
                         break;
@@ -1869,8 +1869,8 @@ void writeobj(char *name)
                     verts.add(pos);
                     loopl(3)
                     {
-                        bbmin[l] = min(bbmin[l], pos[l]);
-                        bbmax[l] = max(bbmax[l], pos[l]);
+                        bbmin[l] = std::min(bbmin[l], pos[l]);
+                        bbmax[l] = std::max(bbmax[l], pos[l]);
                     }
                 }
                 key.y = sharetc.access(tc, texcoords.length());

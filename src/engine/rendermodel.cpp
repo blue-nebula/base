@@ -96,7 +96,7 @@ COMMAND(0, mdlambient, "i");
 void mdlalphatest(float *cutoff)
 {
     checkmdl;
-    loadingmodel->setalphatest(max(0.0f, min(1.0f, *cutoff)));
+    loadingmodel->setalphatest(std::max(0.0f, std::min(1.0f, *cutoff)));
 }
 
 COMMAND(0, mdlalphatest, "f");
@@ -321,7 +321,7 @@ void rdlimitdist(int *v1, int *v2, float *mindist, float *maxdist)
     d.vert[0] = *v1;
     d.vert[1] = *v2;
     d.mindist = *mindist;
-    d.maxdist = max(*maxdist, *mindist);
+    d.maxdist = std::max(*maxdist, *mindist);
 }
 COMMAND(0, rdlimitdist, "iiff");
 
@@ -636,7 +636,7 @@ void endmodelbatches()
             {
                 batchedmodel &bm = b.batched[j];
                 if(bm.flags&(MDL_SHADOW|MDL_DYNSHADOW))
-                    renderblob(bm.flags&MDL_DYNSHADOW ? BLOB_DYNAMIC : BLOB_STATIC, bm.d && bm.d->ragdoll ? bm.d->ragdoll->center : bm.pos, (bm.d ? bm.d->radius : max(bbradius.x, bbradius.y))*bm.sizescale, bm.transparent);
+                    renderblob(bm.flags&MDL_DYNSHADOW ? BLOB_DYNAMIC : BLOB_STATIC, bm.d && bm.d->ragdoll ? bm.d->ragdoll->center : bm.pos, (bm.d ? bm.d->radius : std::max(bbradius.x, bbradius.y))*bm.sizescale, bm.transparent);
             }
             flushblobs();
         }
@@ -724,7 +724,7 @@ void endmodelquery()
         do
         {
             batchedmodel &bm = b.batched.pop();
-            if(bm.attached>=0) minattached = min(minattached, bm.attached);
+            if(bm.attached>=0) minattached = std::min(minattached, bm.attached);
             renderbatchedmodel(b.m, bm);
         }
         while(b.batched.length() && b.batched.last().query==modelquery);
@@ -855,7 +855,7 @@ void rendermodel(entitylight *light, const char *mdl, int anim, const vec &o, fl
         radius = bbradius.magnitude();
         if(d && d->ragdoll)
         {
-            radius = max(radius, d->ragdoll->radius);
+            radius = std::max(radius, d->ragdoll->radius);
             center = d->ragdoll->center;
         }
         else
@@ -968,7 +968,7 @@ void rendermodel(entitylight *light, const char *mdl, int anim, const vec &o, fl
             lightcolor = light->color;
             lightdir = light->dir;
             lightmaterial = light->material;
-            if(flags&MDL_LIGHTFX) lightcolor.max(light->effect).lerp(light->effect, 0.6f*max(max(light->effect.x, light->effect.y), light->effect.z));
+            if(flags&MDL_LIGHTFX) lightcolor.max(light->effect).lerp(light->effect, 0.6f*std::max(std::max(light->effect.x, light->effect.y), light->effect.z));
         }
         if(flags&MDL_DYNLIGHT) dynlightreaching(pos, lightcolor, lightdir);
     }
@@ -1012,7 +1012,7 @@ void rendermodel(entitylight *light, const char *mdl, int anim, const vec &o, fl
 
     if(shadow && !reflecting && refracting<=0)
     {
-        renderblob(flags&MDL_DYNSHADOW ? BLOB_DYNAMIC : BLOB_STATIC, d && d->ragdoll ? center : o, (d ? d->radius : max(bbradius.x, bbradius.y)) * size, trans);
+        renderblob(flags&MDL_DYNSHADOW ? BLOB_DYNAMIC : BLOB_STATIC, d && d->ragdoll ? center : o, (d ? d->radius : std::max(bbradius.x, bbradius.y)) * size, trans);
         flushblobs();
         if((flags&MDL_CULL_VFC) && refracting<0 && center.z-radius>=reflectz) return;
     }
@@ -1113,7 +1113,7 @@ void setbbfrommodel(dynent *d, const char *mdl, float size)
         d->collidetype = COLLIDE_OBB;
     d->xradius  = (radius.x + fabs(center.x))*size;
     d->yradius  = (radius.y + fabs(center.y))*size;
-    d->radius   = d->collidetype==COLLIDE_OBB ? sqrtf(d->xradius*d->xradius + d->yradius*d->yradius) : max(d->xradius, d->yradius);
+    d->radius   = d->collidetype==COLLIDE_OBB ? sqrtf(d->xradius*d->xradius + d->yradius*d->yradius) : std::max(d->xradius, d->yradius);
     d->height   = (d->zradius = (center.z-radius.z) + radius.z*2*m->height)*size;
     d->aboveeye = radius.z*2*(1.0f-m->height);
 }

@@ -103,7 +103,7 @@ struct capturestate
     void interp(int i, int t)
     {
         flag &f = flags[i];
-        f.displaytime = f.displaytime ? t-max(1000-(t-f.displaytime), 0) : t;
+        f.displaytime = f.displaytime ? t - std::max(1000 - (t - f.displaytime), 0) : t;
         f.interptime = t;
         f.interppos = f.position();
     }
@@ -149,7 +149,7 @@ struct capturestate
         if(f.proj)
         {
             f.proj->beenused = 2;
-            f.proj->lifetime = min(f.proj->lifetime, f.proj->fadetime);
+            f.proj->lifetime = std::min(f.proj->lifetime, f.proj->fadetime);
         }
         destroy(i);
 #endif

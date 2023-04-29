@@ -495,8 +495,8 @@ static inline bool vismatcmp(const materialsurface *xm, const materialsurface *y
         xmax = abs(xmax - c);
         ymin = abs(ymin - c);
         ymax = abs(ymax - c);
-        if(max(xmin, xmax) <= min(ymin, ymax)) return sortedit;
-        else if(max(ymin, ymax) <= min(xmin, xmax)) return !sortedit;
+        if(std::max(xmin, xmax) <= std::min(ymin, ymax)) return sortedit;
+        else if(std::max(ymin, ymax) <= std::min(xmin, xmax)) return !sortedit;
     }
     if(x.material < y.material) return sortedit;
     if(x.material > y.material) return !sortedit;

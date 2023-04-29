@@ -15,7 +15,7 @@ static inline void mmboundbox(const entity &e, model *m, vec &center, vec &radiu
     m->boundbox(center, radius);
     if(e.attrs[5])
     {
-       float scale = max(e.attrs[5]/100.0f, 1e-3f);
+       float scale = std::max(e.attrs[5]/100.0f, 1e-3f);
        center.mul(scale);
        radius.mul(scale);
     }
@@ -27,7 +27,7 @@ static inline void mmcollisionbox(const entity &e, model *m, vec &center, vec &r
     m->collisionbox(center, radius);
     if(e.attrs[5])
     {
-       float scale = max(e.attrs[5]/100.0f, 1e-3f);
+       float scale = std::max(e.attrs[5]/100.0f, 1e-3f);
        center.mul(scale);
        radius.mul(scale);
     }
@@ -174,7 +174,7 @@ static bool modifyoctaent(int flags, int id, extentity &e)
     }
     else
     {
-        int leafsize = octaentsize, limit = max(r.x - o.x, max(r.y - o.y, r.z - o.z));
+        int leafsize = octaentsize, limit = std::max(r.x - o.x, std::max(r.y - o.y, r.z - o.z));
         while(leafsize < limit) leafsize *= 2;
         int diff = ~(leafsize-1) & ((o.x^r.x)|(o.y^r.y)|(o.z^r.z));
         if(diff && (limit > octaentsize/2 || diff < leafsize*2)) leafsize *= 2;
@@ -378,7 +378,7 @@ void pasteundoent(int idx, const vec &o, int type, int *attrs, int numattrs)
     if(idx < 0 || idx >= MAXENTS) return;
     vector<extentity *> &ents = entities::getents();
     while(ents.length() < idx) ents.add(entities::newent())->type = ET_EMPTY;
-    numattrs = min(numattrs, MAXENTATTRS);
+    numattrs = std::min(numattrs, MAXENTATTRS);
     int efocus = -1, minattrs = entities::numattrs(type);
     entedit(idx,
     {
@@ -736,8 +736,8 @@ extentity *newentity(bool local, const vec &o, int type, const attrvector &attrs
     else while(ents.length() < idx) ents.add(entities::newent())->type = ET_EMPTY;
     extentity &e = *entities::newent();
     e.o = o;
-    e.attrs.add(0, min(attrs.length(), MAXENTATTRS) - e.attrs.length());
-    loopi(min(attrs.length(), e.attrs.length())) e.attrs[i] = attrs[i];
+    e.attrs.add(0, std::min(attrs.length(), MAXENTATTRS) - e.attrs.length());
+    loopi(std::min(attrs.length(), e.attrs.length())) e.attrs[i] = attrs[i];
     e.type = type;
     e.light.color = vec(1, 1, 1);
     e.light.dir = vec(0, 0, 1);
@@ -819,7 +819,7 @@ void entpaste()
         if(!e) continue;
         loopvk(c.links) e->links.add(c.links[k]);
         entadd(idx);
-        keepents = max(keepents, idx+1);
+        keepents = std::max(keepents, idx+1);
     }
     keepents = 0;
     int j = 0;
@@ -873,7 +873,7 @@ void entset(char *what, char *attr)
     groupedit({
         e.type = type;
         e.attrs.add(0, clamp(attrs.length(), entities::numattrs(e.type), MAXENTATTRS) - e.attrs.length());
-        loopk(min(attrs.length(), e.attrs.length())) e.attrs[k] = attrs[k];
+        loopk(std::min(attrs.length(), e.attrs.length())) e.attrs[k] = attrs[k];
     });
 }
 
@@ -955,7 +955,7 @@ int findentity(int type, int index, vector<int> &attr)
             if(find) return i;
         }
     }
-    loopj(min(index, ents.length()))
+    loopj(std::min(index, ents.length()))
     {
         extentity &e = *ents[j];
         if(e.type==type)
@@ -1153,7 +1153,7 @@ void shrinkmap()
     conoutf("shrunk map to size %d", worldscale);
 }
 
-ICOMMAND(0, newmap, "is", (int *i, char *n), if(emptymap(*i, false, n)) game::newmap(::max(*i, 0), n));
+ICOMMAND(0, newmap, "is", (int *i, char *n), if(emptymap(*i, false, n)) game::newmap(std::max(*i, 0), n));
 ICOMMAND(0, mapenlarge, "i", (int *n), if(enlargemap(*n!=0, false)) game::newmap(*n!=0 ? -2 : -1));
 COMMAND(0, shrinkmap, "");
 ICOMMAND(0, mapsize, "", (void),
@@ -1178,8 +1178,8 @@ void mpeditent(int i, const vec &o, int type, attrvector &attr, bool local)
         removeentity(i);
         e.type = type;
         e.o = o;
-        e.attrs.add(0, max(entities::numattrs(e.type), min(attr.length(), MAXENTATTRS)) - e.attrs.length());
-        loopk(min(attr.length(), e.attrs.length())) e.attrs[k] = attr[k];
+        e.attrs.add(0, std::max(entities::numattrs(e.type), std::min(attr.length(), MAXENTATTRS)) - e.attrs.length());
+        loopk(std::min(attr.length(), e.attrs.length())) e.attrs[k] = attr[k];
         addentity(i);
     }
 }

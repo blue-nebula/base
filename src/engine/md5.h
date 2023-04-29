@@ -118,7 +118,7 @@ struct md5 : skelmodel, skelloader<md5>
                 }
                 else if(sscanf(buf, " numverts %d", &numverts)==1)
                 {
-                    numverts = max(numverts, 0);
+                    numverts = std::max(numverts, 0);
                     if(numverts)
                     {
                         vertinfo = new md5vert[numverts];
@@ -127,12 +127,12 @@ struct md5 : skelmodel, skelloader<md5>
                 }
                 else if(sscanf(buf, " numtris %d", &numtris)==1)
                 {
-                    numtris = max(numtris, 0);
+                    numtris = std::max(numtris, 0);
                     if(numtris) tris = new tri[numtris];
                 }
                 else if(sscanf(buf, " numweights %d", &numweights)==1)
                 {
-                    numweights = max(numweights, 0);
+                    numweights = std::max(numweights, 0);
                     if(numweights) weightinfo = new md5weight[numweights];
                 }
                 else if(sscanf(buf, " vert %d ( %f %f ) %hu %hu", &index, &v.tc.x, &v.tc.y, &v.start, &v.count)==5)

@@ -161,7 +161,7 @@ namespace defend
             if(y-sy-size < m) break;
             defendstate::flag &f = st.flags[i];
             bool hasflag = game::focus->state == CS_ALIVE && insideaffinity(f, game::focus);
-            if(f.hasflag != hasflag) { f.hasflag = hasflag; f.lasthad = lastmillis-max(1000-(lastmillis-f.lasthad), 0); }
+            if(f.hasflag != hasflag) { f.hasflag = hasflag; f.lasthad = lastmillis - std::max(1000 - (lastmillis - f.lasthad), 0); }
             int millis = lastmillis-f.lasthad;
             bool headsup = hud::chkcond(hud::inventorygame, game::player1.state == CS_SPECTATOR || f.owner == game::focus->team || st.flags.length() == 1);
             if(headsup || f.hasflag || millis <= 1000)

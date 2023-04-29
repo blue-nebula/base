@@ -165,7 +165,7 @@ bool resolverwait(const char *name, ENetAddress *address)
         if(resolved) break;
 
         timeout = SDL_GetTicks() - starttime;
-        progress(min(float(timeout)/RESOLVERLIMIT, 1.0f), text);
+        progress(std::min(float(timeout)/RESOLVERLIMIT, 1.0f), text);
         if(interceptkey(SDLK_ESCAPE)) timeout = RESOLVERLIMIT + 1;
         if(timeout > RESOLVERLIMIT) break;
     }
@@ -207,7 +207,7 @@ int connectwithtimeout(ENetSocket sock, const char *hostname, const ENetAddress 
             }
         }
         timeout = SDL_GetTicks() - starttime;
-        progress(min(float(timeout)/CONNLIMIT, 1.0f), text);
+        progress(std::min(float(timeout)/CONNLIMIT, 1.0f), text);
         if(interceptkey(SDLK_ESCAPE)) break;
     }
 
@@ -277,7 +277,7 @@ void pingservers()
 
     static int lastping = 0;
     if(lastping >= servers.length()) lastping = 0;
-    loopi(maxservpings ? min(servers.length(), maxservpings) : servers.length())
+    loopi(maxservpings ? std::min(servers.length(), maxservpings) : servers.length())
     {
         serverinfo &si = *servers[lastping];
         if(++lastping >= servers.length()) lastping = 0;
@@ -355,7 +355,7 @@ void checkpings()
         if(!si && searchlan) si = newserver(NULL, addr.port-1, 1, NULL, NULL, NULL, NULL, addr.host);
         if(!si) continue;
         ucharbuf p(ping, len);
-        int millis = getint(p), rtt = clamp(totalmillis - millis, 0, min(serverdecay*1000, totalmillis));
+        int millis = getint(p), rtt = clamp(totalmillis - millis, 0, std::min(serverdecay*1000, totalmillis));
         if(millis >= lastreset && rtt < serverdecay*1000) si->addping(rtt, millis);
         si->lastinfo = totalmillis;
         si->numplayers = getint(p);
@@ -406,7 +406,7 @@ void refreshservers()
 
     checkresolver();
     checkpings();
-    if(totalmillis - lastinfo >= (serverupdateinterval*1000)/(maxservpings ? max(1, (servers.length() + maxservpings - 1) / maxservpings) : 1)) pingservers();
+    if(totalmillis - lastinfo >= (serverupdateinterval*1000)/(maxservpings ? std::max(1, (servers.length() + maxservpings - 1) / maxservpings) : 1)) pingservers();
 }
 
 bool reqmaster = false;
@@ -448,7 +448,7 @@ void retrieveservers(vector<char> &data)
             if(reqlen <= 0) break;
         }
         timeout = SDL_GetTicks() - starttime;
-        progress(min(float(timeout)/RETRIEVELIMIT, 1.0f), text);
+        progress(std::min(float(timeout)/RETRIEVELIMIT, 1.0f), text);
         if(interceptkey(SDLK_ESCAPE)) timeout = RETRIEVELIMIT + 1;
         if(timeout > RETRIEVELIMIT) break;
     }
@@ -466,7 +466,7 @@ void retrieveservers(vector<char> &data)
             data.advance(recv);
         }
         timeout = SDL_GetTicks() - starttime;
-        progress(min(float(timeout)/RETRIEVELIMIT, 1.0f), text);
+        progress(std::min(float(timeout)/RETRIEVELIMIT, 1.0f), text);
         if(interceptkey(SDLK_ESCAPE)) timeout = RETRIEVELIMIT + 1;
         if(timeout > RETRIEVELIMIT) break;
     }

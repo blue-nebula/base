@@ -1,6 +1,6 @@
 #include "engine.h"
 
-VAR(IDF_PERSIST, maxdynlights, 0, min(3, MAXDYNLIGHTS), MAXDYNLIGHTS);
+VAR(IDF_PERSIST, maxdynlights, 0, std::min(3, MAXDYNLIGHTS), MAXDYNLIGHTS);
 VAR(IDF_PERSIST, dynlightdist, 128, 1024, 10000);
 
 struct dynlight

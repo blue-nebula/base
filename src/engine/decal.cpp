@@ -518,7 +518,7 @@ struct decalrenderer
                    m.o[r] + m.rsize >= bbmin[r] && m.o[r] <= bbmax[r])
                 {
                     static cube dummy;
-                    gentris(dummy, m.orient, m.o, max(m.csize, m.rsize), &m);
+                    gentris(dummy, m.orient, m.o, std::max(m.csize, m.rsize), &m);
                 }
                 if(i+1 >= matsurfs) break;
                 materialsurface &n = matbuf[i+1];

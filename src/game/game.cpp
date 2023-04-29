@@ -501,7 +501,7 @@ namespace game
     void checkzoom()
     {
         if(zoomdefault > zoomlevels) zoomdefault = zoomlevels;
-        if(zoomlevel < 0) zoomlevel = zoomdefault >= 0 ? zoomdefault : max(zoomlevels-zoomoffset, 0);
+        if(zoomlevel < 0) zoomlevel = zoomdefault >= 0 ? zoomdefault : std::max(zoomlevels - zoomoffset, 0);
         if(zoomlevel > zoomlevels) zoomlevel = zoomlevels;
     }
 
@@ -518,7 +518,7 @@ namespace game
     {
         if(on != zooming)
         {
-            lastzoom = millis - max(W(focus->weapselect, cookzoom) - (millis - lastzoom), 0);
+            lastzoom = millis - std::max(W(focus->weapselect, cookzoom) - (millis - lastzoom), 0);
             if(zoomdefault >= 0 && on) zoomlevel = zoomdefault;
         }
         checkzoom();
@@ -573,7 +573,7 @@ namespace game
         float speed = physics::movevelocity(d), step = firstpersonbob ? firstpersonbobstep : firstpersonswaystep;
         if(d->state == CS_ALIVE && (d->physstate >= PHYS_SLOPE || d->onladder || d->turnside))
         {
-            swayspeed = max(speed*firstpersonswaymin, min(sqrtf(d->vel.x*d->vel.x + d->vel.y*d->vel.y), speed));
+            swayspeed = std::max(speed * firstpersonswaymin, std::min(sqrtf(d->vel.x * d->vel.x + d->vel.y * d->vel.y), speed));
             swaydist += swayspeed*curtime/1000.0f;
             swaydist = fmod(swaydist, 2*step);
             bobdist += swayspeed*curtime/1000.0f;
@@ -599,7 +599,7 @@ namespace game
         float k = pow(0.7f, curtime/25.0f);
         swaydir.mul(k);
         vec inertia = vec(d->vel).add(d->falling);
-        float speedscale = max(inertia.magnitude(), speed);
+        float speedscale = std::max(inertia.magnitude(), speed);
         if(d->state == CS_ALIVE && speedscale > 0) swaydir.add(vec(inertia).mul((1-k)/(15*speedscale)));
         swaypush.mul(pow(0.5f, curtime/25.0f));
     }
@@ -924,8 +924,8 @@ namespace game
                     }
                     if((W(d->weapselect, lightpersist)&1 || powering) && W(d->weapselect, lightradius) > 0)
                     {
-                        float thresh = max(amt, 0.25f), size = W(d->weapselect, lightradius)*thresh;
-                        int span = max(W2(d->weapselect, cooktime, physics::secondaryweap(d))/4, 500), interval = lastmillis%span, part = span/2;
+                        float thresh = std::max(amt, 0.25f), size = W(d->weapselect, lightradius)*thresh;
+                        int span = std::max(W2(d->weapselect, cooktime, physics::secondaryweap(d))/4, 500), interval = lastmillis%span, part = span/2;
                         if(interval) size += size*0.5f*(interval <= part ? interval/float(part) : (span-interval)/float(part));
                         adddynlight(d->muzzlepos(d->weapselect), size, vec(col).mul(thresh), 0, 0, DL_KEEP);
                     }
@@ -990,11 +990,11 @@ namespace game
 
     float spawnfade(gameent *d)
     {
-        int len = min(m_delay(d->actortype, gamemode, mutators, d->team), AA(d->actortype, abilities)&(1<<A_A_MOVE) ? 5000 : 1000);
+        int len = std::min(m_delay(d->actortype, gamemode, mutators, d->team), AA(d->actortype, abilities)&(1<<A_A_MOVE) ? 5000 : 1000);
         if(len <= 0 || len > deathmaxfade) len = deathmaxfade;
         if(len > 0)
         {
-            int interval = min(len/3, ragdolleffect), over = max(len-interval, 1), millis = lastmillis-d->lastdeath;
+            int interval = std::min(len / 3, ragdolleffect), over = std::max(len - interval, 1), millis = lastmillis-d->lastdeath;
             if(millis <= len) { if(millis >= over) return 1.f-((millis-over)/float(interval)); }
             else return 0;
         }
@@ -1013,7 +1013,7 @@ namespace game
         {
             if(m_resize(gamemode, mutators))
             {
-                float minscale = 1, amtscale = m_insta(gamemode, mutators) ? 1+(d->spree*instaresizeamt) : max(d->health, 1)/float(m_health(gamemode, mutators, d->actortype));
+                float minscale = 1, amtscale = m_insta(gamemode, mutators) ? 1+(d->spree*instaresizeamt) : std::max(d->health, 1) / float(m_health(gamemode, mutators, d->actortype));
                 if(m_resize(gamemode, mutators))
                 {
                     minscale = minresizescale;
@@ -1052,7 +1052,7 @@ namespace game
         bool moving = d->move || d->strafe, liquid = physics::liquidcheck(d), onfloor = d->physstate >= PHYS_SLOPE || d->onladder || d->turnside;
         if(curfoot < 0 || (moving && (liquid || onfloor)))
         {
-            float mag = d->vel.magnitude(), m = min(footstepsoundmax, footstepsoundmin), n = max(footstepsoundmax, footstepsoundmin);
+            float mag = d->vel.magnitude(), m = std::min(footstepsoundmax, footstepsoundmin), n = std::max(footstepsoundmax, footstepsoundmin);
             if(n > m && mag > m)
             {
                 if(curfoot < 0) curfoot = d->lastfoot;
@@ -1422,7 +1422,7 @@ namespace game
                     if(m_dm_gladiator(gamemode, mutators))
                     {
                         float extra = flags&HIT_WAVE || !hitdealt(flags) ? gladiatorextrawavestunscale : (d->health <= 0 ? gladiatorextradeadstunscale : gladiatorextrahitstunscale);
-                        amt *= m_health(gamemode, mutators, d->actortype)/max(d->health, 1)*extra;
+                        amt *= m_health(gamemode, mutators, d->actortype) / std::max(d->health, 1) * extra;
                     }
                     float s = G(shockstunscale)*amt, g = G(shockstunfall)*amt;
                     d->addstun(weap, lastmillis, G(shockstuntime), shockstun&W_N_STADD ? s : 0.f, shockstun&W_N_GRADD ? g : 0.f);
@@ -1439,7 +1439,7 @@ namespace game
                         if(m_dm_gladiator(gamemode, mutators))
                         {
                             float extra = flags&HIT_WAVE || !hitdealt(flags) ? gladiatorextrawavestunscale : (d->health <= 0 ? gladiatorextradeadstunscale : gladiatorextrahitstunscale);
-                            amt *= m_health(gamemode, mutators, d->actortype)/max(d->health, 1)*extra;
+                            amt *= m_health(gamemode, mutators, d->actortype) / std::max(d->health, 1) * extra;
                         }
                         float s = WF(WK(flags), weap, stunscale, WS(flags))*amt, g = WF(WK(flags), weap, stunfall, WS(flags))*amt;
                         d->addstun(weap, lastmillis, int(scale*WF(WK(flags), weap, stuntime, WS(flags))), stun&W_N_STADD ? s : 0.f, stun&W_N_GRADD ? g : 0.f);
@@ -1470,10 +1470,10 @@ namespace game
                             if(m_dm_gladiator(gamemode, mutators))
                             {
                                 float extra = flags&HIT_WAVE || !hitdealt(flags) ? gladiatorextrawavepushscale : (d->health <= 0 ? gladiatorextradeadpushscale : gladiatorextrahitpushscale);
-                                modify *= m_health(gamemode, mutators, d->actortype)/max(d->health, 1)*extra;
+                                modify *= m_health(gamemode, mutators, d->actortype) / std::max(d->health, 1) * extra;
                             }
                             d->vel.add(vec(dir).mul(hit*modify));
-                            if(doquake) d->quake = min(d->quake+max(int(hit), 1), quakelimit);
+                            if(doquake) d->quake = std::min(d->quake + std::max(int(hit), 1), quakelimit);
                         }
                         hit = WF(WK(flags), weap, hitvel, WS(flags))*amt;
                         if(hit != 0)
@@ -1482,10 +1482,10 @@ namespace game
                             if(m_dm_gladiator(gamemode, mutators))
                             {
                                 float extra = flags&HIT_WAVE || !hitdealt(flags) ? gladiatorextrawavevelscale : (d->health <= 0 ? gladiatorextradeadvelscale : gladiatorextrahitvelscale);
-                                modify *= m_health(gamemode, mutators, d->actortype)/max(d->health, 1)*extra;
+                                modify *= m_health(gamemode, mutators, d->actortype) / std::max(d->health, 1) * extra;
                             }
                             d->vel.add(vec(vel).mul(hit*modify));
-                            if(doquake) d->quake = min(d->quake+max(int(hit), 1), quakelimit);
+                            if(doquake) d->quake = std::min(d->quake + std::max(int(hit), 1), quakelimit);
                         }
                     }
                 }
@@ -1778,7 +1778,7 @@ namespace game
 
         if(actor[d->actortype].living && nogore != 2 && gibscale > 0 && !(flags&HIT_LOST))
         {
-            int gib = clamp(max(damage, 10)/20, 1, 10), amt = int((rnd(gib)+gib)*gibscale);
+            int gib = clamp(std::max(damage, 10) / 20, 1, 10), amt = int((rnd(gib) + gib) * gibscale);
             if(d->obliterated) amt *= 2;
             loopi(amt) projs::create(pos, pos, true, d, nogore ? PRJ_DEBRIS : PRJ_GIBS, -1, HIT_NONE, rnd(gibfade)+gibfade, 0, rnd(500)+1, rnd(50)+10);
         }
@@ -2257,8 +2257,8 @@ namespace game
     {
         if(yaw < targyaw-180.0f) yaw += 360.0f;
         if(yaw > targyaw+180.0f) yaw -= 360.0f;
-        float offyaw = (rotate < 0 ? fabs(rotate) : (rotate > 0 ? min(float(fabs(targyaw-yaw)), rotate) : fabs(targyaw-yaw)))*yawspeed,
-            offpitch = (rotate < 0 ? fabs(rotate) : (rotate > 0 ? min(float(fabs(targpitch-pitch)), rotate) : fabs(targpitch-pitch)))*pitchspeed;
+        float offyaw = (rotate < 0 ? fabs(rotate) : (rotate > 0 ? std::min(float(fabs(targyaw - yaw)), rotate) : fabs(targyaw - yaw))) * yawspeed,
+            offpitch = (rotate < 0 ? fabs(rotate) : (rotate > 0 ? std::min(float(fabs(targpitch - pitch)), rotate) : fabs(targpitch - pitch))) * pitchspeed;
         if(targyaw > yaw)
         {
             yaw += offyaw;
@@ -2353,7 +2353,7 @@ namespace game
         float dist = dir.magnitude();
         dir.normalize();
         physics::movecamera(&c, dir, dist, 0.1f);
-        firstpersonspineoffset = max(dist-old.dist(c.o), 0.f);
+        firstpersonspineoffset = std::max(dist - old.dist(c.o), 0.f);
         return c.o;
     }
 
@@ -2447,7 +2447,7 @@ namespace game
         c->reset();
         bool aim = !c->player || spectvaiming(c->player);
         float yaw = c->player ? c->player->yaw : camera1->yaw, pitch = c->player ? c->player->pitch : camera1->pitch,
-              mindist = c->player ? spectvfollowmindist : spectvmindist, maxdist = min(c->player ? spectvfollowmaxdist : spectvmaxdist, foglevel);
+              mindist = c->player ? spectvfollowmindist : spectvmindist, maxdist = std::min(c->player ? spectvfollowmaxdist : spectvmaxdist, foglevel);
         fixrange(yaw, pitch);
         vec from = c->pos(amt), dir(0, 0, 0), trg;
         int count = 0;
@@ -2682,7 +2682,7 @@ namespace game
                             vec ray = vec(mcam->o).sub(cam->o);
                             float mag = ray.magnitude();
                             ray.mul(1.0f/mag);
-                            if(raycube(cam->o, ray, mag, RAY_CLIPMAT|RAY_POLY) >= max(mag, spectvmovedist))
+                            if(raycube(cam->o, ray, mag, RAY_CLIPMAT|RAY_POLY) >= std::max(mag, spectvmovedist))
                             {
                                 cam->moveto = cameras[mcam->cn];
                                 break;
@@ -2767,7 +2767,7 @@ namespace game
     float calcroll(gameent *d)
     {
         bool thirdperson = d != focus || thirdpersonview(true);
-        float r = thirdperson ? 0 : d->roll, wobble = float(rnd(quakewobble+1)-quakewobble/2)*(float(min(d->quake, quakelimit))/1000.f);
+        float r = thirdperson ? 0 : d->roll, wobble = float(rnd(quakewobble + 1) - quakewobble / 2) * (float(std::min(d->quake, quakelimit)) / 1000.f);
         switch(d->state)
         {
             case CS_SPECTATOR: case CS_WAITING: r = wobble*0.5f; break;
@@ -3031,7 +3031,7 @@ namespace game
             o.sub(vec(yaw*RAD, 0.f).rotate_around_z(90*RAD).mul(firstpersonbodyside));
             if(firstpersonbodyfeet >= 0 && d->wantshitbox())
             {
-                float minz = max(d->toe[0].z, d->toe[1].z)+(firstpersonbodyfeet*size);
+                float minz = std::max(d->toe[0].z, d->toe[1].z) + (firstpersonbodyfeet * size);
                 if(minz > camera1->o.z) o.z -= minz-camera1->o.z;
             }
         }
@@ -3078,7 +3078,7 @@ namespace game
                 }
                 else if(d->physstate == PHYS_FALL && !d->onladder && d->airtime(lastmillis) >= 50)
                 {
-                    basetime2 = max(d->airmillis, d->impulse[IM_JUMP]);
+                    basetime2 = std::max(d->airmillis, d->impulse[IM_JUMP]);
                     if(melee)
                     {
                         anim |= ANIM_FLYKICK<<ANIM_SECONDARY;
@@ -3171,7 +3171,7 @@ namespace game
                             int millis = lastmillis-d->weaptime[d->weapselect], check = d->weapwait[d->weapselect]/2;
                             scale = millis >= check ? float(millis-check)/check : 0.f;
                             if(d->weapload[d->weapselect] > 0)
-                                scale = max(scale, float(ammo - d->weapload[d->weapselect])/maxammo);
+                                scale = std::max(scale, float(ammo - d->weapload[d->weapselect]) / maxammo);
                             break;
                         }
                         default: scale = float(ammo)/maxammo; break;
@@ -3272,7 +3272,7 @@ namespace game
                 Texture *t = textureload(hud::icontex(d->icons[i].type, d->icons[i].value));
                 if(t && t != notexture)
                 {
-                    int olen = min(d->icons[i].length/5, 1000), ilen = olen/2, colour = 0xFFFFFF;
+                    int olen = std::min(d->icons[i].length / 5, 1000), ilen = olen / 2, colour = 0xFFFFFF;
                     float skew = millis < ilen ? millis/float(ilen) : (millis > d->icons[i].fade-olen ? (d->icons[i].fade-millis)/float(olen) : 1.f),
                           size = skew, fade = blend*skew;
                     if(d->icons[i].type >= eventicon::SORTED)
@@ -3494,9 +3494,9 @@ namespace game
                         if(haslight)
                         {
                             if(d->weapstate[d->weapselect] == W_S_SWITCH || d->weapstate[d->weapselect] == W_S_USE)
-                                fade *= millis/float(max(d->weapwait[d->weapselect], 1));
+                                fade *= millis / float(std::max(d->weapwait[d->weapselect], 1));
                         }
-                        else fade *= millis/float(max(d->weapwait[d->weapselect], 1));
+                        else fade *= millis / float(std::max(d->weapwait[d->weapselect], 1));
                         fade *= playerhintlight;
                     }
                     else if(playerhintscale > 0)
@@ -3518,7 +3518,7 @@ namespace game
                         height += height*amt*0.1f;
                     }
                     vec o = d->center(), offset = vec(o).sub(camera1->o).rescale(d->radius/2);
-                    offset.z = max(offset.z, -1.0f);
+                    offset.z = std::max(offset.z, -1.0f);
                     offset.add(o);
                     part_create(PART_HINT_VERT_SOFT, 1, offset, c.tohexcolor(), clamp(height*playerhintsize, 1.f, playerhintmaxsize), fade*camera1->o.distrange(o, playerhintfadeat, playerhintfadecut));
                 }
@@ -3530,7 +3530,7 @@ namespace game
                     flashcolour(c.r, c.g, c.b, 1.f, 0.f, 0.f, amt);
                     if(playerhinthurtthrob) height += height*amt*0.1f;
                     vec o = d->center(), offset = vec(o).sub(camera1->o).rescale(-d->radius);
-                    offset.z = max(offset.z, -1.0f);
+                    offset.z = std::max(offset.z, -1.0f);
                     offset.add(o);
                     part_icon(offset, textureload(hud::warningtex, 3, true, false), height*playerhinthurtsize, amt*blend*playerhinthurtblend, 0, 0, 1, c.tohexcolor());
                 }
@@ -3553,9 +3553,9 @@ namespace game
             if(d->weapselect == W_FLAMER && (!reloading || amt > 0.5f) && !physics::liquidcheck(d))
             {
                 float scale = powering ? 1.f+(amt*1.5f) : (d->weapstate[d->weapselect] == W_S_IDLE ? 1.f : (reloading ? (amt-0.5f)*2 : amt));
-                part_create(PART_HINT_SOFT, 1, d->ejectpos(d->weapselect), 0x1818A8, 0.75f*scale, min(0.65f*scale, 0.8f)*blend, 0, 0);
-                part_create(PART_FIREBALL_SOFT, 1, d->ejectpos(d->weapselect), colour, 0.5f*scale, min(0.75f*scale, 0.95f)*blend, 0, 0);
-                regular_part_create(PART_FIREBALL, d->vel.magnitude() > 10 ? 30 : 75, d->ejectpos(d->weapselect), colour, 0.5f*scale, min(0.75f*scale, 0.95f)*blend, d->vel.magnitude() > 10 ? -40 : -10, 0);
+                part_create(PART_HINT_SOFT, 1, d->ejectpos(d->weapselect), 0x1818A8, 0.75f * scale, std::min(0.65f * scale, 0.8f) * blend, 0, 0);
+                part_create(PART_FIREBALL_SOFT, 1, d->ejectpos(d->weapselect), colour, 0.5f * scale, std::min(0.75f * scale, 0.95f) * blend, 0, 0);
+                regular_part_create(PART_FIREBALL, d->vel.magnitude() > 10 ? 30 : 75, d->ejectpos(d->weapselect), colour, 0.5f * scale, std::min(0.75f * scale, 0.95f) * blend, d->vel.magnitude() > 10 ? -40 : -10, 0);
             }
             if(W(d->weapselect, laser) && !reloading)
             {
@@ -3588,19 +3588,19 @@ namespace game
                 {
                     case 1: case 2:
                     {
-                        regularshape(powerfx[d->weapselect].parttype, 1+(amt*powerfx[d->weapselect].radius), colour, powerfx[d->weapselect].type == 2 ? 21 : 53, 5, 60+int(30*amt), d->muzzlepos(d->weapselect), powerfx[d->weapselect].size*max(amt, 0.25f), max(amt, 0.1f)*blend, 1, 0, 5+(amt*5));
+                        regularshape(powerfx[d->weapselect].parttype, 1+(amt*powerfx[d->weapselect].radius), colour, powerfx[d->weapselect].type == 2 ? 21 : 53, 5, 60+int(30*amt), d->muzzlepos(d->weapselect), powerfx[d->weapselect].size * std::max(amt, 0.25f), std::max(amt, 0.1f) * blend, 1, 0, 5 + (amt * 5));
                         break;
                     }
                     case 3:
                     {
                         int interval = lastmillis%1000;
                         float fluc = powerfx[d->weapselect].size+(interval ? (interval <= 500 ? interval/500.f : (1000-interval)/500.f) : 0.f);
-                        part_create(powerfx[d->weapselect].parttype, 1, d->muzzlepos(d->weapselect), colour, (powerfx[d->weapselect].radius*max(amt, 0.25f))+fluc, max(amt, 0.1f)*blend);
+                        part_create(powerfx[d->weapselect].parttype, 1, d->muzzlepos(d->weapselect), colour, (powerfx[d->weapselect].radius * std::max(amt, 0.25f)) + fluc, std::max(amt, 0.1f) * blend);
                         break;
                     }
                     case 4:
                     {
-                        part_flare(d->ejectpos(d->weapselect), d->ejectpos(d->weapselect, true), 1, powerfx[d->weapselect].parttype, colour, powerfx[d->weapselect].size*max(amt, 0.25f), max(amt, 0.1f)*blend);
+                        part_flare(d->ejectpos(d->weapselect), d->ejectpos(d->weapselect, true), 1, powerfx[d->weapselect].parttype, colour, powerfx[d->weapselect].size * std::max(amt, 0.25f), std::max(amt, 0.1f) * blend);
                         break;
                     }
                     case 0: default: break;
@@ -3687,7 +3687,7 @@ namespace game
         }
         float height = previewent.height + previewent.aboveeye,
               zrad = height/2;
-        vec2 xyrad = vec2(previewent.xradius, previewent.yradius).max(height/4);
+        vec2 xyrad = vec2(previewent.xradius, previewent.yradius).max(height / 4);
         previewent.o = calcmodelpreviewpos(vec(xyrad, zrad), previewent.yaw).addz(previewent.height - zrad);
         previewent.colour = color;
         previewent.model = model;

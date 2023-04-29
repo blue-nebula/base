@@ -351,7 +351,7 @@ static int midedge(const ivec &a, const ivec &b, int xd, int yd, bool &perfect)
     if(((abs(s)&0xFF)!=0) || // ie: rounding error
         (crossy && y!=8) ||
         (y<0 || y>16)) perfect = false;
-    return crossy ? 8 : min(max(y, 0), 16);
+    return crossy ? 8 : std::min(std::max(y, 0), 16);
 }
 
 static inline bool crosscenter(const ivec &a, const ivec &b, int xd, int yd)
@@ -625,9 +625,9 @@ static void genedgespanvert(ivec &p, cube &c, vec &v)
     //ASSERT(v.x>=0 && v.x<=8);
     //ASSERT(v.y>=0 && v.y<=8);
     //ASSERT(v.z>=0 && v.z<=8);
-    v.x = max(0.0f, min(8.0f, v.x));
-    v.y = max(0.0f, min(8.0f, v.y));
-    v.z = max(0.0f, min(8.0f, v.z));
+    v.x = std::max(0.0f, std::min(8.0f, v.x));
+    v.y = std::max(0.0f, std::min(8.0f, v.y));
+    v.z = std::max(0.0f, std::min(8.0f, v.z));
 }
 
 void edgespan2vectorcube(cube &c)
@@ -1340,20 +1340,20 @@ void mincubeface(const cube &cu, int orient, const ivec &o, int size, const face
     int c = C[dim], r = R[dim];
     ushort uco = (o[c]&0xFFF)<<3, vco = (o[r]&0xFFF)<<3;
     ushort uc1 = uco, vc1 = vco, uc2 = ushort(size<<3)+uco, vc2 = ushort(size<<3)+vco;
-    uc1 = max(uc1, orig.u1);
-    uc2 = min(uc2, orig.u2);
-    vc1 = max(vc1, orig.v1);
-    vc2 = min(vc2, orig.v2);
+    uc1 = std::max(uc1, orig.u1);
+    uc2 = std::min(uc2, orig.u2);
+    vc1 = std::max(vc1, orig.v1);
+    vc2 = std::min(vc2, orig.v2);
     if(!isempty(cu) && touchingface(cu, orient) && !(nmat!=MAT_AIR && (cu.material&matmask)==nmat))
     {
         uchar r1 = cu.edges[faceedgesidx[orient][0]], r2 = cu.edges[faceedgesidx[orient][1]],
               c1 = cu.edges[faceedgesidx[orient][2]], c2 = cu.edges[faceedgesidx[orient][3]];
-        ushort u1 = max(c1&0xF, c2&0xF)*size+uco, u2 = min(c1>>4, c2>>4)*size+uco,
-               v1 = max(r1&0xF, r2&0xF)*size+vco, v2 = min(r1>>4, r2>>4)*size+vco;
-        u1 = max(u1, orig.u1);
-        u2 = min(u2, orig.u2);
-        v1 = max(v1, orig.v1);
-        v2 = min(v2, orig.v2);
+        ushort u1 = std::max(c1&0xF, c2&0xF)*size+uco, u2 = std::min(c1>>4, c2>>4)*size+uco,
+               v1 = std::max(r1&0xF, r2&0xF)*size+vco, v2 = std::min(r1>>4, r2>>4)*size+vco;
+        u1 = std::max(u1, orig.u1);
+        u2 = std::min(u2, orig.u2);
+        v1 = std::max(v1, orig.v1);
+        v2 = std::min(v2, orig.v2);
         if(v2-v1==vc2-vc1)
         {
             if(u2-u1==uc2-uc1) return;
@@ -1367,10 +1367,10 @@ void mincubeface(const cube &cu, int orient, const ivec &o, int size, const face
         }
     }
     if(uc1==uc2 || vc1==vc2) return;
-    cf.u1 = min(cf.u1, uc1);
-    cf.u2 = max(cf.u2, uc2);
-    cf.v1 = min(cf.v1, vc1);
-    cf.v2 = max(cf.v2, vc2);
+    cf.u1 = std::min(cf.u1, uc1);
+    cf.u2 = std::max(cf.u2, uc2);
+    cf.v1 = std::min(cf.v1, vc1);
+    cf.v2 = std::max(cf.v2, vc2);
 }
 
 bool mincubeface(const cube &cu, int orient, const ivec &co, int size, facebounds &orig)
@@ -1566,10 +1566,10 @@ bool genpoly(cube &cu, int orient, const ivec &o, int size, int vis, ivec &n, in
         for(int i = 1; i < p.numverts; i++)
         {
             const pvert &v = p.verts[i];
-            b.u1 = min(b.u1, v.x);
-            b.u2 = max(b.u2, v.x);
-            b.v1 = min(b.v1, v.y);
-            b.v2 = max(b.v2, v.y);
+            b.u1 = std::min(b.u1, v.x);
+            b.u2 = std::max(b.u2, v.x);
+            b.v1 = std::min(b.v1, v.y);
+            b.v2 = std::max(b.v2, v.y);
         }
         if(mincubeface(cu, orient, o, size, b) && clippoly(p, b))
             p.merged = true;
@@ -1814,12 +1814,12 @@ int calcmergedsize(int orient, const ivec &co, int size, const vertinfo *verts, 
     for(int i = 1; i < numverts; i++)
     {
         const vertinfo &v = verts[i];
-        x1 = min(x1, v.x);
-        x2 = max(x2, v.x);
-        y1 = min(y1, v.y);
-        y2 = max(y2, v.y);
-        z1 = min(z1, v.z);
-        z2 = max(z2, v.z);
+        x1 = std::min(x1, v.x);
+        x2 = std::max(x2, v.x);
+        y1 = std::min(y1, v.y);
+        y2 = std::max(y2, v.y);
+        z1 = std::min(z1, v.z);
+        z2 = std::max(z2, v.z);
     }
     int bits = 0;
     while(1<<bits < size) ++bits;

@@ -350,8 +350,8 @@ namespace physics
             else cost = 0;
         }
         float speed = (impulsespeed*amt*scale)+(keep.magnitude()*redir);
-        keep.mul(1-min(redir, 1.f));
-        if(impulselimit > 0) return min(speed, impulselimit*scale);
+        keep.mul(1 - std::min(redir, 1.f));
+        if(impulselimit > 0) return std::min(speed, impulselimit * scale);
         return speed;
     }
 
@@ -868,7 +868,7 @@ namespace physics
                     bool iskick = impulsekick > 0 && fabs(off) >= impulsekick, vault = false;
                     if(cankick && iskick)
                     {
-                        float space = d->height+d->aboveeye, m = min(impulsevaultmin, impulsevaultmax), n = max(impulsevaultmin, impulsevaultmax);
+                        float space = d->height+d->aboveeye, m = std::min(impulsevaultmin, impulsevaultmax), n = std::max(impulsevaultmin, impulsevaultmax);
                         d->o.add(dir);
                         if(onfloor)
                         {
@@ -960,7 +960,7 @@ namespace physics
         if(wantsmove && d->physstate >= PHYS_SLOPE)
         { // move up or down slopes in air but only move up slopes in liquid
             float dz = -(m.x*d->floor.x + m.y*d->floor.y)/d->floor.z;
-            m.z = liquidcheck(d) ? max(m.z, dz) : dz;
+            m.z = liquidcheck(d) ? std::max(m.z, dz) : dz;
             if(!m.iszero()) m.normalize();
         }
         if(!d->turnside && (d->physstate >= PHYS_SLOPE || d->onladder || liquidcheck(d))) d->resetjump();
@@ -1009,7 +1009,7 @@ namespace physics
             float c = pl->physstate >= PHYS_SLOPE || pl->onladder ? (slide ? PHYS(slidecoast) : PHYS(floorcoast))*coastscale(pl->feetpos(-1)) : PHYS(aircoast);
             coast = pl->inliquid ? liquidmerge(pl, c, PHYS(liquidcoast)) : c;
         }
-        pl->vel.lerp(m, pl->vel, pow(max(1.0f - 1.0f/coast, 0.0f), millis/20.0f));
+        pl->vel.lerp(m, pl->vel, pow(std::max(1.0f - 1.0f / coast, 0.0f), millis / 20.0f));
     }
 
     void modifygravity(physent *pl, int curtime)
@@ -1033,7 +1033,7 @@ namespace physics
             {
                 float coast = liquid ? liquidmerge(pl, PHYS(aircoast), PHYS(liquidcoast)) : PHYS(floorcoast)*coastscale(pl->feetpos(-1)),
                       c = liquid ? 1.0f : clamp((pl->floor.z - slopez)/(floorz-slopez), 0.0f, 1.0f);
-                pl->falling.mul(pow(max(1.0f - c/coast, 0.0f), curtime/20.0f));
+                pl->falling.mul(pow(std::max(1.0f - c / coast, 0.0f), curtime / 20.0f));
             }
         }
         else pl->falling = vec(0, 0, 0);
@@ -1080,7 +1080,7 @@ namespace physics
             }
             pl->submerged = found ? found/20.f : 1.f;
             if(local && pl->physstate < PHYS_SLIDE && sub >= 0.5f && pl->submerged < 0.5f && pl->vel.z > 1e-3f)
-                pl->vel.z = max(pl->vel.z, max(jumpvel(pl, false), max(gravityvel(pl), 50.f)));
+                pl->vel.z = std::max(pl->vel.z, std::max(jumpvel(pl, false), std::max(gravityvel(pl), 50.f)));
         }
         else pl->submerged = 0;
         pl->onladder = flagmat&MAT_LADDER;
@@ -1148,7 +1148,7 @@ namespace physics
                     {
                         if(mag >= 20)
                         {
-                            int vol = min(int(mag*1.25f), 255); if(d->inliquid) vol *= 0.5f;
+                            int vol = std::min(int(mag * 1.25f), 255); if(d->inliquid) vol *= 0.5f;
                             playsound(S_LAND, d->o, d, 0, vol);
                         }
                         else game::footstep(d);
@@ -1203,7 +1203,7 @@ namespace physics
         if(diff <= 0 || !physinterp) return;
 
         vec deltapos(d->deltapos);
-        deltapos.mul(min(diff, physframetime)/float(physframetime));
+        deltapos.mul(std::min(diff, physframetime) / float(physframetime));
         d->o.add(deltapos);
     }
 
@@ -1272,7 +1272,7 @@ namespace physics
         loopi(3) if(dir[i] != 0)
         {
             float dist = ((dir[i] > 0 ? bbmax[i] : bbmin[i]) - d->o[i]) / dir[i];
-            mindist = min(mindist, dist);
+            mindist = std::min(mindist, dist);
         }
         if(mindist >= 0.0f && mindist < 1e15f) d->o.add(vec(dir).mul(mindist));
     }
@@ -1330,11 +1330,11 @@ namespace physics
             gameent *e = (gameent *)o;
             if(e->wantshitbox())
             {
-                if(!d->o.reject(e->legs, d->radius+max(e->lrad.x, e->lrad.y)) && ellipsecollide(d, dir, e->legs, vec(0, 0, 0), e->yaw, e->lrad.x, e->lrad.y, e->lrad.z, e->lrad.z))
+                if(!d->o.reject(e->legs, d->radius + std::max(e->lrad.x, e->lrad.y)) && ellipsecollide(d, dir, e->legs, vec(0, 0, 0), e->yaw, e->lrad.x, e->lrad.y, e->lrad.z, e->lrad.z))
                     hitflags |= HITFLAG_LEGS;
-                if(!d->o.reject(e->torso, d->radius+max(e->trad.x, e->trad.y)) && ellipsecollide(d, dir, e->torso, vec(0, 0, 0), e->yaw, e->trad.x, e->trad.y, e->trad.z, e->trad.z))
+                if(!d->o.reject(e->torso, d->radius + std::max(e->trad.x, e->trad.y)) && ellipsecollide(d, dir, e->torso, vec(0, 0, 0), e->yaw, e->trad.x, e->trad.y, e->trad.z, e->trad.z))
                     hitflags |= HITFLAG_TORSO;
-                if(!d->o.reject(e->head, d->radius+max(e->hrad.x, e->hrad.y)) && ellipsecollide(d, dir, e->head, vec(0, 0, 0), e->yaw, e->hrad.x, e->hrad.y, e->hrad.z, e->hrad.z))
+                if(!d->o.reject(e->head, d->radius + std::max(e->hrad.x, e->hrad.y)) && ellipsecollide(d, dir, e->head, vec(0, 0, 0), e->yaw, e->hrad.x, e->hrad.y, e->hrad.z, e->hrad.z))
                     hitflags |= HITFLAG_HEAD;
                 return hitflags != HITFLAG_NONE;
             }
@@ -1359,17 +1359,17 @@ namespace physics
                 if(e->legs.x+e->lrad.x >= x1 && e->legs.y+e->lrad.y >= y1 && e->legs.x-e->lrad.x <= x2 && e->legs.y-e->lrad.y <= y2)
                 {
                     vec bottom(e->legs), top(e->legs); bottom.z -= e->lrad.z; top.z += e->lrad.z; float t = 1e16f;
-                    if(linecylinderintersect(from, to, bottom, top, max(e->lrad.x, e->lrad.y), t)) { hitflags |= HITFLAG_LEGS; bestdist = min(bestdist, t); }
+                    if(linecylinderintersect(from, to, bottom, top, std::max(e->lrad.x, e->lrad.y), t)) { hitflags |= HITFLAG_LEGS; bestdist = std::min(bestdist, t); }
                 }
                 if(e->torso.x+e->trad.x >= x1 && e->torso.y+e->trad.y >= y1 && e->torso.x-e->trad.x <= x2 && e->torso.y-e->trad.y <= y2)
                 {
                     vec bottom(e->torso), top(e->torso); bottom.z -= e->trad.z; top.z += e->trad.z; float t = 1e16f;
-                    if(linecylinderintersect(from, to, bottom, top, max(e->trad.x, e->trad.y), t)) { hitflags |= HITFLAG_TORSO; bestdist = min(bestdist, t); }
+                    if(linecylinderintersect(from, to, bottom, top, std::max(e->trad.x, e->trad.y), t)) { hitflags |= HITFLAG_TORSO; bestdist = std::min(bestdist, t); }
                 }
                 if(e->head.x+e->hrad.x >= x1 && e->head.y+e->hrad.y >= y1 && e->head.x-e->hrad.x <= x2 && e->head.y-e->hrad.y <= y2)
                 {
                     vec bottom(e->head), top(e->head); bottom.z -= e->hrad.z; top.z += e->hrad.z; float t = 1e16f;
-                    if(linecylinderintersect(from, to, bottom, top, max(e->hrad.x, e->hrad.y), t)) { hitflags |= HITFLAG_HEAD; bestdist = min(bestdist, t); }
+                    if(linecylinderintersect(from, to, bottom, top, std::max(e->hrad.x, e->hrad.y), t)) { hitflags |= HITFLAG_HEAD; bestdist = std::min(bestdist, t); }
                 }
                 if(hitflags == HITFLAG_NONE) return false;
                 dist = bestdist*from.dist(to);
@@ -1411,7 +1411,7 @@ namespace physics
             return insideworld(d->o);
         }
         vec orig = d->o;
-        float maxrad = max(d->radius, max(d->xradius, d->yradius))+1;
+        float maxrad = std::max(d->radius, std::max(d->xradius, d->yradius)) + 1;
         #define doposchk \
             if(insideworld(d->o) && !collide(d, vec(0, 0, 0), 0, avoidplayers)) \
             { \

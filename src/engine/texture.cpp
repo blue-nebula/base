@@ -128,7 +128,7 @@ static void reorienttexture(uchar * RESTRICT src, int sw, int sh, int bpp, int s
 
 static void reorients3tc(GLenum format, int blocksize, int w, int h, uchar *src, uchar *dst, bool flipx, bool flipy, bool swapxy, bool normals = false)
 {
-    int bx1 = 0, by1 = 0, bx2 = min(w, 4), by2 = min(h, 4), bw = (w+3)/4, bh = (h+3)/4, stridex = blocksize, stridey = blocksize;
+    int bx1 = 0, by1 = 0, bx2 = std::min(w, 4), by2 = std::min(h, 4), bw = (w+3)/4, bh = (h+3)/4, stridex = blocksize, stridey = blocksize;
     if(swapxy) stridex *= bw; else stridey *= bh;
     if(flipx) { dst += (bw-1)*stridex; stridex = -stridex; bx1 += 4-bx2; bx2 = 4; }
     if(flipy) { dst += (bh-1)*stridey; stridey = -stridey; by1 += 4-by2; by2 = 4; }
@@ -212,7 +212,7 @@ static void reorients3tc(GLenum format, int blocksize, int w, int h, uchar *src,
 
 static void reorientrgtc(GLenum format, int blocksize, int w, int h, uchar *src, uchar *dst, bool flipx, bool flipy, bool swapxy)
 {
-    int bx1 = 0, by1 = 0, bx2 = min(w, 4), by2 = min(h, 4), bw = (w+3)/4, bh = (h+3)/4, stridex = blocksize, stridey = blocksize;
+    int bx1 = 0, by1 = 0, bx2 = std::min(w, 4), by2 = std::min(h, 4), bw = (w+3)/4, bh = (h+3)/4, stridex = blocksize, stridey = blocksize;
     if(swapxy) stridex *= bw; else stridey *= bh;
     if(flipx) { dst += (bw-1)*stridex; stridex = -stridex; bx1 += 4-bx2; bx2 = 4; }
     if(flipy) { dst += (bh-1)*stridey; stridey = -stridey; by1 += 4-by2; by2 = 4; }
@@ -356,7 +356,7 @@ void texreorient(ImageData &s, bool flipx, bool flipy, bool swapxy, int type = T
             uchar *dst = d.data, *src = s.data;
             loopi(s.levels)
             {
-                reorients3tc(s.compressed, s.bpp, max(s.w>>i, 1), max(s.h>>i, 1), src, dst, flipx, flipy, swapxy, type==TEX_NORMAL);
+                reorients3tc(s.compressed, s.bpp, std::max(s.w>>i, 1), std::max(s.h>>i, 1), src, dst, flipx, flipy, swapxy, type==TEX_NORMAL);
                 src += s.calclevelsize(i);
                 dst += d.calclevelsize(i);
             }
@@ -370,7 +370,7 @@ void texreorient(ImageData &s, bool flipx, bool flipy, bool swapxy, int type = T
             uchar *dst = d.data, *src = s.data;
             loopi(s.levels)
             {
-                reorientrgtc(s.compressed, s.bpp, max(s.w>>i, 1), max(s.h>>i, 1), src, dst, flipx, flipy, swapxy);
+                reorientrgtc(s.compressed, s.bpp, std::max(s.w>>i, 1), std::max(s.h>>i, 1), src, dst, flipx, flipy, swapxy);
                 src += s.calclevelsize(i);
                 dst += d.calclevelsize(i);
             }
@@ -397,9 +397,9 @@ void texrotate(ImageData &s, int numrots, int type = TEX_DIFFUSE)
 
 void texoffset(ImageData &s, int xoffset, int yoffset)
 {
-    xoffset = max(xoffset, 0);
+    xoffset = std::max(xoffset, 0);
     xoffset %= s.w;
-    yoffset = max(yoffset, 0);
+    yoffset = std::max(yoffset, 0);
     yoffset %= s.h;
     if(!xoffset && !yoffset) return;
     ImageData d(s.w, s.h, s.bpp);
@@ -442,7 +442,7 @@ void texmad(ImageData &s, const vec &mul, const vec &add)
 {
     if(s.bpp < 3 && (mul.x != mul.y || mul.y != mul.z || add.x != add.y || add.y != add.z))
         swizzleimage(s);
-    int maxk = min(int(s.bpp), 3);
+    int maxk = std::min(int(s.bpp), 3);
     writetex(s,
         loopk(maxk) dst[k] = uchar(clamp(dst[k]*mul[k] + 255*add[k], 0.0f, 255.0f));
     );
@@ -472,7 +472,7 @@ void texcolormask(ImageData &s, const vec &color1, const vec &color2)
 
 void texdup(ImageData &s, int srcchan, int dstchan)
 {
-    if(srcchan==dstchan || max(srcchan, dstchan) >= s.bpp) return;
+    if(srcchan==dstchan || std::max(srcchan, dstchan) >= s.bpp) return;
     writetex(s, dst[dstchan] = dst[srcchan]);
 }
 
@@ -547,8 +547,8 @@ void texagrad(ImageData &s, float x2, float y2, float x1, float y1)
         miny = (0 - y1) / (y2 - y1);
         maxy = (1 - y1) / (y2 - y1);
     }
-    float dx = (maxx - minx)/max(s.w-1, 1),
-          dy = (maxy - miny)/max(s.h-1, 1),
+    float dx = (maxx - minx)/std::max(s.w-1, 1),
+          dy = (maxy - miny)/std::max(s.h-1, 1),
           cury = miny;
     for(uchar *dstrow = s.data + s.bpp - 1, *endrow = dstrow + s.h*s.pitch; dstrow < endrow; dstrow += s.pitch)
     {
@@ -591,7 +591,7 @@ void setuptexcompress()
 
 GLenum compressedformat(GLenum format, int w, int h, int force = 0)
 {
-    if(usetexcompress && texcompress && force >= 0 && (force || max(w, h) >= texcompress)) switch(format)
+    if(usetexcompress && texcompress && force >= 0 && (force || std::max(w, h) >= texcompress)) switch(format)
     {
         case GL_RGB5:
         case GL_RGB8:
@@ -630,19 +630,19 @@ VARF(IDF_PERSIST, usenp2, 0, 0, 1, initwarning("texture quality", INIT_LOAD));
 void resizetexture(int w, int h, bool mipmap, bool canreduce, GLenum target, int compress, int &tw, int &th)
 {
     int hwlimit = target==GL_TEXTURE_CUBE_MAP ? hwcubetexsize : hwtexsize,
-        sizelimit = mipmap && maxtexsize ? min(maxtexsize, hwlimit) : hwlimit;
+        sizelimit = mipmap && maxtexsize ? std::min(maxtexsize, hwlimit) : hwlimit;
     if(compress > 0 && !usetexcompress)
     {
-        w = max(w/compress, 1);
-        h = max(h/compress, 1);
+        w = std::max(w/compress, 1);
+        h = std::max(h/compress, 1);
     }
     if(canreduce && texreduce)
     {
-        w = max(w>>texreduce, 1);
-        h = max(h>>texreduce, 1);
+        w = std::max(w>>texreduce, 1);
+        h = std::max(h>>texreduce, 1);
     }
-    w = min(w, sizelimit);
-    h = min(h, sizelimit);
+    w = std::min(w, sizelimit);
+    h = std::min(h, sizelimit);
     if(!usenp2 && (w&(w-1) || h&(h-1)))
     {
         tw = th = 1;
@@ -690,7 +690,7 @@ void uploadtexture(GLenum target, GLenum internal, int tw, int th, GLenum format
         if(target==GL_TEXTURE_1D) glTexImage1D(target, level, internal, tw, 0, format, type, src);
         else glTexImage2D(target, level, internal, tw, th, 0, format, type, src);
         if(row > 0) glPixelStorei(GL_UNPACK_ROW_LENGTH, row = 0);
-        if(!mipmap || max(tw, th) <= 1) break;
+        if(!mipmap || std::max(tw, th) <= 1) break;
         int srcw = tw, srch = th;
         if(tw > 1) tw /= 2;
         if(th > 1) th /= 2;
@@ -703,7 +703,7 @@ void uploadtexture(GLenum target, GLenum internal, int tw, int th, GLenum format
 void uploadcompressedtexture(GLenum target, GLenum subtarget, GLenum format, int w, int h, uchar *data, int align, int blocksize, int levels, bool mipmap)
 {
     int hwlimit = target==GL_TEXTURE_CUBE_MAP ? hwcubetexsize : hwtexsize,
-        sizelimit = levels > 1 && maxtexsize ? min(maxtexsize, hwlimit) : hwlimit;
+        sizelimit = levels > 1 && maxtexsize ? std::min(maxtexsize, hwlimit) : hwlimit;
     int level = 0;
     loopi(levels)
     {
@@ -715,7 +715,7 @@ void uploadcompressedtexture(GLenum target, GLenum subtarget, GLenum format, int
             level++;
             if(!mipmap) break;
         }
-        if(max(w, h) <= 1) break;
+        if(std::max(w, h) <= 1) break;
         if(w > 1) w /= 2;
         if(h > 1) h /= 2;
         data += size;
@@ -784,7 +784,7 @@ void setuptexparameters(int tnum, void *pixels, int clamp, int filter, GLenum fo
     glBindTexture(target, tnum);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, clamp&1 ? GL_CLAMP_TO_EDGE : (clamp&0x100 ? GL_MIRRORED_REPEAT : GL_REPEAT));
     if(target!=GL_TEXTURE_1D) glTexParameteri(target, GL_TEXTURE_WRAP_T, clamp&2 ? GL_CLAMP_TO_EDGE : (clamp&0x200 ? GL_MIRRORED_REPEAT : GL_REPEAT));
-    if(target==GL_TEXTURE_2D && hasAF && min(anisotropy, hwmaxanisotropy) > 0 && filter > 1) glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, min(anisotropy, hwmaxanisotropy));
+    if(target==GL_TEXTURE_2D && hasAF && std::min(anisotropy, hwmaxanisotropy) > 0 && filter > 1) glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::min(anisotropy, hwmaxanisotropy));
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter && bilinear ? GL_LINEAR : GL_NEAREST);
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
         filter > 1 ?
@@ -1046,14 +1046,14 @@ static Texture *newtexture(Texture *t, const char *rname, ImageData &s, int clam
 
         uchar *data = s.data;
         int levels = s.levels, level = 0;
-        if(canreduce && texreduce) loopi(min(texreduce, s.levels-1))
+        if(canreduce && texreduce) loopi(std::min(texreduce, s.levels-1))
         {
             data += s.calclevelsize(level++);
             levels--;
             if(t->w > 1) t->w /= 2;
             if(t->h > 1) t->h /= 2;
         }
-        int sizelimit = mipit && maxtexsize ? min(maxtexsize, hwtexsize) : hwtexsize;
+        int sizelimit = mipit && maxtexsize ? std::min(maxtexsize, hwtexsize) : hwtexsize;
         while(t->w > sizelimit || t->h > sizelimit)
         {
             data += s.calclevelsize(level++);
@@ -1149,7 +1149,7 @@ bool checkgrayscale(SDL_Surface *s)
 SDL_Surface *fixsurfaceformat(SDL_Surface *s)
 {
     if(!s) return NULL;
-    if(!s->pixels || min(s->w, s->h) <= 0 || s->format->BytesPerPixel <= 0)
+    if(!s->pixels || std::min(s->w, s->h) <= 0 || s->format->BytesPerPixel <= 0)
     {
         SDL_FreeSurface(s);
         return NULL;
@@ -1437,8 +1437,8 @@ static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, 
             if(anim)
             {
                 anim->delay = *arg[0] ? atoi(arg[0]) : 50;
-                anim->x = max(1, *arg[1] ? atoi(arg[1]) : 1);
-                anim->y = max(1, *arg[2] ? atoi(arg[2]) : 2);
+                anim->x = std::max(1, *arg[1] ? atoi(arg[1]) : 1);
+                anim->y = std::max(1, *arg[2] ? atoi(arg[2]) : 2);
                 anim->throb = *arg[3] && atoi(arg[3]);
                 anim->w = d.w/anim->x;
                 anim->h = d.h/anim->y;
@@ -1464,7 +1464,7 @@ static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, 
         }
     }
 
-    if((anim && anim->count ? max(anim->w, anim->h) : max(d.w, d.h)) > (1<<12))
+    if((anim && anim->count ? std::max(anim->w, anim->h) : std::max(d.w, d.h)) > (1<<12))
     {
         d.cleanup();
         conoutf("\frtexture size exceeded %dx%d: %s", 1<<12, 1<<12, file);
@@ -1601,7 +1601,7 @@ void compactvslot(VSlot &vs)
 
 void compactvslots(cube *c, int n)
 {
-    if((compactvslotsprogress++&0xFFF)==0) progress(min(float(compactvslotsprogress)/allocnodes, 1.0f), markingvslots ? "marking slots..." : "compacting slots...");
+    if((compactvslotsprogress++&0xFFF)==0) progress(std::min(float(compactvslotsprogress)/allocnodes, 1.0f), markingvslots ? "marking slots..." : "compacting slots...");
     loopi(n)
     {
         if(c[i].children) compactvslots(c[i].children);
@@ -1994,13 +1994,13 @@ bool unpackvslot(ucharbuf &buf, VSlot &dst, bool delta)
                 dst.alphaback = clamp(getfloat(buf), 0.0f, 1.0f);
                 break;
             case VSLOT_COLOR:
-                dst.colorscale.r = max(getfloat(buf), 0.0f);
-                dst.colorscale.g = max(getfloat(buf), 0.0f);
-                dst.colorscale.b = max(getfloat(buf), 0.0f);
+                dst.colorscale.r = std::max(getfloat(buf), 0.0f);
+                dst.colorscale.g = std::max(getfloat(buf), 0.0f);
+                dst.colorscale.b = std::max(getfloat(buf), 0.0f);
                 break;
             case VSLOT_PALETTE:
-                dst.palette = max(getint(buf), 0);
-                dst.palindex = max(getint(buf), 0);
+                dst.palette = std::max(getint(buf), 0);
+                dst.palindex = std::max(getint(buf), 0);
                 break;
             case VSLOT_COAST:
                 dst.coastscale = clamp(getfloat(buf), 0.0f, 1000.0f);
@@ -2150,7 +2150,7 @@ ICOMMAND(0, setgrass, "s", (char *name), {
 
 void texgrasscolor(Slot &s, float r, float g, float b)
 {
-    s.grasscolor = vec(max(r, 0.f), max(g, 0.f), max(b, 0.f));
+    s.grasscolor = vec(std::max(r, 0.f), std::max(g, 0.f), std::max(b, 0.f));
 }
 ICOMMAND(0, texgrasscolor, "fff", (float *r, float *g, float *b), if(!slots.empty()) texgrasscolor(*slots.last(), *r, *g, *b));
 ICOMMAND(0, setgrasscolor, "fff", (float *r, float *g, float *b), {
@@ -2227,7 +2227,7 @@ void texlayer(int *layer, char *name, int *mode, float *scale)
 {
     if(slots.empty()) return;
     Slot &s = *slots.last();
-    s.variants->layer = *layer < 0 ? max(slots.length()-1+*layer, 0) : *layer;
+    s.variants->layer = *layer < 0 ? std::max(slots.length()-1+*layer, 0) : *layer;
     s.layermaskname = name[0] ? newstring(name) : NULL;
     s.layermaskmode = *mode;
     s.layermaskscale = *scale <= 0 ? 1 : *scale;
@@ -2258,7 +2258,7 @@ void texcolor(float *r, float *g, float *b)
 {
     if(slots.empty()) return;
     Slot &s = *slots.last();
-    s.variants->colorscale = vec(max(*r, 0.f), max(*g, 0.f), max(*b, 0.f));
+    s.variants->colorscale = vec(std::max(*r, 0.f), std::max(*g, 0.f), std::max(*b, 0.f));
     propagatevslot(s.variants, 1<<VSLOT_COLOR);
 }
 COMMAND(0, texcolor, "fff");
@@ -2276,8 +2276,8 @@ void texpalette(int *p, int *x)
 {
     if(slots.empty()) return;
     Slot &s = *slots.last();
-    s.variants->palette = max(*p, 0);
-    s.variants->palindex = max(*x, 0);
+    s.variants->palette = std::max(*p, 0);
+    s.variants->palindex = std::max(*x, 0);
     propagatevslot(s.variants, 1<<VSLOT_PALETTE);
 }
 COMMAND(0, texpalette, "i");
@@ -2503,7 +2503,7 @@ Texture *loadthumbnail(Slot &slot)
         {
             if(colorscale != vec(1, 1, 1)) texmad(s, colorscale, vec(0, 0, 0));
             int xs = s.w, ys = s.h;
-            if(s.w > 64 || s.h > 64) scaleimage(s, min(s.w, 64), min(s.h, 64));
+            if(s.w > 64 || s.h > 64) scaleimage(s, std::min(s.w, 64), std::min(s.h, 64));
             if(g.data)
             {
                 if(g.w != s.w || g.h != s.h) scaleimage(g, s.w, s.h);
@@ -2629,7 +2629,7 @@ Texture *cubemaploadwildcard(Texture *t, const char *name, bool mipit, bool msg,
             if(msg) conoutf("\frcubemap texture %s doesn't match other sides' format", sname);
             return NULL;
         }
-        tsize = max(tsize, max(s.w, s.h));
+        tsize = std::max(tsize, std::max(s.w, s.h));
     }
     if(name)
     {
@@ -2661,7 +2661,7 @@ Texture *cubemaploadwildcard(Texture *t, const char *name, bool mipit, bool msg,
     t->mipmap = mipit;
     t->clamp = 3;
     t->xs = t->ys = tsize;
-    t->w = t->h = min(1<<envmapsize, tsize);
+    t->w = t->h = std::min(1<<envmapsize, tsize);
     resizetexture(t->w, t->h, mipit, false, GL_TEXTURE_CUBE_MAP, compress, t->w, t->h);
     GLenum component = format;
     if(!surface[0].compressed)
@@ -2742,10 +2742,10 @@ VAR(0, aaenvmap, 0, 2, 4);
 
 GLuint genenvmap(const vec &o, int envmapsize, int blur)
 {
-    int rendersize = 1<<(envmapsize+aaenvmap), sizelimit = min(hwcubetexsize, min(screenw, screenh));
-    if(maxtexsize) sizelimit = min(sizelimit, maxtexsize);
+    int rendersize = 1<<(envmapsize+aaenvmap), sizelimit = std::min(hwcubetexsize, std::min(screenw, screenh));
+    if(maxtexsize) sizelimit = std::min(sizelimit, maxtexsize);
     while(rendersize > sizelimit) rendersize /= 2;
-    int texsize = min(rendersize, 1<<envmapsize);
+    int texsize = std::min(rendersize, 1<<envmapsize);
     if(!aaenvmap) rendersize = texsize;
     GLuint tex;
     glGenTextures(1, &tex);
@@ -2821,7 +2821,7 @@ void genenvmaps()
     loopv(envmaps)
     {
         envmap &em = envmaps[i];
-        em.tex = genenvmap(em.o, em.size ? min(em.size, envmapsize) : envmapsize, em.blur);
+        em.tex = genenvmap(em.o, em.size ? std::min(em.size, envmapsize) : envmapsize, em.blur);
         if(renderedframe) continue;
         int millis = SDL_GetTicks();
         if(millis - lastprogress >= 250)
@@ -3038,7 +3038,7 @@ static void name(ImageData &s) \
     { \
         for(int bx = 0; bx < s.w; bx += s.align, src += s.bpp) \
         { \
-            int maxy = min(d.h - by, s.align), maxx = min(d.w - bx, s.align); \
+            int maxy = std::min(d.h - by, s.align), maxx = std::min(d.w - bx, s.align); \
             initblock; \
             loop(y, maxy) \
             { \
@@ -3303,7 +3303,7 @@ void gendds(char *infile, char *outfile)
         GLint size = 0;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, level++, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &size);
         csize += size;
-        if(max(lw, lh) <= 1) break;
+        if(std::max(lw, lh) <= 1) break;
         if(lw > 1) lw /= 2;
         if(lh > 1) lh /= 2;
     }
@@ -3327,7 +3327,7 @@ void gendds(char *infile, char *outfile)
         glGetTexLevelParameteriv(GL_TEXTURE_2D, d.dwMipMapCount, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &size);
         glGetCompressedTexImage_(GL_TEXTURE_2D, d.dwMipMapCount++, dst);
         dst += size;
-        if(max(lw, lh) <= 1) break;
+        if(std::max(lw, lh) <= 1) break;
         if(lw > 1) lw /= 2;
         if(lh > 1) lh /= 2;
     }
@@ -3500,7 +3500,7 @@ void savetga(const char *filename, ImageData &image, int compress, bool flip)
             if(compress)
             {
                 int run = 1;
-                for(uchar *scan = src; run < min(remaining, 128); run++)
+                for(uchar *scan = src; run < std::min(remaining, 128); run++)
                 {
                     scan += image.bpp;
                     if(src[0]!=scan[0] || src[1]!=scan[1] || src[2]!=scan[2] || (image.bpp==4 && src[3]!=scan[3])) break;
@@ -3514,14 +3514,14 @@ void savetga(const char *filename, ImageData &image, int compress, bool flip)
                     remaining -= run;
                     if(remaining <= 0) break;
                 }
-                for(uchar *scan = src; raw < min(remaining, 128); raw++)
+                for(uchar *scan = src; raw < std::min(remaining, 128); raw++)
                 {
                     scan += image.bpp;
                     if(src[0]==scan[0] && src[1]==scan[1] && src[2]==scan[2] && (image.bpp!=4 || src[3]==scan[3])) break;
                 }
                 f->putchar(raw - 1);
             }
-            else raw = min(remaining, 128);
+            else raw = std::min(remaining, 128);
             uchar *dst = buf;
             loopj(raw)
             {

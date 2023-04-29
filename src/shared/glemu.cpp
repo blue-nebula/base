@@ -221,7 +221,7 @@ namespace gle
             int len = numverts * vertexsize;
             if(vbooffset + len >= MAXVBOSIZE)
             {
-                len = min(len, MAXVBOSIZE);
+                len = std::min(len, MAXVBOSIZE);
                 if(!vbo) glGenBuffers_(1, &vbo);
                 glBindBuffer_(GL_ARRAY_BUFFER, vbo);
                 glBufferData_(GL_ARRAY_BUFFER, MAXVBOSIZE, NULL, GL_STREAM_DRAW);

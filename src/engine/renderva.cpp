@@ -92,7 +92,7 @@ void addvisibleva(vtxarray *va)
     float dist = vadist(va, camera1->o);
     va->distance = int(dist); /*cv.dist(camera1->o) - va->size*SQRT3/2*/
 
-    int hash = min(int(dist*VASORTSIZE/hdr.worldsize), VASORTSIZE-1);
+    int hash = std::min(int(dist*VASORTSIZE/hdr.worldsize), VASORTSIZE-1);
     vtxarray **prev = &vasort[hash], *cur = vasort[hash];
 
     while(cur && va->distance >= cur->distance)
@@ -489,7 +489,7 @@ void rendermapmodel(extentity &e)
         if(e.attrs[10]) yaw += e.attrs[10]*lastmillis/1000.0f;
         if(e.attrs[11]) pitch += e.attrs[11]*lastmillis/1000.0f;
         if(e.attrs[12]) roll += e.attrs[12]*lastmillis/1000.0f;
-        rendermodel(&e.light, mmi->name, anim, e.o, yaw, pitch, roll, flags, NULL, NULL, basetime, 0, e.attrs[4] ? min(e.attrs[4]/100.f, 1.f) : 1.f, e.attrs[5] ? max(e.attrs[5]/100.f, 1e-3f) : 1.f);
+        rendermodel(&e.light, mmi->name, anim, e.o, yaw, pitch, roll, flags, NULL, NULL, basetime, 0, e.attrs[4] ? std::min(e.attrs[4]/100.f, 1.f) : 1.f, e.attrs[5] ? std::max(e.attrs[5]/100.f, 1e-3f) : 1.f);
     }
 }
 
@@ -1257,7 +1257,7 @@ static void renderbatch(renderstate &cur, int pass, geombatch &b)
                 gbatches++;
             }
             ushort minvert = curbatch->es.minvert[0], maxvert = curbatch->es.maxvert[0];
-            if(!curbatch->va->shadowed) { minvert = min(minvert, curbatch->es.minvert[1]); maxvert = max(maxvert, curbatch->es.maxvert[1]); }
+            if(!curbatch->va->shadowed) { minvert = std::min(minvert, curbatch->es.minvert[1]); maxvert = std::max(maxvert, curbatch->es.maxvert[1]); }
             drawtris(len, curbatch->edata, minvert, maxvert);
             vtris += len/3;
         }
@@ -1594,7 +1594,7 @@ void rendergeom(float causticspass, bool fogpass)
                 va->occluded = OCCLUDE_PARENT;
                 continue;
             }
-            va->occluded = va->query && va->query->owner == va && checkquery(va->query) ? min(va->occluded+1, int(OCCLUDE_BB)) : OCCLUDE_NOTHING;
+            va->occluded = va->query && va->query->owner == va && checkquery(va->query) ? std::min(va->occluded+1, int(OCCLUDE_BB)) : OCCLUDE_NOTHING;
             va->query = newquery(va);
             if((!va->query && zpass) || !va->occluded)
                 va->occluded = pvsoccluded(va->geommin, va->geommax) ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
@@ -1876,7 +1876,7 @@ static inline void updateskystats(vtxarray *va)
     renderedsky += va->sky;
     renderedexplicitsky += va->explicitsky;
     renderedskyfaces |= va->skyfaces&0x3F;
-    if(!(va->skyfaces&0x1F) || camera1->o.z < va->skyclip) renderedskyclip = min(renderedskyclip, va->skyclip);
+    if(!(va->skyfaces&0x1F) || camera1->o.z < va->skyclip) renderedskyclip = std::min(renderedskyclip, va->skyclip);
     else renderedskyclip = 0;
 }
 

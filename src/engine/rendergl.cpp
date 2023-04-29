@@ -548,7 +548,7 @@ void gl_checkextensions()
     if(hasext("GL_3DFX_texture_compression_FXT1"))
     {
         hasFXT1 = true;
-        if(mesa) usetexcompress = max(usetexcompress, 1);
+        if(mesa) usetexcompress = std::max(usetexcompress, 1);
         if(dbgexts) conoutf("\frUsing GL_3DFX_texture_compression_FXT1.");
     }
     if(hasext("GL_EXT_texture_compression_latc"))
@@ -868,10 +868,10 @@ int pushscissor(float sx1, float sy1, float sx2, float sy2)
 
     if(sx1 <= -1 && sy1 <= -1 && sx2 >= 1 && sy2 >= 1) return 0;
 
-    sx1 = max(sx1, -1.0f);
-    sy1 = max(sy1, -1.0f);
-    sx2 = min(sx2, 1.0f);
-    sy2 = min(sy2, 1.0f);
+    sx1 = std::max(sx1, -1.0f);
+    sy1 = std::max(sy1, -1.0f);
+    sx2 = std::min(sx2, 1.0f);
+    sy2 = std::min(sy2, 1.0f);
 
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -886,10 +886,10 @@ int pushscissor(float sx1, float sy1, float sx2, float sy2)
         glGetIntegerv(GL_SCISSOR_BOX, oldscissor);
         sw += sx;
         sh += sy;
-        sx = max(sx, int(oldscissor[0]));
-        sy = max(sy, int(oldscissor[1]));
-        sw = min(sw, int(oldscissor[0] + oldscissor[2])) - sx;
-        sh = min(sh, int(oldscissor[1] + oldscissor[3])) - sy;
+        sx = std::max(sx, int(oldscissor[0]));
+        sy = std::max(sy, int(oldscissor[1]));
+        sw = std::min(sw, int(oldscissor[0] + oldscissor[2])) - sx;
+        sh = std::min(sh, int(oldscissor[1] + oldscissor[3])) - sy;
         if(sw <= 0 || sh <= 0) return 0;
         scissoring = 2;
     }
@@ -1036,7 +1036,7 @@ static void blendfog(int fogmat, float blend, float logblend, float &start, floa
             const bvec &wcol = getwatercol(fogmat);
             int wfog = getwaterfog(fogmat);
             fogc.madd(wcol.tocolor(), blend);
-            end += logblend*min(fog, max(wfog*4, 32));
+            end += logblend*std::min(fog, std::max(wfog*4, 32));
             break;
         }
 
@@ -1045,7 +1045,7 @@ static void blendfog(int fogmat, float blend, float logblend, float &start, floa
             const bvec &lcol = getlavacol(fogmat);
             int lfog = getlavafog(fogmat);
             fogc.madd(lcol.tocolor(), blend);
-            end += logblend*min(fog, max(lfog*4, 32));
+            end += logblend*std::min(fog, std::max(lfog*4, 32));
             break;
         }
 
@@ -1174,7 +1174,7 @@ FVAR(IDF_PERSIST, motionblurscale, 0, 1, 1);
 
 void addmotionblur()
 {
-    if(!motionblur || max(screenw, screenh) > hwtexsize) return;
+    if(!motionblur || std::max(screenw, screenh) > hwtexsize) return;
 
     if(!motiontex || motionw != screenw || motionh != screenh)
     {
@@ -1185,7 +1185,7 @@ void addmotionblur()
         createtexture(motiontex, motionw, motionh, NULL, 3, 0, GL_RGB);
     }
 
-    float amount = min(hud::motionblur(motionblurscale), 1.0f);
+    float amount = std::min(hud::motionblur(motionblurscale), 1.0f);
     if(amount <= 0)
     {
         lastmotion = 0;
@@ -1199,7 +1199,7 @@ void addmotionblur()
 
     SETSHADER(screenrect);
 
-    gle::colorf(1, 1, 1, lastmotion ? pow(amount, max(float(totalmillis-lastmotion)/motionblurmillis, 1.0f)) : 0);
+    gle::colorf(1, 1, 1, lastmotion ? pow(amount, std::max(float(totalmillis-lastmotion)/motionblurmillis, 1.0f)) : 0);
     screenquad(1, 1);
 
     glDisable(GL_BLEND);
@@ -1227,16 +1227,16 @@ static void blendfogoverlay(int fogmat, float blend, vec &overlay)
         case MAT_WATER:
         {
             const bvec &wcol = getwatercol(fogmat);
-            maxc = max(wcol.r, max(wcol.g, wcol.b));
-            overlay.madd(vec(wcol.r, wcol.g, wcol.b).div(min(32.0f + maxc*7.0f/8.0f, 255.0f)).max(0.4f), blend);
+            maxc = std::max(wcol.r, std::max(wcol.g, wcol.b));
+            overlay.madd(vec(wcol.r, wcol.g, wcol.b).div(std::min(32.0f + maxc*7.0f/8.0f, 255.0f)).max(0.4f), blend);
             break;
         }
 
         case MAT_LAVA:
         {
             const bvec &lcol = getlavacol(fogmat);
-            maxc = max(lcol.r, max(lcol.g, lcol.b));
-            overlay.madd(vec(lcol.r, lcol.g, lcol.b).div(min(32.0f + maxc*7.0f/8.0f, 255.0f)).max(0.4f), blend);
+            maxc = std::max(lcol.r, std::max(lcol.g, lcol.b));
+            overlay.madd(vec(lcol.r, lcol.g, lcol.b).div(std::min(32.0f + maxc*7.0f/8.0f, 255.0f)).max(0.4f), blend);
             break;
         }
 
@@ -1340,7 +1340,7 @@ void drawreflection(float z, bool refract, int fogdepth, const bvec &col)
 
     if(fogging)
     {
-        pushfogdist(camera1->o.z - z, camera1->o.z - (z - max(refractfog, 1)));
+        pushfogdist(camera1->o.z - z, camera1->o.z - (z - std::max(refractfog, 1)));
         pushfogcolor(col.tocolor());
     }
     else
@@ -1467,10 +1467,10 @@ void drawcubemap(int level, const vec &o, float yaw, float pitch, bool flipx, bo
     if(isliquid(fogmat&MATF_VOLUME))
     {
         float z = findsurface(fogmat, camera1->o, abovemat) - WATER_OFFSET;
-        if(camera1->o.z < z + 1) fogblend = min(z + 1 - camera1->o.z, 1.0f);
+        if(camera1->o.z < z + 1) fogblend = std::min(z + 1 - camera1->o.z, 1.0f);
         else fogmat = abovemat;
         if(level > 1 && caustics && (fogmat&MATF_VOLUME)==MAT_WATER && camera1->o.z < z)
-            causticspass = min(z - camera1->o.z, 1.0f);
+            causticspass = std::min(z - camera1->o.z, 1.0f);
     }
     else
     {
@@ -1608,7 +1608,7 @@ namespace modelpreview
 vec calcmodelpreviewpos(const vec &radius, float &yaw)
 {
     yaw = fmod(lastmillis/10000.0f*360.0f, 360.0f);
-    float dist = 1.05f*max(radius.magnitude2()/aspect, radius.magnitude())/sinf(fovy/2*RAD);
+    float dist = 1.05f*std::max(radius.magnitude2()/aspect, radius.magnitude())/sinf(fovy/2*RAD);
     return vec(0, dist, 0).rotate_around_x(camera1->pitch*RAD);
 }
 
@@ -1642,8 +1642,8 @@ void clipminimap(ivec &bbmin, ivec &bbmax, cube *c = worldroot, const ivec &co =
         if(c[i].children) clipminimap(bbmin, bbmax, c[i].children, o, size>>1);
         else if(!isentirelysolid(c[i]) && (c[i].material&MATF_CLIP)!=MAT_CLIP)
         {
-            loopk(3) bbmin[k] = min(bbmin[k], o[k]);
-            loopk(3) bbmax[k] = max(bbmax[k], o[k] + size);
+            loopk(3) bbmin[k] = std::min(bbmin[k], o[k]);
+            loopk(3) bbmax[k] = std::max(bbmax[k], o[k] + size);
         }
     }
 }
@@ -1654,7 +1654,7 @@ void drawminimap()
 
     progress(0, "generating mini-map...");
 
-    int size = 1<<minimapsize, sizelimit = min(hwtexsize, min(screenw, screenh));
+    int size = 1<<minimapsize, sizelimit = std::min(hwtexsize, std::min(screenw, screenh));
     while(size > sizelimit) size /= 2;
     if(!minimaptex) glGenTextures(1, &minimaptex);
 
@@ -1665,21 +1665,21 @@ void drawminimap()
         loopk(3)
         {
             if(va->geommin[k]>va->geommax[k]) continue;
-            bbmin[k] = min(bbmin[k], va->geommin[k]);
-            bbmax[k] = max(bbmax[k], va->geommax[k]);
+            bbmin[k] = std::min(bbmin[k], va->geommin[k]);
+            bbmax[k] = std::max(bbmax[k], va->geommax[k]);
         }
     }
     if(minimapclip)
     {
         ivec clipmin(hdr.worldsize, hdr.worldsize, hdr.worldsize), clipmax(0, 0, 0);
         clipminimap(clipmin, clipmax);
-        loopk(2) bbmin[k] = max(bbmin[k], clipmin[k]);
-        loopk(2) bbmax[k] = min(bbmax[k], clipmax[k]);
+        loopk(2) bbmin[k] = std::max(bbmin[k], clipmin[k]);
+        loopk(2) bbmax[k] = std::min(bbmax[k], clipmax[k]);
     }
 
     minimapradius = vec(bbmax).sub(vec(bbmin)).mul(0.5f);
     minimapcenter = vec(bbmin).add(minimapradius);
-    minimapradius.x = minimapradius.y = max(minimapradius.x, minimapradius.y);
+    minimapradius.x = minimapradius.y = std::max(minimapradius.x, minimapradius.y);
     minimapscale = vec((0.5f - 1.0f/size)/minimapradius.x, (0.5f - 1.0f/size)/minimapradius.y, 1.0f);
 
     drawtex = DRAWTEX_MINIMAP;
@@ -1689,7 +1689,7 @@ void drawminimap()
     cmcamera = *camera1;
     cmcamera.reset();
     cmcamera.type = ENT_CAMERA;
-    cmcamera.o = vec(minimapcenter.x, minimapcenter.y, max(minimapcenter.z + minimapradius.z + 1, float(minimapheight)));
+    cmcamera.o = vec(minimapcenter.x, minimapcenter.y, std::max(minimapcenter.z + minimapradius.z + 1, float(minimapheight)));
     cmcamera.yaw = 0;
     cmcamera.pitch = -90;
     cmcamera.roll = 0;
@@ -1762,7 +1762,7 @@ void getscreenres(int &w, int &h)
     float wk = 1, hk = 1;
     if(w < scr_virtw) wk = float(scr_virtw)/w;
     if(h < scr_virth) hk = float(scr_virth)/h;
-    wk = hk = max(wk, hk);
+    wk = hk = std::max(wk, hk);
     w = int(ceil(w*wk));
     h = int(ceil(h*hk));
 }
@@ -2246,10 +2246,10 @@ void gl_drawframe()
         if(isliquid(fogmat&MATF_VOLUME))
         {
             float z = findsurface(fogmat, camera1->o, abovemat) - WATER_OFFSET;
-            if(camera1->o.z < z + 1) fogblend = min(z + 1 - camera1->o.z, 1.0f);
+            if(camera1->o.z < z + 1) fogblend = std::min(z + 1 - camera1->o.z, 1.0f);
             else fogmat = abovemat;
             if(caustics && (fogmat&MATF_VOLUME) == MAT_WATER && camera1->o.z < z)
-                causticspass = min(z - camera1->o.z, 1.0f);
+                causticspass = std::min(z - camera1->o.z, 1.0f);
 
             float blend = abovemat == MAT_AIR ? fogblend : 1.0f;
             fovy += blend*sinf(lastmillis/1000.0)*2.0f;
@@ -2337,7 +2337,7 @@ void cleanupgl()
 
 void drawskin(Texture *t, int x1, int y1, int x2, int y2, int colour, float blend, int size, const matrix4x3 *m)
 {
-    int w = max(x2-x1, 2), h = max(y2-y1, 2), tw = size ? size : t->w, th = size ? size : t->h;
+    int w = std::max(x2-x1, 2), h = std::max(y2-y1, 2), tw = size ? size : t->w, th = size ? size : t->h;
     float pw = tw*0.25f, ph = th*0.25f, qw = tw*0.5f, qh = th*0.5f, px = 0, py = 0, tx = 0, ty = 0;
     if(w < qw)
     {
@@ -2351,7 +2351,7 @@ void drawskin(Texture *t, int x1, int y1, int x2, int y2, int colour, float blen
         qw *= scale; qh *= scale;
         pw *= scale; ph *= scale;
     }
-    int cw = max(int(floorf(w/qw))-1, 0), ch = max(int(floorf(h/qh))+1, 2);
+    int cw = std::max(int(floorf(w/qw))-1, 0), ch = std::max(int(floorf(h/qh))+1, 2);
 
     glBindTexture(GL_TEXTURE_2D, t->id);
     gle::color(vec::hexcolor(colour), blend);
