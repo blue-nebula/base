@@ -162,7 +162,7 @@ struct animmodel : model
             {
                 float curpulse = lastmillis*glowpulse;
                 curpulse -= floor(curpulse);
-                curglow += glowdelta*2*fabs(curpulse - 0.5f);
+                curglow += glowdelta*2*std::fabs(curpulse - 0.5f);
             }
             if(material <= 0 || !lightmaterial) LOCALPARAMF(lightmaterial, 2, 2, 2);
             if(material2 <= 0 || !lightmaterial) LOCALPARAMF(lightmaterial2, 2, 2, 2);

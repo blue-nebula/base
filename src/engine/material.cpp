@@ -491,10 +491,10 @@ static inline bool vismatcmp(const materialsurface *xm, const materialsurface *y
         int c = sortorigin[dim];
         if(c > xmin && c < xmax) return sortedit;
         if(c > ymin && c < ymax) return !sortedit;
-        xmin = abs(xmin - c);
-        xmax = abs(xmax - c);
-        ymin = abs(ymin - c);
-        ymax = abs(ymax - c);
+        xmin = std::abs(xmin - c);
+        xmax = std::abs(xmax - c);
+        ymin = std::abs(ymin - c);
+        ymax = std::abs(ymax - c);
         if(max(xmin, xmax) <= min(ymin, ymax)) return sortedit;
         else if(max(ymin, ymax) <= min(xmin, xmax)) return !sortedit;
     }
@@ -508,7 +508,7 @@ void sortmaterials(vector<materialsurface *> &vismats)
     sortorigin = ivec(camera1->o);
     if(reflecting) sortorigin.z = int(reflectz - (camera1->o.z - reflectz));
     vec dir(camera1->yaw*RAD, reflecting ? -camera1->pitch : camera1->pitch);
-    loopi(3) { dir[i] = fabs(dir[i]); sortdim[i] = i; }
+    loopi(3) { dir[i] = std::fabs(dir[i]); sortdim[i] = i; }
     if(dir[sortdim[2]] > dir[sortdim[1]]) std::swap(sortdim[2], sortdim[1]);
     if(dir[sortdim[1]] > dir[sortdim[0]]) std::swap(sortdim[1], sortdim[0]);
     if(dir[sortdim[2]] > dir[sortdim[1]]) std::swap(sortdim[2], sortdim[1]);
@@ -704,7 +704,7 @@ void rendermaterials()
                         glBindTexture(GL_TEXTURE_2D, mslot->sts[1].t->id);
                         float angle = fmod(float(lastmillis/600.0f/(2*M_PI)), 1.0f),
                               s = angle - int(angle) - 0.5f;
-                        s *= 8 - fabs(s)*16;
+                        s *= 8 - std::fabs(s)*16;
                         wfwave = vertwater ? WATER_AMPLITUDE*s-WATER_OFFSET : -WATER_OFFSET;
                         wfscroll = 16.0f*lastmillis/1000.0f;
                         wfxscale = TEX_SCALE/(mslot->sts[1].t->xs*mslot->scale);
@@ -802,7 +802,7 @@ void rendermaterials()
                     {
                         float angle = fmod(float(lastmillis/2000.0f/(2*M_PI)), 1.0f),
                               s = angle - int(angle) - 0.5f;
-                        s *= 8 - fabs(s)*16;
+                        s *= 8 - std::fabs(s)*16;
                         wfwave = vertwater ? WATER_AMPLITUDE*s-WATER_OFFSET : -WATER_OFFSET;
                         wfscroll = 16.0f*lastmillis/3000.0f;
                         wfxscale = TEX_SCALE/(mslot->sts[1].t->xs*mslot->scale);
@@ -814,7 +814,7 @@ void rendermaterials()
                         if(blended) { glDisable(GL_BLEND); blended = false; }
                         float t = lastmillis/2000.0f;
                         t -= floor(t);
-                        t = 1.0f - 2*fabs(t-0.5f);
+                        t = 1.0f - 2*std::fabs(t-0.5f);
                         extern int glare;
                         if(glare) t = 0.625f + 0.075f*t;
                         else t = 0.5f + 0.5f*t;

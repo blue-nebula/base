@@ -770,7 +770,7 @@ namespace entities
                         {
                             loopk(3)
                             {
-                                if((d->vel.v[k] > 1e-1f && rel.v[k] < -1e-1f) || (d->vel.v[k] < -1e-1f && rel.v[k] > 1e-1f) || (fabs(rel.v[k]) > fabs(d->vel.v[k])))
+                                if((d->vel.v[k] > 1e-1f && rel.v[k] < -1e-1f) || (d->vel.v[k] < -1e-1f && rel.v[k] > 1e-1f) || (std::fabs(rel.v[k]) > std::fabs(d->vel.v[k])))
                                     d->vel.v[k] = rel.v[k];
                             }
                             break;
@@ -2244,7 +2244,7 @@ namespace entities
                         attrs.add(game::player1.move);
                         attrs.add(game::player1.strafe);
                         attrs.add(0);
-                        loopi(AC_MAX) if(game::player1.action[i] || (abs(game::player1.actiontime[i]) > lastroutetime))
+                        loopi(AC_MAX) if(game::player1.action[i] || (std::abs(game::player1.actiontime[i]) > lastroutetime))
                             attrs[5] |= (1<<i);
                         int n = newentity(o, int(ROUTE), attrs);
                         if(ents.inrange(lastroutenode)) ents[lastroutenode]->links.add(n);

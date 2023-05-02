@@ -1386,7 +1386,7 @@ namespace game
         bool burning = burn(d, weap, flags), bleeding = bleed(d, weap, flags), shocking = shock(d, weap, flags), material = flags&HIT_MATERIAL;
         if(!local || burning || bleeding || shocking || material)
         {
-            float scale = isweap(weap) && WF(WK(flags), weap, damage, WS(flags)) != 0 ? abs(damage)/float(WF(WK(flags), weap, damage, WS(flags))) : 1.f;
+            float scale = isweap(weap) && WF(WK(flags), weap, damage, WS(flags)) != 0 ? std::abs(damage)/float(WF(WK(flags), weap, damage, WS(flags))) : 1.f;
             if(hitdealt(flags) && damage != 0 && v == focus) hud::hit(damage, d->o, d, weap, flags);
             if(hitdealt(flags) && damage > 0)
             {
@@ -2257,8 +2257,8 @@ namespace game
     {
         if(yaw < targyaw-180.0f) yaw += 360.0f;
         if(yaw > targyaw+180.0f) yaw -= 360.0f;
-        float offyaw = (rotate < 0 ? fabs(rotate) : (rotate > 0 ? min(float(fabs(targyaw-yaw)), rotate) : fabs(targyaw-yaw)))*yawspeed,
-            offpitch = (rotate < 0 ? fabs(rotate) : (rotate > 0 ? min(float(fabs(targpitch-pitch)), rotate) : fabs(targpitch-pitch)))*pitchspeed;
+        float offyaw = (rotate < 0 ? std::fabs(rotate) : (rotate > 0 ? min(float(std::fabs(targyaw-yaw)), rotate) : std::fabs(targyaw-yaw)))*yawspeed,
+            offpitch = (rotate < 0 ? std::fabs(rotate) : (rotate > 0 ? min(float(std::fabs(targpitch-pitch)), rotate) : std::fabs(targpitch-pitch)))*pitchspeed;
         if(targyaw > yaw)
         {
             yaw += offyaw;
@@ -2343,7 +2343,7 @@ namespace game
             {
                 float steps = bobdist/firstpersonbobstep*M_PI;
                 vec dir = vec(yaw*RAD, 0.f).mul(firstpersonbobside*cosf(steps)*scale);
-                dir.z = firstpersonbobup*(fabs(sinf(steps)) - 1)*scale;
+                dir.z = firstpersonbobup*(std::fabs(sinf(steps)) - 1)*scale;
                 to.add(dir);
             }
         }
@@ -2708,7 +2708,7 @@ namespace game
                     if(adj##x < x - 180.0f) adj##x += 360.0f; \
                     if(adj##x > x + 180.0f) adj##x -= 360.0f; \
                     off##x -= adj##x; \
-                    if(cam->last##x == 0 || (off##x > 0 && cam->last##x < 0) || (off##x < 0 && cam->last##x > 0) || (x##thresh > 0 && (fabs(cam->last##x - off##x) >= x##thresh))) \
+                    if(cam->last##x == 0 || (off##x > 0 && cam->last##x < 0) || (off##x < 0 && cam->last##x > 0) || (x##thresh > 0 && (std::fabs(cam->last##x - off##x) >= x##thresh))) \
                     { \
                         cam->last##x##time = lastmillis; \
                         x##scale = 0; \
@@ -2795,7 +2795,7 @@ namespace game
                 float steps = bobdist/firstpersonbobstep*M_PI, dist = raycube(c->o, dir, firstpersonbobfocusmaxdist, RAY_CLIPMAT|RAY_POLY), yaw, pitch;
                 if(dist < 0 || dist > firstpersonbobfocusmaxdist) dist = firstpersonbobfocusmaxdist;
                 else if(dist < firstpersonbobfocusmindist) dist = firstpersonbobfocusmindist;
-                vectoyawpitch(vec(firstpersonbobside*cosf(steps), dist, firstpersonbobup*(fabs(sinf(steps)) - 1)), yaw, pitch);
+                vectoyawpitch(vec(firstpersonbobside*cosf(steps), dist, firstpersonbobup*(std::fabs(sinf(steps)) - 1)), yaw, pitch);
                 c->yaw -= yaw*firstpersonbobfocus*scale;
                 c->pitch -= pitch*firstpersonbobfocus*scale;
                 c->roll += (1 - firstpersonbobfocus)*firstpersonbobroll*cosf(steps)*scale;
@@ -3043,7 +3043,7 @@ namespace game
             {
                 float steps = swaydist/(firstpersonbob ? firstpersonbobstep : firstpersonswaystep)*M_PI;
                 vec dir = vec(d->yaw*RAD, 0.f).mul(firstpersonswayside*cosf(steps));
-                dir.z = firstpersonswayup*(fabs(sinf(steps)) - 1);
+                dir.z = firstpersonswayup*(std::fabs(sinf(steps)) - 1);
                 o.add(dir).add(swaydir).add(swaypush);
             }
         }

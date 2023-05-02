@@ -1928,7 +1928,7 @@ namespace client
         const float dy = game::player1.o.y-d->o.y;
         const float dz = game::player1.o.z-d->o.z;
         const float rz = game::player1.aboveeye+game::player1.height;
-        const float fx = (float)fabs(dx), fy = (float)fabs(dy), fz = (float)fabs(dz);
+        const float fx = (float)std::fabs(dx), fy = (float)std::fabs(dy), fz = (float)std::fabs(dz);
         if(fx<r && fy<r && fz<rz && d->state!=CS_SPECTATOR && d->state!=CS_WAITING && d->state!=CS_DEAD)
         {
             if(fx<fy) d->o.y += dy<0 ? r-fy : -(r-fy);  // push aside

@@ -3334,8 +3334,8 @@ ICOMMAND(0, maxf, "V", (tagval *args, int numargs),
     loopi(numargs - 1) val = max(val, args[i].getfloat());
     floatret(val);
 });
-ICOMMAND(0, abs, "i", (int *n), intret(abs(*n)));
-ICOMMAND(0, absf, "f", (float *n), floatret(fabs(*n)));
+ICOMMAND(0, abs, "i", (int *n), intret(std::abs(*n)));
+ICOMMAND(0, absf, "f", (float *n), floatret(std::fabs(*n)));
 ICOMMAND(0, precf, "fi", (float *a, int *b),
 {
     defformatstring(format, "%%.%df", max(*b, 0));

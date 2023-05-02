@@ -43,7 +43,7 @@ struct vec2
     vec2 &max(const vec2 &o) { x = ::max(x, o.x); y = ::max(y, o.y); return *this; }
     vec2 &min(float f)       { x = ::min(x, f); y = ::min(y, f); return *this; }
     vec2 &max(float f)       { x = ::max(x, f); y = ::max(y, f); return *this; }
-    vec2 &abs() { x = fabs(x); y = fabs(y); return *this; }
+    vec2 &abs() { x = std::fabs(x); y = std::fabs(y); return *this; }
     vec2 &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); return *this; }
     vec2 &reflect(const vec2 &n) { float k = 2*dot(n); x -= k*n.x; y -= k*n.y; return *this; }
     vec2 &lerp(const vec2 &b, float t) { x += (b.x-x)*t; y += (b.y-y)*t; return *this; }
@@ -101,7 +101,7 @@ struct vec
     float squaredlen() const { return x*x + y*y + z*z; }
     template<class T> float dot2(const T &o) const { return x*o.x + y*o.y; }
     float dot(const vec &o) const { return x*o.x + y*o.y + z*o.z; }
-    float absdot(const vec &o) const { return fabs(x*o.x) + fabs(y*o.y) + fabs(z*o.z); }
+    float absdot(const vec &o) const { return std::fabs(x*o.x) + std::fabs(y*o.y) + std::fabs(z*o.z); }
     vec &mul(const vec &o)   { x *= o.x; y *= o.y; z *= o.z; return *this; }
     vec &mul(float f)        { x *= f; y *= f; z *= f; return *this; }
     vec &div(const vec &o)   { x /= o.x; y /= o.y; z /= o.z; return *this; }
@@ -120,7 +120,7 @@ struct vec
     vec &max(const vec &o)   { x = ::max(x, o.x); y = ::max(y, o.y); z = ::max(z, o.z); return *this; }
     vec &min(float f)        { x = ::min(x, f); y = ::min(y, f); z = ::min(z, f); return *this; }
     vec &max(float f)        { x = ::max(x, f); y = ::max(y, f); z = ::max(z, f); return *this; }
-    vec &abs() { x = fabs(x); y = fabs(y); z = fabs(z); return *this; }
+    vec &abs() { x = std::fabs(x); y = std::fabs(y); z = std::fabs(z); return *this; }
     vec &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
     float magnitude2() const { return sqrtf(dot2(*this)); }
     float magnitude() const  { return sqrtf(squaredlen()); }
@@ -192,7 +192,7 @@ struct vec
 
     void orthogonal(const vec &d)
     {
-        *this = fabs(d.x) > fabs(d.z) ? vec(-d.y, d.x, 0) : vec(0, -d.z, d.y);
+        *this = std::fabs(d.x) > std::fabs(d.z) ? vec(-d.y, d.x, 0) : vec(0, -d.z, d.y);
     }
 
     void orthonormalize(vec &s, vec &t) const
@@ -1181,7 +1181,7 @@ struct ivec
     ivec &max(const ivec &o) { x = ::max(x, o.x); y = ::max(y, o.y); z = ::max(z, o.z); return *this; }
     ivec &min(int n) { x = ::min(x, n); y = ::min(y, n); z = ::min(z, n); return *this; }
     ivec &max(int n) { x = ::max(x, n); y = ::max(y, n); z = ::max(z, n); return *this; }
-    ivec &abs() { x = ::abs(x); y = ::abs(y); z = ::abs(z); return *this; }
+    ivec &abs() { x = std::abs(x); y = std::abs(y); z = std::abs(z); return *this; }
     ivec &clamp(int l, int h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
     ivec &cross(const ivec &a, const ivec &b) { x = a.y*b.z-a.z*b.y; y = a.z*b.x-a.x*b.z; z = a.x*b.y-a.y*b.x; return *this; }
     int dot(const ivec &o) const { return x*o.x + y*o.y + z*o.z; }
@@ -1240,7 +1240,7 @@ struct ivec2
     ivec2 &max(const ivec2 &o) { x = ::max(x, o.x); y = ::max(y, o.y); return *this; }
     ivec2 &min(int n) { x = ::min(x, n); y = ::min(y, n); return *this; }
     ivec2 &max(int n) { x = ::max(x, n); y = ::max(y, n); return *this; }
-    ivec2 &abs() { x = ::abs(x); y = ::abs(y); return *this; }
+    ivec2 &abs() { x = std::abs(x); y = std::abs(y); return *this; }
     int dot(const ivec2 &o) const { return x*o.x + y*o.y; }
     int cross(const ivec2 &o) const { return x*o.y - y*o.x; }
 };

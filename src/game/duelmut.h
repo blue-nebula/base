@@ -393,7 +393,7 @@ struct duelservmode : servmode
                     {
                         if(m_affinity(gamemode) && duelaffin) // reverse it!
                         {
-                            score &ts = teamscore(abs(duelaffin));
+                            score &ts = teamscore(std::abs(duelaffin));
                             if(duelaffin > 0) ts.total--;
                             else ts.total++;
                             sendf(-1, 1, "ri3", N_SCORE, ts.team, ts.total);
