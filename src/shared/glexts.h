@@ -289,10 +289,10 @@ extern PFNGLDRAWBUFFERSPROC glDrawBuffers_;
 #define GL_PIXEL_UNPACK_BUFFER            0x88EC
 #endif
 
-#ifndef GL_EXT_texture_filter_anisotropic
-#define GL_EXT_texture_filter_anisotropic 1
-#define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
-#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#ifndef GL_ARB_texture_filter_anisotropic
+#define GL_ARB_texture_filter_anisotropic 1
+#define GL_TEXTURE_MAX_ANISOTROPY         0x84FE
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY     0x84FF
 #endif
 
 #ifndef GL_EXT_texture_compression_s3tc

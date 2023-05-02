@@ -562,13 +562,14 @@ void gl_checkextensions()
         if(glversion < 300 && dbgexts) conoutf("\frUsing GL_ARB_texture_compression_rgtc extension.");
     }
 
-    if(hasext("GL_EXT_texture_filter_anisotropic"))
-    {
+    if ((glversion >= 460 || hasext("GL_ARB_texture_filter_anisotropic")) ||
+                             hasext("GL_EXT_texture_filter_anisotropic")) {
         GLint val;
-        glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &val);
+        glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &val);
         hwmaxanisotropy = val;
         hasAF = true;
-        if(dbgexts) conoutf("\frUsing GL_EXT_texture_filter_anisotropic extension.");
+        if (dbgexts)
+            conoutf("\frUsing GL_*_texture_filter_anisotropic extension.");
     }
 
     if(glversion >= 300 || hasext("GL_EXT_gpu_shader4"))
