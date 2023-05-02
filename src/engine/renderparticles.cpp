@@ -1552,8 +1552,8 @@ static inline vec offsetvec(vec o, int dir, int dist)
         }
         else if(dir < 27) // flat plane
         {
-            to[dir%3] = float(rndscale(2*radius)-radius);
-            to[(dir+1)%3] = float(rndscale(2*radius)-radius);
+            to[dir%3] = float(rndfloat(2*radius)-radius);
+            to[(dir+1)%3] = float(rndfloat(2*radius)-radius);
             to[(dir+2)%3] = 0.0;
             to.add(p);
             from = to;
@@ -1599,7 +1599,7 @@ void regularflame(int type, const vec &p, float radius, float height, int color,
     float collidez = collide ? p.z - raycube(p, vec(0, 0, -1), collide >= 0 ? COLLIDERADIUS : max(p.z, 0.0f), RAY_CLIPMAT) + (collide >= 0 ? COLLIDEERROR : 0) : -1;
     loopi(density)
     {
-        vec q = vec(p).add(vec(rndscale(radius*2.f)-radius, rndscale(radius*2.f)-radius, 0));
+        vec q = vec(p).add(vec(rndfloat(radius*2.f)-radius, rndfloat(radius*2.f)-radius, 0));
         newparticle(q, v, rnd(max(int(fade*height), 1))+1, type, color, s, blend, grav, collide)->val = collidez;
     }
 }
