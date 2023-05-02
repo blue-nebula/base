@@ -357,6 +357,334 @@ namespace game
     const char *gametitle() { return connected() ? server::gamename(gamemode, mutators) : "ready"; }
     const char *gametext() { return connected() ? mapname : "not connected"; }
 
+    void load_game_sounds()
+    {
+        // load by index, filepath, the volume, the max hearing distance, the min hearing distance and the number of
+        // sound variations (e.g. press1.ogg and press2.ogg)
+        // interface
+        add_game_sound(S_GUIPRESS , "sounds/interface/press" , 255);
+        add_game_sound(S_GUIBACK  , "sounds/interface/back"  , 255);
+        add_game_sound(S_GUIACT   , "sounds/interface/change", 255);
+
+        // player
+        add_game_sound(S_JUMP     , "sounds/player/jump"     ,  64, 100, 0, 0);
+        add_game_sound(S_IMPULSE  , "sounds/player/impulse"  ,  64, 100, 0, 3);
+        add_game_sound(S_LAND     , "sounds/player/land"     , 128, 100, 0, 3);
+        add_game_sound(S_FOOTSTEP , "sounds/player/footstep" , 248, 300, 0, 5);
+        add_game_sound(S_SWIMSTEP , "sounds/player/swimstep" , 248, 200, 0, 4);
+        add_game_sound(S_PAIN     , "sounds/player/pain"     , 130, 200, 0, 6);
+        add_game_sound(S_DEATH    , "sounds/player/death"    , 200, 270, 0, 5);
+
+        // sfx
+        add_game_sound(S_SPLASH1    , "sounds/sfx/splashin"    , 128, 100, 0, 3);
+        add_game_sound(S_SPLASH2    , "sounds/sfx/splashout"   , 128, 100, 0, 3);
+        add_game_sound(S_SPLOSH     , "sounds/sfx/splosh"      , 128, 160, 0, 3);
+        add_game_sound(S_DEBRIS     , "sounds/sfx/debris"      , 128, 100, 0, 3);
+        add_game_sound(S_BURNLAVA   , "sounds/sfx/burning"     , 224, 100, 0, 0);
+        add_game_sound(S_EXTINGUISH , "sounds/sfx/extinguish"  , 156, 200, 0, 3);
+        add_game_sound(S_SHELL      , "sounds/sfx/shell"       ,  64, 100, 0, 6);
+        add_game_sound(S_ITEMUSE    , "sounds/sfx/itemuse"     , 128, 100, 0, 0);
+        add_game_sound(S_ITEMSPAWN  , "sounds/sfx/itemspawn"   , 192, 300, 0, 0);
+        add_game_sound(S_REGEN      , "sounds/sfx/regenerate"  , 210, 200, 0, 0);
+        add_game_sound(S_DAMAGE     , "sounds/sfx/damage"      , 128, 100, 0, 0); // (damage   0-9  )
+        add_game_sound(S_DAMAGE2    , "sounds/sfx/damage2"     , 128, 100, 0, 0); // (damage  10-24 )
+        add_game_sound(S_DAMAGE3    , "sounds/sfx/damage3"     , 128, 100, 0, 0); // (damage  25-49 )
+        add_game_sound(S_DAMAGE4    , "sounds/sfx/damage4"     , 128, 100, 0, 0); // (damage  50-74 )
+        add_game_sound(S_DAMAGE5    , "sounds/sfx/damage5"     , 128, 100, 0, 0); // (damage  75-99 )
+        add_game_sound(S_DAMAGE6    , "sounds/sfx/damage6"     , 128, 100, 0, 0); // (damage 100-149)
+        add_game_sound(S_DAMAGE7    , "sounds/sfx/damage7"     , 128, 100, 0, 0); // (damage 150-199)
+        add_game_sound(S_DAMAGE8    , "sounds/sfx/damage8"     , 128, 100, 0, 0); // (damage 200+   )
+        add_game_sound(S_BURNED     , "sounds/sfx/burndamage"  ,  50, 100, 0, 0);
+        add_game_sound(S_BLEED      , "sounds/sfx/bleeddamage" ,  50, 100, 0, 0);
+        add_game_sound(S_SHOCK      , "sounds/sfx/shockdamage" ,  50, 100, 0, 0);
+        add_game_sound(S_RESPAWN    , "sounds/sfx/respawn"     , 156, 200, 0, 0);
+        add_game_sound(S_CHAT       , "sounds/sfx/chat"        , 254, 200, 0, 0);
+        add_game_sound(S_ERROR      , "sounds/sfx/error"       , 230, 200, 0, 0);
+        add_game_sound(S_ALARM      , "sounds/sfx/alarm"       , 180, 200, 0, 0);
+        add_game_sound(S_CATCH      , "sounds/sfx/catch"       , 230, 280, 0, 0);
+        add_game_sound(S_BOUNCE     , "sounds/sfx/bounce"      , 248, 400, 0, 3);
+
+        // announcer
+        add_game_sound(S_V_FLAGSECURED   , "sounds/announcer/secured"   , 150);
+        add_game_sound(S_V_FLAGOVERTHROWN, "sounds/announcer/overthrown", 150);
+        add_game_sound(S_V_FLAGPICKUP    , "sounds/announcer/alert"     , 150);
+        add_game_sound(S_V_FLAGDROP      , "sounds/announcer/warning"   , 150);
+        add_game_sound(S_V_FLAGRETURN    , "sounds/announcer/returned"  , 150);
+        add_game_sound(S_V_FLAGSCORE     , "sounds/announcer/captured"  , 150);
+        add_game_sound(S_V_FLAGRESET     , "sounds/announcer/reset"     , 150);
+        add_game_sound(S_V_BOMBSTART     , "sounds/announcer/fight"     , 150);
+        add_game_sound(S_V_BOMBDUEL      , "sounds/announcer/alert"     , 150);
+        add_game_sound(S_V_BOMBPICKUP    , "sounds/announcer/secured"   , 150);
+        add_game_sound(S_V_BOMBSCORE     , "sounds/announcer/score"     , 150);
+        add_game_sound(S_V_BOMBRESET     , "sounds/announcer/reset"     , 150);
+        add_game_sound(S_V_NOTIFY        , "sounds/interface/back"      , 224);
+        add_game_sound(S_V_FIGHT         , "sounds/announcer/fight"     , 150);
+        add_game_sound(S_V_START         , "sounds/announcer/fight"     , 128);
+        add_game_sound(S_V_CHECKPOINT    , "sounds/announcer/checkpoint", 128);
+        add_game_sound(S_V_COMPLETE      , "sounds/announcer/score"     , 192);
+        add_game_sound(S_V_OVERTIME      , "sounds/announcer/overtime"  , 150);
+        add_game_sound(S_V_ONEMINUTE     , "sounds/announcer/oneminute" , 150);
+        add_game_sound(S_V_HEADSHOT      , "sounds/announcer/headshot"  , 150);
+        add_game_sound(S_V_SPREE         , "sounds/announcer/spree"     , 180);
+        add_game_sound(S_V_SPREE2        , "sounds/announcer/spree"     , 180);
+        add_game_sound(S_V_SPREE3        , "sounds/announcer/spree"     , 180);
+        add_game_sound(S_V_SPREE4        , "sounds/announcer/spreex"    , 180);
+        add_game_sound(S_V_MULTI         , "sounds/announcer/multikill" , 180);
+        add_game_sound(S_V_MULTI2        , "sounds/announcer/multikill2", 180);
+        add_game_sound(S_V_MULTI3        , "sounds/announcer/multikill3", 180);
+        add_game_sound(S_V_REVENGE       , "sounds/announcer/revenge"   , 180);
+        add_game_sound(S_V_DOMINATE      , "sounds/announcer/dominating", 180);
+        add_game_sound(S_V_FIRSTBLOOD    , "sounds/announcer/firstblood", 180);
+        add_game_sound(S_V_BREAKER       , "sounds/announcer/breaker"   , 180);
+        add_game_sound(S_V_YOUWIN        , "sounds/announcer/youwin"    , 150);
+        add_game_sound(S_V_YOULOSE       , "sounds/announcer/youlose"   , 150);
+        add_game_sound(S_V_DRAW          , "sounds/announcer/draw"      , 150);
+        add_game_sound(S_V_FRAGGED       , "sounds/announcer/fragged"   ,  80);
+        add_game_sound(S_V_BALWARN       , "sounds/announcer/warning"   , 150);
+        add_game_sound(S_V_BALALERT      , "sounds/announcer/alert"     , 150);
+
+        // weapons (fun fact, the claw uses the sounds from the sword)
+        /// claw ///
+        add_game_sound(WSND(W_CLAW, S_W_PRIMARY)        , "sounds/weapons/sword/primary"    , 205, 150);
+        add_game_sound(WSND(W_CLAW, S_W_SECONDARY)      , "sounds/weapons/sword/secondary"  , 205, 150);
+        add_game_sound(WSND(W_CLAW, S_W_POWER)          , "sounds/weapons/sword/power"      , 160, 100);
+        add_game_sound(WSND(W_CLAW, S_W_POWER2)         , "sounds/weapons/sword/power"      , 160, 100);
+        add_game_sound(WSND(W_CLAW, S_W_ZOOM)           , "sounds/weapons/sword/power"      , 160, 100);
+        add_game_sound(WSND(W_CLAW, S_W_SWITCH)         , "sounds/weapons/sword/switch"     , 185, 100);
+        add_game_sound(WSND(W_CLAW, S_W_RELOAD)         , "sounds/weapons/reload"           , 185, 100);
+        add_game_sound(WSND(W_CLAW, S_W_NOTIFY)         , "sounds/weapons/notify"           , 185, 100);
+        add_game_sound(WSND(W_CLAW, S_W_EXPLODE)        , "sounds/weapons/explode"          ,  32, 200, 0, 3);
+        add_game_sound(WSND(W_CLAW, S_W_EXPLODE2)       , "sounds/weapons/explode"          ,  32, 200, 0, 3);
+        add_game_sound(WSND(W_CLAW, S_W_IMPACT)         , "sounds/weapons/thwack"           , 192, 120, 0, 3);
+        add_game_sound(WSND(W_CLAW, S_W_IMPACT2)        , "sounds/weapons/thwack"           , 224, 160, 0, 3);
+        add_game_sound(WSND(W_CLAW, S_W_BOUNCE)         , "sounds/weapons/tink"             ,  12,  50);
+        add_game_sound(WSND(W_CLAW, S_W_BOUNCE2)        , "sounds/weapons/tink"             ,  12,  50);
+        /// pistol ///
+        add_game_sound(WSND(W_PISTOL, S_W_PRIMARY)      , "sounds/weapons/pistol/primary"   , 150, 180, 0, 3);
+        add_game_sound(WSND(W_PISTOL, S_W_SECONDARY)    , "sounds/weapons/pistol/secondary" , 150, 180, 0, 2);
+        add_game_sound(WSND(W_PISTOL, S_W_POWER)        , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_PISTOL, S_W_POWER2)       , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_PISTOL, S_W_ZOOM)         , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_PISTOL, S_W_SWITCH)       , "sounds/weapons/pistol/notify"    , 170,  80);
+        add_game_sound(WSND(W_PISTOL, S_W_RELOAD)       , "sounds/weapons/pistol/reload"    , 170,  80);
+        add_game_sound(WSND(W_PISTOL, S_W_NOTIFY)       , "sounds/weapons/pistol/notify"    , 170,  80);
+        add_game_sound(WSND(W_PISTOL, S_W_EXPLODE)      , "sounds/sfx/shell"                , 100,  50, 0, 6);
+        add_game_sound(WSND(W_PISTOL, S_W_EXPLODE2)     , "sounds/sfx/shell"                , 100,  50, 0, 6);
+        add_game_sound(WSND(W_PISTOL, S_W_DESTROY)      , "sounds/sfx/shell"                , 100,  50, 0, 6);
+        add_game_sound(WSND(W_PISTOL, S_W_DESTROY2)     , "sounds/sfx/shell"                , 100,  50, 0, 6);
+        add_game_sound(WSND(W_PISTOL, S_W_EXTINGUISH)   , "sounds/sfx/shell"                , 100,  50, 0, 6);
+        add_game_sound(WSND(W_PISTOL, S_W_EXTINGUISH2)  , "sounds/sfx/shell"                , 100,  50, 0, 6);
+        add_game_sound(WSND(W_PISTOL, S_W_BOUNCE)       , "sounds/weapons/ricochet"         ,  36,  80);
+        add_game_sound(WSND(W_PISTOL, S_W_BOUNCE2)      , "sounds/weapons/ricochet"         ,  36,  80);
+        /// sword ///
+        add_game_sound(WSND(W_SWORD, S_W_PRIMARY)       , "sounds/weapons/sword/primary"    , 205, 150);
+        add_game_sound(WSND(W_SWORD, S_W_SECONDARY)     , "sounds/weapons/sword/secondary"  , 205, 150);
+        add_game_sound(WSND(W_SWORD, S_W_POWER)         , "sounds/weapons/sword/power"      , 160, 100);
+        add_game_sound(WSND(W_SWORD, S_W_POWER2)        , "sounds/weapons/sword/power"      , 160, 100);
+        add_game_sound(WSND(W_SWORD, S_W_ZOOM)          , "sounds/weapons/sword/power"      , 160, 100);
+        add_game_sound(WSND(W_SWORD, S_W_SWITCH)        , "sounds/weapons/sword/switch"     , 185, 100);
+        add_game_sound(WSND(W_SWORD, S_W_RELOAD)        , "sounds/weapons/reload"           , 185, 100);
+        add_game_sound(WSND(W_SWORD, S_W_NOTIFY)        , "sounds/weapons/notify"           , 185, 100);
+        add_game_sound(WSND(W_SWORD, S_W_EXPLODE)       , "sounds/weapons/explode"          ,  32, 200, 0, 3);
+        add_game_sound(WSND(W_SWORD, S_W_EXPLODE2)      , "sounds/weapons/explode"          ,  32, 200, 0, 3);
+        add_game_sound(WSND(W_SWORD, S_W_IMPACT)        , "sounds/weapons/thwack"           , 192, 120, 0, 3);
+        add_game_sound(WSND(W_SWORD, S_W_IMPACT2)       , "sounds/weapons/thwack"           , 224, 160, 0, 3);
+        add_game_sound(WSND(W_SWORD, S_W_BOUNCE)        , "sounds/weapons/tink"             ,  12,  50);
+        add_game_sound(WSND(W_SWORD, S_W_BOUNCE2)       , "sounds/weapons/tink"             ,  12,  50);
+        add_game_sound(WSND(W_SWORD, S_W_USE)           ,  "sounds/weapons/sword/switch"    , 185, 100);
+        add_game_sound(WSND(W_SWORD, S_W_SPAWN)         , "sounds/sfx/itemspawn"            , 192, 150);
+        /// shotgun ///
+        add_game_sound(WSND(W_SHOTGUN, S_W_PRIMARY)     , "sounds/weapons/shotgun/primary"  , 200, 300, 0, 2);
+        add_game_sound(WSND(W_SHOTGUN, S_W_SECONDARY)   , "sounds/weapons/shotgun/secondary", 190, 300);
+        add_game_sound(WSND(W_SHOTGUN, S_W_POWER)       , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_SHOTGUN, S_W_POWER2)      , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_SHOTGUN, S_W_ZOOM)        , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_SHOTGUN, S_W_SWITCH)      , "sounds/weapons/shotgun/notify"   , 130, 100);
+        add_game_sound(WSND(W_SHOTGUN, S_W_RELOAD)      , "sounds/weapons/shotgun/reload"   , 150, 100);
+        add_game_sound(WSND(W_SHOTGUN, S_W_NOTIFY)      , "sounds/weapons/shotgun/notify"   , 110, 100);
+        add_game_sound(WSND(W_SHOTGUN, S_W_EXPLODE)     , "sounds/sfx/shell"                ,  80,  50, 0, 6);
+        add_game_sound(WSND(W_SHOTGUN, S_W_EXPLODE2)    , "sounds/weapons/shotgun/explode"  , 100, 100, 0, 2);
+        add_game_sound(WSND(W_SHOTGUN, S_W_DESTROY)     , "sounds/sfx/shell"                ,  80,  50, 0, 6);
+        add_game_sound(WSND(W_SHOTGUN, S_W_DESTROY2)    , "sounds/weapons/shotgun/explode"  , 100, 100, 0, 2);
+        add_game_sound(WSND(W_SHOTGUN, S_W_EXTINGUISH)  , "sounds/sfx/shell"                ,  40,  50, 0, 6);
+        add_game_sound(WSND(W_SHOTGUN, S_W_EXTINGUISH2) , "sounds/sfx/shell"                ,  80,  50, 0, 6);
+        add_game_sound(WSND(W_SHOTGUN, S_W_TRANSIT)     , "sounds/weapons/whizz"            ,  25,  40);
+        add_game_sound(WSND(W_SHOTGUN, S_W_BOUNCE)      , "sounds/sfx/shell"                , 170,  50, 0, 6);
+        add_game_sound(WSND(W_SHOTGUN, S_W_BOUNCE2)     , "sounds/sfx/shell"                , 170,  50, 0, 6);
+        add_game_sound(WSND(W_SHOTGUN, S_W_USE)         , "sounds/weapons/shotgun/notify"   , 130, 100);
+        add_game_sound(WSND(W_SHOTGUN, S_W_SPAWN)       , "sounds/sfx/itemspawn"            , 192, 150);
+        /// smg ///
+        add_game_sound(WSND(W_SMG, S_W_PRIMARY)         , "sounds/weapons/smg/primary"      , 210, 270);
+        add_game_sound(WSND(W_SMG, S_W_SECONDARY)       , "sounds/weapons/smg/secondary"    , 200, 270, 0, 3);
+        add_game_sound(WSND(W_SMG, S_W_POWER)           , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_SMG, S_W_POWER2)          , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_SMG, S_W_ZOOM)            , "sounds/weapons/rocket/power"     , 225, 100);
+        add_game_sound(WSND(W_SMG, S_W_SWITCH)          , "sounds/weapons/smg/notify"       , 180, 100);
+        add_game_sound(WSND(W_SMG, S_W_RELOAD)          , "sounds/weapons/smg/reload"       , 130, 100);
+        add_game_sound(WSND(W_SMG, S_W_NOTIFY)          , "sounds/weapons/smg/notify"       , 224, 100);
+        add_game_sound(WSND(W_SMG, S_W_EXPLODE)         , "sounds/weapons/shotgun/explode"  , 120, 200, 0, 2);
+        add_game_sound(WSND(W_SMG, S_W_EXPLODE2)        , "sounds/weapons/shotgun/explode"  , 120, 200, 0, 2);
+        add_game_sound(WSND(W_SMG, S_W_DESTROY)         , "sounds/weapons/bzap"             ,  48, 100);
+        add_game_sound(WSND(W_SMG, S_W_DESTROY2)        , "sounds/weapons/bzap"             ,  48, 100);
+        add_game_sound(WSND(W_SMG, S_W_EXTINGUISH)      , "sounds/sfx/shell"                , 170,  50, 0, 6);
+        add_game_sound(WSND(W_SMG, S_W_EXTINGUISH2)     , "sounds/sfx/shell"                , 170,  50, 0, 6);
+        add_game_sound(WSND(W_SMG, S_W_TRANSIT)         , "sounds/weapons/whizz"            ,  40,  50);
+        add_game_sound(WSND(W_SMG, S_W_TRANSIT2)        , "sounds/weapons/whizz"            ,  30,  50);
+        add_game_sound(WSND(W_SMG, S_W_BOUNCE)          , "sounds/sfx/shell"                , 170,  50, 0, 6);
+        add_game_sound(WSND(W_SMG, S_W_BOUNCE2)         , "sounds/sfx/shell"                , 170,  50, 0, 6);
+        add_game_sound(WSND(W_SMG, S_W_USE)             , "sounds/weapons/smg/notify"       , 180, 100);
+        add_game_sound(WSND(W_SMG, S_W_SPAWN)           , "sounds/sfx/itemspawn"            , 120, 150);
+        /// flamer ///
+        add_game_sound(WSND(W_FLAMER, S_W_PRIMARY)      , "sounds/weapons/flamer/primary"   , 230, 150);
+        add_game_sound(WSND(W_FLAMER, S_W_SECONDARY)    , "sounds/weapons/flamer/secondary" , 250, 170);
+        add_game_sound(WSND(W_FLAMER, S_W_POWER)        , "sounds/weapons/flamer/power"     , 220, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_POWER2)       , "sounds/weapons/flamer/power"     , 220, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_ZOOM)         , "sounds/weapons/flamer/power"     , 220, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_SWITCH)       , "sounds/weapons/flamer/notify"    , 180, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_RELOAD)       , "sounds/weapons/flamer/reload"    , 240, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_NOTIFY)       , "sounds/weapons/flamer/notify"    , 180, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_IMPACT)       , "sounds/weapons/singe"            , 156, 150, 0, 3);
+        add_game_sound(WSND(W_FLAMER, S_W_IMPACT2)      , "sounds/weapons/singe"            ,  98, 100, 0, 3);
+        add_game_sound(WSND(W_FLAMER, S_W_EXTINGUISH)   , "sounds/sfx/extinguish"           , 156, 200);
+        add_game_sound(WSND(W_FLAMER, S_W_EXTINGUISH2)  , "sounds/weapons/bzzt"             , 128, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_USE)          , "sounds/weapons/flamer/notify"    , 180, 100);
+        add_game_sound(WSND(W_FLAMER, S_W_SPAWN)        , "sounds/sfx/itemspawn"            , 192, 100);
+        /// plasma ///
+        add_game_sound(WSND(W_PLASMA, S_W_PRIMARY)      , "sounds/weapons/plasma/primary"   , 240, 280, 0, 3);
+        add_game_sound(WSND(W_PLASMA, S_W_SECONDARY)    , "sounds/weapons/plasma/secondary" , 200, 500);
+        add_game_sound(WSND(W_PLASMA, S_W_POWER)        , "sounds/weapons/plasma/power"     , 170, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_POWER2)       , "sounds/weapons/plasma/power"     , 170, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_ZOOM)         , "sounds/weapons/plasma/power"     , 170, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_SWITCH)       , "sounds/weapons/plasma/notify"    , 200, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_RELOAD)       , "sounds/weapons/plasma/reload"    , 170, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_NOTIFY)       , "sounds/weapons/plasma/notify"    , 200, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_EXPLODE)      , "sounds/weapons/energy"           , 128, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_EXPLODE2)     , "sounds/weapons/energy"           , 128, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_DESTROY)      , "sounds/weapons/energy"           , 128, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_DESTROY2)     , "sounds/weapons/energy"           , 128, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_IMPACT)       , "sounds/weapons/singe"            , 128, 100, 0, 3);
+        add_game_sound(WSND(W_PLASMA, S_W_EXTINGUISH)   , "sounds/sfx/extinguish"           , 156, 200);
+        add_game_sound(WSND(W_PLASMA, S_W_EXTINGUISH2)  , "sounds/sfx/extinguish"           , 156, 200);
+        add_game_sound(WSND(W_PLASMA, S_W_TRANSIT)      , "sounds/weapons/plasma/transit"   ,  50,  50);
+        add_game_sound(WSND(W_PLASMA, S_W_TRANSIT2)     , "sounds/weapons/plasma/transit"   , 128, 150);
+        add_game_sound(WSND(W_PLASMA, S_W_BOUNCE)       , "sounds/weapons/bzzt"             , 128, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_BOUNCE2)      , "sounds/weapons/bzzt"             , 128, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_USE)          , "sounds/weapons/plasma/notify"    , 200, 100);
+        add_game_sound(WSND(W_PLASMA, S_W_SPAWN)        , "sounds/sfx/itemspawn"            , 192, 100);
+        /// zapper ///
+        add_game_sound(WSND(W_ZAPPER, S_W_PRIMARY)    , "sounds/weapons/zapper/primary"     , 200, 250, 0, 4);
+        add_game_sound(WSND(W_ZAPPER, S_W_SECONDARY)  , "sounds/weapons/zapper/secondary"   , 200, 350);
+        add_game_sound(WSND(W_ZAPPER, S_W_POWER)      , "sounds/weapons/zapper/power"       , 170, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_POWER2)     , "sounds/weapons/zapper/power"       , 170, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_ZOOM)       , "sounds/weapons/zapper/power"       , 170, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_SWITCH)     , "sounds/weapons/zapper/notify"      , 200, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_RELOAD)     , "sounds/weapons/plasma/reload"      , 170, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_NOTIFY)     , "sounds/weapons/zapper/notify"      , 240, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_EXPLODE)    , "sounds/weapons/energy"             ,  64, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_EXPLODE2)   , "sounds/weapons/energy"             ,  64, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_EXTINGUISH) , "sounds/sfx/extinguish"             ,  64, 200);
+        add_game_sound(WSND(W_ZAPPER, S_W_EXTINGUISH2), "sounds/sfx/extinguish"             ,  64, 200);
+        add_game_sound(WSND(W_ZAPPER, S_W_BOUNCE)     , "sounds/weapons/bzzt"               , 128, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_BOUNCE2)    , "sounds/weapons/bzzt"               , 128, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_USE)        , "sounds/weapons/zapper/notify"      , 240, 100);
+        add_game_sound(WSND(W_ZAPPER, S_W_SPAWN)      , "sounds/sfx/itemspawn"              , 192, 100);
+        /// rifle ///
+        add_game_sound(WSND(W_RIFLE, S_W_PRIMARY)     , "sounds/weapons/rifle/primary"      , 245, 300, 0, 3);
+        add_game_sound(WSND(W_RIFLE, S_W_SECONDARY)   , "sounds/weapons/rifle/secondary"    , 220, 400);
+        add_game_sound(WSND(W_RIFLE, S_W_POWER)       , "sounds/weapons/plasma/power"       , 224, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_POWER2)      , "sounds/weapons/plasma/power"       , 224, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_ZOOM)        , "sounds/weapons/plasma/power"       , 224, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_SWITCH)      , "sounds/weapons/rifle/notify"       , 220, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_RELOAD)      , "sounds/weapons/rifle/reload"       , 125, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_NOTIFY)      , "sounds/weapons/rifle/notify"       , 190, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_EXPLODE)     , "sounds/weapons/rifle/explode"      , 200, 350, 0, 3);
+        add_game_sound(WSND(W_RIFLE, S_W_EXPLODE2)    , "sounds/weapons/rifle/explode"      , 200, 350, 0, 3);
+        add_game_sound(WSND(W_RIFLE, S_W_DESTROY)     , "sounds/weapons/energy"             , 128, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_DESTROY2)    , "sounds/weapons/energy"             , 128, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_EXTINGUISH)  , "sounds/sfx/extinguish"             , 156, 200);
+        add_game_sound(WSND(W_RIFLE, S_W_EXTINGUISH2) , "sounds/sfx/extinguish"             , 156, 200);
+        add_game_sound(WSND(W_RIFLE, S_W_TRANSIT)     , "sounds/weapons/rifle/transit"      , 156, 500);
+        add_game_sound(WSND(W_RIFLE, S_W_TRANSIT2)    , "sounds/weapons/rifle/transit"      , 156, 500);
+        add_game_sound(WSND(W_RIFLE, S_W_BOUNCE)      , "sounds/weapons/bzzt"               ,  64, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_BOUNCE2)     , "sounds/weapons/bzzt"               ,  64, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_USE)         , "sounds/weapons/rifle/notify"       , 220, 100);
+        add_game_sound(WSND(W_RIFLE, S_W_SPAWN)       , "sounds/sfx/itemspawn"              , 192, 150);
+        /// grenade ///
+        add_game_sound(WSND(W_GRENADE, S_W_PRIMARY)    , "sounds/weapons/grenade/primary"   , 128, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_SECONDARY)  , "sounds/weapons/grenade/primary"   , 128, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_POWER)      , "sounds/weapons/grenade/beep"      , 192, 100);
+        add_game_sound(WSND(W_GRENADE, S_W_POWER2)     , "sounds/weapons/grenade/beep"      , 192, 100);
+        add_game_sound(WSND(W_GRENADE, S_W_ZOOM)       , "sounds/weapons/grenade/beep"      , 192, 100);
+        add_game_sound(WSND(W_GRENADE, S_W_SWITCH)     , "sounds/weapons/grenade/switch"    , 105, 100);
+        add_game_sound(WSND(W_GRENADE, S_W_RELOAD)     , "sounds/weapons/reload"            , 192, 100);
+        add_game_sound(WSND(W_GRENADE, S_W_NOTIFY)     , "sounds/weapons/grenade/switch"    , 105, 100);
+        add_game_sound(WSND(W_GRENADE, S_W_EXPLODE)    , "sounds/weapons/explode"           , 224, 600, 0, 3);
+        add_game_sound(WSND(W_GRENADE, S_W_EXPLODE2)   , "sounds/weapons/explode"           , 224, 600, 0, 3);
+        add_game_sound(WSND(W_GRENADE, S_W_DESTROY)    , "sounds/weapons/explode"           , 224, 600, 0, 3);
+        add_game_sound(WSND(W_GRENADE, S_W_DESTROY2)   , "sounds/weapons/explode"           , 224, 600, 0, 3);
+        add_game_sound(WSND(W_GRENADE, S_W_EXTINGUISH) , "sounds/sfx/extinguish"            , 156, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_EXTINGUISH2), "sounds/sfx/extinguish"            , 156, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_TRANSIT)    , "sounds/weapons/grenade/beep"      , 192, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_TRANSIT2)   , "sounds/weapons/grenade/beep"      , 192, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_BOUNCE)     , "sounds/weapons/tink"              , 128, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_BOUNCE2)    , "sounds/weapons/tink"              , 128, 200);
+        add_game_sound(WSND(W_GRENADE, S_W_USE)        , "sounds/weapons/grenade/switch"    , 105, 100);
+        add_game_sound(WSND(W_GRENADE, S_W_SPAWN)      , "sounds/sfx/itemspawn"             , 192, 150);
+        /// mine ///
+        add_game_sound(WSND(W_MINE, S_W_PRIMARY)        , "sounds/weapons/grenade/primary", 128, 200);
+        add_game_sound(WSND(W_MINE, S_W_SECONDARY)      , "sounds/weapons/grenade/primary", 128, 200);
+        add_game_sound(WSND(W_MINE, S_W_POWER)          , "sounds/weapons/mine/beep"      , 156, 100);
+        add_game_sound(WSND(W_MINE, S_W_POWER2)         , "sounds/weapons/mine/beep"      , 156, 100);
+        add_game_sound(WSND(W_MINE, S_W_ZOOM)           , "sounds/weapons/mine/beep"      , 156, 100);
+        add_game_sound(WSND(W_MINE, S_W_SWITCH)         , "sounds/weapons/grenade/switch" , 105, 100);
+        add_game_sound(WSND(W_MINE, S_W_RELOAD)         , "sounds/weapons/reload"         , 192, 100);
+        add_game_sound(WSND(W_MINE, S_W_NOTIFY)         , "sounds/weapons/grenade/switch" , 105, 100);
+        add_game_sound(WSND(W_MINE, S_W_EXPLODE)        , "sounds/weapons/mine/explode"   , 224, 600, 0, 3);
+        add_game_sound(WSND(W_MINE, S_W_EXPLODE2)       , "sounds/weapons/mine/explode"   , 224, 600, 0, 3);
+        add_game_sound(WSND(W_MINE, S_W_DESTROY)        , "sounds/weapons/mine/explode"   , 224, 600, 0, 3);
+        add_game_sound(WSND(W_MINE, S_W_DESTROY2)       , "sounds/weapons/mine/explode"   , 224, 600, 0, 3);
+        add_game_sound(WSND(W_MINE, S_W_EXTINGUISH)     , "sounds/sfx/extinguish"         , 156, 200);
+        add_game_sound(WSND(W_MINE, S_W_EXTINGUISH2)    , "sounds/sfx/extinguish"         , 156, 200);
+        add_game_sound(WSND(W_MINE, S_W_TRANSIT)        , "sounds/weapons/mine/beep"      , 156, 100);
+        add_game_sound(WSND(W_MINE, S_W_TRANSIT2)       , "sounds/weapons/mine/beep"      , 156, 100);
+        add_game_sound(WSND(W_MINE, S_W_BOUNCE)         , "sounds/weapons/tink"           , 128, 200);
+        add_game_sound(WSND(W_MINE, S_W_BOUNCE2)        , "sounds/weapons/tink"           , 128, 200);
+        add_game_sound(WSND(W_MINE, S_W_USE)            , "sounds/weapons/grenade/switch" , 105, 100);
+        add_game_sound(WSND(W_MINE, S_W_SPAWN)          , "sounds/sfx/itemspawn"          , 192, 150);
+        /// rocket ///
+        add_game_sound(WSND(W_ROCKET, S_W_PRIMARY)      , "sounds/weapons/rocket/primary", 255, 400, 0, 3);
+        add_game_sound(WSND(W_ROCKET, S_W_SECONDARY)    , "sounds/weapons/rocket/primary", 255, 400, 0, 3);
+        add_game_sound(WSND(W_ROCKET, S_W_POWER)        , "sounds/weapons/rocket/power"  , 225, 100);
+        add_game_sound(WSND(W_ROCKET, S_W_POWER2)       , "sounds/weapons/rocket/power"  , 225, 100);
+        add_game_sound(WSND(W_ROCKET, S_W_ZOOM)         , "sounds/weapons/rocket/power"  , 225, 100);
+        add_game_sound(WSND(W_ROCKET, S_W_SWITCH)       , "sounds/weapons/rocket/reload" , 200, 100);
+        add_game_sound(WSND(W_ROCKET, S_W_RELOAD)       , "sounds/weapons/rocket/reload" , 250, 100);
+        add_game_sound(WSND(W_ROCKET, S_W_NOTIFY)       , "sounds/weapons/rocket/notify" , 255, 100);
+        add_game_sound(WSND(W_ROCKET, S_W_EXPLODE)      , "sounds/weapons/explode"       , 224, 800, 0, 3);
+        add_game_sound(WSND(W_ROCKET, S_W_EXPLODE2)     , "sounds/weapons/explode"       , 224, 800, 0, 3);
+        add_game_sound(WSND(W_ROCKET, S_W_DESTROY)      , "sounds/weapons/explode"       , 224, 800, 0, 3);
+        add_game_sound(WSND(W_ROCKET, S_W_DESTROY2)     , "sounds/weapons/explode"       , 224, 800, 0, 3);
+        add_game_sound(WSND(W_ROCKET, S_W_EXTINGUISH)   , "sounds/sfx/extinguish"        , 155, 200);
+        add_game_sound(WSND(W_ROCKET, S_W_EXTINGUISH2)  , "sounds/sfx/extinguish"        , 155, 200);
+        add_game_sound(WSND(W_ROCKET, S_W_TRANSIT)      , "sounds/weapons/rocket/transit", 255, 300);
+        add_game_sound(WSND(W_ROCKET, S_W_TRANSIT2)     , "sounds/weapons/rocket/transit", 255, 300);
+        add_game_sound(WSND(W_ROCKET, S_W_BOUNCE)       , "sounds/weapons/tink"          , 128, 200);
+        add_game_sound(WSND(W_ROCKET, S_W_BOUNCE2)      , "sounds/weapons/tink"          , 128, 200);
+        add_game_sound(WSND(W_ROCKET, S_W_USE)          , "sounds/weapons/rocket/notify" , 250, 100);
+        add_game_sound(WSND(W_ROCKET, S_W_SPAWN)        , "sounds/sfx/itemspawn"         , 192, 150);
+        /// melee ///
+        add_game_sound(WSND(W_MELEE, S_W_SWITCH )       , "sounds/weapons/switch"       , 156, 100);
+        add_game_sound(WSND(W_MELEE, S_W_RELOAD )       , "sounds/weapons/reload"       , 192, 100);
+        add_game_sound(WSND(W_MELEE, S_W_IMPACT )       , "sounds/weapons/thud"         , 192, 120, 0, 3);
+        add_game_sound(WSND(W_MELEE, S_W_IMPACT2)       , "sounds/weapons/thud"         , 224, 160, 0, 3);
+        add_game_sound(WSND(W_MELEE, S_W_BOUNCE )       , "sounds/weapons/ricochet"     ,  36,  80);
+        add_game_sound(WSND(W_MELEE, S_W_BOUNCE2)       , "sounds/weapons/ricochet"     ,  36,  80);
+
+
+    }
+    ICOMMAND(0, loadgamesounds, "", (), load_game_sounds());
+
+
     void vanityreset()
     {
         loopvrev(vanities) vanities.remove(i);

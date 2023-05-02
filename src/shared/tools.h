@@ -4,6 +4,9 @@
 #define _TOOLS_H
 #include <utility>
 #include <vector>
+#include <cstdarg>
+#include "enet/enet.h"
+#include "zlib.h"
 
 #ifdef NULL
 #undef NULL
@@ -581,12 +584,12 @@ static inline bool htcmp(int x, int y)
 }
 
 #ifndef STANDALONE
-static inline uint hthash(GLuint key)
+static inline uint hthash(uint key)
 {
     return key;
 }
 
-static inline bool htcmp(GLuint x, GLuint y)
+static inline bool htcmp(uint x, uint y)
 {
     return x==y;
 }
