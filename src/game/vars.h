@@ -225,7 +225,7 @@ GVAR(IDF_GAMEMOD, bleedtime, 0, 5500, VAR_MAX);
 GVAR(IDF_GAMEMOD, bleeddelay, 0, 1000, VAR_MAX);
 GVAR(IDF_GAMEMOD, bleeddamage, 0, 3, VAR_MAX);
 GVAR(IDF_GAMEMOD, shocktime, 0, 5500, VAR_MAX);
-GVAR(IDF_GAMEMOD, shockdelay, 0, 1000, VAR_MAX);
+GVAR(IDF_GAMEMOD, shockdelay, 1, 1000, VAR_MAX);
 GVAR(IDF_GAMEMOD, shockdamage, 0, 2, VAR_MAX);
 GVAR(IDF_GAMEMOD, shockstun, 0, W_N_ST, W_N_ALL);
 GFVAR(IDF_GAMEMOD, shockstunscale, 0, 0.5f, FVAR_MAX);

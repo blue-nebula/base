@@ -951,12 +951,20 @@ namespace game
                     int millis = lastmillis-d->lastres[WR_SHOCK];
                     size_t seed = size_t(d) + (millis/50);
                     float pc = 1, amt = (millis%50)/50.0f, intensity = 0.75f+(detrnd(seed, 25)*(1-amt) + detrnd(seed + 1, 25)*amt)/100.f;
-                    if(shocktime-millis < shockdelay) pc *= float(shocktime-millis)/float(shockdelay);
+                    // When playing on servers with an older version, shockdelay can be 0, thus avoid division by zero by enforcing new lower boundary
+                    int fixed_shockdelay = std::max(shockdelay, 1);
+                    if(shocktime - millis < fixed_shockdelay)
+                    {
+                        pc *= float(shocktime - millis) / float(fixed_shockdelay);
+                    }
                     else
                     {
-                        float fluc = float(millis%shockdelay)*(0.25f+0.03f)/shockdelay;
-                        if(fluc >= 0.25f) fluc = (0.25f+0.03f-fluc)*(0.25f/0.03f);
-                        pc *= 0.75f+fluc;
+                        float fluc = float(millis % fixed_shockdelay) * (0.25f + 0.03f) / fixed_shockdelay;
+                        if (fluc >= 0.25f) 
+                        {
+                            fluc = (0.25f + 0.03f - fluc) * (0.25f / 0.03f);
+                        }
+                        pc *= 0.75f + fluc;
                     }
                     adddynlight(d->center(), d->height*intensity*pc, rescolour(d, PULSE_SHOCK).mul(pc), 0, 0, DL_KEEP);
                 }
