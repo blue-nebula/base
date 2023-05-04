@@ -45,7 +45,7 @@ enum
 };
 
 // sounds when picking up weapons
-enum
+enum : int
 {
     S_WEAPONS   = S_GAME,
     S_CLAW      = S_WEAPONS,
