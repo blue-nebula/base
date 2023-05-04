@@ -72,7 +72,7 @@ struct vec
 {
     union
     {
-        struct { float x, y, z; };
+        struct { float x = 0, y = 0, z = 0; };
         struct { float r, g, b; };
         float v[3];
     };

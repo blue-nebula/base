@@ -100,27 +100,22 @@ struct baseent
 struct physent : baseent                        // can be affected by physics
 {
     vec deltapos, newpos;
-    float speed, weight;
+    float speed = 100, weight = 100;
     int airmillis, floormillis;
-    float radius, height, aboveeye;             // bounding box size
-    float xradius, yradius, zradius, zmargin;
+    float radius = 3, height = 14, aboveeye = 1;             // bounding box size
+    float xradius = 3, yradius = 3, zradius = height, zmargin = 0;
     vec floor;                                  // the normal of floor the dynent is on
 
     bool blocked, inliquid, onladder, forcepos;
-    float curscale, speedscale;
+    float curscale = 1, speedscale = 1;
     char move, strafe;
 
     uchar physstate;                            // one of PHYS_* above
-    uchar type;                                 // one of ENT_* above
-    uchar collidetype;                          // one of COLLIDE_* above
+    uchar type = ENT_INANIMATE;                 // one of ENT_* above
+    uchar collidetype = COLLIDE_ELLIPSE;        // one of COLLIDE_* above
 
-    physent() : speed(100), weight(100), radius(3), aboveeye(1),
-        xradius(3), yradius(3), zradius(14), zmargin(0), curscale(1), speedscale(1),
-        type(ENT_INANIMATE),
-        collidetype(COLLIDE_ELLIPSE)
-    {
+    physent() {
         reset();
-        height = zradius;
     }
 
     void resetinterp(bool force = false)

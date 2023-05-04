@@ -143,7 +143,7 @@ namespace aiman
                 if(skill > m || skill < n) s = (m != n ? botrnd(ci, 2, m-n) + n + 1 : m);
                 ci->skill = clamp(s, 1, 101);
                 copystring(ci->name, AA(ci->actortype, vname), MAXNAMELEN);
-                ci->loadweap.shrink(0);
+                ci->loadweap.clear();
                 if(ci->actortype == A_BOT)
                 {
                     const char *list = ci->model ? G(botfemalenames) : G(botmalenames);
@@ -159,7 +159,7 @@ namespace aiman
                         }
                     }
                     ci->setvanity(ci->model ? G(botfemalevanities) : G(botmalevanities));
-                    ci->loadweap.add(botrnd(ci, 8, W_LOADOUT)+W_OFFSET);
+                    ci->loadweap.emplace_back(botrnd(ci, 8, W_LOADOUT)+W_OFFSET);
                 }
                 ci->state = CS_DEAD;
                 ci->team = type == A_BOT ? T_NEUTRAL : T_ENEMY;
@@ -214,7 +214,7 @@ namespace aiman
         else if(ci->aireinit >= 1)
         {
             if(ci->aireinit == 2) loopk(W_MAX) loopj(2) ci->weapshots[k][j].reset();
-            sendf(-1, 1, "ri6si3siv", N_INITAI, ci->clientnum, ci->ownernum, ci->actortype, ci->spawnpoint, ci->skill, ci->name, ci->team, ci->colour, ci->model, ci->vanity, ci->loadweap.length(), ci->loadweap.length(), ci->loadweap.getbuf());
+            sendf(-1, 1, "ri6si3siv", N_INITAI, ci->clientnum, ci->ownernum, ci->actortype, ci->spawnpoint, ci->skill, ci->name, ci->team, ci->colour, ci->model, ci->vanity, ci->loadweap.size(), ci->loadweap.size(), ci->loadweap.data());
             if(ci->aireinit == 2)
             {
                 waiting(ci, DROP_RESET);

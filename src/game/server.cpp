@@ -3380,12 +3380,10 @@ namespace server
             {
                 std::vector<std::string> prev;
                 explodelist(sv_previousmaps, prev);
-                loopvrev(prev) if(prev[i] == smapname)
-                {
+                loopvrev(prev) if (prev[i] == smapname) {
                     prev.erase( prev.begin() + i );
                 }
-                while(prev.size() >= G(maphistory))
-                {
+                while (prev.size() >= static_cast<size_t>(G(maphistory))) {
                     prev.pop_back();
                 }
                 loopv(prev)
@@ -3395,7 +3393,10 @@ namespace server
                 }
                 prev.clear();
             }
-            if(!buf.empty()) setmods(sv_previousmaps, buf.c_str());
+
+            if (!buf.empty()) {
+                setmods(sv_previousmaps, buf.c_str());
+            }
         }
         else setmods(sv_previousmaps, "");
 
@@ -3777,7 +3778,7 @@ namespace server
                 putint(p, ci->colour);
                 putint(p, ci->model);
                 sendstring(ci->vanity, p);
-                putint(p, ci->loadweap.length());
+                putint(p, ci->loadweap.size());
                 loopv(ci->loadweap) putint(p, ci->loadweap[i]);
             }
         }
@@ -3792,9 +3793,9 @@ namespace server
             putint(p, ci->privilege);
             sendstring(ci->name, p);
             sendstring(ci->vanity, p);
-            putint(p, ci->loadweap.length());
+            putint(p, ci->loadweap.size());
             loopv(ci->loadweap) putint(p, ci->loadweap[i]);
-            putint(p, ci->randweap.length());
+            putint(p, ci->randweap.size());
             loopv(ci->randweap) putint(p, ci->randweap[i]);
             sendstring(ci->handle, p);
             sendstring(allow ? gethostip(ci->clientnum) : "*", p); // TODO proto 231
@@ -5729,18 +5730,24 @@ namespace server
                         getstring(text, p);
                         ci->setvanity(text);
                         int lw = getint(p);
-                        ci->loadweap.shrink(0);
+                        ci->loadweap.clear();
                         loopk(lw)
                         {
-                            if(k >= W_LOADOUT) getint(p);
-                            else ci->loadweap.add(getint(p));
+                            if (k >= W_LOADOUT) {
+                                getint(p);
+                            } else {
+                                ci->loadweap.emplace_back(getint(p));
+                            }
                         }
                         int rw = getint(p);
-                        ci->randweap.shrink(0);
+                        ci->randweap.clear();
                         loopk(rw)
                         {
-                            if(k >= W_LOADOUT) getint(p);
-                            else ci->randweap.add(getint(p));
+                            if (k >= W_LOADOUT) {
+                                getint(p);
+                            } else {
+                                ci->randweap.emplace_back(getint(p));
+                            }
                         }
 
                         string password = "", authname = "";
@@ -6518,20 +6525,23 @@ namespace server
                     ci->checkpointspawn = max(getint(p), 0);
                     getstring(text, p);
                     ci->setvanity(text);
-                    ci->loadweap.shrink(0);
+                    ci->loadweap.clear();
                     int lw = getint(p);
                     vector<int> lweaps;
                     loopk(lw)
                     {
                         if(k >= W_LOADOUT) getint(p);
-                        else ci->loadweap.add(getint(p));
+                        else ci->loadweap.emplace_back(getint(p));
                     }
-                    ci->randweap.shrink(0);
+                    ci->randweap.clear();
                     int rw = getint(p);
                     loopk(rw)
                     {
-                        if(k >= W_LOADOUT) getint(p);
-                        else ci->randweap.add(getint(p));
+                        if (k >= W_LOADOUT) {
+                            getint(p);
+                        } else {
+                            ci->randweap.emplace_back(getint(p));
+                        }
                     }
                     ci->lastplayerinfo = totalmillis ? totalmillis : 1;
                     QUEUE_STR(ci->name);
@@ -6539,9 +6549,9 @@ namespace server
                     QUEUE_INT(ci->model);
                     QUEUE_INT(ci->checkpointspawn);
                     QUEUE_STR(ci->vanity);
-                    QUEUE_INT(ci->loadweap.length());
+                    QUEUE_INT(ci->loadweap.size());
                     loopvk(ci->loadweap) QUEUE_INT(ci->loadweap[k]);
-                    QUEUE_INT(ci->randweap.length());
+                    QUEUE_INT(ci->randweap.size());
                     loopvk(ci->randweap) QUEUE_INT(ci->randweap[k]);
                     break;
                 }

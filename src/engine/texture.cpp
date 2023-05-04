@@ -2338,7 +2338,6 @@ static void texcombine(Slot &s, int index, Slot::Tex &t, bool forceload = false)
 {
     vector<char> key;
     addname(key, s, t);
-    int texmask = 0;
     if(!forceload) switch(t.type)
     {
         case TEX_DIFFUSE:
@@ -2346,7 +2345,6 @@ static void texcombine(Slot &s, int index, Slot::Tex &t, bool forceload = false)
         {
             int i = findtextype(s, t.type==TEX_DIFFUSE ? (1<<TEX_SPEC) : (1<<TEX_DEPTH));
             if(i<0) break;
-            texmask |= 1<<s.sts[i].type;
             s.sts[i].combined = index;
             addname(key, s, s.sts[i], true);
             break;

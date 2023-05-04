@@ -1050,7 +1050,7 @@ namespace physics
             { \
                 int col = (int(mcol[2]*mq) + (int(mcol[1]*mq) << 8) + (int(mcol[0]*mq) << 16)); \
                 regularshape(mp, mt, col, 21, 20, mz, mo, ms, 1, 10, 0, 20); \
-                if(mw >= 0) playsound(mw, mo, pl); \
+                if((mw) >= 0) playsound(mw, mo, pl); \
             }
             if(curmat == MAT_WATER || oldmat == MAT_WATER)
             {

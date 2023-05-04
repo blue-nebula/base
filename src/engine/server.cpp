@@ -2,6 +2,7 @@
 // runs dedicated or as client coroutine
 
 #include "engine.h"
+#include <atomic>
 #include <signal.h>
 
 #ifdef WIN32
@@ -1884,7 +1885,7 @@ void shutdownsignal(int signum)
 }
 
 #ifdef STANDALONE
-volatile int errors = 0;
+std::atomic<unsigned short> errors {0};
 void fatal(const char *s, ...)    // failure exit
 {
     if(++errors <= 2) // print up to one extra recursive error
