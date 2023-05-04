@@ -1,5 +1,6 @@
 // main.cpp: initialisation & main loop
 #include "engine.h"
+#include <atomic>
 #include <signal.h>
 
 string caption = "";
@@ -115,7 +116,7 @@ void quit()                  // normal exit
     exit(EXIT_SUCCESS);
 }
 
-volatile int errors = 0;
+std::atomic<unsigned short> errors {0};
 void fatal(const char *s, ...)    // failure exit
 {
     if(++errors <= 2) // print up to one extra recursive error
