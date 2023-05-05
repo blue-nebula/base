@@ -186,7 +186,6 @@ namespace entities
                 switch(attr[0])
                 {
                     case 4: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
-                    {
                         if(attr[1] >= 256)
                         {
                             bool hasval = true;
@@ -212,8 +211,7 @@ namespace entities
                             if(val%64 >= 32) addentinfo("inverted");
                             break;
                         }
-                        // fall through
-                    }
+                        [[fallthrough]];
                     case 1: case 2:
                     {
                         switch(attr[1]%3)
@@ -578,27 +576,34 @@ namespace entities
         {
             e.lastemit = lastmillis;
             d->setused(n, lastmillis);
-            switch(e.attrs[1])
-            {
-                case TR_EXIT: if(d->actortype >= A_BOT) break;
-                case TR_TOGGLE: case TR_LINK: case TR_ONCE:
-                {
-                    client::addmsg(N_TRIGGER, "ri2", d->clientnum, n);
-                    if(!e.spawned() || e.attrs[1] == TR_TOGGLE) setspawn(n, e.spawned() ? 0 : 1);
+            switch (e.attrs[1]) {
+            case TR_EXIT:
+                if (d->actortype >= A_BOT) {
                     break;
                 }
-                case TR_SCRIPT:
-                {
-                    if(d == &game::player1)
-                    {
-                        defformatstring(s, "on_trigger_%d", e.attrs[0]);
-                        trigger = d; RUNWORLD(s); trigger = NULL;
+                [[fallthrough]];
+            case TR_TOGGLE:
+            case TR_LINK:
+            case TR_ONCE:
+                    client::addmsg(N_TRIGGER, "ri2", d->clientnum, n);
+                    if (!e.spawned() || e.attrs[1] == TR_TOGGLE) {
+                        setspawn(n, e.spawned() ? 0 : 1);
                     }
                     break;
-                }
-                default: break;
+            case TR_SCRIPT:
+                    if (d == &game::player1) {
+                        defformatstring(s, "on_trigger_%d", e.attrs[0]);
+                        trigger = d;
+                        RUNWORLD(s);
+                        trigger = NULL;
+                    }
+                    break;
+            default:
+                    break;
             }
-            if(act && e.attrs[2] == TA_ACTION) d->action[AC_USE] = false;
+            if (act && e.attrs[2] == TA_ACTION) {
+                    d->action[AC_USE] = false;
+            }
         }
     }
 
@@ -741,15 +746,19 @@ namespace entities
                             switch(g->projtype)
                             {
                                 case PRJ_ENT: case PRJ_AFFINITY:
-                                {
                                     if(!g->beenused)
                                     {
                                         g->beenused = 1;
                                         g->lifetime = min(g->lifetime, g->fadetime);
                                     }
-                                    if(g->lifetime > 0) break;
-                                }
-                                default: g->state = CS_DEAD; g->escaped = true; break;
+                                    if (g->lifetime > 0) {
+                                        break;
+                                    }
+                                    [[fallthrough]];
+                                default:
+                                    g->state = CS_DEAD;
+                                    g->escaped = true;
+                                    break;
                             }
                         }
                         else d->state = CS_DEAD;
@@ -997,11 +1006,13 @@ namespace entities
                 while(e.attrs[3] > 180) e.attrs[3] -= 360; // roll
                 while(e.attrs[4] < 0) e.attrs[4] += 101;
                 while(e.attrs[4] > 100) e.attrs[4] -= 101; // blend
-                if(e.attrs[5] < 0) e.attrs[5] = 0;
+                if (e.attrs[5] < 0) {
+                    e.attrs[5] = 0;
+                }
+                break;
             case PARTICLES:
             case MAPSOUND:
             case LIGHTFX:
-            {
                 e.nextemit = 0;
                 loopv(e.links) if(ents.inrange(e.links[i]))
                 {
@@ -1012,7 +1023,6 @@ namespace entities
                     break;
                 }
                 break;
-            }
             case LIGHT:
             {
                 if(e.attrs[0] < 0) e.attrs[0] = 0;
@@ -1751,13 +1761,24 @@ namespace entities
                     {
                         switch(e.attrs[0])
                         {
-                            case 0: if(e.attrs[3] <= 0) break;
+                        case 0:
+                            if (e.attrs[3] <= 0) {
+                                        break;
+                            }
+                            [[fallthrough]];
                             case 4: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 5: case 6:
                                 e.attrs[3] = (((e.attrs[3]&0xF)<<4)|((e.attrs[3]&0xF0)<<8)|((e.attrs[3]&0xF00)<<12))+0x0F0F0F;
-                                if(e.attrs[0] != 5 && e.attrs[0] != 6) break;
+                                if (e.attrs[0] != 5 && e.attrs[0] != 6) {
+                                    break;
+                                }
+                                [[fallthrough]];
                             case 3:
-                                e.attrs[2] = (((e.attrs[2]&0xF)<<4)|((e.attrs[2]&0xF0)<<8)|((e.attrs[2]&0xF00)<<12))+0x0F0F0F; break;
-                            default: break;
+                                e.attrs[2] = (((e.attrs[2] & 0xF) << 4) | ((e.attrs[2] & 0xF0) << 8) |
+                                              ((e.attrs[2] & 0xF00) << 12)) +
+                                             0x0F0F0F;
+                                break;
+                            default:
+                                break;
                         }
                     }
                     break;
@@ -1968,6 +1989,7 @@ namespace entities
                         break;
                     case WEAPON:
                         loopj(3) e.attrs[j+3] = ents[i]->attrs[j+2]; // mode, muts, id
+                        break;
                     default:
                         e.attrs[1] = (i%8)*45;
                         break;

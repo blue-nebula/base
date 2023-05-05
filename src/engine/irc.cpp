@@ -820,16 +820,19 @@ bool ircaddsockets(ENetSocket &maxsock, ENetSocketSet &readset, ENetSocketSet &w
     loopv(ircnets)
     {
         ircnet *n = ircnets[i];
-        if(n->sock != ENET_SOCKET_NULL && n->state > IRC_DISC) switch(n->state)
-        {
+        if (n->sock != ENET_SOCKET_NULL && n->state > IRC_DISC) {
+            switch (n->state) {
             case IRC_WAIT:
                 ENET_SOCKETSET_ADD(writeset, n->sock);
-                // fall-through
-            case IRC_ONLINE: case IRC_CONN: case IRC_QUIT:
+                [[fallthrough]];
+            case IRC_ONLINE:
+            case IRC_CONN:
+            case IRC_QUIT:
                 maxsock = maxsock == ENET_SOCKET_NULL ? n->sock : max(maxsock, n->sock);
                 ENET_SOCKETSET_ADD(readset, n->sock);
                 numsocks++;
                 break;
+            }
         }
     }
     return numsocks > 0;
@@ -934,15 +937,15 @@ void ircslice()
                     break;
                 }
                 case IRC_ONLINE:
-                {
-                    loopvj(n->channels)
-                    {
+                    loopvj(n->channels) {
                         ircchan *c = &n->channels[j];
-                        if(c->type == IRCCT_AUTO && c->state != IRCC_JOINED && (!c->lastjoin || clocktime-c->lastjoin >= (c->state != IRCC_BANNED ? 5 : ircautorejoin)))
-                            ircjoin(n, c);
+                        if (c->type == IRCCT_AUTO && c->state != IRCC_JOINED &&
+                            (!c->lastjoin ||
+                             clocktime - c->lastjoin >= (c->state != IRCC_BANNED ? 5 : ircautorejoin))) {
+                        ircjoin(n, c);
+                        }
                     }
-                    // fall through
-                }
+                    [[fallthrough]];
                 case IRC_CONN:
                 {
                     if(n->state == IRC_CONN && (!n->lastattempt || clocktime-n->lastattempt >= irctimeout))

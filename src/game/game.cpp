@@ -988,9 +988,13 @@ namespace game
         int num = int((effect ? 3 : 10)*impulsescale);
         switch(effect)
         {
-            case 0: playsound(S_IMPULSE, d->o, d); // fail through
-            case 1: if(num > 0 && impulsefade > 0) loopi(3) boosteffect(d, d->jet[i], num, impulsefade, effect==0);
-                    break;
+        case 0:
+            playsound(S_IMPULSE, d->o, d);
+            [[fallthrough]];
+        case 1:
+            if (num > 0 && impulsefade > 0)
+                loopi(3) boosteffect(d, d->jet[i], num, impulsefade, effect == 0);
+            break;
         }
     }
 
@@ -3337,7 +3341,11 @@ namespace game
                     if(t > 1000) animflags = ANIM_DEAD|ANIM_LOOP|ANIM_NOPITCH;
                     break;
                 }
-                case 3: if(m_duke(gamemode, mutators)) return;
+                case 3:
+                    if (m_duke(gamemode, mutators)) {
+                        return;
+                    }
+                    break;
                 case 2:
                 {
                     if(!validragdoll(d, lastaction)) animflags |= ANIM_RAGDOLL;

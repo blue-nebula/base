@@ -635,7 +635,8 @@ namespace projs
                     int vol = clamp(int(proj.vel.magnitude()*proj.curscale)*2, 0, 255);
                     if(vol > 0) playsound(S_SPLOSH, proj.o, NULL, 0, vol);
                     break;
-                } // otherwise fall through
+                }
+                [[fallthrough]];
             }
             case PRJ_DEBRIS: case PRJ_VANITY:
             {
@@ -732,20 +733,27 @@ namespace projs
         float size = 1;
         switch(proj.projtype)
         {
-            case PRJ_AFFINITY: break;
-            case PRJ_GIBS: case PRJ_DEBRIS: case PRJ_EJECT: case PRJ_VANITY: size = proj.lifesize;
-            case PRJ_ENT:
-                if(init) break;
-                else if(proj.lifemillis && proj.fadetime)
-                {
-                    int interval = min(proj.lifemillis, proj.fadetime);
-                    if(proj.lifetime < interval)
-                    {
-                        size *= float(proj.lifetime)/float(interval);
-                        break;
-                    }
-                } // all falls through to ..
-            default: return false;
+        case PRJ_AFFINITY:
+            break;
+        case PRJ_GIBS:
+        case PRJ_DEBRIS:
+        case PRJ_EJECT:
+        case PRJ_VANITY:
+            size = proj.lifesize;
+            [[fallthrough]];
+        case PRJ_ENT:
+            if (init)
+                break;
+            else if (proj.lifemillis && proj.fadetime) {
+                int interval = min(proj.lifemillis, proj.fadetime);
+                if (proj.lifetime < interval) {
+                    size *= float(proj.lifetime) / float(interval);
+                    break;
+                }
+            }
+            [[fallthrough]];
+        default:
+            return false;
         }
         size = clamp(size*proj.curscale, 0.1f, 1.f);
         model *m = NULL;
@@ -883,7 +891,8 @@ namespace projs
                     proj.extinguish = 6;
                     proj.interacts = 3;
                     break;
-                } // otherwise fall through
+                }
+                [[fallthrough]];
             }
             case PRJ_DEBRIS:
             {
@@ -1594,6 +1603,7 @@ namespace projs
                     part_create(PART_SMOKE, 75, proj.o, 0x222222, max(proj.xradius, proj.yradius), clamp(1.f-proj.lifespan, 0.1f, 1.f)*0.35f, -3);
                     proj.lasteffect = lastmillis - (lastmillis%100);
                 }
+                break;
             }
             case PRJ_AFFINITY:
             {
@@ -2022,8 +2032,11 @@ namespace projs
         {
             case PRJ_SHOT:
             {
-                if(proj.stuck) break;
-                if(proj.weap == W_MINE)
+                if(proj.stuck) {
+                    break;
+                }
+
+                if (proj.weap == W_MINE)
                 {
                     if(!proj.lastbounce || proj.movement >= 1)
                     {
@@ -2044,7 +2057,10 @@ namespace projs
                     vectoyawpitch(vec(proj.vel).normalize(), proj.yaw, proj.pitch);
                     break;
                 }
-                if(proj.weap != W_GRENADE) break;
+                if (proj.weap != W_GRENADE) {
+                    break;
+                }
+                [[fallthrough]];
             }
             case PRJ_DEBRIS: case PRJ_GIBS: case PRJ_AFFINITY: case PRJ_VANITY:
             {
@@ -2057,7 +2073,10 @@ namespace projs
                     if(proj.vel.dot2(axis) >= 0) { proj.roll -= diff; if(proj.roll < -180) proj.roll = 180 - fmod(180 - proj.roll, 360); }
                     else { proj.roll += diff; if(proj.roll > 180) proj.roll = fmod(proj.roll + 180, 360) - 180; }
                 }
-                if(proj.projtype != PRJ_VANITY) break;
+                if (proj.projtype != PRJ_VANITY)
+                    break;
+
+                [[fallthrough]];
             }
             case PRJ_EJECT:
                 if(!proj.lastbounce || proj.movement >= 1)
@@ -2065,8 +2084,8 @@ namespace projs
                     vec axis(sinf(proj.yaw*RAD), -cosf(proj.yaw*RAD), 0);
                     if(proj.vel.dot2(axis) >= 0) { proj.pitch -= diff; if(proj.pitch < -180) proj.pitch = 180 - fmod(180 - proj.pitch, 360); }
                     else { proj.pitch += diff; if(proj.pitch > 180) proj.pitch = fmod(proj.pitch + 180, 360) - 180; }
-                    break;
                 }
+                break;
             case PRJ_ENT:
             {
                 if(proj.pitch != 0)
@@ -2112,26 +2131,23 @@ namespace projs
                     if(WF(WK(proj.flags), proj.weap, guided, WS(proj.flags))%2 && proj.target && proj.target->state == CS_ALIVE)
                         proj.dest = proj.target->center();
                     gameent *t = NULL;
-                    switch(WF(WK(proj.flags), proj.weap, guided, WS(proj.flags)))
-                    {
-                        case 2: case 3: default:
-                        {
-                            if(proj.owner && proj.owner->state == CS_ALIVE)
-                            {
-                                vec dest;
-                                findorientation(proj.owner->o, proj.owner->yaw, proj.owner->pitch, dest);
-                                t = game::intersectclosest(proj.owner->o, dest, proj.owner);
-                                break;
-                            } // otherwise..
-                        }
-                        case 4: case 5:
-                        {
-                            float yaw, pitch;
-                            vectoyawpitch(dir, yaw, pitch);
-                            vec dest; findorientation(proj.o, yaw, pitch, dest);
-                            t = game::intersectclosest(proj.o, dest, proj.owner);
+                    switch (WF(WK(proj.flags), proj.weap, guided, WS(proj.flags))) {
+                    default:
+                        if (proj.owner && proj.owner->state == CS_ALIVE) {
+                            vec dest;
+                            findorientation(proj.owner->o, proj.owner->yaw, proj.owner->pitch, dest);
+                            t = game::intersectclosest(proj.owner->o, dest, proj.owner);
                             break;
                         }
+                        [[fallthrough]];
+                    case 4:
+                    case 5:
+                        float yaw, pitch;
+                        vectoyawpitch(dir, yaw, pitch);
+                        vec dest;
+                        findorientation(proj.o, yaw, pitch, dest);
+                        t = game::intersectclosest(proj.o, dest, proj.owner);
+                        break;
                     }
                     if(t && (!m_team(game::gamemode, game::mutators) || (t->type != ENT_PLAYER && t->type != ENT_AI) || ((gameent *)t)->team != proj.owner->team))
                     {
@@ -2282,15 +2298,16 @@ namespace projs
                 {
                     if(proj.projtype == PRJ_SHOT && WF(WK(proj.flags), proj.weap, collide, WS(proj.flags))&COLLIDE_HITSCAN ? !raymove(proj) : !move(proj)) switch(proj.projtype)
                     {
-                        case PRJ_ENT: case PRJ_AFFINITY:
-                        {
-                            if(!proj.beenused)
-                            {
-                                proj.beenused = 1;
-                                proj.lifetime = min(proj.lifetime, proj.fadetime);
-                            }
-                            if(proj.lifetime > 0) break;
-                        }
+                        case PRJ_ENT:
+                        case PRJ_AFFINITY:
+                                if (!proj.beenused) {
+                                    proj.beenused = 1;
+                                    proj.lifetime = min(proj.lifetime, proj.fadetime);
+                                }
+                                if (proj.lifetime > 0) {
+                                    break;
+                                }
+                                [[fallthrough]];
                         default: proj.state = CS_DEAD; proj.escaped = true; break;
                     }
                 }
@@ -2530,8 +2547,8 @@ namespace projs
                     {
                         float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, proj.curscale, min(16.f, min(min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.movement), proj.o.dist(proj.from))));
                         adddynlight(proj.o, 1.25f*size*trans, FWCOL(P, partcol, proj));
-                        break;
                     }
+                    break;
                 }
                 case W_FLAMER: case W_PLASMA: case W_GRENADE: case W_ROCKET:
                 {

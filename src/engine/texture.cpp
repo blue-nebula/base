@@ -481,15 +481,21 @@ void texmix(ImageData &s, int c1, int c2, int c3, int c4)
     int numchans = c1 < 0 ? 0 : (c2 < 0 ? 1 : (c3 < 0 ? 2 : (c4 < 0 ? 3 : 4)));
     if(numchans <= 0) return;
     ImageData d(s.w, s.h, numchans);
-    readwritetex(d, s,
-        switch(numchans)
-        {
-            case 4: dst[3] = src[c4];
-            case 3: dst[2] = src[c3];
-            case 2: dst[1] = src[c2];
-            case 1: dst[0] = src[c1];
-        }
-    );
+    readwritetex(
+        d, s, switch (numchans) {
+            case 4:
+                dst[3] = src[c4];
+                [[fallthrough]];
+            case 3:
+                dst[2] = src[c3];
+                [[fallthrough]];
+            case 2:
+                dst[1] = src[c2];
+                [[fallthrough]];
+            case 1:
+                dst[0] = src[c1];
+                break;
+        });
     s.replace(d);
 }
 

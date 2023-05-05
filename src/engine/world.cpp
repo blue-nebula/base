@@ -51,8 +51,8 @@ bool getentboundingbox(const extentity &e, ivec &o, ivec &r)
                 radius.max(entselradius);
                 o = ivec(vec(center).sub(radius));
                 r = ivec(vec(center).add(radius).add(1));
-                break;
             }
+            break;
         }
         // invisible mapmodels use entselradius
         default:
@@ -85,8 +85,7 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
             switch(e.type)
             {
                 case ET_MAPMODEL:
-                    if(loadmapmodel(e.attrs[0]))
-                    {
+                    if (loadmapmodel(e.attrs[0])) {
                         if(va)
                         {
                             va->bbmin.x = -1;
@@ -95,8 +94,8 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
                         oe.mapmodels.add(id);
                         oe.bbmin.min(bo).max(oe.o);
                         oe.bbmax.max(br).min(ivec(oe.o).add(oe.size));
-                        break;
                     }
+                    break;
                     // invisible mapmodel
                 default:
                     oe.other.add(id);
@@ -110,8 +109,7 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
             switch(e.type)
             {
                 case ET_MAPMODEL:
-                    if(loadmapmodel(e.attrs[0]))
-                    {
+                    if (loadmapmodel(e.attrs[0])) {
                         oe.mapmodels.removeobj(id);
                         if(va)
                         {
@@ -132,8 +130,8 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
                         }
                         oe.bbmin.max(oe.o);
                         oe.bbmax.min(ivec(oe.o).add(oe.size));
-                        break;
                     }
+                    break;
                     // invisible mapmodel
                 default:
                     oe.other.removeobj(id);

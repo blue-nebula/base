@@ -1688,19 +1688,19 @@ void makeparticle(const vec &o, attrvector &attr)
             regularflame(type, o, float(attr[1])/100.0f, float(attr[2])/100.0f, attr[3], density, attr[4] > 0 ? attr[4] : fademap[attr[0]-14], attr[5] != 0 ? attr[5]/100.f : sizemap[attr[0]-14], 1, attr[6] != 0 ? attr[6] : gravmap[attr[0]-14], 0, attr[7] != 0 ? attr[7] : velmap[attr[0]-14]);
             break;
         }
-        case 6: //meter, metervs - <percent> <rgb> <rgb2>
-        {
-            float length = clamp(attr[1], 0, 100)/100.f;
-            part_icon(o, textureload(hud::progresstex, 3), 2, 1, 0, 0, 1, partcolour(attr[3], attr[6], attr[7]), length, 1-length); // fall through
+        case 6 : {// meter, metervs - <percent> <rgb> <rgb2>
+            float length = clamp(attr[1], 0, 100) / 100.f;
+            part_icon(o, textureload(hud::progresstex, 3), 2, 1, 0, 0, 1, partcolour(attr[3], attr[6], attr[7]), length,
+                      1 - length);
+            [[fallthrough]];
         }
-        case 5:
-        {
-            float length = clamp(attr[1], 0, 100)/100.f;
+        case 5: {
+            float length = clamp(attr[1], 0, 100) / 100.f;
             int colour = partcolour(attr[2], attr[4], attr[5]);
-            part_icon(o, textureload(hud::progringtex, 3), 3, 1, 0, 0, 1, colour, (totalmillis%1000)/1000.f, 0.1f);
+            part_icon(o, textureload(hud::progringtex, 3), 3, 1, 0, 0, 1, colour, (totalmillis % 1000) / 1000.f, 0.1f);
             part_icon(o, textureload(hud::progresstex, 3), 3, 1, 0, 0, 1, colour, 0, length);
-            break;
         }
+        break;
         case 32: //lens flares - plain/sparkle/sun/sparklesun <red> <green> <blue>
         case 33:
         case 34:

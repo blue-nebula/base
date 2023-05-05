@@ -1146,7 +1146,7 @@ namespace hud
                     spin = 0;
                     break;
                 }
-                // falls through
+                [[fallthrough]];
             }
             case W_S_SWITCH:
             {
@@ -1211,8 +1211,10 @@ namespace hud
                             {
                                 val -= game::focus->weapload[weap]/float(W(weap, ammomax));
                                 break;
+                            } else if (game::focus->weapstate[weap] == W_S_RELOAD) {
+                                break;
                             }
-                            else if(game::focus->weapstate[weap] == W_S_RELOAD) break;
+                            [[fallthrough]];
                         case W_S_SWITCH:
                         {
                             float amt = clamp(float(interval)/float(game::focus->weapwait[weap]), 0.f, 1.f);
@@ -3170,9 +3172,12 @@ namespace hud
                 {
                     case 3:
                         cy[1] -= draw_textf("%d max", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, maxfps);
+                        break;
                     case 2:
                         cy[1] -= draw_textf("+%d-%d range", cx[1], cy[1], 0, 0, 255, 255, 255, bf, TEXT_RIGHT_UP, -1, bs, 1, maxfps, curstats[9], curstats[10]);
-                    default: break;
+                        break;
+                    default:
+                        break;
                 }
             }
 

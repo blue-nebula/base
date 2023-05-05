@@ -506,8 +506,10 @@ bool interceptkey(int sym, int mod)
     while(pollevent(event)) switch(event.type)
     {
         case SDL_KEYDOWN:
-            if(event.key.keysym.sym == sym && (!mod || SDL_GetModState()&mod))
+            if (event.key.keysym.sym == sym && (!mod || SDL_GetModState()&mod)) {
                 return true;
+            }
+            [[fallthrough]];
         default:
             pushevent(event);
             break;

@@ -2168,8 +2168,7 @@ namespace server
                 else if(m_play(gamemode) && m_team(gamemode, mutators) && (!m_race(gamemode) || m_ra_gauntlet(gamemode, mutators)) && !spawns[ci->team].ents.empty()) team = ci->team;
                 else switch(rotate)
                 {
-                    case 2:
-                    { // random
+                    case 2: // random
                         static vector<int> lowest;
                         lowest.setsize(0);
                         loopv(spawns[team].cycle) if(lowest.empty() || spawns[team].cycle[i] <= spawns[team].cycle[lowest[0]])
@@ -2183,8 +2182,7 @@ namespace server
                             spawns[team].current = lowest[lowest.length() >= 2 ? rnd(lowest.length()) : 0];
                             break;
                         }
-                        // fall through if this fails..
-                    }
+                        [[fallthrough]];
                     case 1:
                     { // sequential
                         if(++spawns[team].current >= spawns[team].ents.length()) spawns[team].current = 0;
@@ -3293,7 +3291,11 @@ namespace server
                 break;
             }
             case ALST_SPEC: return ci->actortype == A_PLAYER; // spec
-            case ALST_WALK: if(ci->state != CS_EDITING) return false;
+            case ALST_WALK:
+                if (ci->state != CS_EDITING) {
+                    return false;
+                }
+                break;
             case ALST_EDIT: // edit on/off
             {
                 if(ci->quarantine || (ci->state == CS_SPECTATOR && numclients(ci->clientnum, true) >= G(serverclients)) || ci->actortype != A_PLAYER || !m_edit(gamemode)) return false;
@@ -5105,7 +5107,6 @@ namespace server
                 switch(gamestate)
                 {
                     case G_S_WAITING: // start check
-                    {
                         if(!G(waitforplayermaps))
                         {
                             gamewaittime = totalmillis+G(waitforplayertime);
@@ -5135,8 +5136,7 @@ namespace server
                             sendtick();
                             break;
                         }
-                        // fall through
-                    }
+                        [[fallthrough]];
                     case G_S_GETMAP: // waiting for server
                     {
                         if(!gamewaittime)
@@ -5159,7 +5159,6 @@ namespace server
                         break;
                     }
                     case G_S_SENDMAP: // waiting for players
-                    {
                         if(!gamewaittime)
                         {
                             gamewaittime = totalmillis+G(waitforplayermaps);
@@ -5169,8 +5168,7 @@ namespace server
                         gamewaittime = totalmillis+G(waitforplayertime);
                         gamestate = G_S_READYING;
                         sendtick();
-                        // fall through
-                    }
+                        [[fallthrough]];
                     case G_S_READYING: // waiting for ready
                     {
                         if(!gamewaittime)
@@ -5204,7 +5202,6 @@ namespace server
                         break;
                     }
                     case G_S_GAMEINFO:
-                    {
                         if(!gamewaittime)
                         {
                             gamewaittime = totalmillis+G(waitforplayerinfo);
@@ -5225,9 +5222,9 @@ namespace server
                                     sendf(cs->clientnum, 1, "ri", N_GETGAMEINFO);
                                     asked++;
                                 }
-                                if(!asked) srvoutf(4, "\fyno game information response, and nobody to ask, giving up..");
-                                else
-                                {
+                                if (!asked) {
+                                    srvoutf(4, "\fyno game information response, and nobody to ask, giving up..");
+                                } else {
                                     srvoutf(4, "\fyno game information response, broadcasting..");
                                     gamewaittime = totalmillis+G(waitforplayerinfo);
                                     sendtick();
@@ -5237,8 +5234,10 @@ namespace server
                             else srvoutf(4, "\fyno broadcast game information response, giving up..");
                         }
                         mapgameinfo = -1;
-                    }
-                    default: gamestate = G_S_PLAYING; break;
+                        [[fallthrough]];
+                    default:
+                        gamestate = G_S_PLAYING;
+                        break;
                 }
                 if(gamestate == G_S_PLAYING)
                 {
@@ -6347,7 +6346,11 @@ namespace server
                                     commit = kin = true;
                                     break;
                                 }
-                                case TR_ONCE: if(sents[ent].spawned) break;
+                                case TR_ONCE:
+                                    if (sents[ent].spawned) {
+                                        break;
+                                    }
+                                    [[fallthrough]];
                                 case TR_LINK:
                                 {
                                     sents[ent].millis = gamemillis+(triggertime(ent)*2);

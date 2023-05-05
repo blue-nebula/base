@@ -1559,10 +1559,13 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
         bool more = compileword(code, p, VAL_ANY, idname, idlen);
         if(!more) goto endstatement;
         skipcomments(p);
-        if(p[0] == '=') switch(p[1])
-        {
+        if (p[0] == '=') {
+            switch(p[1]) {
             case '/':
-                if(p[2] != '/') break;
+                if (p[2] != '/') {
+                    break;
+                }
+                [[fallthrough]];
             case ';': case ' ': case '\t': case '\r': case '\n': case '\0':
                 p++;
                 if(idname)
@@ -1574,6 +1577,8 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
                 if(!(more = compilearg(code, p, VAL_ANY))) compilestr(code);
                 code.add(id && idname ? (id->index < MAXARGS ? CODE_ALIASARG : CODE_ALIAS)|(id->index<<8) : CODE_ALIASU);
                 goto endstatement;
+                break;
+            }
         }
         numargs = 0;
         if(!idname)

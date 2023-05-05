@@ -785,8 +785,9 @@ namespace client
                 defformatstring(str, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch);
                 result(str);
             }
+            break;
             case -2: result(plat_name(d->version.platform)); break;
-            case -1: intret(14);
+            case -1: intret(14); break;
             case 0: intret(d->version.major); break;
             case 1: intret(d->version.minor); break;
             case 2: intret(d->version.patch); break;
@@ -1328,6 +1329,7 @@ namespace client
                 break;
             case -2:
                 conoutf("waiting for server to request the map..");
+                [[fallthrough]];
             default:
                 emptymap(0, true, name);
                 needsmap = totalmillis;
@@ -3071,6 +3073,7 @@ namespace client
                         t->checkpoint = -1;
                         t->cpmillis = ent == -2 ? lastmillis : 0;
                     }
+                    break;
                 }
 
                 case N_SCORE:
@@ -3319,6 +3322,7 @@ namespace client
                     else bc = 0;
 
                     retsw(ac, bc, true);
+                    break;
                 }
                 case SINFO_MUTS:
                 {

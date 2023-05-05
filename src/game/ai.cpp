@@ -995,12 +995,16 @@ namespace ai
             {
                 if(!n)
                 {
-                    switch(wpspot(d, d->ai->route[n], true))
-                    {
-                        case 2: d->ai->clear(false);
-                        case 1: return true; // not close enough to pop it yet
-                        case 0: default: break;
-                    }
+                switch (wpspot(d, d->ai->route[n], true)) {
+                case 2:
+                    d->ai->clear(false);
+                    break;
+                case 1:
+                    return true; // not close enough to pop it yet
+                    break;
+                default:
+                    break;
+                }
                 }
                 else
                 {
