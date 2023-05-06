@@ -33,8 +33,8 @@ bool BIH::triintersect(const mesh &m, int tidx, const vec &mo, const vec &mray, 
     {
         vec2 at = m.gettc(t.vert[0]), bt = m.gettc(t.vert[1]).sub(at).mul(v*invdet), ct = m.gettc(t.vert[2]).sub(at).mul(w*invdet);
         at.add(bt).add(ct);
-        int si = clamp(int(m.tex->xs * at.x), 0, m.tex->xs-1),
-            ti = clamp(int(m.tex->ys * at.y), 0, m.tex->ys-1);
+        int si = std::clamp(int(m.tex->xs * at.x), 0, m.tex->xs-1),
+            ti = std::clamp(int(m.tex->ys * at.y), 0, m.tex->ys-1);
         if(!(m.tex->alphamask[ti*((m.tex->xs+7)/8) + si/8] & (1<<(si%8)))) return false;
     }
     if(!(mode&RAY_SHADOW)) hitsurface = m.xformnorm.transform(n).normalize();

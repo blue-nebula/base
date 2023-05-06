@@ -17,7 +17,7 @@ namespace hud
     vector<dhloc> damagelocs, hitlocs;
     VAR(IDF_PERSIST, damageresiduefade, 0, 500, VAR_MAX);
 
-    ICOMMAND(0, conout, "is", (int *n, char *s), conoutft(clamp(*n, 0, CON_MAX-1), "%s", s));
+    ICOMMAND(0, conout, "is", (int *n, char *s), conoutft(std::clamp(*n, 0, CON_MAX-1), "%s", s));
 
     VAR(IDF_PERSIST, showhud, 0, 1, 1);
     VAR(IDF_PERSIST, hudsize, 0, 2048, VAR_MAX);
@@ -771,13 +771,13 @@ namespace hud
             case 2: amt = motionbluramt; break;
             default: break;
         }
-        return clamp(amt, motionblurmin, motionblurmax)*scale;
+        return std::clamp(amt, motionblurmin, motionblurmax)*scale;
     }
 
     void damage(int n, const vec &loc, gameent *v, int weap, int flags)
     {
         if(!n) return;
-        damageresidue = clamp(damageresidue+(n*(flags&HIT_BLEED ? 3 : 1)), 0, 200);
+        damageresidue = std::clamp(damageresidue+(n*(flags&HIT_BLEED ? 3 : 1)), 0, 200);
         int colour = radardamagecolour;
         if(game::nogore || game::bloodscale <= 0) colour = 0xFF44FF;
         else if(wr_burns(weap, flags)) colour = radardamageburncolour;
@@ -957,21 +957,21 @@ namespace hud
         {
             case W_S_POWER: case W_S_ZOOM:
             {
-                amt = clamp(float(millis)/float(game::focus->weapwait[weap]), 0.f, 1.f);
+                amt = std::clamp(float(millis)/float(game::focus->weapwait[weap]), 0.f, 1.f);
                 colourskew(r, g, b, amt);
                 break;
             }
             case W_S_RELOAD:
             {
                 if(showindicator < (W(weap, ammoadd) < W(weap, ammomax) ? 3 : 2)) return;
-                amt = 1.f-clamp(float(millis)/float(game::focus->weapwait[weap]), 0.f, 1.f);
+                amt = 1.f-std::clamp(float(millis)/float(game::focus->weapwait[weap]), 0.f, 1.f);
                 colourskew(r, g, b, 1.f-amt);
                 break;
             }
             case W_S_PRIMARY: case W_S_SECONDARY:
             {
                 if(showindicator < 4 || game::focus->weapwait[weap] < indicatorminattack) return;
-                amt = 1.f-clamp(float(millis)/float(game::focus->weapwait[weap]), 0.f, 1.f);
+                amt = 1.f-std::clamp(float(millis)/float(game::focus->weapwait[weap]), 0.f, 1.f);
                 colourskew(r, g, b, 1.f-amt);
                 break;
             }
@@ -985,7 +985,7 @@ namespace hud
         gle::colorf(val*4.f, val*4.f, val*4.f, indicatorblend*hudblend*val);
         drawsized(x-s, y-s, s*2);
         gle::colorf(r, g, b, indicatorblend*hudblend);
-        drawslice(0, clamp(amt, 0.f, 1.f), x, y, s);
+        drawslice(0, std::clamp(amt, 0.f, 1.f), x, y, s);
     }
 
     void vecfromyaw(float yaw, int move, int strafe, vec2 &m)
@@ -1077,8 +1077,8 @@ namespace hud
         bool simple = showclips == 1 || maxammo > 360;
         float fade = clipblend*hudblend, size = s*clipsize*(simple ? 1.f : clipskew[weap]), offset = s*clipoffset, amt = 0, spin = 0,
               slice = 360/float(maxammo), angle = (simple || maxammo > (cliprots[weap]&4 ? 4 : 3) || maxammo%2 ? 360.f : 360.f-slice*0.5f)-((maxammo-ammo)*slice),
-              area = 1-clamp(clipoffs[weap]*2, 1e-3f, 1.f), need = s*clipsize*clipskew[weap]*area*maxammo, have = 2*M_PI*s*clipoffset,
-              scale = clamp(have/need, clipminscale, clipmaxscale);
+              area = 1-std::clamp(clipoffs[weap]*2, 1e-3f, 1.f), need = s*clipsize*clipskew[weap]*area*maxammo, have = 2*M_PI*s*clipoffset,
+              scale = std::clamp(have/need, clipminscale, clipmaxscale);
         vec c(1, 1, 1);
         if(clipstone) skewcolour(c.r, c.g, c.b, clipstone);
         if(clipcolour) skewcolour(c.r, c.g, c.b, W(weap, colour));
@@ -1086,7 +1086,7 @@ namespace hud
         {
             case W_S_PRIMARY: case W_S_SECONDARY:
             {
-                amt = 1.f-clamp(interval/float(game::focus->weapwait[weap]), 0.f, 1.f);
+                amt = 1.f-std::clamp(interval/float(game::focus->weapwait[weap]), 0.f, 1.f);
                 fade *= amt;
                 if(clipanims)
                 {
@@ -1114,7 +1114,7 @@ namespace hud
                     int check = game::focus->weapwait[weap]/2;
                     if(interval >= check)
                     {
-                        amt = clamp((interval-check)/float(check), 0.f, 1.f);
+                        amt = std::clamp((interval-check)/float(check), 0.f, 1.f);
                         fade *= amt;
                         if(clipanims)
                         {
@@ -1150,7 +1150,7 @@ namespace hud
             }
             case W_S_SWITCH:
             {
-                amt = clamp(interval/float(game::focus->weapwait[weap]), 0.f, 1.f);
+                amt = std::clamp(interval/float(game::focus->weapwait[weap]), 0.f, 1.f);
                 fade *= amt;
                 if(clipanims && game::focus->weapstate[weap] != W_S_RELOAD)
                 {
@@ -1195,7 +1195,7 @@ namespace hud
                     break;
                 case 1:
                     if(!m_impulsemeter(game::gamemode, game::mutators)) continue;
-                    val = 1-clamp(float(game::focus->impulse[IM_METER])/float(impulsemeter), 0.f, 1.f);
+                    val = 1-std::clamp(float(game::focus->impulse[IM_METER])/float(impulsemeter), 0.f, 1.f);
                     if(circlebarimpulsetone) skewcolour(c.r, c.g, c.b, circlebarimpulsetone);
                     break;
                 case 2:
@@ -1217,7 +1217,7 @@ namespace hud
                             [[fallthrough]];
                         case W_S_SWITCH:
                         {
-                            float amt = clamp(float(interval)/float(game::focus->weapwait[weap]), 0.f, 1.f);
+                            float amt = std::clamp(float(interval)/float(game::focus->weapwait[weap]), 0.f, 1.f);
                             fade *= amt;
                             val *= amt;
                             break;
@@ -1246,7 +1246,7 @@ namespace hud
                     {
                         case W_S_PRIMARY: case W_S_SECONDARY:
                         {
-                            float amt = 1.f-clamp(float(interval)/float(game::focus->weapwait[weap]), 0.f, 1.f);
+                            float amt = 1.f-std::clamp(float(interval)/float(game::focus->weapwait[weap]), 0.f, 1.f);
                             fade *= amt;
                             val = (game::focus->weapshot[weap] ? game::focus->weapshot[weap] : 1)/float(W(weap, ammomax))*amt;
                             break;
@@ -1258,7 +1258,7 @@ namespace hud
                                 int check = game::focus->weapwait[weap]/2;
                                 if(interval >= check)
                                 {
-                                    float amt = clamp(float(interval-check)/float(check), 0.f, 1.f);
+                                    float amt = std::clamp(float(interval-check)/float(check), 0.f, 1.f);
                                     fade *= amt;
                                     val = game::focus->weapload[weap]/float(W(weap, ammomax))*amt;
                                 }
@@ -1337,12 +1337,12 @@ namespace hud
             if(crosshairflash && game::focus->state == CS_ALIVE && game::focus->health < heal)
             {
                 int millis = lastmillis%1000;
-                float amt = (millis <= 500 ? millis/500.f : 1.f-((millis-500)/500.f))*clamp(float(heal-game::focus->health)/float(heal), 0.f, 1.f);
+                float amt = (millis <= 500 ? millis/500.f : 1.f-((millis-500)/500.f))*std::clamp(float(heal-game::focus->health)/float(heal), 0.f, 1.f);
                 flashcolour(c.r, c.g, c.b, 1.f, 0.f, 0.f, amt);
             }
             if(crosshairthrob > 0 && regentime && game::focus->lastregen && lastmillis-game::focus->lastregen <= regentime)
             {
-                float skew = clamp((lastmillis-game::focus->lastregen)/float(regentime/2), 0.f, 2.f);
+                float skew = std::clamp((lastmillis-game::focus->lastregen)/float(regentime/2), 0.f, 2.f);
                 cs += int(cs*(skew > 1.f ? 1.f-skew : skew)*(crosshairthrob*(game::focus->lastregenamt >= 0 ? 1 : -1)));
             }
             if(showcrosshair >= 2)
@@ -1727,7 +1727,7 @@ namespace hud
                     switch(game::focus->icons[i].type)
                     {
                         case eventicon::WEAPON: colour = W(game::focus->icons[i].value, colour); break;
-                        case eventicon::AFFINITY: colour = m_bomber(game::gamemode) ? pulsecols[PULSE_DISCO][clamp((totalmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)] : TEAM(game::focus->icons[i].value, colour); break;
+                        case eventicon::AFFINITY: colour = m_bomber(game::gamemode) ? pulsecols[PULSE_DISCO][std::clamp((totalmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)] : TEAM(game::focus->icons[i].value, colour); break;
                         default: break;
                     }
                     glBindTexture(GL_TEXTURE_2D, t->id);
@@ -1806,7 +1806,7 @@ namespace hud
             loopvj(refs)
             {
                 int len = !full && conlines[refs[j]].type > CON_CHAT ? chatcontime/2 : chatcontime;
-                float f = full || !chatconfade ? 1.f : clamp(((len+chatconfade)-(totalmillis-conlines[refs[j]].reftime))/float(chatconfade), 0.f, 1.f),
+                float f = full || !chatconfade ? 1.f : std::clamp(((len+chatconfade)-(totalmillis-conlines[refs[j]].reftime))/float(chatconfade), 0.f, 1.f),
                     g = conlines[refs[j]].type > CON_CHAT ? conblend : chatconblend;
                 if(chatcondate && *chatcondateformat)
                     tz += draw_textf("%s %s", tr, ty-tz, 0, 0, 255, 255, 255, int(fade*f*g*255), TEXT_LEFT_UP, -1, ts, 1, gettime(conlines[refs[j]].realtime, chatcondateformat), conlines[refs[j]].cref)*f;
@@ -1856,7 +1856,7 @@ namespace hud
                 loopvrev(refs)
                 {
                     int len = !full && conlines[refs[i]].type < CON_IMPORTANT ? contime/2 : contime;
-                    float f = full || !confade ? 1.f : clamp(((len+confade)-(totalmillis-conlines[refs[i]].reftime))/float(confade), 0.f, 1.f),
+                    float f = full || !confade ? 1.f : std::clamp(((len+confade)-(totalmillis-conlines[refs[i]].reftime))/float(confade), 0.f, 1.f),
                         g = full ? fullconblend  : (conlines[refs[i]].type >= CON_IMPORTANT ? selfconblend : conblend);
                     if(condate && *condateformat)
                         tz += draw_textf("%s %s", tr, ty+tz, 0, 0, 255, 255, 255, int(fade*f*g*255), concenter ? TEXT_CENTERED : TEXT_LEFT_JUSTIFY, -1, ts, 1, gettime(conlines[refs[i]].realtime, condateformat), conlines[refs[i]].cref)*f;
@@ -2042,7 +2042,7 @@ namespace hud
     {
         if(style < 0) style = radartype();
         vec dir = vec(pos).sub(camera1->o);
-        float dist = clamp(dir.magnitude()/float(radarrange()), 0.f, 1.f);
+        float dist = std::clamp(dir.magnitude()/float(radarrange()), 0.f, 1.f);
         dir.rotate_around_z(-camera1->yaw*RAD).normalize();
         vec loc(0, 0, 0);
         if(style == 2)
@@ -2208,14 +2208,14 @@ namespace hud
                 tex = chattex;
             }
 
-            float fade = (force || killer || self || dominated ? 1.f : clamp(1.f-(dist/float(radarrange())), isdominated ? 0.25f : 0.f, 1.f))*blend, size = killer || self ? 1.5f : (isdominated ? 1.25f : 1.f);
+            float fade = (force || killer || self || dominated ? 1.f : std::clamp(1.f-(dist/float(radarrange())), isdominated ? 0.25f : 0.f, 1.f))*blend, size = killer || self ? 1.5f : (isdominated ? 1.25f : 1.f);
             if(!self && (d->state == CS_DEAD || d->state == CS_WAITING))
             {
                 int millis = d->lastdeath ? lastmillis-d->lastdeath : 0;
                 if(millis > 0)
                 {
                     int len = min(m_delay(d->actortype, game::gamemode, game::mutators, d->team), 2500);
-                    if(len > 0) fade *= clamp(float(len-millis)/float(len), 0.f, 1.f);
+                    if(len > 0) fade *= std::clamp(float(len-millis)/float(len), 0.f, 1.f);
                     else return;
                 }
                 else return;
@@ -2224,9 +2224,9 @@ namespace hud
             else if(d->state == CS_ALIVE)
             {
                 int len = m_protect(game::gamemode, game::mutators), millis = d->protect(lastmillis, len);
-                if(millis > 0) fade *= clamp(float(len-millis)/float(len), 0.f, 1.f);
+                if(millis > 0) fade *= std::clamp(float(len-millis)/float(len), 0.f, 1.f);
                 if(!force && !killer && !self && !dominated)
-                    fade *= clamp(vec(d->vel).add(d->falling).magnitude()/movespeed, 0.f, 1.f);
+                    fade *= std::clamp(vec(d->vel).add(d->falling).magnitude()/movespeed, 0.f, 1.f);
             }
             loopi(2)
             {
@@ -2263,7 +2263,7 @@ namespace hud
             }
             const char *tex = bliptex;
             vec colour(1, 1, 1);
-            float fade = insel ? 1.f : clamp(1.f-(dist/float(radarrange())), 0.1f, 1.f), size = radarblipsize;
+            float fade = insel ? 1.f : std::clamp(1.f-(dist/float(radarrange())), 0.1f, 1.f), size = radarblipsize;
             if(type == WEAPON)
             {
                 int attr1 = w_attr(game::gamemode, game::mutators, type, attr[0], m_weapon(game::focus->actortype, game::gamemode, game::mutators));
@@ -2334,9 +2334,9 @@ namespace hud
             gameent *e = game::getclient(d.clientnum);
             if(!radardamageself && e == game::focus) continue;
             float amt = millis >= radardamagetime ? 1.f-(float(millis-radardamagetime)/float(radardamagefade)) : float(millis)/float(radardamagetime),
-                range = clamp(max(d.damage, radardamagemin)/float(max(radardamagemax-radardamagemin, 1)), radardamagemin/100.f, 1.f),
-                fade = clamp(radardamageblend*blend, min(radardamageblend*radardamagemin/100.f, 1.f), radardamageblend)*amt,
-                size = clamp(range*radardamagesize, min(radardamagesize*radardamagemin/100.f, 1.f), radardamagesize)*amt;
+                range = std::clamp(max(d.damage, radardamagemin)/float(max(radardamagemax-radardamagemin, 1)), radardamagemin/100.f, 1.f),
+                fade = std::clamp(radardamageblend*blend, min(radardamageblend*radardamagemin/100.f, 1.f), radardamageblend)*amt,
+                size = std::clamp(range*radardamagesize, min(radardamagesize*radardamagemin/100.f, 1.f), radardamagesize)*amt;
             vec dir = d.dir, colour = d.colour < 0 ? game::rescolour(game::focus, INVPULSE(d.colour)) : vec::hexcolor(d.colour);
             if(e == game::focus) d.dir = vec(e->yaw*RAD, 0.f).neg();
             vec o = vec(camera1->o).add(vec(dir).mul(radarrange()));
@@ -2459,7 +2459,7 @@ namespace hud
     int drawprogress(int x, int y, float start, float length, float size, bool left, float r, float g, float b, float fade, float skew, const char *font, const char *text, ...)
     {
         if(skew <= 0.f) return 0;
-        float q = clamp(skew, 0.f, 1.f), cr = r*q, cg = g*q, cb = b*q, s = size*skew, cs = s/2, cx = left ? x+cs : x-cs, cy = y-cs;
+        float q = std::clamp(skew, 0.f, 1.f), cr = r*q, cg = g*q, cb = b*q, s = size*skew, cs = s/2, cx = left ? x+cs : x-cs, cy = y-cs;
         gle::colorf(cr, cg, cb, fade);
         settexture(progringtex, 3);
         drawslice((SDL_GetTicks()%1000)/1000.f, 0.1f, cx, cy, cs);
@@ -2493,7 +2493,7 @@ namespace hud
 
     int drawbar(int x, int y, int w, int h, int type, float top, float bottom, float fade, float amt, const char *tex, const char *bgtex, int tone, float bgglow, float blend, float pulse, float throb, float throbscale, int throbcolour = -1, int throbreverse = false)
     {
-        int offset = int(w*(throb >= 0 ? throb*throbscale : 0.f)), id = clamp(type, 0, 3);
+        int offset = int(w*(throb >= 0 ? throb*throbscale : 0.f)), id = std::clamp(type, 0, 3);
         if(bgtex && *bgtex)
         {
             int glow = 0;
@@ -2561,9 +2561,9 @@ namespace hud
     {
         if(skew <= 0.f || amt <= 0.f) return 0;
         Texture *t = textureload(inventorybartex, 3);
-        float q = clamp(skew, 0.f, 1.f), cr = left ? r : r*q, cg = left ? g : g*q, cb = left ? b : b*q, s = size*skew,
+        float q = std::clamp(skew, 0.f, 1.f), cr = left ? r : r*q, cg = left ? g : g*q, cb = left ? b : b*q, s = size*skew,
               w = float(t->w)/float(t->h)*s, btoff = 1-inventorybarbottom, middle = btoff-inventorybartop;
-        int sx = int(w), sy = int(s), so = int(sx*inventorybaroffset), cx = left ? x-so : x-sx+so, cy = y-sy+int(sy*inventorybartop), cw = sx, ch = int(sy*middle), id = clamp(type, 0, 3);
+        int sx = int(w), sy = int(s), so = int(sx*inventorybaroffset), cx = left ? x-so : x-sx+so, cy = y-sy+int(sy*inventorybartop), cw = sx, ch = int(sy*middle), id = std::clamp(type, 0, 3);
         glBindTexture(GL_TEXTURE_2D, t->id);
         gle::defvertex(2);
         gle::deftexcoord0();
@@ -2609,7 +2609,7 @@ namespace hud
         if(skew <= 0.f) return 0;
         Texture *t = tex && *tex ? textureload(tex, 3, true, false) : NULL;
         if(t == notexture) t = NULL;
-        float q = clamp(skew, 0.f, 1.f), cr = left ? r : r*q, cg = left ? g : g*q, cb = left ? b : b*q, s = size*skew, w = t ? float(t->w)/float(t->h)*s : s;
+        float q = std::clamp(skew, 0.f, 1.f), cr = left ? r : r*q, cg = left ? g : g*q, cb = left ? b : b*q, s = size*skew, w = t ? float(t->w)/float(t->h)*s : s;
         int heal = m_health(game::gamemode, game::mutators, game::focus->actortype), sy = int(s), cx = x, cy = y, cs = int(s), cw = int(w);
         bool pulse = inventoryflash && game::focus->state == CS_ALIVE && game::focus->health < heal;
         if(bg && sub == 0 && inventorybg)
@@ -2621,7 +2621,7 @@ namespace hud
             if(pulse)
             {
                 int millis = lastmillis%1000;
-                float amt = (millis <= 500 ? millis/500.f : 1.f-((millis-500)/500.f))*clamp(float(heal-game::focus->health)/float(heal), 0.f, 1.f);
+                float amt = (millis <= 500 ? millis/500.f : 1.f-((millis-500)/500.f))*std::clamp(float(heal-game::focus->health)/float(heal), 0.f, 1.f);
                 flashcolourf(gr, gg, gb, gf, 1.f, 0.f, 0.f, 1.f, amt);
                 glow += int(s*inventoryglow*amt);
             }
@@ -2714,7 +2714,7 @@ namespace hud
     const char *teamtexname(int team)
     {
         const char *teamtexs[T_MAX] = { teamtex, teamalphatex, teamomegatex, teamkappatex, teamsigmatex, teamtex };
-        return teamtexs[clamp(team, 0, T_MAX-1)];
+        return teamtexs[std::clamp(team, 0, T_MAX-1)];
     }
 
     const char *privtex(int priv, int actortype)
@@ -2724,7 +2724,7 @@ namespace hud
             { privnonetex, privplayertex, privsupportertex, privmoderatortex, privoperatortex, privadministratortex, privdevelopertex, privfoundertex },
             { privnonetex, privplayertex, privlocalsupportertex, privlocalmoderatortex, privlocaloperatortex, privlocaladministratortex, privnonetex, privnonetex }
         };
-        return privtexs[priv&PRIV_LOCAL ? 1 : 0][clamp(priv&PRIV_TYPE, 0, int(priv&PRIV_LOCAL ? PRIV_ADMINISTRATOR : PRIV_LAST))];
+        return privtexs[priv&PRIV_LOCAL ? 1 : 0][std::clamp(priv&PRIV_TYPE, 0, int(priv&PRIV_LOCAL ? PRIV_ADMINISTRATOR : PRIV_LAST))];
     }
 
     const char *itemtex(int type, int stype)
@@ -2822,7 +2822,7 @@ namespace hud
                 float size = s, skew = 0.f;
                 if(game::focus->weapstate[i] == W_S_SWITCH || game::focus->weapstate[i] == W_S_USE)// && (i != game::focus->weapselect || i != lastweap))
                 {
-                    float amt = clamp(float(lastmillis-game::focus->weaptime[i])/float(game::focus->weapwait[i]), 0.f, 1.f);
+                    float amt = std::clamp(float(lastmillis-game::focus->weaptime[i])/float(game::focus->weapwait[i]), 0.f, 1.f);
                     if(i != game::focus->weapselect) skew = game::focus->hasweap(i, sweap) ? 1.f-(amt*(1.f-inventoryskew)) : 1.f-amt;
                     else skew = game::focus->weapstate[i] == W_S_USE ? amt : inventoryskew+(amt*(1.f-inventoryskew));
                 }
@@ -2833,7 +2833,7 @@ namespace hud
                 int oldy = y-sy, curammo = game::focus->ammo[i];
                 if(inventoryammostyle && (game::focus->weapstate[i] == W_S_RELOAD || game::focus->weapstate[i] == W_S_USE) && game::focus->weapload[i] > 0)
                 {
-                    int reloaded = int(curammo*clamp(float(lastmillis-game::focus->weaptime[i])/float(game::focus->weapwait[i]), 0.f, 1.f));
+                    int reloaded = int(curammo*std::clamp(float(lastmillis-game::focus->weaptime[i])/float(game::focus->weapwait[i]), 0.f, 1.f));
                     curammo = max(curammo-game::focus->weapload[i], 0);
                     if(reloaded > curammo) curammo = reloaded;
                 }
@@ -2887,10 +2887,10 @@ namespace hud
             {
                 float fade = blend*inventoryhealthblend;
                 int heal = m_health(game::gamemode, game::mutators, game::focus->actortype);
-                float pulse = inventoryhealthflash ? clamp((heal-game::focus->health)/float(heal), 0.f, 1.f) : 0.f,
-                      throb = inventoryhealththrob > 0 && regentime && game::focus->lastregen && lastmillis-game::focus->lastregen <= regentime ? clamp((lastmillis-game::focus->lastregen)/float(regentime), 0.f, 1.f) : -1.f;
+                float pulse = inventoryhealthflash ? std::clamp((heal-game::focus->health)/float(heal), 0.f, 1.f) : 0.f,
+                      throb = inventoryhealththrob > 0 && regentime && game::focus->lastregen && lastmillis-game::focus->lastregen <= regentime ? std::clamp((lastmillis-game::focus->lastregen)/float(regentime), 0.f, 1.f) : -1.f;
                 if(inventoryhealth&2)
-                    sy += drawbar(x, y, s, size, 1, inventoryhealthbartop, inventoryhealthbarbottom, fade, clamp(game::focus->health/float(heal), 0.f, 1.f), healthtex, healthbgtex, inventorytone, inventoryhealthbgglow, inventoryhealthbgblend, pulse, throb, inventoryhealththrob, inventoryhealthflash >= 2 ? (game::focus->lastregenamt <= 0 ? 0xFF0000 : 0x00FF00) : -1, game::focus->lastregenamt <= 0);
+                    sy += drawbar(x, y, s, size, 1, inventoryhealthbartop, inventoryhealthbarbottom, fade, std::clamp(game::focus->health/float(heal), 0.f, 1.f), healthtex, healthbgtex, inventorytone, inventoryhealthbgglow, inventoryhealthbgblend, pulse, throb, inventoryhealththrob, inventoryhealthflash >= 2 ? (game::focus->lastregenamt <= 0 ? 0xFF0000 : 0x00FF00) : -1, game::focus->lastregenamt <= 0);
                 if(inventoryhealth&1)
                 {
                     float gr = 1, gg = 1, gb = 1;
@@ -2915,12 +2915,12 @@ namespace hud
             }
             if(game::focus->actortype < A_ENEMY && physics::allowimpulse(game::focus) && m_impulsemeter(game::gamemode, game::mutators) && inventoryimpulse)
             {
-                float fade = blend*inventoryimpulseblend, span = 1-clamp(float(game::focus->impulse[IM_METER])/float(impulsemeter), 0.f, 1.f),
+                float fade = blend*inventoryimpulseblend, span = 1-std::clamp(float(game::focus->impulse[IM_METER])/float(impulsemeter), 0.f, 1.f),
                       pulse = inventoryimpulseflash && game::focus->impulse[IM_METER] ? 1-span : 0.f,
-                      throb = game::canregenimpulse(game::focus) && game::focus->impulse[IM_METER] > 0 && game::focus->lastimpulsecollect ? clamp(((lastmillis-game::focus->lastimpulsecollect)%1000)/1000.f, 0.f, 1.f) : -1.f,
+                      throb = game::canregenimpulse(game::focus) && game::focus->impulse[IM_METER] > 0 && game::focus->lastimpulsecollect ? std::clamp(((lastmillis-game::focus->lastimpulsecollect)%1000)/1000.f, 0.f, 1.f) : -1.f,
                       gr = 1, gg = 1, gb = 1;
                 flashcolour(gr, gg, gb, 0.25f, 0.25f, 0.25f, 1-span);
-                if(pulse > 0 && impulsemeter-game::focus->impulse[IM_METER] < impulsecost) flashcolour(gr, gg, gb, 1.f, 0.f, 0.f, clamp(lastmillis%1000/1000.f, 0.f, 1.f));
+                if(pulse > 0 && impulsemeter-game::focus->impulse[IM_METER] < impulsecost) flashcolour(gr, gg, gb, 1.f, 0.f, 0.f, std::clamp(lastmillis%1000/1000.f, 0.f, 1.f));
                 if(inventoryimpulse&2)
                     sy += drawbar(x, y-sy, s, size, 2, inventoryimpulsebartop, inventoryimpulsebarbottom, fade, span, impulsetex, impulsebgtex, inventorytone, inventoryimpulsebgglow, inventoryimpulsebgblend, pulse, throb, inventoryimpulsethrob, inventoryimpulseflash >= 2 ? 0xFFFFFF : -1);
                 if(inventoryimpulse&1)

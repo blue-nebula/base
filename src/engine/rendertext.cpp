@@ -823,7 +823,7 @@ int draw_text(const char *str, int rleft, int rtop, int r, int g, int b, int a, 
     xtraverts += gle::end();
     if(cursor >= 0)
     {
-        gle::colorub(255, 255, 255, int(clamp(1.f-(float(totalmillis%500)/500.f), 0.5f, 1.f)*255));
+        gle::colorub(255, 255, 255, int(std::clamp(1.f-(float(totalmillis%500)/500.f), 0.5f, 1.f)*255));
         draw_char(tex, '_', left+cx, top+cy, scale);
         xtraverts += gle::end();
     }

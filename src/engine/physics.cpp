@@ -505,7 +505,7 @@ bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const vec &cent
     yo.rotate_around_z(-yaw*RAD);
     yo.sub(center);
 
-    float dx = clamp(yo.x, -xr, xr) - yo.x, dy = clamp(yo.y, -yr, yr) - yo.y,
+    float dx = std::clamp(yo.x, -xr, xr) - yo.x, dy = std::clamp(yo.y, -yr, yr) - yo.y,
           dist = sqrtf(dx*dx + dy*dy) - d->radius;
     if(dist < 0)
     {

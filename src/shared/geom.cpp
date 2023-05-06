@@ -172,7 +172,7 @@ vec closestpointcylinder(const vec &center, const vec &start, const vec &end, fl
     vec raddir = vec(relcenter).sub(vec(dir).mul(height));
     float radlen = raddir.magnitude();
     if(radlen > radius) raddir.mul(radius/radlen);
-    return dir.mul(clamp(height, 0.0f, 1.0f)).add(start).add(raddir);
+    return dir.mul(std::clamp(height, 0.0f, 1.0f)).add(start).add(raddir);
 }
 
 extern const vec2 sincos360[721] =

@@ -525,7 +525,7 @@ static uint generatelumel(lightmapworker *w, const float tolerance, uint lightma
             {
                 extentity &spotlight = *ents[slight];
                 vec spot = vec(spotlight.o).sub(light.o).normalize();
-                float maxatten = sincos360[clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
+                float maxatten = sincos360[std::clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
                 if(spotatten <= 0) continue;
                 attenuation *= spotatten;
             }
@@ -1378,7 +1378,7 @@ static int setupsurface(lightmapworker *w, plane planes[2], int numplanes, const
 
     int scale = int(min(cmax.x - cmin.x, cmax.y - cmin.y));
     float lpu = 16.0f / float(lightlod && scale < (1 << lightlod) ? max(curlightprecision / 2, 1) : curlightprecision);
-    int lw = clamp(int(ceil((cmax.x - cmin.x + 1)*lpu)), LM_MINW, LM_MAXW), lh = clamp(int(ceil((cmax.y - cmin.y + 1)*lpu)), LM_MINH, LM_MAXH);
+    int lw = std::clamp(int(ceil((cmax.x - cmin.x + 1)*lpu)), LM_MINW, LM_MAXW), lh = std::clamp(int(ceil((cmax.y - cmin.y + 1)*lpu)), LM_MINH, LM_MAXH);
     w->w = lw;
     w->h = lh;
     if(!preview)
@@ -1432,8 +1432,8 @@ static int setupsurface(lightmapworker *w, plane planes[2], int numplanes, const
     if(lh != w->h) texscale.y *= float(w->h - 1) / (lh - 1);
     loopk(numverts)
     {
-        litverts[k].u = ushort(floor(clamp(c[k].x*texscale.x, 0.0f, float(USHRT_MAX))));
-        litverts[k].v = ushort(floor(clamp(c[k].y*texscale.y, 0.0f, float(USHRT_MAX))));
+        litverts[k].u = ushort(floor(std::clamp(c[k].x*texscale.x, 0.0f, float(USHRT_MAX))));
+        litverts[k].v = ushort(floor(std::clamp(c[k].y*texscale.y, 0.0f, float(USHRT_MAX))));
     }
     return surftype;
 }
@@ -2697,7 +2697,7 @@ void lightreaching(const vec &target, vec &color, vec &dir, bool fast, extentity
             {
                 extentity &spotlight = *ents[slight];
                 vec spot = vec(spotlight.o).sub(e.o).normalize();
-                float maxatten = sincos360[clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
+                float maxatten = sincos360[std::clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
                 if(spotatten <= 0) continue;
                 intensity *= spotatten;
             }
@@ -2726,7 +2726,7 @@ void lightreaching(const vec &target, vec &color, vec &dir, bool fast, extentity
         else fastsunlight(target, 0.5f, col, RAY_POLY, t);
         loopk(3) slight[k] = max(slight[k], col[k]/255.0f);
     }
-    loopk(3) color[k] = clamp(color[k], slight[k], 1.5f);
+    loopk(3) color[k] = std::clamp(color[k], slight[k], 1.5f);
     if(dir.iszero()) dir = vec(0, 0, 1);
     else dir.normalize();
 }
@@ -2772,7 +2772,7 @@ const extentity *brightestlight(const vec &target, const vec &dir)
             {
                 const extentity &spotlight = *ents[slight];
                 vec spot = vec(spotlight.o).sub(e.o).normalize();
-                float maxatten = sincos360[clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
+                float maxatten = sincos360[std::clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
                 if(spotatten <= 0) continue;
                 intensity *= spotatten;
             }

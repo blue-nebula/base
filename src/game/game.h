@@ -758,7 +758,7 @@ struct clientstate
         if(type != WEAPON || !isweap(attr)) return;
         int prev = max(ammo[attr], 0), ammoval = ammoamt >= 0 ? ammoamt : WUSE(attr);
         weapswitch(attr, millis, delay, W_S_USE);
-        ammo[attr] = clamp(prev+ammoval, 0, W(attr, ammomax));
+        ammo[attr] = std::clamp(prev+ammoval, 0, W(attr, ammomax));
         weapload[attr] = ammo[attr]-prev;
         entid[attr] = id;
     }
@@ -1056,7 +1056,7 @@ struct gameent : dynent, clientstate
 
     void setparams(bool reset)
     {
-        int type = clamp(actortype, 0, int(A_MAX-1));
+        int type = std::clamp(actortype, 0, int(A_MAX-1));
         xradius = actor[type].xradius*curscale;
         yradius = actor[type].yradius*curscale;
         zradius = actor[type].height*curscale;

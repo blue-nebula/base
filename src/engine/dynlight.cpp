@@ -230,7 +230,7 @@ void makelightfx(extentity &e, extentity &f)
             millis -= interval; e.emit[2] = lastmillis-millis;
         }
         if(millis >= e.emit[0]) loopi(LFX_MAX-1) if(e.attrs[4]&(1<<(LFX_S_MAX+i))) { effect = i+1; break; }
-        #define lightskew float skew = clamp(millis < e.emit[0] ? 1.f-(float(millis)/float(e.emit[0])) : float(millis-e.emit[0])/float(e.emit[1]), 0.f, 1.f);
+        #define lightskew float skew = std::clamp(millis < e.emit[0] ? 1.f-(float(millis)/float(e.emit[0])) : float(millis-e.emit[0])/float(e.emit[1]), 0.f, 1.f);
         switch(effect)
         {
             case LFX_FLICKER:

@@ -614,20 +614,20 @@ struct gui : guient
                     if(ishorizontal()) vnew = int((vnew*(reverse ? hity - y - ui_size_slider / 2 : y + ysize - ui_size_slider / 2 - hity)) / (ysize - ui_size_slider));
                     else vnew = int((vnew*(reverse ? x + xsize - ui_size_slider / 2 - hitx : hitx - x - ui_size_slider / 2)) / (xsize - ui_size_slider));
                     vnew += vmin;
-                    vnew = clamp(vnew, vmin, vmax);
+                    vnew = std::clamp(vnew, vmin, vmax);
                     if(vnew != val) val = vnew;
                 }
                 else if(mouse_action[1] & GUI_UP)
                 {
                     int vval = val+(reverse == !(mouse_action[1] & GUI_ALT) ? -1 : 1),
-                        vnew = clamp(vval, vmin, vmax);
+                        vnew = std::clamp(vval, vmin, vmax);
                     if(vnew != val) val = vnew;
                 }
             }
             else if(scroll && lists[curlist].mouse[1]&GUI_UP)
             {
                 int vval = val+(reverse == !(lists[curlist].mouse[1]&GUI_ALT) ? -1 : 1),
-                    vnew = clamp(vval, vmin, vmax);
+                    vnew = std::clamp(vval, vmin, vmax);
                 if(vnew != val) val = vnew;
             }
         }

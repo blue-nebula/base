@@ -141,7 +141,7 @@ namespace aiman
                 int s = skill, n = 1, m = 100;
                 getskillrange(type, n, m);
                 if(skill > m || skill < n) s = (m != n ? botrnd(ci, 2, m-n) + n + 1 : m);
-                ci->skill = clamp(s, 1, 101);
+                ci->skill = std::clamp(s, 1, 101);
                 copystring(ci->name, AA(ci->actortype, vname), MAXNAMELEN);
                 ci->loadweap.clear();
                 if(ci->actortype == A_BOT)

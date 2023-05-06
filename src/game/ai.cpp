@@ -30,8 +30,8 @@ namespace ai
         showwaypoints = dropwaypoints = 0;
     }
 
-    float viewdist(int x) { return x <= 100 ? clamp((SIGHTMIN+(SIGHTMAX-SIGHTMIN))/100.f*float(x), float(SIGHTMIN), max(float(fog), SIGHTMIN)) : max(float(fog), SIGHTMIN); }
-    float viewfieldx(int x) { return x <= 100 ? clamp((VIEWMIN+(VIEWMAX-VIEWMIN))/100.f*float(x), float(VIEWMIN), float(VIEWMAX)) : float(VIEWMAX); }
+    float viewdist(int x) { return x <= 100 ? std::clamp((SIGHTMIN+(SIGHTMAX-SIGHTMIN))/100.f*float(x), float(SIGHTMIN), max(float(fog), SIGHTMIN)) : max(float(fog), SIGHTMIN); }
+    float viewfieldx(int x) { return x <= 100 ? std::clamp((VIEWMIN+(VIEWMAX-VIEWMIN))/100.f*float(x), float(VIEWMIN), float(VIEWMAX)) : float(VIEWMAX); }
     float viewfieldy(int x) { return viewfieldx(x)*3.f/4.f; }
 
     float weapmindist(int weap, bool alt)
@@ -121,7 +121,7 @@ namespace ai
         if(insight && weaprange(d, d->weapselect, alt, e->o.squaredist(d->o)))
         {
             if(W2(d->weapselect, aidist, alt) < CLOSEDIST) return true;
-            float skew = clamp(float(lastmillis-d->ai->enemymillis)/float((d->skill*W(d->weapselect, delayreload)/5000.f)+(d->skill*W2(d->weapselect, delayattack, alt)/500.f)), 0.f, weaptype[d->weapselect].thrown[0] ? 0.25f : 1e16f),
+            float skew = std::clamp(float(lastmillis-d->ai->enemymillis)/float((d->skill*W(d->weapselect, delayreload)/5000.f)+(d->skill*W2(d->weapselect, delayattack, alt)/500.f)), 0.f, weaptype[d->weapselect].thrown[0] ? 0.25f : 1e16f),
                 offy = yaw-d->yaw, offp = pitch-d->pitch;
             if(offy > 180) offy -= 360;
             else if(offy < -180) offy += 360;
@@ -138,7 +138,7 @@ namespace ai
             if(lastmillis >= d->ai->lastaimrnd)
             {
                 int radius = ceilf(e->radius*W2(d->weapselect, aiskew, alt));
-                float speed = clamp(e->vel.magnitude()/movespeed, 0.f, 1.f), scale = speed+((1-speed)*((101-d->skill)/100.f));
+                float speed = std::clamp(e->vel.magnitude()/movespeed, 0.f, 1.f), scale = speed+((1-speed)*((101-d->skill)/100.f));
                 loopk(3) d->ai->aimrnd[k] = (rnd((radius*2)+1)-radius)*scale;
                 int dur = (d->skill+10)*10;
                 d->ai->lastaimrnd = lastmillis+dur+rnd(dur);
@@ -1225,7 +1225,7 @@ namespace ai
             float yaw = d->ai->targyaw-d->yaw;
             while(yaw < 0.0f) yaw += 360.0f;
             while(yaw >= 360.0f) yaw -= 360.0f;
-            const aimdir &ad = aimdirs[clamp(((int)floor((yaw+22.5f)/45.0f))&7, 0, 7)];
+            const aimdir &ad = aimdirs[std::clamp(((int)floor((yaw+22.5f)/45.0f))&7, 0, 7)];
             d->move = ad.move;
             d->strafe = ad.strafe;
         }

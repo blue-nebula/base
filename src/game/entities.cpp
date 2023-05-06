@@ -33,8 +33,8 @@ namespace entities
     VAR(0, routemaxdist, 0, 64, VAR_MAX);
 
     vector<extentity *> &getents() { return ents; }
-    int lastent(int type) { return type >= 0 && type < MAXENTTYPES ? clamp(lastenttype[type], 0, ents.length()) : 0; }
-    int lastuse(int type) { return type >= 0 && type < MAXENTTYPES ? clamp(lastusetype[type], 0, ents.length()) : 0; }
+    int lastent(int type) { return type >= 0 && type < MAXENTTYPES ? std::clamp(lastenttype[type], 0, ents.length()) : 0; }
+    int lastuse(int type) { return type >= 0 && type < MAXENTTYPES ? std::clamp(lastusetype[type], 0, ents.length()) : 0; }
 
     int numattrs(int type) { return type >= 0 && type < MAXENTTYPES ? enttype[type].numattrs : 0; }
     ICOMMAND(0, entityattrs, "b", (int *n), intret(numattrs(*n)));
@@ -375,7 +375,7 @@ namespace entities
                 int weap = w_attr(game::gamemode, game::mutators, type, attr[0], m_weapon(game::focus->actortype, game::gamemode, game::mutators));
                 return isweap(weap) && *weaptype[weap].item ? weaptype[weap].item : "projectiles/cartridge";
             }
-            case ACTOR: return actor[clamp(attr[0]+A_ENEMY, int(A_ENEMY), int(A_MAX-1))].playermodel[1];
+            case ACTOR: return actor[std::clamp(attr[0]+A_ENEMY, int(A_ENEMY), int(A_MAX-1))].playermodel[1];
             default: break;
         }
         return "";
@@ -771,7 +771,7 @@ namespace entities
                     d->setused(n, lastmillis);
                     float mag = max(e.attrs[2], 1), maxrad = e.attrs[3] ? e.attrs[3] : enttype[PUSHER].radius, minrad = e.attrs[4];
                     if(dist > 0 && minrad > 0 && maxrad > minrad && dist > minrad && maxrad >= dist)
-                        mag *= 1.f-clamp((dist-minrad)/float(maxrad-minrad), 0.f, 1.f);
+                        mag *= 1.f-std::clamp((dist-minrad)/float(maxrad-minrad), 0.f, 1.f);
                     vec dir(e.attrs[0]*RAD, e.attrs[1]*RAD), rel = vec(dir).mul(mag);
                     switch(e.attrs[5])
                     {
@@ -2090,7 +2090,7 @@ namespace entities
                 }
                 case ENVMAP:
                 {
-                    int s = e.attrs[0] ? clamp(e.attrs[0], 0, 10000) : envmapradius;
+                    int s = e.attrs[0] ? std::clamp(e.attrs[0], 0, 10000) : envmapradius;
                     part_radius(e.o, vec(s, s, s), showentsize, 1, 1, 0x00FFFF);
                     break;
                 }
@@ -2109,7 +2109,7 @@ namespace entities
                         float radius = f.attrs[0];
                         if(!radius) radius = 2*e.o.dist(f.o);
                         vec dir = vec(e.o).sub(f.o).normalize();
-                        float angle = clamp(int(e.attrs[1]), 1, 89);
+                        float angle = std::clamp(int(e.attrs[1]), 1, 89);
                         int colour = ((f.attrs[1]/2)<<16)|((f.attrs[2]/2)<<8)|(f.attrs[3]/2);
                         part_cone(f.o, dir, radius, angle, showentsize, 1, 1, colour);
                         break;

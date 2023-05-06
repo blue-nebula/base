@@ -117,7 +117,7 @@ namespace bomber
                 if(!f.owner && !f.droptime)
                 {
                     int millis = lastmillis-f.displaytime;
-                    if(millis < 1000) size *= 1.f+(1-clamp(float(millis)/1000.f, 0.f, 1.f));
+                    if(millis < 1000) size *= 1.f+(1-std::clamp(float(millis)/1000.f, 0.f, 1.f));
                 }
             }
             else if(!m_bb_hold(game::gamemode, game::mutators))
@@ -196,7 +196,7 @@ namespace bomber
                 bomberstate::flag &f = st.flags[i];
                 if(f.owner == game::focus)
                 {
-                    ty -= draw_textf("You are holding the \fs\f[%d]\f(%s)bomb\fS", tx, ty, int(FONTW*hud::eventpadx), int(FONTH*hud::eventpady), tr, tg, tb, int(255*blend), TEXT_SKIN|TEXT_CENTERED, -1, -1, 1, pulsecols[PULSE_DISCO][clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)], hud::bombtex);
+                    ty -= draw_textf("You are holding the \fs\f[%d]\f(%s)bomb\fS", tx, ty, int(FONTW*hud::eventpadx), int(FONTH*hud::eventpady), tr, tg, tb, int(255*blend), TEXT_SKIN|TEXT_CENTERED, -1, -1, 1, pulsecols[PULSE_DISCO][std::clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)], hud::bombtex);
                     ty -= FONTH/4;
                     break;
                 }
@@ -215,7 +215,7 @@ namespace bomber
             if(!f.enabled) continue;
             int millis = lastmillis-f.displaytime;
             vec colour = pulsecolour();
-            float skew = hud::inventoryskew, wait = f.droptime ? clamp((lastmillis-f.droptime)/float(bomberresetdelay), 0.f, 1.f) : (f.owner ? clamp((lastmillis-f.taketime)/float(carrytime), 0.f, 1.f) : 1.f);
+            float skew = hud::inventoryskew, wait = f.droptime ? std::clamp((lastmillis-f.droptime)/float(bomberresetdelay), 0.f, 1.f) : (f.owner ? std::clamp((lastmillis-f.taketime)/float(carrytime), 0.f, 1.f) : 1.f);
             if(gs_playing(game::gamestate) && (f.droptime || (f.owner && carrytime)) && wait > 0.5f)
             {
                 int delay = wait > 0.7f ? (wait > 0.85f ? 150 : 300) : 600, millis = lastmillis%(delay*2);
@@ -226,13 +226,13 @@ namespace bomber
             {
                 if(f.owner == game::focus)
                 {
-                    if(millis <= 1000) skew += (1.f-skew)*clamp(float(millis)/1000.f, 0.f, 1.f);
+                    if(millis <= 1000) skew += (1.f-skew)*std::clamp(float(millis)/1000.f, 0.f, 1.f);
                     else skew = 1; // override it
                 }
-                else if(millis <= 1000) skew += ((1.f-skew)*clamp(float(millis)/1000.f, 0.f, 1.f));
+                else if(millis <= 1000) skew += ((1.f-skew)*std::clamp(float(millis)/1000.f, 0.f, 1.f));
                 else skew = 1;
             }
-            else if(millis <= 1000) skew += ((1.f-skew)-(clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew)));
+            else if(millis <= 1000) skew += ((1.f-skew)-(std::clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew)));
             int oldy = y-sy;
             if(gs_playing(game::gamestate) && (f.owner || f.droptime))
                 sy += hud::drawitem(hud::bombtex, x, oldy, size, 0, true, false, colour.x, colour.y, colour.z, blend, skew, "super", "%d%%", int(wait*100.f));
@@ -327,7 +327,7 @@ namespace bomber
                 float blend = camera1->o.distrange(above, bomberhintfadeat, bomberhintfadecut);
                 if(!f.owner && !f.droptime) above.z += enttype[AFFINITY].radius/4*trans;
                 float size = trans, yaw = !f.owner && f.proj ? f.proj->yaw : (lastmillis/4)%360, pitch = !f.owner && f.proj ? f.proj->pitch : 0, roll = !f.owner && f.proj ? f.proj->roll : 0,
-                      wait = f.droptime ? clamp((lastmillis-f.droptime)/float(bomberresetdelay), 0.f, 1.f) : ((f.owner && carrytime) ? clamp((lastmillis-f.taketime)/float(carrytime), 0.f, 1.f) : 0.f);
+                      wait = f.droptime ? std::clamp((lastmillis-f.droptime)/float(bomberresetdelay), 0.f, 1.f) : ((f.owner && carrytime) ? std::clamp((lastmillis-f.taketime)/float(carrytime), 0.f, 1.f) : 0.f);
                 int interval = lastmillis%1000;
                 vec effect = pulsecolour();
                 if(wait > 0.5f)

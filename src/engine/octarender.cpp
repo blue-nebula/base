@@ -768,7 +768,7 @@ ushort encodenormal(const vec &n)
 {
     if(n.iszero()) return 0;
     int yaw = int(-atan2(n.x, n.y)/RAD), pitch = int(asin(n.z)/RAD);
-    return ushort(clamp(pitch + 90, 0, 180)*360 + (yaw < 0 ? yaw%360 + 360 : yaw%360) + 1);
+    return ushort(std::clamp(pitch + 90, 0, 180)*360 + (yaw < 0 ? yaw%360 + 360 : yaw%360) + 1);
 }
 
 vec decodenormal(ushort norm)
@@ -1620,7 +1620,7 @@ int updateva(cube *c, const ivec &co, int size, int csi)
             int tcount = count + (csi <= MAXMERGELEVEL ? vamerges[csi].length() : 0);
             if(tcount > vafacemax || (tcount >= vafacemin && size >= vacubesize) || size == min(0x1000, hdr.worldsize/2))
             {
-                loadprogress = clamp(recalcocprog/float(allocnodes), 0.0f, 1.0f);
+                loadprogress = std::clamp(recalcocprog/float(allocnodes), 0.0f, 1.0f);
                 setva(c[i], o, size, csi);
                 if(c[i].ext && c[i].ext->va)
                 {

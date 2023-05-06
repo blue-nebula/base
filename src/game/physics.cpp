@@ -241,7 +241,7 @@ namespace physics
         if(gameent::is(d))
         {
             gameent *e = (gameent *)d;
-            vel *= 1.f-clamp(e->stunned(lastmillis), 0.f, 1.f);
+            vel *= 1.f-std::clamp(e->stunned(lastmillis), 0.f, 1.f);
         }
         return vel;
     }
@@ -252,7 +252,7 @@ namespace physics
         if(gameent::is(d))
         {
             gameent *e = (gameent *)d;
-            vel *= 1.f-clamp(e->stunned(lastmillis, true), 0.f, 1.f);
+            vel *= 1.f-std::clamp(e->stunned(lastmillis, true), 0.f, 1.f);
         }
         return vel;
     }
@@ -299,7 +299,7 @@ namespace physics
             if(gameent::is(pl))
             {
                 gameent *e = (gameent *)pl;
-                vel *= movespeed/100.f*(1.f-clamp(e->stunned(lastmillis), 0.f, 1.f));
+                vel *= movespeed/100.f*(1.f-std::clamp(e->stunned(lastmillis), 0.f, 1.f));
                 if((d->physstate >= PHYS_SLOPE || d->onladder) && !e->sliding(true) && e->crouching()) vel *= movecrawl;
                 else if(isweap(e->weapselect) && e->weapstate[e->weapselect] == W_S_ZOOM) vel *= movecrawl;
                 if(e->move >= 0) vel *= e->strafe ? movestrafe : movestraight;
@@ -327,7 +327,7 @@ namespace physics
         if(gameent::is(d))
         {
             gameent *e = (gameent *)d;
-            scale *= 1.f-clamp(e->stunned(lastmillis), 0.f, 1.f);
+            scale *= 1.f-std::clamp(e->stunned(lastmillis), 0.f, 1.f);
             if(carryaffinity(e))
             {
                 if(m_capture(game::gamemode)) scale *= capturecarryspeed;
@@ -1032,7 +1032,7 @@ namespace physics
             if(liquid || pl->physstate >= PHYS_SLOPE)
             {
                 float coast = liquid ? liquidmerge(pl, PHYS(aircoast), PHYS(liquidcoast)) : PHYS(floorcoast)*coastscale(pl->feetpos(-1)),
-                      c = liquid ? 1.0f : clamp((pl->floor.z - slopez)/(floorz-slopez), 0.0f, 1.0f);
+                      c = liquid ? 1.0f : std::clamp((pl->floor.z - slopez)/(floorz-slopez), 0.0f, 1.0f);
                 pl->falling.mul(pow(max(1.0f - c/coast, 0.0f), curtime/20.0f));
             }
         }

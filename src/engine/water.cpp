@@ -885,10 +885,10 @@ static bool calcscissorbox(Reflection &ref, int size, vec &clipmin, vec &clipmax
     sy2 = min(sy2, 1.0f);
     if(reflectvfc)
     {
-        clipmin.x = clamp(clipmin.x, sx1, sx2);
-        clipmin.y = clamp(clipmin.y, sy1, sy2);
-        clipmax.x = clamp(clipmax.x, sx1, sx2);
-        clipmax.y = clamp(clipmax.y, sy1, sy2);
+        clipmin.x = std::clamp(clipmin.x, sx1, sx2);
+        clipmin.y = std::clamp(clipmin.y, sy1, sy2);
+        clipmax.x = std::clamp(clipmax.x, sx1, sx2);
+        clipmax.y = std::clamp(clipmax.y, sy1, sy2);
     }
     sx = int(floor((sx1+1)*0.5f*size));
     sy = int(floor((sy1+1)*0.5f*size));

@@ -540,7 +540,7 @@ void renderentselection(const vec &o, const vec &ray, bool entmoving)
         }
         gle::colorub(150,0,0);
         boxs(entorient, eo, es);
-        boxs(entorient, eo, es, clamp(0.015f*camera1->o.dist(eo)*tan(fovy*0.5f*RAD), 0.1f, 1.0f));
+        boxs(entorient, eo, es, std::clamp(0.015f*camera1->o.dist(eo)*tan(fovy*0.5f*RAD), 0.1f, 1.0f));
     }
 }
 
@@ -870,7 +870,7 @@ void entset(char *what, char *attr)
     entattrs(attr, attrs);
     groupedit({
         e.type = type;
-        e.attrs.add(0, clamp(attrs.length(), entities::numattrs(e.type), MAXENTATTRS) - e.attrs.length());
+        e.attrs.add(0, std::clamp(attrs.length(), entities::numattrs(e.type), MAXENTATTRS) - e.attrs.length());
         loopk(min(attrs.length(), e.attrs.length())) e.attrs[k] = attrs[k];
     });
 }

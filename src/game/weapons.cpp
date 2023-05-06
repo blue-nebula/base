@@ -324,7 +324,7 @@ namespace weapons
                     }
                     else return false;
                 }
-                cooked = len ? clamp(lastmillis-d->weaptime[weap], 1, len) : 1;
+                cooked = len ? std::clamp(lastmillis-d->weaptime[weap], 1, len) : 1;
                 if(zooming)
                 {
                     if(pressed && wassecond) return false;

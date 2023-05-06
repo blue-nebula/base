@@ -891,7 +891,7 @@ struct animmodel : model
             vec oaxis, oforward;
             matrixstack[matrixpos].transposedtransformnormal(axis, oaxis);
             float pitchamount = pitchscale*pitch + pitchoffset;
-            if(pitchmin || pitchmax) pitchamount = clamp(pitchamount, pitchmin, pitchmax);
+            if(pitchmin || pitchmax) pitchamount = std::clamp(pitchamount, pitchmin, pitchmax);
             if(as->cur.anim&ANIM_NOPITCH || (as->interp < 1 && as->prev.anim&ANIM_NOPITCH))
                 pitchamount *= (as->cur.anim&ANIM_NOPITCH ? 0 : as->interp) + (as->interp < 1 && as->prev.anim&ANIM_NOPITCH ? 0 : 1-as->interp);
             if(pitchamount)
@@ -1562,7 +1562,7 @@ template<class MDL, class MESH> struct modelcommands
 
     static void setmaterial(char *meshname, int *material, int *material2)
     {
-        loopskins(meshname, s, { s.material = clamp(*material, 0, int(MAXLIGHTMATERIALS)); s.material2 = clamp(*material2, 0, int(MAXLIGHTMATERIALS)); });
+        loopskins(meshname, s, { s.material = std::clamp(*material, 0, int(MAXLIGHTMATERIALS)); s.material2 = std::clamp(*material2, 0, int(MAXLIGHTMATERIALS)); });
     }
 
     static void setlink(int *parent, int *child, char *tagname, float *x, float *y, float *z, float *yaw, float *pitch, float *roll)

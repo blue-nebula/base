@@ -42,7 +42,7 @@ MODELTYPE(MDL_IQM, iqm);
 void mdlmaterial(int *material, int *material2)
 {
     checkmdl;
-    loadingmodel->setmaterial(clamp(*material, 0, int(MAXLIGHTMATERIALS)), clamp(*material2, 0, int(MAXLIGHTMATERIALS)));
+    loadingmodel->setmaterial(std::clamp(*material, 0, int(MAXLIGHTMATERIALS)), std::clamp(*material2, 0, int(MAXLIGHTMATERIALS)));
 }
 
 COMMAND(0, mdlmaterial, "ii");

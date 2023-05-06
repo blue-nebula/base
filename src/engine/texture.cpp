@@ -444,7 +444,7 @@ void texmad(ImageData &s, const vec &mul, const vec &add)
         swizzleimage(s);
     int maxk = min(int(s.bpp), 3);
     writetex(s,
-        loopk(maxk) dst[k] = uchar(clamp(dst[k]*mul[k] + 255*add[k], 0.0f, 255.0f));
+        loopk(maxk) dst[k] = uchar(std::clamp(dst[k]*mul[k] + 255*add[k], 0.0f, 255.0f));
     );
 }
 
@@ -454,7 +454,7 @@ void texcolorify(ImageData &s, const vec &color, vec weights)
     if(weights.iszero()) weights = vec(0.21f, 0.72f, 0.07f);
     writetex(s,
         float lum = dst[0]*weights.x + dst[1]*weights.y + dst[2]*weights.z;
-        loopk(3) dst[k] = uchar(clamp(lum*color[k], 0.0f, 255.0f));
+        loopk(3) dst[k] = uchar(std::clamp(lum*color[k], 0.0f, 255.0f));
     );
 }
 
@@ -465,7 +465,7 @@ void texcolormask(ImageData &s, const vec &color1, const vec &color2)
     readwritetex(d, s,
         vec color;
         color.lerp(color2, color1, src[3]/255.0f);
-        loopk(3) dst[k] = uchar(clamp(color[k]*src[k], 0.0f, 255.0f));
+        loopk(3) dst[k] = uchar(std::clamp(color[k]*src[k], 0.0f, 255.0f));
     );
     s.replace(d);
 }
@@ -561,7 +561,7 @@ void texagrad(ImageData &s, float x2, float y2, float x1, float y1)
         float curx = minx;
         for(uchar *dst = dstrow, *end = &dstrow[s.w*s.bpp]; dst < end; dst += s.bpp)
         {
-            dst[0] = uchar(dst[0]*clamp(curx, 0.0f, 1.0f)*clamp(cury, 0.0f, 1.0f));
+            dst[0] = uchar(dst[0]*std::clamp(curx, 0.0f, 1.0f)*std::clamp(cury, 0.0f, 1.0f));
             curx += dx;
         }
         cury += dy;
@@ -1288,7 +1288,7 @@ static void blurtexture(int w, int h, uchar *dst, const uchar *src, int margin)
 
 void blurtexture(int n, int bpp, int w, int h, uchar *dst, const uchar *src, int margin)
 {
-    switch((clamp(n, 1, 2)<<4) | bpp)
+    switch((std::clamp(n, 1, 2)<<4) | bpp)
     {
         case 0x13: blurtexture<1, 3, false>(w, h, dst, src, margin); break;
         case 0x23: blurtexture<2, 3, false>(w, h, dst, src, margin); break;
@@ -1299,7 +1299,7 @@ void blurtexture(int n, int bpp, int w, int h, uchar *dst, const uchar *src, int
 
 void blurnormals(int n, int w, int h, bvec *dst, const bvec *src, int margin)
 {
-    switch(clamp(n, 1, 2))
+    switch(std::clamp(n, 1, 2))
     {
         case 1: blurtexture<1, 3, true>(w, h, dst->v, src->v, margin); break;
         case 2: blurtexture<2, 3, true>(w, h, dst->v, src->v, margin); break;
@@ -1424,7 +1424,7 @@ static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, 
         else if(matchstring(cmd, len, "blur"))
         {
             int emphasis = atoi(arg[0]), repeat = atoi(arg[1]);
-            texblur(d, emphasis > 0 ? clamp(emphasis, 1, 2) : 1, repeat > 0 ? repeat : 1);
+            texblur(d, emphasis > 0 ? std::clamp(emphasis, 1, 2) : 1, repeat > 0 ? repeat : 1);
         }
         else if(matchstring(cmd, len, "premul")) texpremul(d);
         else if(matchstring(cmd, len, "agrad")) texagrad(d, atof(arg[0]), atof(arg[1]), atof(arg[2]), atof(arg[3]));
@@ -1536,7 +1536,7 @@ VSlot dummyvslot(&dummyslot);
 void resettextures(int n)
 {
     resetslotshader();
-    int limit = clamp(n, 0, slots.length());
+    int limit = std::clamp(n, 0, slots.length());
     for(int i = limit; i < slots.length(); i++)
     {
         Slot *s = slots[i];
@@ -1792,11 +1792,11 @@ static void mergevslot(VSlot &dst, const VSlot &src, int diff, Slot *slot = NULL
     }
     if(diff & (1<<VSLOT_SCALE))
     {
-        dst.scale = clamp(dst.scale*src.scale, 1/8.0f, 8.0f);
+        dst.scale = std::clamp(dst.scale*src.scale, 1/8.0f, 8.0f);
     }
     if(diff & (1<<VSLOT_ROTATION))
     {
-        dst.rotation = clamp(dst.rotation + src.rotation, 0, 5);
+        dst.rotation = std::clamp(dst.rotation + src.rotation, 0, 5);
         if(!dst.offset.iszero()) clampvslotoffset(dst, slot);
     }
     if(diff & (1<<VSLOT_OFFSET))
@@ -1974,11 +1974,11 @@ bool unpackvslot(ucharbuf &buf, VSlot &dst, bool delta)
             case VSLOT_SCALE:
                 dst.scale = getfloat(buf);
                 if(dst.scale <= 0) dst.scale = 1;
-                else if(!delta) dst.scale = clamp(dst.scale, 1/8.0f, 8.0f);
+                else if(!delta) dst.scale = std::clamp(dst.scale, 1/8.0f, 8.0f);
                 break;
             case VSLOT_ROTATION:
                 dst.rotation = getint(buf);
-                if(!delta) dst.rotation = clamp(dst.rotation, 0, 5);
+                if(!delta) dst.rotation = std::clamp(dst.rotation, 0, 5);
                 break;
             case VSLOT_OFFSET:
                 dst.offset.x = getint(buf);
@@ -1996,8 +1996,8 @@ bool unpackvslot(ucharbuf &buf, VSlot &dst, bool delta)
                 break;
             }
             case VSLOT_ALPHA:
-                dst.alphafront = clamp(getfloat(buf), 0.0f, 1.0f);
-                dst.alphaback = clamp(getfloat(buf), 0.0f, 1.0f);
+                dst.alphafront = std::clamp(getfloat(buf), 0.0f, 1.0f);
+                dst.alphaback = std::clamp(getfloat(buf), 0.0f, 1.0f);
                 break;
             case VSLOT_COLOR:
                 dst.colorscale.r = max(getfloat(buf), 0.0f);
@@ -2009,7 +2009,7 @@ bool unpackvslot(ucharbuf &buf, VSlot &dst, bool delta)
                 dst.palindex = max(getint(buf), 0);
                 break;
             case VSLOT_COAST:
-                dst.coastscale = clamp(getfloat(buf), 0.0f, 1000.0f);
+                dst.coastscale = std::clamp(getfloat(buf), 0.0f, 1000.0f);
                 break;
             default:
                 return false;
@@ -2126,7 +2126,7 @@ void texture(char *type, char *name, int *rot, int *xoffset, int *yoffset, float
         setslotshader(s);
         VSlot &vs = matslot >= 0 ? materialslots[matslot] : *emptyvslot(s);
         vs.reset();
-        vs.rotation = clamp(*rot, 0, 5);
+        vs.rotation = std::clamp(*rot, 0, 5);
         vs.offset = ivec2(*xoffset, *yoffset).max(0);
         vs.scale = *scale <= 0 ? 1 : *scale;
         propagatevslot(&vs, (1<<VSLOT_NUM)-1);
@@ -2168,7 +2168,7 @@ ICOMMAND(0, setgrasscolor, "fff", (float *r, float *g, float *b), {
 
 void texgrassblend(Slot &s, float blend)
 {
-    s.grassblend = clamp(blend, 0.f, 1.f);
+    s.grassblend = std::clamp(blend, 0.f, 1.f);
 }
 ICOMMAND(0, texgrassblend, "f", (float *blend), if(!slots.empty()) texgrassblend(*slots.last(), *blend));
 ICOMMAND(0, setgrassblend, "f", (float *blend), {
@@ -2180,7 +2180,7 @@ ICOMMAND(0, setgrassblend, "f", (float *blend), {
 
 void texgrassscale(Slot &s, int scale)
 {
-    s.grassscale = clamp(scale, 0, 64);
+    s.grassscale = std::clamp(scale, 0, 64);
 }
 ICOMMAND(0, texgrassscale, "i", (int *scale), if(!slots.empty()) texgrassscale(*slots.last(), *scale));
 ICOMMAND(0, setgrassscale, "i", (int *scale), {
@@ -2192,7 +2192,7 @@ ICOMMAND(0, setgrassscale, "i", (int *scale), {
 
 void texgrassheight(Slot &s, int height)
 {
-    s.grassheight = clamp(height, 0, 64);
+    s.grassheight = std::clamp(height, 0, 64);
 }
 ICOMMAND(0, texgrassheight, "i", (int *height), if(!slots.empty()) texgrassheight(*slots.last(), *height));
 ICOMMAND(0, setgrassheight, "i", (int *height), {
@@ -2224,7 +2224,7 @@ void texrotate_(int *rot)
 {
     if(slots.empty()) return;
     Slot &s = *slots.last();
-    s.variants->rotation = clamp(*rot, 0, 5);
+    s.variants->rotation = std::clamp(*rot, 0, 5);
     propagatevslot(s.variants, 1<<VSLOT_ROTATION);
 }
 COMMANDN(0, texrotate, texrotate_, "i");
@@ -2254,8 +2254,8 @@ void texalpha(float *front, float *back)
 {
     if(slots.empty()) return;
     Slot &s = *slots.last();
-    s.variants->alphafront = clamp(*front, 0.0f, 1.0f);
-    s.variants->alphaback = clamp(*back, 0.0f, 1.0f);
+    s.variants->alphafront = std::clamp(*front, 0.0f, 1.0f);
+    s.variants->alphaback = std::clamp(*back, 0.0f, 1.0f);
     propagatevslot(s.variants, 1<<VSLOT_ALPHA);
 }
 COMMAND(0, texalpha, "ff");
@@ -2273,7 +2273,7 @@ void texcoastscale(float *value)
 {
     if(slots.empty()) return;
     Slot &s = *slots.last();
-    s.variants->coastscale = clamp(*value, 0.f, 1000.f);
+    s.variants->coastscale = std::clamp(*value, 0.f, 1000.f);
     propagatevslot(s.variants, 1<<VSLOT_COAST);
 }
 COMMAND(0, texcoastscale, "f");
@@ -2299,13 +2299,13 @@ static void addglow(ImageData &c, ImageData &g, const vec &glowcolor)
     if(g.bpp < 3)
     {
         readwritergbtex(c, g,
-            loopk(3) dst[k] = clamp(int(dst[k]) + int(src[0]*glowcolor[k]), 0, 255);
+            loopk(3) dst[k] = std::clamp(int(dst[k]) + int(src[0]*glowcolor[k]), 0, 255);
         );
     }
     else
     {
         readwritergbtex(c, g,
-            loopk(3) dst[k] = clamp(int(dst[k]) + int(src[k]*glowcolor[k]), 0, 255);
+            loopk(3) dst[k] = std::clamp(int(dst[k]) + int(src[k]*glowcolor[k]), 0, 255);
         );
     }
 }
@@ -2809,9 +2809,9 @@ void initenvmaps()
         const extentity &ent = *ents[i];
         if(ent.type != ET_ENVMAP) continue;
         envmap &em = envmaps.add();
-        em.radius = ent.attrs[0] ? clamp(int(ent.attrs[0]), 0, 10000) : envmapradius;
-        em.size = ent.attrs[1] ? clamp(int(ent.attrs[1]), 4, 9) : 0;
-        em.blur = ent.attrs[2] ? clamp(int(ent.attrs[2]), 1, 2) : 0;
+        em.radius = ent.attrs[0] ? std::clamp(int(ent.attrs[0]), 0, 10000) : envmapradius;
+        em.size = ent.attrs[1] ? std::clamp(int(ent.attrs[1]), 4, 9) : 0;
+        em.blur = ent.attrs[2] ? std::clamp(int(ent.attrs[2]), 1, 2) : 0;
         em.o = ent.o;
         em.tex = 0;
     }

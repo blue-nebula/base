@@ -85,7 +85,7 @@ struct partrenderer
             int weight = p->grav;
             if((type&PT_SHRINK || type&PT_GROW) && p->fade >= 50)
             {
-                float amt = clamp(ts/float(p->fade), 0.f, 1.f);
+                float amt = std::clamp(ts/float(p->fade), 0.f, 1.f);
                 if(type&PT_SHRINK)
                 {
                     if(type&PT_GROW) { if((amt *= 2) > 1) amt = 2-amt; amt *= amt; }
@@ -1306,7 +1306,7 @@ void part_trail(int ptype, int fade, const vec &s, const vec &e, int color, floa
     if(!canaddparticles()) return;
     vec v;
     float d = e.dist(s, v);
-    int steps = clamp(int(d*2), 1, maxparticletrail);
+    int steps = std::clamp(int(d*2), 1, maxparticletrail);
     v.div(steps);
     vec p = s;
     loopi(steps)
@@ -1564,7 +1564,7 @@ static inline vec offsetvec(vec o, int dir, int dist)
 
         if(taper)
         {
-            float dist = clamp(from.dist2(camera1->o) / maxparticledistance, 0.0f, 1.0f);
+            float dist = std::clamp(from.dist2(camera1->o) / maxparticledistance, 0.0f, 1.0f);
             if(dist > 0.2f)
             {
                 dist = 1 - (dist - 0.2f)/0.8f;
@@ -1638,7 +1638,7 @@ void makeparticle(const vec &o, attrvector &attr)
             break;
         case 2: //water fountain - <dir>
         {
-            int mat = MAT_WATER + clamp(-attr[2], 0, 3);
+            int mat = MAT_WATER + std::clamp(-attr[2], 0, 3);
             const bvec &wfcol = getwaterfallcol(mat);
             int color = (int(wfcol[0])<<16) | (int(wfcol[1])<<8) | int(wfcol[2]);
             if(!color)
@@ -1689,13 +1689,13 @@ void makeparticle(const vec &o, attrvector &attr)
             break;
         }
         case 6 : {// meter, metervs - <percent> <rgb> <rgb2>
-            float length = clamp(attr[1], 0, 100) / 100.f;
+            float length = std::clamp(attr[1], 0, 100) / 100.f;
             part_icon(o, textureload(hud::progresstex, 3), 2, 1, 0, 0, 1, partcolour(attr[3], attr[6], attr[7]), length,
                       1 - length);
             [[fallthrough]];
         }
         case 5: {
-            float length = clamp(attr[1], 0, 100) / 100.f;
+            float length = std::clamp(attr[1], 0, 100) / 100.f;
             int colour = partcolour(attr[2], attr[4], attr[5]);
             part_icon(o, textureload(hud::progringtex, 3), 3, 1, 0, 0, 1, colour, (totalmillis % 1000) / 1000.f, 0.1f);
             part_icon(o, textureload(hud::progresstex, 3), 3, 1, 0, 0, 1, colour, 0, length);

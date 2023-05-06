@@ -347,8 +347,8 @@ void convertoldsurfaces(cube &c, const ivec &co, int size, surfacecompat *srcsur
                 {
                     float u = src->x + (src->texcoords[k*2] / 255.0f) * (src->w - 1),
                           v = src->y + (src->texcoords[k*2+1] / 255.0f) * (src->h - 1);
-                    dv.u = ushort(floor(clamp((u) * float(USHRT_MAX+1)/LM_PACKW + 0.5f, 0.0f, float(USHRT_MAX))));
-                    dv.v = ushort(floor(clamp((v) * float(USHRT_MAX+1)/LM_PACKH + 0.5f, 0.0f, float(USHRT_MAX))));
+                    dv.u = ushort(floor(std::clamp((u) * float(USHRT_MAX+1)/LM_PACKW + 0.5f, 0.0f, float(USHRT_MAX))));
+                    dv.v = ushort(floor(std::clamp((v) * float(USHRT_MAX+1)/LM_PACKH + 0.5f, 0.0f, float(USHRT_MAX))));
                 }
                 else dv.u = dv.v = 0;
                 dv.norm = usenorms && normals[i].normals[k] != bvec(128, 128, 128) ? encodenormal(normals[i].normals[k].tonormal().normalize()) : 0;
@@ -361,8 +361,8 @@ void convertoldsurfaces(cube &c, const ivec &co, int size, surfacecompat *srcsur
                 if(k > 0 && (pos[k] == pos[0] || pos[k] == pos[k-1])) continue;
                 vertinfo &bv = verts[totalverts++];
                 bv.setxyz(pos[k]);
-                bv.u = ushort(floor(clamp((blend->x + (blend->texcoords[k*2] / 255.0f) * (blend->w - 1)) * float(USHRT_MAX+1)/LM_PACKW, 0.0f, float(USHRT_MAX))));
-                bv.v = ushort(floor(clamp((blend->y + (blend->texcoords[k*2+1] / 255.0f) * (blend->h - 1)) * float(USHRT_MAX+1)/LM_PACKH, 0.0f, float(USHRT_MAX))));
+                bv.u = ushort(floor(std::clamp((blend->x + (blend->texcoords[k*2] / 255.0f) * (blend->w - 1)) * float(USHRT_MAX+1)/LM_PACKW, 0.0f, float(USHRT_MAX))));
+                bv.v = ushort(floor(std::clamp((blend->y + (blend->texcoords[k*2+1] / 255.0f) * (blend->h - 1)) * float(USHRT_MAX+1)/LM_PACKH, 0.0f, float(USHRT_MAX))));
                 bv.norm = usenorms && normals[i].normals[k] != bvec(128, 128, 128) ? encodenormal(normals[i].normals[k].tonormal().normalize()) : 0;
             }
         }
@@ -1607,7 +1607,7 @@ bool load_world(const char *mname, int crc)       // still supports all map form
                 f->read(&e, sizeof(entbase));
                 lilswap(&e.o.x, 3);
                 int numattr = f->getlil<int>();
-                e.attrs.add(0, clamp(numattr, entities::numattrs(e.type), MAXENTATTRS));
+                e.attrs.add(0, std::clamp(numattr, entities::numattrs(e.type), MAXENTATTRS));
                 loopk(numattr)
                 {
                     int val = f->getlil<int>();

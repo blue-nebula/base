@@ -683,7 +683,7 @@ namespace client
 
     const char *getmodelname(int mdl, int idx)
     {
-        return mdl >= 0 ? playertypes[mdl%PLAYERTYPES][clamp(idx, 0, 5)] : "";
+        return mdl >= 0 ? playertypes[mdl%PLAYERTYPES][std::clamp(idx, 0, 5)] : "";
     }
     ICOMMAND(0, getmodelname, "iiN", (int *mdl, int *idx, int *numargs), result(getmodelname(*mdl, *numargs >= 2 ? *idx : 5)));
 
@@ -1750,15 +1750,15 @@ namespace client
             vectoyawpitch(vec(worldpos).sub(d->headpos()).normalize(), yaw, pitch);
             game::fixrange(yaw, pitch);
         }
-        uint dir = (yaw < 0 ? 360 + int(yaw)%360 : int(yaw)%360) + clamp(int(pitch+90), 0, 180)*360;
+        uint dir = (yaw < 0 ? 360 + int(yaw)%360 : int(yaw)%360) + std::clamp(int(pitch+90), 0, 180)*360;
         q.put(dir&0xFF);
         q.put((dir>>8)&0xFF);
-        q.put(clamp(int(d->roll+90), 0, 180));
+        q.put(std::clamp(int(d->roll+90), 0, 180));
         q.put(vel&0xFF);
         if(vel > 0xFF) q.put((vel>>8)&0xFF);
         float velyaw, velpitch;
         vectoyawpitch(d->vel, velyaw, velpitch);
-        uint veldir = (velyaw < 0 ? 360 + int(velyaw)%360 : int(velyaw)%360) + clamp(int(velpitch+90), 0, 180)*360;
+        uint veldir = (velyaw < 0 ? 360 + int(velyaw)%360 : int(velyaw)%360) + std::clamp(int(velpitch+90), 0, 180)*360;
         q.put(veldir&0xFF);
         q.put((veldir>>8)&0xFF);
         if(fall > 0)
@@ -1769,7 +1769,7 @@ namespace client
             {
                 float fallyaw, fallpitch;
                 vectoyawpitch(d->falling, fallyaw, fallpitch);
-                uint falldir = (fallyaw < 0 ? 360 + int(fallyaw)%360 : int(fallyaw)%360) + clamp(int(fallpitch+90), 0, 180)*360;
+                uint falldir = (fallyaw < 0 ? 360 + int(fallyaw)%360 : int(fallyaw)%360) + std::clamp(int(fallpitch+90), 0, 180)*360;
                 q.put(falldir&0xFF);
                 q.put((falldir>>8)&0xFF);
             }
@@ -1989,13 +1989,13 @@ namespace client
                 int dir = p.get();
                 dir |= p.get()<<8;
                 yaw = dir%360;
-                pitch = clamp(dir/360, 0, 180)-90;
-                roll = clamp(int(p.get()), 0, 180)-90;
+                pitch = std::clamp(dir/360, 0, 180)-90;
+                roll = std::clamp(int(p.get()), 0, 180)-90;
                 int mag = p.get();
                 if(flags&(1<<6)) mag |= p.get()<<8;
                 dir = p.get();
                 dir |= p.get()<<8;
-                vecfromyawpitch(dir%360, clamp(dir/360, 0, 180)-90, 1, 0, vel);
+                vecfromyawpitch(dir%360, std::clamp(dir/360, 0, 180)-90, 1, 0, vel);
                 vel.mul(mag/DVELF);
                 if(flags&(1<<7))
                 {
@@ -2005,7 +2005,7 @@ namespace client
                     {
                         dir = p.get();
                         dir |= p.get()<<8;
-                        vecfromyawpitch(dir%360, clamp(dir/360, 0, 180)-90, 1, 0, falling);
+                        vecfromyawpitch(dir%360, std::clamp(dir/360, 0, 180)-90, 1, 0, falling);
                     }
                     else falling = vec(0, 0, -1);
                     falling.mul(mag/DVELF);
@@ -2291,7 +2291,7 @@ namespace client
                         dummy.get(p);
                         break;
                     }
-                    int colour = getint(p), model = getint(p), cps = getint(p), team = clamp(getint(p), int(T_NEUTRAL), int(T_ENEMY)), priv = getint(p);
+                    int colour = getint(p), model = getint(p), cps = getint(p), team = std::clamp(getint(p), int(T_NEUTRAL), int(T_ENEMY)), priv = getint(p);
                     getstring(text, p);
                     string namestr = "";
                     filterstring(namestr, text, true, true, true, true, MAXNAMELEN);
@@ -3191,7 +3191,7 @@ namespace client
 
                 case N_INITAI:
                 {
-                    int bn = getint(p), on = getint(p), at = getint(p), et = getint(p), sk = clamp(getint(p), 1, 101);
+                    int bn = getint(p), on = getint(p), at = getint(p), et = getint(p), sk = std::clamp(getint(p), 1, 101);
                     getstring(text, p);
                     int tm = getint(p), cl = getint(p), md = getint(p);
                     string vanity;
@@ -3273,9 +3273,9 @@ namespace client
     {
         int ac = 0, bc = 0;
         if(a->address.host == ENET_HOST_ANY || a->ping >= serverinfo::WAITING || a->attr.empty()) ac = -1;
-        else ac = a->attr[0] == VERSION_GAME ? 0x7FFF : clamp(a->attr[0], 0, 0x7FFF-1);
+        else ac = a->attr[0] == VERSION_GAME ? 0x7FFF : std::clamp(a->attr[0], 0, 0x7FFF-1);
         if(b->address.host == ENET_HOST_ANY || b->ping >= serverinfo::WAITING || b->attr.empty()) bc = -1;
-        else bc = b->attr[0] == VERSION_GAME ? 0x7FFF : clamp(b->attr[0], 0, 0x7FFF-1);
+        else bc = b->attr[0] == VERSION_GAME ? 0x7FFF : std::clamp(b->attr[0], 0, 0x7FFF-1);
         if(ac > bc) return -1;
         if(ac < bc) return 1;
 

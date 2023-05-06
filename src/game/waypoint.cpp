@@ -25,7 +25,7 @@ namespace ai
         if(dist >= 0)
         {
             pull = int(dist/JUMPMIN);
-            pos.z -= clamp(dist-8.0f, 0.0f, pos.z);
+            pos.z -= std::clamp(dist-8.0f, 0.0f, pos.z);
             int trgmat = lookupmaterial(pos);
             if(trgmat&MAT_DEATH || trgmat&MAT_HURT || (trgmat&MATF_VOLUME) == MAT_LAVA) pull *= 100;
             else if(isliquid(trgmat&MATF_VOLUME)) pull *= 2;

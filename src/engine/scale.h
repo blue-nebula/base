@@ -50,8 +50,8 @@ static void FUNCNAME(scaletexture)(uchar * RESTRICT src, uint sw, uint sh, uint 
     int over, under;
     for(over = 0; (darea>>over) > sarea; over++);
     for(under = 0; (darea<<under) < sarea; under++);
-    uint cscale = clamp(under, over - 12, 12),
-         ascale = clamp(12 + under - over, 0, 24),
+    uint cscale = std::clamp(under, over - 12, 12),
+         ascale = std::clamp(12 + under - over, 0, 24),
          dscale = ascale + 12 - cscale,
          area = ((ullong)darea<<ascale)/sarea;
     dw *= wfrac;

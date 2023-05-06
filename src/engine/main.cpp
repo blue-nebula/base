@@ -246,8 +246,8 @@ VARF(0, fullscreendesktop, 0, 0, 1, if(!(identflags&IDF_WORLD) && fullscreen) re
 
 void screenres(int w, int h)
 {
-    scr_w = clamp(w, SCR_MINW, SCR_MAXW);
-    scr_h = clamp(h, SCR_MINH, SCR_MAXH);
+    scr_w = std::clamp(w, SCR_MINW, SCR_MAXW);
+    scr_h = std::clamp(h, SCR_MINH, SCR_MAXH);
     if(screen)
     {
         if(fullscreendesktop)
@@ -327,8 +327,8 @@ void setupscreen()
 
     if(scr_h < 0) scr_h = fullscreen ? desktoph : SCR_DEFAULTH;
     if(scr_w < 0) scr_w = (scr_h*desktopw)/desktoph;
-    scr_w = clamp(scr_w, SCR_MINW, SCR_MAXW);
-    scr_h = clamp(scr_h, SCR_MINH, SCR_MAXH);
+    scr_w = std::clamp(scr_w, SCR_MINW, SCR_MAXW);
+    scr_h = std::clamp(scr_h, SCR_MINH, SCR_MAXH);
     if(fullscreendesktop)
     {
         scr_w = min(scr_w, desktopw);
@@ -627,8 +627,8 @@ void checkinput()
                         SDL_GetWindowSize(screen, &screenw, &screenh);
                         if(!fullscreendesktop || !(SDL_GetWindowFlags(screen) & SDL_WINDOW_FULLSCREEN))
                         {
-                            scr_w = clamp(screenw, SCR_MINW, SCR_MAXW);
-                            scr_h = clamp(screenh, SCR_MINH, SCR_MAXH);
+                            scr_w = std::clamp(screenw, SCR_MINW, SCR_MAXW);
+                            scr_h = std::clamp(screenh, SCR_MINH, SCR_MAXH);
                         }
                         gl_resize();
                         break;
@@ -960,8 +960,8 @@ int main(int argc, char **argv)
             {
                 switch(argv[i][2])
                 {
-                    case 'w': scr_w = clamp(atoi(&argv[i][3]), SCR_MINW, SCR_MAXW); if(!findarg(argc, argv, "-dh")) scr_h = -1; break;
-                    case 'h': scr_h = clamp(atoi(&argv[i][3]), SCR_MINH, SCR_MAXH); if(!findarg(argc, argv, "-dw")) scr_w = -1; break;
+                    case 'w': scr_w = std::clamp(atoi(&argv[i][3]), SCR_MINW, SCR_MAXW); if(!findarg(argc, argv, "-dh")) scr_h = -1; break;
+                    case 'h': scr_h = std::clamp(atoi(&argv[i][3]), SCR_MINH, SCR_MAXH); if(!findarg(argc, argv, "-dw")) scr_w = -1; break;
                     case 'd': depthbits = atoi(&argv[i][3]); break;
                     case 'c': /* compat, ignore */ break;
                     case 'a': fsaa = atoi(&argv[i][3]); break;
@@ -1015,7 +1015,7 @@ int main(int argc, char **argv)
 
     initing = NOT_INITING;
 
-    numcpus = clamp(SDL_GetCPUCount(), 1, 16);
+    numcpus = std::clamp(SDL_GetCPUCount(), 1, 16);
 
     conoutf("loading enet..");
     if(enet_initialize()<0) fatal("Unable to initialise network module");

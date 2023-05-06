@@ -44,7 +44,7 @@ struct vec2
     vec2 &min(float f)       { x = ::min(x, f); y = ::min(y, f); return *this; }
     vec2 &max(float f)       { x = ::max(x, f); y = ::max(y, f); return *this; }
     vec2 &abs() { x = fabs(x); y = fabs(y); return *this; }
-    vec2 &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); return *this; }
+    vec2 &clamp(float l, float h) { x = std::clamp(x, l, h); y = std::clamp(y, l, h); return *this; }
     vec2 &reflect(const vec2 &n) { float k = 2*dot(n); x -= k*n.x; y -= k*n.y; return *this; }
     vec2 &lerp(const vec2 &b, float t) { x += (b.x-x)*t; y += (b.y-y)*t; return *this; }
     vec2 &lerp(const vec2 &a, const vec2 &b, float t) { x = a.x + (b.x-a.x)*t; y = a.y + (b.y-a.y)*t; return *this; }
@@ -121,7 +121,7 @@ struct vec
     vec &min(float f)        { x = ::min(x, f); y = ::min(y, f); z = ::min(z, f); return *this; }
     vec &max(float f)        { x = ::max(x, f); y = ::max(y, f); z = ::max(z, f); return *this; }
     vec &abs() { x = fabs(x); y = fabs(y); z = fabs(z); return *this; }
-    vec &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
+    vec &clamp(float l, float h) { x = std::clamp(x, l, h); y = std::clamp(y, l, h); z = std::clamp(z, l, h); return *this; }
     float magnitude2() const { return sqrtf(dot2(*this)); }
     float magnitude() const  { return sqrtf(squaredlen()); }
     vec &normalize()         { div(magnitude()); return *this; }
@@ -235,13 +235,13 @@ struct vec
         return vec(((color>>16)&0xFF)*(1.0f/255.0f), ((color>>8)&0xFF)*(1.0f/255.0f), (color&0xFF)*(1.0f/255.0f));
     }
 
-    int tohexcolor() { return (int(::clamp(r, 0.0f, 1.0f)*255)<<16)|(int(::clamp(g, 0.0f, 1.0f)*255)<<8)|int(::clamp(b, 0.0f, 1.0f)*255); }
+    int tohexcolor() { return (int(std::clamp(r, 0.0f, 1.0f)*255)<<16)|(int(std::clamp(g, 0.0f, 1.0f)*255)<<8)|int(std::clamp(b, 0.0f, 1.0f)*255); }
 
     vec &minbounds(float rx, float ry, float rz)
     {
-        x = ::clamp(x, -rx, rx);
-        y = ::clamp(y, -ry, ry);
-        z = ::clamp(z, -rz, rz);
+        x = std::clamp(x, -rx, rx);
+        y = std::clamp(y, -ry, ry);
+        z = std::clamp(z, -rz, rz);
         return *this;
     }
     vec &minbounds(const vec &n) { return minbounds(n.x, n.y, n.z); }
@@ -1182,7 +1182,7 @@ struct ivec
     ivec &min(int n) { x = ::min(x, n); y = ::min(y, n); z = ::min(z, n); return *this; }
     ivec &max(int n) { x = ::max(x, n); y = ::max(y, n); z = ::max(z, n); return *this; }
     ivec &abs() { x = ::abs(x); y = ::abs(y); z = ::abs(z); return *this; }
-    ivec &clamp(int l, int h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
+    ivec &clamp(int l, int h) { x = std::clamp(x, l, h); y = std::clamp(y, l, h); z = std::clamp(z, l, h); return *this; }
     ivec &cross(const ivec &a, const ivec &b) { x = a.y*b.z-a.z*b.y; y = a.z*b.x-a.x*b.z; z = a.x*b.y-a.y*b.x; return *this; }
     int dot(const ivec &o) const { return x*o.x + y*o.y + z*o.z; }
     float dist(const plane &p) const { return x*p.x + y*p.y + z*p.z + p.offset; }
@@ -1325,7 +1325,7 @@ struct bvec
     bvec &min(int f)        { x = ::min(int(x), f); y = ::min(int(y), f); z = ::min(int(z), f); return *this; }
     bvec &max(int f)        { x = ::max(int(x), f); y = ::max(int(y), f); z = ::max(int(z), f); return *this; }
     bvec &abs() { return *this; }
-    bvec &clamp(int l, int h) { x = ::clamp(int(x), l, h); y = ::clamp(int(y), l, h); z = ::clamp(int(z), l, h); return *this; }
+    bvec &clamp(int l, int h) { x = std::clamp(int(x), l, h); y = std::clamp(int(y), l, h); z = std::clamp(int(z), l, h); return *this; }
 
     vec tonormal() const { return vec(x*(2.0f/255.0f)-1.0f, y*(2.0f/255.0f)-1.0f, z*(2.0f/255.0f)-1.0f); }
 
@@ -1358,7 +1358,7 @@ struct bvec
 
     static bvec from565(ushort c) { return bvec((((c>>11)&0x1F)*527 + 15) >> 6, (((c>>5)&0x3F)*259 + 35) >> 6, ((c&0x1F)*527 + 15) >> 6); }
 
-    int tohexcolor() { return ((::clamp(int(r), 0, 255))<<16)|((::clamp(int(g), 0, 255))<<8)|(::clamp(int(b), 0, 255)); }
+    int tohexcolor() { return ((std::clamp(int(r), 0, 255))<<16)|((std::clamp(int(g), 0, 255))<<8)|(std::clamp(int(b), 0, 255)); }
 };
 
 struct bvec4
