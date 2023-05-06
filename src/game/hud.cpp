@@ -992,14 +992,14 @@ namespace hud
     {
         if(move)
         {
-            m.x = move*-sinf(RAD*yaw);
-            m.y = move*cosf(RAD*yaw);
+            m.x = move*-sinf(rad*yaw);
+            m.y = move*cosf(rad*yaw);
         }
         else m.x = m.y = 0;
         if(strafe)
         {
-            m.x += strafe*cosf(RAD*yaw);
-            m.y += strafe*sinf(RAD*yaw);
+            m.x += strafe*cosf(rad*yaw);
+            m.y += strafe*sinf(rad*yaw);
         }
     }
 
@@ -1018,7 +1018,7 @@ namespace hud
             if(rotate&1) flipx = angle >= 180.f;
             while(rot < 0.0f) rot += 360.0f;
             while(rot >= 360.0f) rot -= 360.0f;
-            vec2 loc(x+offset*sinf(RAD*angle), y+offset*-cosf(RAD*angle));
+            vec2 loc(x+offset*sinf(rad*angle), y+offset*-cosf(rad*angle));
             gle::color(colour, blend);
             glBindTexture(GL_TEXTURE_2D, t->id);
             gle::defvertex(2);
@@ -1077,7 +1077,7 @@ namespace hud
         bool simple = showclips == 1 || maxammo > 360;
         float fade = clipblend*hudblend, size = s*clipsize*(simple ? 1.f : clipskew[weap]), offset = s*clipoffset, amt = 0, spin = 0,
               slice = 360/float(maxammo), angle = (simple || maxammo > (cliprots[weap]&4 ? 4 : 3) || maxammo%2 ? 360.f : 360.f-slice*0.5f)-((maxammo-ammo)*slice),
-              area = 1-std::clamp(clipoffs[weap]*2, 1e-3f, 1.f), need = s*clipsize*clipskew[weap]*area*maxammo, have = 2*M_PI*s*clipoffset,
+              area = 1-std::clamp(clipoffs[weap]*2, 1e-3f, 1.f), need = s*clipsize*clipskew[weap]*area*maxammo, have = 2*pi*s*clipoffset,
               scale = std::clamp(have/need, clipminscale, clipmaxscale);
         vec c(1, 1, 1);
         if(clipstone) skewcolour(c.r, c.g, c.b, clipstone);
@@ -2043,7 +2043,7 @@ namespace hud
         if(style < 0) style = radartype();
         vec dir = vec(pos).sub(camera1->o);
         float dist = std::clamp(dir.magnitude()/float(radarrange()), 0.f, 1.f);
-        dir.rotate_around_z(-camera1->yaw*RAD).normalize();
+        dir.rotate_around_z(-camera1->yaw*rad).normalize();
         vec loc(0, 0, 0);
         if(style == 2)
         {
@@ -2054,7 +2054,7 @@ namespace hud
             }
             else return; // can't render things we can't point at
         }
-        float yaw = -atan2(dir.x, dir.y)/RAD, x = sinf(RAD*yaw), y = -cosf(RAD*yaw), size = max(w, h)/2,
+        float yaw = -atan2(dir.x, dir.y)/rad, x = sinf(rad*yaw), y = -cosf(rad*yaw), size = max(w, h)/2,
               ts = size*(style != 3 ? radarsize : radarcornersize), tp = ts*s, tq = tp*0.5f;
         if(style != 2)
         {
@@ -2338,7 +2338,7 @@ namespace hud
                 fade = std::clamp(radardamageblend*blend, min(radardamageblend*radardamagemin/100.f, 1.f), radardamageblend)*amt,
                 size = std::clamp(range*radardamagesize, min(radardamagesize*radardamagemin/100.f, 1.f), radardamagesize)*amt;
             vec dir = d.dir, colour = d.colour < 0 ? game::rescolour(game::focus, INVPULSE(d.colour)) : vec::hexcolor(d.colour);
-            if(e == game::focus) d.dir = vec(e->yaw*RAD, 0.f).neg();
+            if(e == game::focus) d.dir = vec(e->yaw*rad, 0.f).neg();
             vec o = vec(camera1->o).add(vec(dir).mul(radarrange()));
             if(radardamage >= 5) drawblip(hurttex, 2+size/3, w, h, size, fade, 0, o, colour, "tiny", true, "%s +%d", e ? game::colourname(e) : "?", d.damage);
             else drawblip(hurttex, 2+size/3, w, h, size, fade, 0, o, colour, nullptr, true);
@@ -2401,7 +2401,7 @@ namespace hud
         {
             if(radartype() == 3) // right-corner radar
             {
-                vec pos = vec(camera1->o).sub(minimapcenter).mul(minimapscale).add(0.5f), dir(camera1->yaw*RAD, 0.f);
+                vec pos = vec(camera1->o).sub(minimapcenter).mul(minimapscale).add(0.5f), dir(camera1->yaw*rad, 0.f);
                 float scale = radarrange(), size = max(w, h)/2, s = size*radarcorner, x = w-s*2, y = 0, q = s*2*radarcorneroffset, r = s-q;
                 bindminimap();
                 gle::colorf(radarcornerbright, radarcornerbright, radarcornerbright, radarcornerblend);
@@ -2410,9 +2410,9 @@ namespace hud
                 gle::begin(GL_TRIANGLE_FAN);
                 loopi(16)
                 {
-                    vec v = vec(0, -1, 0).rotate_around_z(i/16.0f*2*M_PI);
+                    vec v = vec(0, -1, 0).rotate_around_z(i/16.0f*2*pi);
                     gle::attribf(x + q + r*(1.0f + v.x), y + q + r*(1.0f + v.y));
-                    vec tc = vec(dir).rotate_around_z(i/16.0f*2*M_PI);
+                    vec tc = vec(dir).rotate_around_z(i/16.0f*2*pi);
                     gle::attribf(pos.x + tc.x*scale*minimapscale.x, pos.y + tc.y*scale*minimapscale.y);
                 }
                 gle::end();
@@ -3627,7 +3627,7 @@ namespace hud
     void update(int w, int h)
     {
         aspect = forceaspect ? forceaspect : w/float(h);
-        fovy = 2*atan2(tan(curfov/2*RAD), aspect)/RAD;
+        fovy = 2*atan2(tan(curfov/2*rad), aspect)/rad;
         if(aspect > 1)
         {
             hudheight = hudsize;

@@ -816,7 +816,7 @@ namespace physics
             }
             if(d->hasmelee(lastmillis, true, d->sliding(true), onfloor))
             {
-                vec oldpos = d->o, dir(d->yaw*RAD, 0.f);
+                vec oldpos = d->o, dir(d->yaw*rad, 0.f);
                 d->o.add(dir);
                 bool collided = collide(d, dir);
                 d->o = oldpos;
@@ -1429,12 +1429,12 @@ namespace physics
         doposchk;
         if(gameent::is(d)) loopk(18)
         {
-            vec dir = vec(d->yaw*RAD, d->pitch*RAD).rotate_around_z(k*20.f*RAD);
+            vec dir = vec(d->yaw*rad, d->pitch*rad).rotate_around_z(k*20.f*rad);
             if(!dir.iszero()) inmapchk(100, d->o.add(vec(dir).mul(n/10.f+maxrad)));
         }
         if(!d->vel.iszero()) loopk(18)
         {
-            vec dir = vec(d->vel).normalize().rotate_around_z(k*20.f*RAD);
+            vec dir = vec(d->vel).normalize().rotate_around_z(k*20.f*rad);
             inmapchk(100, d->o.add(vec(dir).mul(n/10.f+maxrad)));
         }
         inmapchk(100, d->o.add(vec((rnd(21)-10)/10.f, (rnd(21)-10)/10.f, (rnd(21)-10)/10.f).normalize().mul(vec(n/10.f+maxrad, n/10.f+maxrad, n/25.f+maxrad))));

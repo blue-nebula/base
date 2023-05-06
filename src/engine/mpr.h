@@ -61,7 +61,7 @@ namespace mpr
 
         EntOBB(physent *ent) : Ent(ent)
         {
-            orient.setyaw(ent->yaw*RAD);
+            orient.setyaw(ent->yaw*rad);
         }
 
         vec contactface(const vec &wn, const vec &wdir) const

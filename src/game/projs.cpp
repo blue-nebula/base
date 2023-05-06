@@ -375,10 +375,10 @@ namespace projs
                 else
                 {
                     proj.o = proj.stickpos;
-                    proj.o.rotate_around_z(proj.stick->yaw*RAD);
+                    proj.o.rotate_around_z(proj.stick->yaw*rad);
                     proj.o.add(proj.stick->center());
                     proj.norm = proj.sticknrm;
-                    proj.norm.rotate_around_z(proj.stick->yaw*RAD);
+                    proj.norm.rotate_around_z(proj.stick->yaw*rad);
                     proj.vel = vec(proj.stick->vel).add(proj.stick->falling);
                     updatenormal(proj);
                     return true;
@@ -412,8 +412,8 @@ namespace projs
             if(proj.stick)
             {
                 proj.stickpos.sub(proj.stick->center()).normalize().mul(vec(proj.stick->xradius*1.1f, proj.stick->yradius*1.1f, proj.stick->height*0.6f));
-                proj.stickpos.rotate_around_z(-proj.stick->yaw*RAD);
-                proj.sticknrm.rotate_around_z(-proj.stick->yaw*RAD);
+                proj.stickpos.rotate_around_z(-proj.stick->yaw*rad);
+                proj.sticknrm.rotate_around_z(-proj.stick->yaw*rad);
             }
             if(updatesticky(proj, true) && proj.projtype == PRJ_SHOT)
                 client::addmsg(N_STICKY, "ri9i3",
@@ -710,7 +710,7 @@ namespace projs
             static const int sphereyawchecks[8] = { 180, 135, 225, 90, 270, 45, 315 }, spherepitchchecks[5] = { 0, 45, -45, 89, -89 };
             loopi(2) loopj(5) loopk(8)
             {
-                proj.o.add(vec((int(yaw+sphereyawchecks[k])%360)*RAD, spherepitchchecks[j]*RAD).mul(proj.radius*(i+1)*2));
+                proj.o.add(vec((int(yaw+sphereyawchecks[k])%360)*rad, spherepitchchecks[j]*rad).mul(proj.radius*(i+1)*2));
                 if(!collide(&proj, dir, 1e-6f, false) && !collideinside)
                 {
                     if(rev)
@@ -795,7 +795,7 @@ namespace projs
                     proj.from = proj.to = proj.owner->center();
                     if(proj.target && proj.target->state == CS_ALIVE)
                         proj.to.add(vec(proj.target->center()).sub(proj.from).normalize().mul(proj.owner->radius*2.f));
-                    else proj.to.add(vec(proj.owner->yaw*RAD, proj.owner->pitch*RAD).mul(proj.owner->radius*2.f));
+                    else proj.to.add(vec(proj.owner->yaw*rad, proj.owner->pitch*rad).mul(proj.owner->radius*2.f));
                 }
                 else
                 {
@@ -965,7 +965,7 @@ namespace projs
                 float mag = proj.inertia.magnitude();
                 if(mag <= 50)
                 {
-                    if(mag <= 0) proj.inertia = vec(proj.yaw*RAD, proj.pitch*RAD);
+                    if(mag <= 0) proj.inertia = vec(proj.yaw*rad, proj.pitch*rad);
                     proj.inertia.normalize().mul(50);
                 }
                 proj.to.add(proj.inertia);
@@ -1084,7 +1084,7 @@ namespace projs
                     proj.yaw = proj.owner->yaw;
                     proj.pitch = proj.owner->pitch;
                 }
-                dir = vec(proj.yaw*RAD, proj.pitch*RAD);
+                dir = vec(proj.yaw*rad, proj.pitch*rad);
             }
             vec rel = vec(proj.vel).add(dir).add(proj.inertia.mul(proj.relativity));
             proj.vel = vec(rel).add(vec(dir).mul(physics::movevelocity(&proj)));
@@ -1249,7 +1249,7 @@ namespace projs
         d->lastshoot = lastmillis;
         if(AA(d->actortype, abilities)&(1<<A_A_PUSHABLE))
         {
-            vec kick = vec(d->yaw*RAD, d->pitch*RAD).mul(-W2(weap, kickpush, WS(flags))*skew);
+            vec kick = vec(d->yaw*rad, d->pitch*rad).mul(-W2(weap, kickpush, WS(flags))*skew);
             if(!kick.iszero())
             {
                 if(d == game::focus) game::swaypush.add(vec(kick).mul(kickpushsway));
@@ -1893,7 +1893,7 @@ namespace projs
                             }
                         default: break;
                     }
-                    e->vel = vec(yaw*RAD, pitch*RAD).mul(mag).add(keepvel);
+                    e->vel = vec(yaw*rad, pitch*rad).mul(mag).add(keepvel);
                     e->doimpulse(cost, IM_T_GRAB, lastmillis);
                     client::addmsg(N_SPHY, "ri2", e->clientnum, SPHY_GRAB);
                     game::impulseeffect(e);
@@ -2025,7 +2025,7 @@ namespace projs
             }
         }
 
-        float dist = proj.o.dist(pos), diff = dist/float(4*RAD);
+        float dist = proj.o.dist(pos), diff = dist/float(4*rad);
         if(!blocked) proj.movement += dist;
         proj.distance += dist;
         switch(proj.projtype)
@@ -2040,7 +2040,7 @@ namespace projs
                 {
                     if(!proj.lastbounce || proj.movement >= 1)
                     {
-                        vec axis(sinf(proj.yaw*RAD), -cosf(proj.yaw*RAD), 0);
+                        vec axis(sinf(proj.yaw*rad), -cosf(proj.yaw*rad), 0);
                         if(proj.vel.dot2(axis) >= 0) { proj.pitch -= diff; if(proj.pitch < -180) proj.pitch = 180 - fmod(180 - proj.pitch, 360); }
                         else { proj.pitch += diff; if(proj.pitch > 180) proj.pitch = fmod(proj.pitch + 180, 360) - 180; }
                         break;
@@ -2069,7 +2069,7 @@ namespace projs
                     float yaw = proj.yaw, pitch = proj.pitch, speed = diff*secs;
                     vectoyawpitch(vec(proj.vel).normalize(), yaw, pitch);
                     game::scaleyawpitch(proj.yaw, proj.pitch, yaw, pitch, speed, speed);
-                    vec axis(sinf(proj.yaw*RAD), -cosf(proj.yaw*RAD), 0);
+                    vec axis(sinf(proj.yaw*rad), -cosf(proj.yaw*rad), 0);
                     if(proj.vel.dot2(axis) >= 0) { proj.roll -= diff; if(proj.roll < -180) proj.roll = 180 - fmod(180 - proj.roll, 360); }
                     else { proj.roll += diff; if(proj.roll > 180) proj.roll = fmod(proj.roll + 180, 360) - 180; }
                 }
@@ -2081,7 +2081,7 @@ namespace projs
             case PRJ_EJECT:
                 if(!proj.lastbounce || proj.movement >= 1)
                 {
-                    vec axis(sinf(proj.yaw*RAD), -cosf(proj.yaw*RAD), 0);
+                    vec axis(sinf(proj.yaw*rad), -cosf(proj.yaw*rad), 0);
                     if(proj.vel.dot2(axis) >= 0) { proj.pitch -= diff; if(proj.pitch < -180) proj.pitch = 180 - fmod(180 - proj.pitch, 360); }
                     else { proj.pitch += diff; if(proj.pitch > 180) proj.pitch = fmod(proj.pitch + 180, 360) - 180; }
                 }

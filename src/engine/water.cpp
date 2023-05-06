@@ -95,7 +95,7 @@ void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
     wx2 = wx1 + size,
     wy2 = wy1 + size;
     wsize = size;
-    whscale = 59.0f/(23.0f*wsize*wsize)/(2*M_PI);
+    whscale = 59.0f/(23.0f*wsize*wsize)/(2*pi);
 
     ASSERT((wx1 & (subdiv - 1)) == 0);
     ASSERT((wy1 & (subdiv - 1)) == 0);
@@ -104,14 +104,14 @@ void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
     {
         case MAT_WATER:
         {
-            whoffset = fmod(float(lastmillis/600.0f/(2*M_PI)), 1.0f);
+            whoffset = fmod(float(lastmillis/600.0f/(2*pi)), 1.0f);
             renderwaterstrips(vertwt, z);
             break;
         }
 
         case MAT_LAVA:
         {
-            whoffset = fmod(float(lastmillis/2000.0f/(2*M_PI)), 1.0f);
+            whoffset = fmod(float(lastmillis/2000.0f/(2*pi)), 1.0f);
             renderwaterstrips(vertl, z);
             break;
         }

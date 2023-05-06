@@ -354,7 +354,7 @@ void ragdolldata::calcrotfriction()
 void ragdolldata::applyrotfriction(float ts)
 {
     calctris();
-    float stopangle = 2*M_PI*ts*ragdollrotfricstop, rotfric = 1.0f - pow(ragdollrotfric, ts*1000.0f/ragdolltimestepmin);
+    float stopangle = 2*pi*ts*ragdollrotfricstop, rotfric = 1.0f - pow(ragdollrotfric, ts*1000.0f/ragdolltimestepmin);
     loopv(skel->rotfrictions)
     {
         ragdollskel::rotfriction &r = skel->rotfrictions[i];
@@ -495,7 +495,7 @@ void ragdolldata::move(dynent *pl, float ts)
         vert &v = verts[i];
         vec dpos = vec(v.pos).sub(v.oldpos);
         dpos.z -= gravity*ts*ts;
-        if(liquid) dpos.z += 0.25f*sinf(detrnd(size_t(this)+i, 360)*RAD + lastmillis/10000.0f*M_PI)*ts*pl->submerged;
+        if(liquid) dpos.z += 0.25f*sinf(detrnd(size_t(this)+i, 360)*rad + lastmillis/10000.0f*pi)*ts*pl->submerged;
         dpos.mul(pow((liquid ? physics::liquidmerge(pl, 1.f, ragdollliquidfric) : 1.f) * (v.collided ? ragdollgroundfric : airfric), ts*1000.0f/ragdolltimestepmin)*tsfric);
         v.oldpos = v.pos;
         v.pos.add(dpos);

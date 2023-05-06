@@ -2138,7 +2138,7 @@ namespace game
             {
                 float dist = p->o.dist(p->d);
                 p->d = p->o = d->muzzlepos(d->weapselect);
-                p->d.add(vec(d->yaw*RAD, d->pitch*RAD).mul(dist));
+                p->d.add(vec(d->yaw*rad, d->pitch*rad).mul(dist));
                 break;
             }
             case PT_PART: case PT_FIREBALL: case PT_FLARE:
@@ -2262,8 +2262,8 @@ namespace game
     void getyawpitch(const vec &from, const vec &pos, float &yaw, float &pitch)
     {
         float dist = from.dist(pos);
-        yaw = -atan2(pos.x-from.x, pos.y-from.y)/RAD;
-        pitch = asin((pos.z-from.z)/dist)/RAD;
+        yaw = -atan2(pos.x-from.x, pos.y-from.y)/rad;
+        pitch = asin((pos.z-from.z)/dist)/rad;
     }
 
     void scaleyawpitch(float &yaw, float &pitch, float targyaw, float targpitch, float yawspeed, float pitchspeed, float rotate)
@@ -2342,7 +2342,7 @@ namespace game
             to.z -= spineoff;
             float lean = std::clamp(pitch, -firstpersonpitchmin, firstpersonpitchmax);
             if(firstpersonpitchscale >= 0) lean *= firstpersonpitchscale;
-            to.add(vec(yaw*RAD, (lean+90)*RAD).mul(spineoff));
+            to.add(vec(yaw*rad, (lean+90)*rad).mul(spineoff));
         }
         if(firstpersonbob && gs_playing(gamestate) && d->state == CS_ALIVE)
         {
@@ -2354,8 +2354,8 @@ namespace game
             if(firstpersonbobtopspeed) scale *= std::clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
             {
-                float steps = bobdist/firstpersonbobstep*M_PI;
-                vec dir = vec(yaw*RAD, 0.f).mul(firstpersonbobside*cosf(steps)*scale);
+                float steps = bobdist/firstpersonbobstep*pi;
+                vec dir = vec(yaw*rad, 0.f).mul(firstpersonbobside*cosf(steps)*scale);
                 dir.z = firstpersonbobup*(fabs(sinf(steps)) - 1)*scale;
                 to.add(dir);
             }
@@ -2518,7 +2518,7 @@ namespace game
             yaw = c->player ? c->player->yaw : float(rnd(360));
             pitch = c->player ? c->player->pitch : float(rnd(91)-45);
             fixrange(yaw, pitch);
-            c->dir = vec(yaw*RAD, pitch*RAD);
+            c->dir = vec(yaw*rad, pitch*rad);
             if(force) return true;
         }
         return false;
@@ -2556,7 +2556,7 @@ namespace game
         static const int sphereyawchecks[8] = { 180, 135, 225, 90, 270, 45, 315 }, spherepitchchecks[5] = { 0, 45, -45, 89, -89 };
         loopi(5) loopj(5) loopk(8)
         {
-            c.o = vec(pos).add(vec(sphereyawchecks[k]*RAD, spherepitchchecks[j]*RAD).mul((i+1)*2));
+            c.o = vec(pos).add(vec(sphereyawchecks[k]*rad, spherepitchchecks[j]*rad).mul((i+1)*2));
             if(!collide(&c, vec(0, 0, 0), 0, false))
             {
                 pos = c.o;
@@ -2805,7 +2805,7 @@ namespace game
             if(scale > 0)
             {
                 vec dir(c->yaw, c->pitch);
-                float steps = bobdist/firstpersonbobstep*M_PI, dist = raycube(c->o, dir, firstpersonbobfocusmaxdist, RAY_CLIPMAT|RAY_POLY), yaw, pitch;
+                float steps = bobdist/firstpersonbobstep*pi, dist = raycube(c->o, dir, firstpersonbobfocusmaxdist, RAY_CLIPMAT|RAY_POLY), yaw, pitch;
                 if(dist < 0 || dist > firstpersonbobfocusmaxdist) dist = firstpersonbobfocusmaxdist;
                 else if(dist < firstpersonbobfocusmindist) dist = firstpersonbobfocusmindist;
                 vectoyawpitch(vec(firstpersonbobside*cosf(steps), dist, firstpersonbobup*(fabs(sinf(steps)) - 1)), yaw, pitch);
@@ -3040,8 +3040,8 @@ namespace game
         vec o = third ? d->feetpos() : camerapos(d);
         if(third == 2)
         {
-            o.sub(vec(yaw*RAD, 0.f).mul(firstpersonbodydist+firstpersonspineoffset));
-            o.sub(vec(yaw*RAD, 0.f).rotate_around_z(90*RAD).mul(firstpersonbodyside));
+            o.sub(vec(yaw*rad, 0.f).mul(firstpersonbodydist+firstpersonspineoffset));
+            o.sub(vec(yaw*rad, 0.f).rotate_around_z(90*rad).mul(firstpersonbodyside));
             if(firstpersonbodyfeet >= 0 && d->wantshitbox())
             {
                 float minz = max(d->toe[0].z, d->toe[1].z)+(firstpersonbodyfeet*size);
@@ -3054,8 +3054,8 @@ namespace game
                 vectoyawpitch(vec(worldpos).sub(d->headpos()).normalize(), yaw, pitch);
             else if(!third && firstpersonsway)
             {
-                float steps = swaydist/(firstpersonbob ? firstpersonbobstep : firstpersonswaystep)*M_PI;
-                vec dir = vec(d->yaw*RAD, 0.f).mul(firstpersonswayside*cosf(steps));
+                float steps = swaydist/(firstpersonbob ? firstpersonbobstep : firstpersonswaystep)*pi;
+                vec dir = vec(d->yaw*rad, 0.f).mul(firstpersonswayside*cosf(steps));
                 dir.z = firstpersonswayup*(fabs(sinf(steps)) - 1);
                 o.add(dir).add(swaydir).add(swaypush);
             }

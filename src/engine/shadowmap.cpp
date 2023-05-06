@@ -51,7 +51,7 @@ void guessshadowdir()
             }
             case ET_SUNLIGHT:
             {
-                lightpos.add(vec(1, 1, 1).mul(hdr.worldsize/2).add(vec(e.attrs[0]*RAD, (e.attrs[1]+90)*RAD).mul(hdr.worldsize*2)));
+                lightpos.add(vec(1, 1, 1).mul(hdr.worldsize/2).add(vec(e.attrs[0]*rad, (e.attrs[1]+90)*rad).mul(hdr.worldsize*2)));
                 numlights++;
                 break;
             }
@@ -74,7 +74,7 @@ void setshadowdir(int angle)
     if(angle)
     {
         shadowdir = vec(0, SHADOWSKEW, 1);
-        shadowdir.rotate_around_z(angle*RAD);
+        shadowdir.rotate_around_z(angle*rad);
     }
     else guessshadowdir();
 }
@@ -125,7 +125,7 @@ static struct shadowmaptexture : rendertarget
     bool dorender()
     {
         vec skewdir(shadowdir);
-        skewdir.rotate_around_z(-camera1->yaw*RAD);
+        skewdir.rotate_around_z(-camera1->yaw*rad);
 
         vec dir;
         vecfromyawpitch(camera1->yaw, camera1->pitch, 1, 0, dir);
@@ -141,7 +141,7 @@ static struct shadowmaptexture : rendertarget
         shadowmatrix.ortho(-shadowmapradius, shadowmapradius, -shadowmapradius, shadowmapradius, -shadowmapdist, shadowmapdist);
         shadowmatrix.mul(matrix3(vec(1, 0, 0), vec(0, 1, 0), vec(skewdir.x, skewdir.y, 1)));
         shadowmatrix.translate(skewdir.x*shadowmapheight + shadowoffset.x, skewdir.y*shadowmapheight + shadowoffset.y + dir.magnitude(), -shadowmapheight);
-        shadowmatrix.rotate_around_z((camera1->yaw+180)*-RAD);
+        shadowmatrix.rotate_around_z((camera1->yaw+180)*-rad);
         shadowmatrix.translate(vec(camera1->o).neg());
         GLOBALPARAM(shadowmatrix, shadowmatrix);
 
@@ -203,13 +203,13 @@ void cleanshadowmap()
 void calcshadowmapbb(const vec &o, float xyrad, float zrad, float &x1, float &y1, float &x2, float &y2)
 {
     vec skewdir(shadowdir);
-    skewdir.rotate_around_z(-camera1->yaw*RAD);
+    skewdir.rotate_around_z(-camera1->yaw*rad);
 
     vec ro(o);
     ro.sub(camera1->o);
-    ro.rotate_around_z(-(camera1->yaw+180)*RAD);
+    ro.rotate_around_z(-(camera1->yaw+180)*rad);
     ro.x += ro.z * skewdir.x + shadowoffset.x;
-    ro.y += ro.z * skewdir.y + shadowmapradius * cosf(camera1->pitch*RAD) + shadowoffset.y;
+    ro.y += ro.z * skewdir.y + shadowmapradius * cosf(camera1->pitch*rad) + shadowoffset.y;
 
     vec high(ro), low(ro);
     high.x += zrad * skewdir.x;
@@ -244,7 +244,7 @@ bool isshadowmapreceiver(vtxarray *va)
 
     if(va->shadowmapmax.z <= shadowfocus.z - shadowmapdist || va->shadowmapmin.z >= shadowmapmaxz) return false;
 
-    float xyrad = SQRT2*0.5f*max(va->shadowmapmax.x-va->shadowmapmin.x, va->shadowmapmax.y-va->shadowmapmin.y),
+    float xyrad = sqrt2*0.5f*max(va->shadowmapmax.x-va->shadowmapmin.x, va->shadowmapmax.y-va->shadowmapmin.y),
           zrad = 0.5f*(va->shadowmapmax.z-va->shadowmapmin.z),
           x1, y1, x2, y2;
     if(xyrad<0 || zrad<0) return false;

@@ -445,7 +445,7 @@ template<class MDL> struct vertcommands : modelcommands<MDL, struct MDL::vertmes
         defformatstring(filename, "%s/%s", MDL::dir, model);
         part &mdl = MDL::loading->addpart();
         if(mdl.index) mdl.pitchscale = mdl.pitchoffset = mdl.pitchmin = mdl.pitchmax = 0;
-        mdl.meshes = MDL::loading->sharemeshes(path(filename), double(*smooth > 0 ? cos(std::clamp(*smooth, 0.0f, 180.0f)*RAD) : 2));
+        mdl.meshes = MDL::loading->sharemeshes(path(filename), double(*smooth > 0 ? cos(std::clamp(*smooth, 0.0f, 180.0f)*rad) : 2));
         if(!mdl.meshes) conoutf("\frcould not load %s", filename);
         else mdl.initskins();
     }

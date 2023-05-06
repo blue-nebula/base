@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstddef>
+#include <numbers>
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -92,20 +93,13 @@ static inline int bitscan(uint mask)
 #define DELETEP(p) if(p) { delete   p; p = 0; }
 #define DELETEA(p) if(p) { delete[] p; p = 0; }
 
-#define PI  (3.1415927f)
-#define PI2 (2*PI)
-#define SQRT2 (1.4142136f)
-#define SQRT3 (1.7320508f)
-#define RAD (PI / 180.0f)
+constexpr float pi{ std::numbers::pi_v<float> };
+constexpr float sqrt2{ std::numbers::sqrt2_v<float> };
+constexpr float sqrt3{ std::numbers::sqrt3_v<float> };
+constexpr float rad{ pi / 180.0f };
+constexpr float ln2{ std::numbers::ln2_v<float> };
 
 #ifdef WIN32
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#ifndef M_LN2
-#define M_LN2 0.693147180559945309417
-#endif
-
 #ifdef _MSC_VER
 #pragma warning (3: 4189)       // local variable is initialized but not referenced
 #pragma warning (disable: 4244) // conversion from 'int' to 'float', possible loss of data

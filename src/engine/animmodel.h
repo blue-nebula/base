@@ -898,7 +898,7 @@ struct animmodel : model
             {
                 ++matrixpos;
                 matrixstack[matrixpos] = matrixstack[matrixpos-1];
-                matrixstack[matrixpos].rotate(pitchamount*RAD, oaxis);
+                matrixstack[matrixpos].rotate(pitchamount*rad, oaxis);
             }
             matrixstack[matrixpos].transposedtransformnormal(forward, oforward);
 
@@ -933,9 +933,9 @@ struct animmodel : model
                 {
                     linkedpart &link = links[i];
                     link.matrix.translate(link.translate, resize);
-                    if(link.rotate.x) link.matrix.rotate_around_z(link.rotate.x*RAD);
-                    if(link.rotate.z) link.matrix.rotate_around_x(-link.rotate.z*RAD);
-                    if(link.rotate.y) link.matrix.rotate_around_y(link.rotate.y*RAD);
+                    if(link.rotate.x) link.matrix.rotate_around_z(link.rotate.x*rad);
+                    if(link.rotate.z) link.matrix.rotate_around_x(-link.rotate.z*rad);
+                    if(link.rotate.y) link.matrix.rotate_around_y(link.rotate.y*rad);
 
                     matrixpos++;
                     matrixstack[matrixpos].mul(matrixstack[matrixpos-1], link.matrix);
@@ -1073,14 +1073,14 @@ struct animmodel : model
         if(!d || !d->ragdoll || anim&ANIM_RAGDOLL)
         {
             matrixstack[0].settranslation(o);
-            if(yaw) matrixstack[0].rotate_around_z(yaw*RAD);
-            if(roll) matrixstack[0].rotate_around_x(-roll*RAD);
+            if(yaw) matrixstack[0].rotate_around_z(yaw*rad);
+            if(roll) matrixstack[0].rotate_around_x(-roll*rad);
             matrixstack[0].transformnormal(vec(axis), axis);
             matrixstack[0].transformnormal(vec(forward), forward);
-            if(offsetyaw) matrixstack[0].rotate_around_z(offsetyaw*RAD);
-            if(offsetroll) matrixstack[0].rotate_around_x(-offsetroll*RAD);
-            if(syaw) matrixstack[0].rotate_around_z(syaw*RAD);
-            if(sroll) matrixstack[0].rotate_around_x(-sroll*RAD);
+            if(offsetyaw) matrixstack[0].rotate_around_z(offsetyaw*rad);
+            if(offsetroll) matrixstack[0].rotate_around_x(-offsetroll*rad);
+            if(syaw) matrixstack[0].rotate_around_z(syaw*rad);
+            if(sroll) matrixstack[0].rotate_around_x(-sroll*rad);
         }
         else
         {
@@ -1164,9 +1164,9 @@ struct animmodel : model
     void initmatrix(matrix4x3 &m)
     {
         m.identity();
-        if(offsetyaw) m.rotate_around_z(offsetyaw*RAD);
-        if(offsetroll) m.rotate_around_x(-offsetroll*RAD);
-        if(offsetpitch) m.rotate_around_y(offsetpitch*RAD);
+        if(offsetyaw) m.rotate_around_z(offsetyaw*rad);
+        if(offsetroll) m.rotate_around_x(-offsetroll*rad);
+        if(offsetpitch) m.rotate_around_y(offsetpitch*rad);
     }
 
     void genBIH(vector<BIH::mesh> &bih)

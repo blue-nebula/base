@@ -20,8 +20,8 @@ struct captureservmode : capturestate, servmode
         vec dir = inertia, olddir = dir;
         if(numflags > 1 && dir.iszero())
         {
-            dir.x = -sinf(RAD*ci->yaw);
-            dir.y = cosf(RAD*ci->yaw);
+            dir.x = -sinf(rad*ci->yaw);
+            dir.y = cosf(rad*ci->yaw);
             dir.z = 0;
             olddir = dir.normalize().mul(max(dir.magnitude(), 1.f));
         }
@@ -30,7 +30,7 @@ struct captureservmode : capturestate, servmode
             if(numflags > 1)
             {
                 float yaw = -45.f+(90/float(numflags+1)*(iterflags+1));
-                dir = vec(olddir).rotate_around_z(yaw*RAD);
+                dir = vec(olddir).rotate_around_z(yaw*rad);
                 iterflags++;
             }
             ivec p(vec(o).mul(DMF)), q(vec(dir).mul(DMF));

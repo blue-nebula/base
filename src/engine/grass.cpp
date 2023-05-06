@@ -15,12 +15,12 @@ struct grasswedge
 
     void init(int i, int n)
     {
-      dir = vec(2*M_PI*(i+0.5f)/float(n), 0);
-      across = vec(2*M_PI*((i+0.5f)/float(n) + 0.25f), 0);
-      edge1 = vec(2*M_PI*i/float(n), 0).div(cos(M_PI/n));
-      edge2 = vec(2*M_PI*(i+1)/float(n), 0).div(cos(M_PI/n));
-      bound1 = plane(vec(2*M_PI*(i/float(n) - 0.25f), 0), 0);
-      bound2 = plane(vec(2*M_PI*((i+1)/float(n) + 0.25f), 0), 0);
+      dir = vec(2*pi*(i+0.5f)/float(n), 0);
+      across = vec(2*pi*((i+0.5f)/float(n) + 0.25f), 0);
+      edge1 = vec(2*pi*i/float(n), 0).div(cos(pi/n));
+      edge2 = vec(2*pi*(i+1)/float(n), 0).div(cos(pi/n));
+      bound1 = plane(vec(2*pi*(i/float(n) - 0.25f), 0), 0);
+      bound2 = plane(vec(2*pi*((i+1)/float(n) + 0.25f), 0), 0);
       across.div(-across.dot(bound1));
     }
 };
@@ -77,7 +77,7 @@ FVAR(IDF_WORLD, grassanimscale, 0, 0.03f, 1);
 
 static void animategrass()
 {
-    loopi(numgrassoffsets) grassanimoffsets[i] = grassanimscale*sinf(2*M_PI*(grassoffsets[i] + lastmillis/float(grassanimmillis)));
+    loopi(numgrassoffsets) grassanimoffsets[i] = grassanimscale*sinf(2*pi*(grassoffsets[i] + lastmillis/float(grassanimmillis)));
     lastgrassanim = lastmillis;
 }
 

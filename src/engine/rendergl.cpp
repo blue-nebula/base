@@ -631,7 +631,7 @@ vec worldpos, camdir, camright, camup;
 
 void findorientation(vec &o, float yaw, float pitch, vec &pos)
 {
-    vec dir(yaw*RAD, pitch*RAD);
+    vec dir(yaw*rad, pitch*rad);
     if(raycubepos(o, dir, pos, 0, RAY_CLIPMAT|RAY_SKIPFIRST) == -1)
         pos = dir.mul(2*hdr.worldsize).add(o); //otherwise gui won't work when outside of map
 }
@@ -640,9 +640,9 @@ void setcammatrix()
 {
     // move from RH to Z-up LH quake style worldspace
     cammatrix = viewmatrix;
-    cammatrix.rotate_around_y(camera1->roll*RAD);
-    cammatrix.rotate_around_x(camera1->pitch*-RAD);
-    cammatrix.rotate_around_z(camera1->yaw*-RAD);
+    cammatrix.rotate_around_y(camera1->roll*rad);
+    cammatrix.rotate_around_x(camera1->pitch*-rad);
+    cammatrix.rotate_around_z(camera1->yaw*-rad);
     cammatrix.translate(vec(camera1->o).neg());
 
     cammatrix.transposedtransformnormal(vec(viewmatrix.b), camdir);
@@ -830,7 +830,7 @@ void calcspherescissor(const vec &center, float size, float &sx1, float &sy1, fl
     if(e.z > 2*size) { sx1 = sy1 = 1; sx2 = sy2 = -1; return; }
     float zzrr = e.z*e.z - size*size,
           dx = e.x*e.x + zzrr, dy = e.y*e.y + zzrr,
-          focaldist = 1.0f/tan(fovy*0.5f*RAD);
+          focaldist = 1.0f/tan(fovy*0.5f*rad);
     sx1 = sy1 = -1;
     sx2 = sy2 = 1;
     #define CHECKPLANE(c, dir, focaldist, low, high) \
@@ -1567,7 +1567,7 @@ namespace modelpreview
 
         aspect = w/float(h);
         fovy = modelpreviewfov;
-        curfov = 2*atan2(tan(fovy/2*RAD), 1/aspect)/RAD;
+        curfov = 2*atan2(tan(fovy/2*rad), 1/aspect)/rad;
         farplane = 1024;
 
         clearfogdist();
@@ -1608,8 +1608,8 @@ namespace modelpreview
 vec calcmodelpreviewpos(const vec &radius, float &yaw)
 {
     yaw = fmod(lastmillis/10000.0f*360.0f, 360.0f);
-    float dist = 1.05f*max(radius.magnitude2()/aspect, radius.magnitude())/sinf(fovy/2*RAD);
-    return vec(0, dist, 0).rotate_around_x(camera1->pitch*RAD);
+    float dist = 1.05f*max(radius.magnitude2()/aspect, radius.magnitude())/sinf(fovy/2*rad);
+    return vec(0, dist, 0).rotate_around_x(camera1->pitch*rad);
 }
 
 GLuint minimaptex = 0;
@@ -1787,8 +1787,8 @@ void gettextres(int &w, int &h)
 void drawslice(float start, float length, float x, float y, float size)
 {
     float end = start + length,
-          sx = cosf((start + 0.25f)*2*M_PI), sy = -sinf((start + 0.25f)*2*M_PI),
-          ex = cosf((end + 0.25f)*2*M_PI), ey = -sinf((end + 0.25f)*2*M_PI);
+          sx = cosf((start + 0.25f)*2*pi), sy = -sinf((start + 0.25f)*2*pi),
+          ex = cosf((end + 0.25f)*2*pi), ey = -sinf((end + 0.25f)*2*pi);
 
     #define SLICEVERT(ox, oy) do { \
         gle::attribf(x + (ox)*size, y + (oy)*size); \
@@ -1820,8 +1820,8 @@ void drawslice(float start, float length, float x, float y, float size)
 void drawfadedslice(float start, float length, float x, float y, float size, float alpha, float r, float g, float b, float minsize)
 {
     float end = start + length,
-          sx = cosf((start + 0.25f)*2*M_PI), sy = -sinf((start + 0.25f)*2*M_PI),
-          ex = cosf((end + 0.25f)*2*M_PI), ey = -sinf((end + 0.25f)*2*M_PI);
+          sx = cosf((start + 0.25f)*2*pi), sy = -sinf((start + 0.25f)*2*pi),
+          ex = cosf((end + 0.25f)*2*pi), ey = -sinf((end + 0.25f)*2*pi);
 
     #define SLICESPOKE(ox, oy) do { \
         SLICEVERT((ox)*minsize, (oy)*minsize); \
@@ -1968,7 +1968,7 @@ void viewproject(int targtype = VP_CAMERA)
     if(targtype != VP_LEFT && targtype != VP_RIGHT) projmatrix.perspective(fovy, aspect, nearplane, farplane);
     else
     {
-        float top = stereonear*tan(fovy/2*RAD), right = aspect*top, iod = stereodist/2;
+        float top = stereonear*tan(fovy/2*rad), right = aspect*top, iod = stereodist/2;
         if(targtype == VP_RIGHT) iod = -iod;
         float fs = iod*stereonear/stereoplane;
         projmatrix.frustum(-right+fs, right+fs, -top, top, stereonear, farplane);
@@ -2253,7 +2253,7 @@ void gl_drawframe()
 
             float blend = abovemat == MAT_AIR ? fogblend : 1.0f;
             fovy += blend*sinf(lastmillis/1000.0)*2.0f;
-            aspect += blend*sinf(lastmillis/1000.0+PI)*0.1f;
+            aspect += blend*sinf(lastmillis/1000.0+pi)*0.1f;
         }
         else fogmat = MAT_AIR;
 

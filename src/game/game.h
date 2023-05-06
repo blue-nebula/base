@@ -1186,7 +1186,7 @@ struct gameent : dynent, clientstate
     {
         if(!isweap(weap)) weap = weapselect;
         if(origin == vec(-1, -1, -1))
-            origin = vec(weap == W_MELEE ? feetpos() : center()).add(vec(yaw*RAD, pitch*RAD));
+            origin = vec(weap == W_MELEE ? feetpos() : center()).add(vec(yaw*rad, pitch*rad));
         return origin;
     }
 
@@ -1212,11 +1212,11 @@ struct gameent : dynent, clientstate
                     if(px >= 180) px -= 360;
                     if(px < -180) px += 360;
                 }
-                muzzle = vec(originpos(weap)).add(vec(yx*RAD, px*RAD).mul(8));
+                muzzle = vec(originpos(weap)).add(vec(yx*rad, px*rad).mul(8));
             }
             else
             {
-                vec dir(yaw*RAD, pitch*RAD);
+                vec dir(yaw*rad, pitch*rad);
                 if(weap != W_CLAW)
                 {
                     vec right;

@@ -1451,9 +1451,9 @@ static void renderprefab(prefab &p, const vec &o, float yaw, float pitch, float 
     matrix4 m;
     m.identity();
     m.settranslation(o);
-    if(yaw) m.rotate_around_z(yaw*RAD);
-    if(pitch) m.rotate_around_x(pitch*RAD);
-    if(roll) m.rotate_around_y(-roll*RAD);
+    if(yaw) m.rotate_around_z(yaw*rad);
+    if(pitch) m.rotate_around_x(pitch*rad);
+    if(roll) m.rotate_around_y(-roll*rad);
     matrix3 w(m);
     if(size > 0 && size != 1) m.scale(size);
     m.translate(vec(b.s).mul(-b.grid*0.5f));

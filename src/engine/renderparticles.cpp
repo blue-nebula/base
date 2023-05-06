@@ -379,8 +379,8 @@ struct portalrenderer : listrenderer<portal>
     void renderpart(portal *p, int blend, int ts, float size)
     {
         matrix4x3 m(vec(size, 0, 0), vec(0, size, 0), vec(0, 0, size), p->o);
-        m.rotate_around_z(p->yaw*RAD);
-        m.rotate_around_x(p->pitch*RAD);
+        m.rotate_around_z(p->yaw*rad);
+        m.rotate_around_x(p->pitch*rad);
 
         bvec4 color(p->color.r, p->color.g, p->color.b, uchar(p->blend*blend));
         gle::attrib(m.transform(vec(-1, 0,  1))); gle::attribf(1, 0); gle::color(color);
@@ -451,8 +451,8 @@ struct iconrenderer : listrenderer<icon>
         bvec4 color(p->color.r, p->color.g, p->color.b, uchar(p->blend*blend));
         if(p->start > 0 || p->length < 1)
         {
-            float sx = cosf((p->start + 0.25f)*2*M_PI), sy = -sinf((p->start + 0.25f)*2*M_PI),
-                  ex = cosf((p->end + 0.25f)*2*M_PI), ey = -sinf((p->end + 0.25f)*2*M_PI);
+            float sx = cosf((p->start + 0.25f)*2*pi), sy = -sinf((p->start + 0.25f)*2*pi),
+                  ex = cosf((p->end + 0.25f)*2*pi), ey = -sinf((p->end + 0.25f)*2*pi);
             gle::end(); gle::begin(GL_TRIANGLE_FAN);
             iconvert(0, 0);
 
@@ -539,10 +539,10 @@ static inline void genrotpos(const vec &o, const vec &d, float size, int grav, i
 }
 
 #define ROTCOEFFS(n) { \
-    vec(-1,  1, 0).rotate_around_z(n*2*M_PI/32.0f), \
-    vec( 1,  1, 0).rotate_around_z(n*2*M_PI/32.0f), \
-    vec( 1, -1, 0).rotate_around_z(n*2*M_PI/32.0f), \
-    vec(-1, -1, 0).rotate_around_z(n*2*M_PI/32.0f) \
+    vec(-1,  1, 0).rotate_around_z(n*2*pi/32.0f), \
+    vec( 1,  1, 0).rotate_around_z(n*2*pi/32.0f), \
+    vec( 1, -1, 0).rotate_around_z(n*2*pi/32.0f), \
+    vec(-1, -1, 0).rotate_around_z(n*2*pi/32.0f) \
 }
 static const vec rotcoeffs[32][4] =
 {
@@ -769,7 +769,7 @@ struct softquadrenderer : quadrenderer
             int blend = 255, ts = 1;
             float size = 1;
             calc(&p, blend, ts, size, false);
-            float radius = size*SQRT2;
+            float radius = size*sqrt2;
             if(!isfoggedsphere(radius, p.o) && (depthfxscissor!=2 || depthfxtex.addscissorbox(p.o, radius)))
             {
                 numsoft++;
@@ -1006,9 +1006,9 @@ struct coneprimitiverenderer : listrenderer<coneprimitive>
         p->radius = radius;
         p->angle = angle;
         p->fill = fill;
-        p->spot = vec(p->dir).mul(p->radius*cosf(p->angle*RAD));
+        p->spot = vec(p->dir).mul(p->radius*cosf(p->angle*rad));
         p->spoke.orthogonal(p->dir);
-        p->spoke.normalize().mul(p->radius*sinf(p->angle*RAD));
+        p->spoke.normalize().mul(p->radius*sinf(p->angle*rad));
         return p;
     }
 
@@ -1412,7 +1412,7 @@ void part_dir(const vec &o, float yaw, float pitch, float length, float size, fl
 {
     if(!canaddparticles()) return;
 
-    vec v(yaw*RAD, pitch*RAD);
+    vec v(yaw*rad, pitch*rad);
     part_line(o, vec(v).mul(length).add(o), size, blend, fade, color);
     if(interval)
     {
@@ -1546,7 +1546,7 @@ static inline vec offsetvec(vec o, int dir, int dist)
         }
         else if(dir < 24) //sphere
         {
-            to = vec(PI2*float(rnd(1000))/1000.0, PI*float(rnd(1000)-500)/1000.0).mul(radius);
+            to = vec((pi*2)*float(rnd(1000))/1000.0, pi*float(rnd(1000)-500)/1000.0).mul(radius);
             to.add(p);
             from = p;
         }

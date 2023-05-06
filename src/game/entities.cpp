@@ -680,7 +680,7 @@ namespace entities
                         float mag = f.attrs[2] < 0 ? 0.f : max(vec(d->vel).add(d->falling).magnitude(), f.attrs[2] ? float(f.attrs[2]) : 50.f),
                               yaw = f.attrs[0] < 0 ? (lastmillis/5)%360 : f.attrs[0], pitch = f.attrs[1];
                         game::fixrange(yaw, pitch);
-                        if(mag > 0 && f.attrs[5] < 6) d->vel = vec(yaw*RAD, pitch*RAD).mul(mag);
+                        if(mag > 0 && f.attrs[5] < 6) d->vel = vec(yaw*rad, pitch*rad).mul(mag);
                         switch(f.attrs[5]%3)
                         {
                             case 2: break; // keep
@@ -701,7 +701,7 @@ namespace entities
                         }
                         game::fixrange(d->yaw, d->pitch);
                         if(mag <= 0) d->vel = vec(0, 0, 0);
-                        else if(f.attrs[5] >= 6) d->vel = vec(d->yaw*RAD, d->pitch*RAD).mul(mag);
+                        else if(f.attrs[5] >= 6) d->vel = vec(d->yaw*rad, d->pitch*rad).mul(mag);
                         if(physics::entinmap(d, gameent::is(d))) // entinmap first for getting position
                         {
                             f.lastemit = lastmillis;
@@ -772,7 +772,7 @@ namespace entities
                     float mag = max(e.attrs[2], 1), maxrad = e.attrs[3] ? e.attrs[3] : enttype[PUSHER].radius, minrad = e.attrs[4];
                     if(dist > 0 && minrad > 0 && maxrad > minrad && dist > minrad && maxrad >= dist)
                         mag *= 1.f-std::clamp((dist-minrad)/float(maxrad-minrad), 0.f, 1.f);
-                    vec dir(e.attrs[0]*RAD, e.attrs[1]*RAD), rel = vec(dir).mul(mag);
+                    vec dir(e.attrs[0]*rad, e.attrs[1]*rad), rel = vec(dir).mul(mag);
                     switch(e.attrs[5])
                     {
                         case 0:
@@ -1795,7 +1795,7 @@ namespace entities
                         {
                             int material = lookupmaterial(e.o), clipmat = material&MATF_CLIP;
                             if(clipmat == MAT_CLIP || (material&MAT_DEATH) || (material&MATF_VOLUME) == MAT_LAVA)
-                                e.o.add(vec(e.attrs[0]*RAD, e.attrs[1]*RAD));
+                                e.o.add(vec(e.attrs[0]*rad, e.attrs[1]*rad));
                         }
                     }
                     if(e.attrs[0] >= 0) checkyawmode(e, mtype, mver, gver, 0, -1);
@@ -2120,12 +2120,12 @@ namespace entities
                 {
                     int colour = ((e.attrs[2]/2)<<16)|((e.attrs[3]/2)<<8)|(e.attrs[4]/2),
                         offset = e.attrs[5] ? (e.attrs[5] > 0 ? e.attrs[5] : 0) : 10, yaw = e.attrs[0], pitch = e.attrs[1]+90;
-                    vec dir(yaw*RAD, pitch*RAD);
+                    vec dir(yaw*rad, pitch*rad);
                     static const float offsets[9][2] = { { 0, 0 }, { 0, 1 }, { 90, 1 }, { 180, 1 }, { 270, 1 }, { 45, 0.5f }, { 135, 0.5f }, { 225, 0.5f }, { 315, 0.5f } };
                     loopk(offset ? 9 : 1)
                     {
-                        vec spoke(yaw*RAD, (pitch + offset*offsets[k][1])*RAD);
-                        spoke.rotate(offsets[k][0]*RAD, dir);
+                        vec spoke(yaw*rad, (pitch + offset*offsets[k][1])*rad);
+                        spoke.rotate(offsets[k][0]*rad, dir);
                         float syaw, spitch;
                         vectoyawpitch(spoke, syaw, spitch);
                         entdirpart(e.o, syaw, spitch, getworldsize()*2, 1, colour);

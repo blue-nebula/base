@@ -117,8 +117,8 @@ struct md3 : vertmodel, vertloader<md3>
                     m.verts[j].pos.y = -v.vertex[1]/64.0f;
                     m.verts[j].pos.z = v.vertex[2]/64.0f;
 
-                    float lng = (v.normal&0xFF)*PI2/255.0f; // decode vertex normals
-                    float lat = ((v.normal>>8)&0xFF)*PI2/255.0f;
+                    float lng = (v.normal&0xFF)*(pi*2)/255.0f; // decode vertex normals
+                    float lat = ((v.normal>>8)&0xFF)*(pi*2)/255.0f;
                     m.verts[j].norm.x = cosf(lat)*sinf(lng);
                     m.verts[j].norm.y = -sinf(lat)*sinf(lng);
                     m.verts[j].norm.z = cosf(lng);

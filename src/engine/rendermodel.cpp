@@ -331,7 +331,7 @@ void rdlimitrot(int *t1, int *t2, float *maxangle, float *qx, float *qy, float *
     ragdollskel::rotlimit &r = ragdoll->rotlimits.add();
     r.tri[0] = *t1;
     r.tri[1] = *t2;
-    r.maxangle = *maxangle * RAD;
+    r.maxangle = *maxangle * rad;
     r.middle = matrix3(quat(*qx, *qy, *qz, *qw));
 }
 COMMAND(0, rdlimitrot, "iifffff");
@@ -538,7 +538,7 @@ void renderellipse(vec &o, float xradius, float yradius, float yaw)
     loopi(15)
     {
         const vec2 &sc = sincos360[i*(360/15)];
-        gle::attrib(vec(xradius*sc.x, yradius*sc.y, 0).rotate_around_z((yaw+90)*RAD).add(o));
+        gle::attrib(vec(xradius*sc.x, yradius*sc.y, 0).rotate_around_z((yaw+90)*rad).add(o));
     }
     xtraverts += gle::end();
 }
@@ -820,13 +820,13 @@ void renderradius(const vec &o, float radius)
             switch(k)
             {
                 case 0:
-                    d.add(vec(radius*cosf(2*M_PI*i/16.0f), radius*sinf(2*M_PI*i/16.0f), 0).rotate_around_x(90*RAD));
+                    d.add(vec(radius*cosf(2*pi*i/16.0f), radius*sinf(2*pi*i/16.0f), 0).rotate_around_x(90*rad));
                     break;
                 case 1:
-                    d.add(vec(radius*cosf(2*M_PI*i/16.0f), radius*sinf(2*M_PI*i/16.0f), 0).rotate_around_y(-90*RAD));
+                    d.add(vec(radius*cosf(2*pi*i/16.0f), radius*sinf(2*pi*i/16.0f), 0).rotate_around_y(-90*rad));
                     break;
                 case 2: default:
-                    d.add(vec(radius*cosf(2*M_PI*i/16.0f), radius*sinf(2*M_PI*i/16.0f), 0).rotate_around_z(90*RAD));
+                    d.add(vec(radius*cosf(2*pi*i/16.0f), radius*sinf(2*pi*i/16.0f), 0).rotate_around_z(90*rad));
                     break;
             }
             gle::attrib(d);
@@ -861,8 +861,8 @@ void rendermodel(entitylight *light, const char *mdl, int anim, const vec &o, fl
         else
         {
             center.mul(size);
-            center.rotate_around_x(-roll*RAD);
-            center.rotate_around_z(yaw*RAD);
+            center.rotate_around_x(-roll*rad);
+            center.rotate_around_z(yaw*rad);
             center.add(o);
         }
         radius *= size;
@@ -917,9 +917,9 @@ void rendermodel(entitylight *light, const char *mdl, int anim, const vec &o, fl
             matrix4x3 m;
             m.identity();
             m.settranslation(o);
-            m.rotate_around_z(yaw*RAD);
-            m.rotate_around_x(roll*-RAD);
-            m.rotate_around_y(pitch*-RAD);
+            m.rotate_around_z(yaw*rad);
+            m.rotate_around_x(roll*-rad);
+            m.rotate_around_y(pitch*-rad);
             render3dbox(center, radius.z, radius.z, radius.x, radius.y, &m);
         }
 

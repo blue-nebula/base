@@ -3304,17 +3304,17 @@ ICOMMAND(0, ||, "e1V", (tagval *args, int numargs),
 
 ICOMMAND(0, mod, "ii", (int *a, int *b), intret(*b ? *a % *b : 0));
 ICOMMAND(0, modf, "ff", (float *a, float *b), floatret(*b ? fmod(*a, *b) : 0));
-ICOMMAND(0, sin, "f", (float *a), floatret(sin(*a*RAD)));
-ICOMMAND(0, cos, "f", (float *a), floatret(cos(*a*RAD)));
-ICOMMAND(0, tan, "f", (float *a), floatret(tan(*a*RAD)));
-ICOMMAND(0, asin, "f", (float *a), floatret(asin(*a)/RAD));
-ICOMMAND(0, acos, "f", (float *a), floatret(acos(*a)/RAD));
-ICOMMAND(0, atan, "f", (float *a), floatret(atan(*a)/RAD));
-ICOMMAND(0, atan2, "ff", (float *y, float *x), floatret(atan2(*y, *x)/RAD));
+ICOMMAND(0, sin, "f", (float *a), floatret(sin(*a*rad)));
+ICOMMAND(0, cos, "f", (float *a), floatret(cos(*a*rad)));
+ICOMMAND(0, tan, "f", (float *a), floatret(tan(*a*rad)));
+ICOMMAND(0, asin, "f", (float *a), floatret(asin(*a)/rad));
+ICOMMAND(0, acos, "f", (float *a), floatret(acos(*a)/rad));
+ICOMMAND(0, atan, "f", (float *a), floatret(atan(*a)/rad));
+ICOMMAND(0, atan2, "ff", (float *y, float *x), floatret(atan2(*y, *x)/rad));
 ICOMMAND(0, sqrt, "f", (float *a), floatret(sqrt(*a)));
 ICOMMAND(0, pow, "ff", (float *a, float *b), floatret(pow(*a, *b)));
 ICOMMAND(0, loge, "f", (float *a), floatret(log(*a)));
-ICOMMAND(0, log2, "f", (float *a), floatret(log(*a)/M_LN2));
+ICOMMAND(0, log2, "f", (float *a), floatret(log(*a)/ln2));
 ICOMMAND(0, log10, "f", (float *a), floatret(log10(*a)));
 ICOMMAND(0, exp, "f", (float *a), floatret(exp(*a)));
 ICOMMAND(0, min, "V", (tagval *args, int numargs),

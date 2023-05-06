@@ -404,7 +404,7 @@ void calcvol(int flags, int vol, int slotvol, int maxrad, int minrad, const vec 
     {
         if(!(flags&SND_NOPAN) && !soundmono && (v.x != 0 || v.y != 0))
         {
-            v.rotate_around_z(-camera1->yaw*RAD);
+            v.rotate_around_z(-camera1->yaw*rad);
             span = int(255.9f*(0.5f - 0.5f*v.x/v.magnitude2())); // range is from 0 (left) to 255 (right)
         }
         if(!(flags&SND_NODIST))
@@ -791,8 +791,8 @@ void updatemumble()
     mumbleinfo->timestamp = ++timestamp;
 
     mumbleinfo->pos = mumblevec(camera1->o, true);
-    mumbleinfo->front = mumblevec(vec(RAD*camera1->yaw, RAD*camera1->pitch));
-    mumbleinfo->top = mumblevec(vec(RAD*camera1->yaw, RAD*(camera1->pitch+90)));
+    mumbleinfo->front = mumblevec(vec(rad*camera1->yaw, rad*camera1->pitch));
+    mumbleinfo->top = mumblevec(vec(rad*camera1->yaw, rad*(camera1->pitch+90)));
 #endif
 }
 

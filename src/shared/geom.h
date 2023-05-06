@@ -712,7 +712,7 @@ struct matrix3
                 axis.x = c.x/r;
                 axis.y = c.y/r;
             }
-            angle = M_PI;
+            angle = pi;
         }
         else if(tr >= 3)
         {
@@ -1671,7 +1671,7 @@ struct matrix4
 
     void perspective(float fovy, float aspect, float znear, float zfar)
     {
-        float ydist = znear * tan(fovy/2*RAD), xdist = ydist * aspect;
+        float ydist = znear * tan(fovy/2*rad), xdist = ydist * aspect;
         frustum(-xdist, xdist, -ydist, ydist, znear, zfar);
     }
 

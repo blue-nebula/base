@@ -90,7 +90,7 @@ static vtxarray *vasort[VASORTSIZE];
 void addvisibleva(vtxarray *va)
 {
     float dist = vadist(va, camera1->o);
-    va->distance = int(dist); /*cv.dist(camera1->o) - va->size*SQRT3/2*/
+    va->distance = int(dist); /*cv.dist(camera1->o) - va->size*sqrt3/2*/
 
     int hash = min(int(dist*VASORTSIZE/hdr.worldsize), VASORTSIZE-1);
     vtxarray **prev = &vasort[hash], *cur = vasort[hash];

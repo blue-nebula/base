@@ -767,7 +767,7 @@ static inline void calctexgen(VSlot &vslot, int dim, vec4 &sgen, vec4 &tgen)
 ushort encodenormal(const vec &n)
 {
     if(n.iszero()) return 0;
-    int yaw = int(-atan2(n.x, n.y)/RAD), pitch = int(asin(n.z)/RAD);
+    int yaw = int(-atan2(n.x, n.y)/rad), pitch = int(asin(n.z)/rad);
     return ushort(std::clamp(pitch + 90, 0, 180)*360 + (yaw < 0 ? yaw%360 + 360 : yaw%360) + 1);
 }
 

@@ -593,27 +593,27 @@ static void calcskylight(lightmapworker *w, const vec &o, const vec &normal, flo
 {
     static const vec rays[17] =
     {
-        vec(cosf(21*RAD)*cosf(50*RAD), sinf(21*RAD)*cosf(50*RAD), sinf(50*RAD)),
-        vec(cosf(111*RAD)*cosf(50*RAD), sinf(111*RAD)*cosf(50*RAD), sinf(50*RAD)),
-        vec(cosf(201*RAD)*cosf(50*RAD), sinf(201*RAD)*cosf(50*RAD), sinf(50*RAD)),
-        vec(cosf(291*RAD)*cosf(50*RAD), sinf(291*RAD)*cosf(50*RAD), sinf(50*RAD)),
+        vec(cosf(21*rad)*cosf(50*rad), sinf(21*rad)*cosf(50*rad), sinf(50*rad)),
+        vec(cosf(111*rad)*cosf(50*rad), sinf(111*rad)*cosf(50*rad), sinf(50*rad)),
+        vec(cosf(201*rad)*cosf(50*rad), sinf(201*rad)*cosf(50*rad), sinf(50*rad)),
+        vec(cosf(291*rad)*cosf(50*rad), sinf(291*rad)*cosf(50*rad), sinf(50*rad)),
 
-        vec(cosf(66*RAD)*cosf(70*RAD), sinf(66*RAD)*cosf(70*RAD), sinf(70*RAD)),
-        vec(cosf(156*RAD)*cosf(70*RAD), sinf(156*RAD)*cosf(70*RAD), sinf(70*RAD)),
-        vec(cosf(246*RAD)*cosf(70*RAD), sinf(246*RAD)*cosf(70*RAD), sinf(70*RAD)),
-        vec(cosf(336*RAD)*cosf(70*RAD), sinf(336*RAD)*cosf(70*RAD), sinf(70*RAD)),
+        vec(cosf(66*rad)*cosf(70*rad), sinf(66*rad)*cosf(70*rad), sinf(70*rad)),
+        vec(cosf(156*rad)*cosf(70*rad), sinf(156*rad)*cosf(70*rad), sinf(70*rad)),
+        vec(cosf(246*rad)*cosf(70*rad), sinf(246*rad)*cosf(70*rad), sinf(70*rad)),
+        vec(cosf(336*rad)*cosf(70*rad), sinf(336*rad)*cosf(70*rad), sinf(70*rad)),
 
         vec(0, 0, 1),
 
-        vec(cosf(43*RAD)*cosf(60*RAD), sinf(43*RAD)*cosf(60*RAD), sinf(60*RAD)),
-        vec(cosf(133*RAD)*cosf(60*RAD), sinf(133*RAD)*cosf(60*RAD), sinf(60*RAD)),
-        vec(cosf(223*RAD)*cosf(60*RAD), sinf(223*RAD)*cosf(60*RAD), sinf(60*RAD)),
-        vec(cosf(313*RAD)*cosf(60*RAD), sinf(313*RAD)*cosf(60*RAD), sinf(60*RAD)),
+        vec(cosf(43*rad)*cosf(60*rad), sinf(43*rad)*cosf(60*rad), sinf(60*rad)),
+        vec(cosf(133*rad)*cosf(60*rad), sinf(133*rad)*cosf(60*rad), sinf(60*rad)),
+        vec(cosf(223*rad)*cosf(60*rad), sinf(223*rad)*cosf(60*rad), sinf(60*rad)),
+        vec(cosf(313*rad)*cosf(60*rad), sinf(313*rad)*cosf(60*rad), sinf(60*rad)),
 
-        vec(cosf(88*RAD)*cosf(80*RAD), sinf(88*RAD)*cosf(80*RAD), sinf(80*RAD)),
-        vec(cosf(178*RAD)*cosf(80*RAD), sinf(178*RAD)*cosf(80*RAD), sinf(80*RAD)),
-        vec(cosf(268*RAD)*cosf(80*RAD), sinf(268*RAD)*cosf(80*RAD), sinf(80*RAD)),
-        vec(cosf(358*RAD)*cosf(80*RAD), sinf(358*RAD)*cosf(80*RAD), sinf(80*RAD)),
+        vec(cosf(88*rad)*cosf(80*rad), sinf(88*rad)*cosf(80*rad), sinf(80*rad)),
+        vec(cosf(178*rad)*cosf(80*rad), sinf(178*rad)*cosf(80*rad), sinf(80*rad)),
+        vec(cosf(268*rad)*cosf(80*rad), sinf(268*rad)*cosf(80*rad), sinf(80*rad)),
+        vec(cosf(358*rad)*cosf(80*rad), sinf(358*rad)*cosf(80*rad), sinf(80*rad)),
 
     };
     flags |= RAY_SHADOW;
@@ -641,16 +641,16 @@ void calcsunlight(lightmapworker *w, const vec &o, const vec &normal, float tole
         if(light.attrs.length() < 5 || (slight[0] >= light.attrs[2] && slight[1] >= light.attrs[3] && slight[2] >= light.attrs[4])) continue;
         int yaw = light.attrs[0], pitch = light.attrs[1]+90,
             offset = light.attrs.inrange(5) && light.attrs[5] ? (light.attrs[5] > 0 ? light.attrs[5] : 0) : 10, hit = 0;
-        vec dir(yaw*RAD, pitch*RAD);
+        vec dir(yaw*rad, pitch*rad);
         if(normal.dot(dir) >= 0 &&
             (w ? shadowray(w->shadowraycache, vec(dir).mul(tolerance).add(o), dir, 1e16f, flags, t) > 1e15f :
                  shadowray(vec(dir).mul(tolerance).add(o), dir, 1e16f, flags, t) > 1e15f))
             hit++;
         if(offset)
         {
-            matrix3 rot(90*RAD, dir);
-            vec spoke(yaw*RAD, (pitch + offset)*RAD);
-            spoke.rotate(21*RAD, dir);
+            matrix3 rot(90*rad, dir);
+            vec spoke(yaw*rad, (pitch + offset)*rad);
+            spoke.rotate(21*rad, dir);
             loopk(4)
             {
                 if(normal.dot(spoke) >= 0 &&
@@ -659,7 +659,7 @@ void calcsunlight(lightmapworker *w, const vec &o, const vec &normal, float tole
                     hit++;
                 spoke = rot.transform(spoke);
             }
-            spoke = vec(yaw*RAD, (pitch + 0.5f*offset)*RAD).rotate((66-21)*RAD, dir);
+            spoke = vec(yaw*rad, (pitch + 0.5f*offset)*rad).rotate((66-21)*rad, dir);
             loopk(4)
             {
                 if(normal.dot(spoke) >= 0 &&
@@ -2616,10 +2616,10 @@ static inline void fastskylight(const vec &o, float tolerance, uchar *skylight, 
     {
         static const vec rays[5] =
         {
-            vec(cosf(66*RAD)*cosf(65*RAD), sinf(66*RAD)*cosf(65*RAD), sinf(65*RAD)),
-            vec(cosf(156*RAD)*cosf(65*RAD), sinf(156*RAD)*cosf(65*RAD), sinf(65*RAD)),
-            vec(cosf(246*RAD)*cosf(65*RAD), sinf(246*RAD)*cosf(65*RAD), sinf(65*RAD)),
-            vec(cosf(336*RAD)*cosf(65*RAD), sinf(336*RAD)*cosf(65*RAD), sinf(65*RAD)),
+            vec(cosf(66*rad)*cosf(65*rad), sinf(66*rad)*cosf(65*rad), sinf(65*rad)),
+            vec(cosf(156*rad)*cosf(65*rad), sinf(156*rad)*cosf(65*rad), sinf(65*rad)),
+            vec(cosf(246*rad)*cosf(65*rad), sinf(246*rad)*cosf(65*rad), sinf(65*rad)),
+            vec(cosf(336*rad)*cosf(65*rad), sinf(336*rad)*cosf(65*rad), sinf(65*rad)),
             vec(0, 0, 1),
         };
         int hit = 0;
@@ -2637,7 +2637,7 @@ static inline void fastsunlight(const vec &o, float tolerance, uchar *slight, in
         const extentity &light = *sunlights[i];
         if(light.attrs.length() < 5 || (slight[0] >= light.attrs[2] && slight[1] >= light.attrs[3] && slight[2] >= light.attrs[4])) continue;
         int yaw = light.attrs[0], pitch = light.attrs[1]+90;
-        vec dir(yaw*RAD, pitch*RAD);
+        vec dir(yaw*rad, pitch*rad);
         if(shadowray(vec(dir).mul(tolerance).add(o), dir, 1e16f, flags, t) > 1e15f)
         {
             loopk(3) slight[k] = max(uchar(light.attrs[2+k]), slight[k]);
