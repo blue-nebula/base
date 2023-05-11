@@ -324,7 +324,7 @@ struct decalrenderer
         decaltangent = vec(dir.z, -dir.x, dir.y);
         decaltangent.sub(vec(dir).mul(decaltangent.dot(dir)));
 #endif
-        if(flags&DF_ROTATE) decaltangent.rotate(rnd(360)*RAD, dir);
+        if(flags&DF_ROTATE) decaltangent.rotate(rnd(360)*rad, dir);
         decaltangent.normalize();
         decalbitangent.cross(decaltangent, dir);
         if(flags&DF_RND4)

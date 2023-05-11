@@ -26,7 +26,7 @@ void resetclipplanes()
     clipcacheversion += 2;
     if(!clipcacheversion)
     {
-        memset(clipcache, 0, sizeof(clipcache));
+        *clipcache = {};
         clipcacheversion = 2;
     }
 }
@@ -404,7 +404,7 @@ void resetshadowraycache(ShadowRayCache *cache)
     cache->version++;
     if(!cache->version)
     {
-        memset(cache->clipcache, 0, sizeof(cache->clipcache));
+        *cache->clipcache = {};
         cache->version = 1;
     }
 }
@@ -502,10 +502,10 @@ bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const vec &cent
 
     vec yo(d->o);
     yo.sub(o);
-    yo.rotate_around_z(-yaw*RAD);
+    yo.rotate_around_z(-yaw*rad);
     yo.sub(center);
 
-    float dx = clamp(yo.x, -xr, xr) - yo.x, dy = clamp(yo.y, -yr, yr) - yo.y,
+    float dx = std::clamp(yo.x, -xr, xr) - yo.x, dy = std::clamp(yo.y, -yr, yr) - yo.y,
           dist = sqrtf(dx*dx + dy*dy) - d->radius;
     if(dist < 0)
     {
@@ -514,20 +514,20 @@ bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const vec &cent
         if(dist > (yo.z < 0 ? below : above) && (sx || sy))
         {
             vec ydir(dir);
-            ydir.rotate_around_z(-yaw*RAD);
+            ydir.rotate_around_z(-yaw*rad);
             if(sx*yo.x - xr > sy*yo.y - yr)
             {
                 if(dir.iszero() || sx*ydir.x < -1e-6f)
                 {
                     collidewall = vec(sx, 0, 0);
-                    collidewall.rotate_around_z(yaw*RAD);
+                    collidewall.rotate_around_z(yaw*rad);
                     return true;
                 }
             }
             else if(dir.iszero() || sy*ydir.y < -1e-6f)
             {
                 collidewall = vec(0, sy, 0);
-                collidewall.rotate_around_z(yaw*RAD);
+                collidewall.rotate_around_z(yaw*rad);
                 return true;
             }
         }
@@ -555,10 +555,10 @@ bool ellipsecollide(physent *d, const vec &dir, const vec &o, const vec &center,
           above = (d->o.z-d->height) - (o.z+center.z+hi);
     if(below>=0 || above>=0) return false;
     vec yo(center);
-    yo.rotate_around_z(yaw*RAD);
+    yo.rotate_around_z(yaw*rad);
     yo.add(o);
     float x = yo.x - d->o.x, y = yo.y - d->o.y;
-    float angle = atan2f(y, x), dangle = angle-(d->yaw+90)*RAD, eangle = angle-(yaw+90)*RAD;
+    float angle = atan2f(y, x), dangle = angle-(d->yaw+90)*rad, eangle = angle-(yaw+90)*rad;
     float dx = d->xradius*cosf(dangle), dy = d->yradius*sinf(dangle);
     float ex = xr*cosf(eangle), ey = yr*sinf(eangle);
     float dist = sqrtf(x*x + y*y) - sqrtf(dx*dx + dy*dy) - sqrtf(ex*ex + ey*ey);
@@ -1267,8 +1267,8 @@ bool getsight(vec &o, float yaw, float pitch, vec &q, vec &v, float mdist, float
 
     if(dist <= mdist)
     {
-        float x = fmod(fabs(asin((q.z-o.z)/dist)/RAD-pitch), 360);
-        float y = fmod(fabs(-atan2(q.x-o.x, q.y-o.y)/RAD-yaw), 360);
+        float x = fmod(fabs(asin((q.z-o.z)/dist)/rad-pitch), 360);
+        float y = fmod(fabs(-atan2(q.x-o.x, q.y-o.y)/rad-yaw), 360);
         if(min(x, 360-x) <= fovx && min(y, 360-y) <= fovy) return raycubelos(o, q, v);
     }
     return false;

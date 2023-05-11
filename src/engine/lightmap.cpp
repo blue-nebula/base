@@ -525,7 +525,7 @@ static uint generatelumel(lightmapworker *w, const float tolerance, uint lightma
             {
                 extentity &spotlight = *ents[slight];
                 vec spot = vec(spotlight.o).sub(light.o).normalize();
-                float maxatten = sincos360[clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
+                float maxatten = sincos360[std::clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
                 if(spotatten <= 0) continue;
                 attenuation *= spotatten;
             }
@@ -593,27 +593,27 @@ static void calcskylight(lightmapworker *w, const vec &o, const vec &normal, flo
 {
     static const vec rays[17] =
     {
-        vec(cosf(21*RAD)*cosf(50*RAD), sinf(21*RAD)*cosf(50*RAD), sinf(50*RAD)),
-        vec(cosf(111*RAD)*cosf(50*RAD), sinf(111*RAD)*cosf(50*RAD), sinf(50*RAD)),
-        vec(cosf(201*RAD)*cosf(50*RAD), sinf(201*RAD)*cosf(50*RAD), sinf(50*RAD)),
-        vec(cosf(291*RAD)*cosf(50*RAD), sinf(291*RAD)*cosf(50*RAD), sinf(50*RAD)),
+        vec(cosf(21*rad)*cosf(50*rad), sinf(21*rad)*cosf(50*rad), sinf(50*rad)),
+        vec(cosf(111*rad)*cosf(50*rad), sinf(111*rad)*cosf(50*rad), sinf(50*rad)),
+        vec(cosf(201*rad)*cosf(50*rad), sinf(201*rad)*cosf(50*rad), sinf(50*rad)),
+        vec(cosf(291*rad)*cosf(50*rad), sinf(291*rad)*cosf(50*rad), sinf(50*rad)),
 
-        vec(cosf(66*RAD)*cosf(70*RAD), sinf(66*RAD)*cosf(70*RAD), sinf(70*RAD)),
-        vec(cosf(156*RAD)*cosf(70*RAD), sinf(156*RAD)*cosf(70*RAD), sinf(70*RAD)),
-        vec(cosf(246*RAD)*cosf(70*RAD), sinf(246*RAD)*cosf(70*RAD), sinf(70*RAD)),
-        vec(cosf(336*RAD)*cosf(70*RAD), sinf(336*RAD)*cosf(70*RAD), sinf(70*RAD)),
+        vec(cosf(66*rad)*cosf(70*rad), sinf(66*rad)*cosf(70*rad), sinf(70*rad)),
+        vec(cosf(156*rad)*cosf(70*rad), sinf(156*rad)*cosf(70*rad), sinf(70*rad)),
+        vec(cosf(246*rad)*cosf(70*rad), sinf(246*rad)*cosf(70*rad), sinf(70*rad)),
+        vec(cosf(336*rad)*cosf(70*rad), sinf(336*rad)*cosf(70*rad), sinf(70*rad)),
 
         vec(0, 0, 1),
 
-        vec(cosf(43*RAD)*cosf(60*RAD), sinf(43*RAD)*cosf(60*RAD), sinf(60*RAD)),
-        vec(cosf(133*RAD)*cosf(60*RAD), sinf(133*RAD)*cosf(60*RAD), sinf(60*RAD)),
-        vec(cosf(223*RAD)*cosf(60*RAD), sinf(223*RAD)*cosf(60*RAD), sinf(60*RAD)),
-        vec(cosf(313*RAD)*cosf(60*RAD), sinf(313*RAD)*cosf(60*RAD), sinf(60*RAD)),
+        vec(cosf(43*rad)*cosf(60*rad), sinf(43*rad)*cosf(60*rad), sinf(60*rad)),
+        vec(cosf(133*rad)*cosf(60*rad), sinf(133*rad)*cosf(60*rad), sinf(60*rad)),
+        vec(cosf(223*rad)*cosf(60*rad), sinf(223*rad)*cosf(60*rad), sinf(60*rad)),
+        vec(cosf(313*rad)*cosf(60*rad), sinf(313*rad)*cosf(60*rad), sinf(60*rad)),
 
-        vec(cosf(88*RAD)*cosf(80*RAD), sinf(88*RAD)*cosf(80*RAD), sinf(80*RAD)),
-        vec(cosf(178*RAD)*cosf(80*RAD), sinf(178*RAD)*cosf(80*RAD), sinf(80*RAD)),
-        vec(cosf(268*RAD)*cosf(80*RAD), sinf(268*RAD)*cosf(80*RAD), sinf(80*RAD)),
-        vec(cosf(358*RAD)*cosf(80*RAD), sinf(358*RAD)*cosf(80*RAD), sinf(80*RAD)),
+        vec(cosf(88*rad)*cosf(80*rad), sinf(88*rad)*cosf(80*rad), sinf(80*rad)),
+        vec(cosf(178*rad)*cosf(80*rad), sinf(178*rad)*cosf(80*rad), sinf(80*rad)),
+        vec(cosf(268*rad)*cosf(80*rad), sinf(268*rad)*cosf(80*rad), sinf(80*rad)),
+        vec(cosf(358*rad)*cosf(80*rad), sinf(358*rad)*cosf(80*rad), sinf(80*rad)),
 
     };
     flags |= RAY_SHADOW;
@@ -641,16 +641,16 @@ void calcsunlight(lightmapworker *w, const vec &o, const vec &normal, float tole
         if(light.attrs.length() < 5 || (slight[0] >= light.attrs[2] && slight[1] >= light.attrs[3] && slight[2] >= light.attrs[4])) continue;
         int yaw = light.attrs[0], pitch = light.attrs[1]+90,
             offset = light.attrs.inrange(5) && light.attrs[5] ? (light.attrs[5] > 0 ? light.attrs[5] : 0) : 10, hit = 0;
-        vec dir(yaw*RAD, pitch*RAD);
+        vec dir(yaw*rad, pitch*rad);
         if(normal.dot(dir) >= 0 &&
             (w ? shadowray(w->shadowraycache, vec(dir).mul(tolerance).add(o), dir, 1e16f, flags, t) > 1e15f :
                  shadowray(vec(dir).mul(tolerance).add(o), dir, 1e16f, flags, t) > 1e15f))
             hit++;
         if(offset)
         {
-            matrix3 rot(90*RAD, dir);
-            vec spoke(yaw*RAD, (pitch + offset)*RAD);
-            spoke.rotate(21*RAD, dir);
+            matrix3 rot(90*rad, dir);
+            vec spoke(yaw*rad, (pitch + offset)*rad);
+            spoke.rotate(21*rad, dir);
             loopk(4)
             {
                 if(normal.dot(spoke) >= 0 &&
@@ -659,7 +659,7 @@ void calcsunlight(lightmapworker *w, const vec &o, const vec &normal, float tole
                     hit++;
                 spoke = rot.transform(spoke);
             }
-            spoke = vec(yaw*RAD, (pitch + 0.5f*offset)*RAD).rotate((66-21)*RAD, dir);
+            spoke = vec(yaw*rad, (pitch + 0.5f*offset)*rad).rotate((66-21)*rad, dir);
             loopk(4)
             {
                 if(normal.dot(spoke) >= 0 &&
@@ -1378,7 +1378,7 @@ static int setupsurface(lightmapworker *w, plane planes[2], int numplanes, const
 
     int scale = int(min(cmax.x - cmin.x, cmax.y - cmin.y));
     float lpu = 16.0f / float(lightlod && scale < (1 << lightlod) ? max(curlightprecision / 2, 1) : curlightprecision);
-    int lw = clamp(int(ceil((cmax.x - cmin.x + 1)*lpu)), LM_MINW, LM_MAXW), lh = clamp(int(ceil((cmax.y - cmin.y + 1)*lpu)), LM_MINH, LM_MAXH);
+    int lw = std::clamp(int(ceil((cmax.x - cmin.x + 1)*lpu)), LM_MINW, LM_MAXW), lh = std::clamp(int(ceil((cmax.y - cmin.y + 1)*lpu)), LM_MINH, LM_MAXH);
     w->w = lw;
     w->h = lh;
     if(!preview)
@@ -1432,8 +1432,8 @@ static int setupsurface(lightmapworker *w, plane planes[2], int numplanes, const
     if(lh != w->h) texscale.y *= float(w->h - 1) / (lh - 1);
     loopk(numverts)
     {
-        litverts[k].u = ushort(floor(clamp(c[k].x*texscale.x, 0.0f, float(USHRT_MAX))));
-        litverts[k].v = ushort(floor(clamp(c[k].y*texscale.y, 0.0f, float(USHRT_MAX))));
+        litverts[k].u = ushort(floor(std::clamp(c[k].x*texscale.x, 0.0f, float(USHRT_MAX))));
+        litverts[k].v = ushort(floor(std::clamp(c[k].y*texscale.y, 0.0f, float(USHRT_MAX))));
     }
     return surftype;
 }
@@ -2616,10 +2616,10 @@ static inline void fastskylight(const vec &o, float tolerance, uchar *skylight, 
     {
         static const vec rays[5] =
         {
-            vec(cosf(66*RAD)*cosf(65*RAD), sinf(66*RAD)*cosf(65*RAD), sinf(65*RAD)),
-            vec(cosf(156*RAD)*cosf(65*RAD), sinf(156*RAD)*cosf(65*RAD), sinf(65*RAD)),
-            vec(cosf(246*RAD)*cosf(65*RAD), sinf(246*RAD)*cosf(65*RAD), sinf(65*RAD)),
-            vec(cosf(336*RAD)*cosf(65*RAD), sinf(336*RAD)*cosf(65*RAD), sinf(65*RAD)),
+            vec(cosf(66*rad)*cosf(65*rad), sinf(66*rad)*cosf(65*rad), sinf(65*rad)),
+            vec(cosf(156*rad)*cosf(65*rad), sinf(156*rad)*cosf(65*rad), sinf(65*rad)),
+            vec(cosf(246*rad)*cosf(65*rad), sinf(246*rad)*cosf(65*rad), sinf(65*rad)),
+            vec(cosf(336*rad)*cosf(65*rad), sinf(336*rad)*cosf(65*rad), sinf(65*rad)),
             vec(0, 0, 1),
         };
         int hit = 0;
@@ -2637,7 +2637,7 @@ static inline void fastsunlight(const vec &o, float tolerance, uchar *slight, in
         const extentity &light = *sunlights[i];
         if(light.attrs.length() < 5 || (slight[0] >= light.attrs[2] && slight[1] >= light.attrs[3] && slight[2] >= light.attrs[4])) continue;
         int yaw = light.attrs[0], pitch = light.attrs[1]+90;
-        vec dir(yaw*RAD, pitch*RAD);
+        vec dir(yaw*rad, pitch*rad);
         if(shadowray(vec(dir).mul(tolerance).add(o), dir, 1e16f, flags, t) > 1e15f)
         {
             loopk(3) slight[k] = max(uchar(light.attrs[2+k]), slight[k]);
@@ -2697,7 +2697,7 @@ void lightreaching(const vec &target, vec &color, vec &dir, bool fast, extentity
             {
                 extentity &spotlight = *ents[slight];
                 vec spot = vec(spotlight.o).sub(e.o).normalize();
-                float maxatten = sincos360[clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
+                float maxatten = sincos360[std::clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
                 if(spotatten <= 0) continue;
                 intensity *= spotatten;
             }
@@ -2726,7 +2726,7 @@ void lightreaching(const vec &target, vec &color, vec &dir, bool fast, extentity
         else fastsunlight(target, 0.5f, col, RAY_POLY, t);
         loopk(3) slight[k] = max(slight[k], col[k]/255.0f);
     }
-    loopk(3) color[k] = clamp(color[k], slight[k], 1.5f);
+    loopk(3) color[k] = std::clamp(color[k], slight[k], 1.5f);
     if(dir.iszero()) dir = vec(0, 0, 1);
     else dir.normalize();
 }
@@ -2772,7 +2772,7 @@ const extentity *brightestlight(const vec &target, const vec &dir)
             {
                 const extentity &spotlight = *ents[slight];
                 vec spot = vec(spotlight.o).sub(e.o).normalize();
-                float maxatten = sincos360[clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
+                float maxatten = sincos360[std::clamp(int(spotlight.attrs[1]), 1, 89)].x, spotatten = (ray.dot(spot) - maxatten) / (1 - maxatten);
                 if(spotatten <= 0) continue;
                 intensity *= spotatten;
             }

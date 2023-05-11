@@ -546,7 +546,7 @@ namespace game
         if (cookzoom > 0)
         {
             // Calculate the ratio of the zoom state change and clamp it in the interval [0, 1] since progress beyond either point is redundant.
-            ratio = clamp(frame / static_cast<float>(cookzoom), 0.f, 1.f);
+            ratio = std::clamp(frame / static_cast<float>(cookzoom), 0.f, 1.f);
         }
 
         // Return the zoom state chage ratio converted to the zoom in ratio.
@@ -700,14 +700,23 @@ namespace game
 
     bool tvmode(bool check, bool force)
     {
-        if(!m_edit(gamemode) && (!check || !cameras.empty()))
-        {
-            if(!gs_playing(gamestate) && intermmode) return true;
-            else switch(player1.state)
-            {
-                case CS_SPECTATOR: if(specmode || (force && focus != &player1 && followmode && followaim())) return true; break;
-                case CS_WAITING: if((waitmode && (!player1.lastdeath || lastmillis-player1.lastdeath >= 500)) || (force && focus != &player1 && followmode && followaim())) return true; break;
-                default: break;
+        if (!m_edit(gamemode) && (!check || !cameras.empty())) {
+            if (!gs_playing(gamestate) && intermmode) {
+                return true;
+            } else switch(player1.state) {
+                case CS_SPECTATOR:
+                    if (specmode || (force && focus != &player1 && followmode && followaim())) {
+                        return true;
+                    }
+                    break;
+                case CS_WAITING:
+                    if ((waitmode && (!player1.lastdeath || lastmillis-player1.lastdeath >= 500)) ||
+                        (force && focus != &player1 && followmode && followaim())) {
+                            return true;
+                        }
+                    break;
+                default:
+                    break;
             }
         }
         return false;
@@ -745,11 +754,11 @@ namespace game
                 else if(*f < -1) *f = players.length()-1;
             #define addfollow \
             { \
-                *f += clamp(n, -1, 1); \
+                *f += std::clamp(n, -1, 1); \
                 checkfollow; \
                 if(*f == -1) \
                 { \
-                    if(other) *f += clamp(n, -1, 1); \
+                    if(other) *f += std::clamp(n, -1, 1); \
                     else \
                     { \
                         specreset(); \
@@ -839,7 +848,7 @@ namespace game
     vec pulsecolour(physent *d, int i, int cycle)
     {
         size_t seed = size_t(d) + (lastmillis/cycle);
-        int n = detrnd(seed, PULSECOLOURS), n2 = detrnd(seed + 1, PULSECOLOURS), q = clamp(i, 0, int(PULSE_LAST));
+        int n = detrnd(seed, PULSECOLOURS), n2 = detrnd(seed + 1, PULSECOLOURS), q = std::clamp(i, 0, int(PULSE_LAST));
         return vec::hexcolor(pulsecols[q][n]).lerp(vec::hexcolor(pulsecols[q][n2]), (lastmillis%cycle)/float(cycle));
     }
 
@@ -859,7 +868,7 @@ namespace game
                 {
                     case 0: break; // off
                     case 1: case 2: case 3: case 4:
-                        return vec::hexcolor(pulsecols[index-1][clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)]);
+                        return vec::hexcolor(pulsecols[index-1][std::clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)]);
                         break;
                     default: break;
                 }
@@ -915,7 +924,7 @@ namespace game
                          powering = last && d->weapstate[d->weapselect] == W_S_POWER,
                          reloading = last && d->weapstate[d->weapselect] == W_S_RELOAD,
                          secondary = physics::secondaryweap(d);
-                    float amt = last ? clamp(float(lastmillis-d->weaptime[d->weapselect])/d->weapwait[d->weapselect], 0.f, 1.f) : 0.f;
+                    float amt = last ? std::clamp(float(lastmillis-d->weaptime[d->weapselect])/d->weapwait[d->weapselect], 0.f, 1.f) : 0.f;
                     vec col = WPCOL(d, d->weapselect, lightcol, secondary);
                     if(d->weapselect == W_FLAMER && (!reloading || amt > 0.5f) && !physics::liquidcheck(d))
                     {
@@ -979,9 +988,13 @@ namespace game
         int num = int((effect ? 3 : 10)*impulsescale);
         switch(effect)
         {
-            case 0: playsound(S_IMPULSE, d->o, d); // fail through
-            case 1: if(num > 0 && impulsefade > 0) loopi(3) boosteffect(d, d->jet[i], num, impulsefade, effect==0);
-                    break;
+        case 0:
+            playsound(S_IMPULSE, d->o, d);
+            [[fallthrough]];
+        case 1:
+            if (num > 0 && impulsefade > 0)
+                loopi(3) boosteffect(d, d->jet[i], num, impulsefade, effect == 0);
+            break;
         }
     }
 
@@ -1019,7 +1032,7 @@ namespace game
                     minscale = minresizescale;
                     if(amtscale < 1) amtscale = (amtscale*(1-minscale))+minscale;
                 }
-                total *= clamp(amtscale, minscale, maxresizescale);
+                total *= std::clamp(amtscale, minscale, maxresizescale);
             }
             if(deathscale && (d->state == CS_DEAD || d->state == CS_WAITING)) total *= spawnfade(d);
         }
@@ -1057,9 +1070,9 @@ namespace game
             {
                 if(curfoot < 0) curfoot = d->lastfoot;
                 vec pos = d->footpos(curfoot);
-                float amt = clamp(mag/n, 0.f, 1.f)*(d != focus ? footstepsoundlevel : footstepsoundfocus);
+                float amt = std::clamp(mag/n, 0.f, 1.f)*(d != focus ? footstepsoundlevel : footstepsoundfocus);
                 if(onfloor && !d->running(moveslow)) amt *= footstepsoundlight;
-                int vol = clamp(int(amt*footstepsoundmaxvol), footstepsoundminvol, footstepsoundmaxvol);
+                int vol = std::clamp(int(amt*footstepsoundmaxvol), footstepsoundminvol, footstepsoundmaxvol);
                 playsound(liquid && (!onfloor || rnd(4)) ? S_SWIMSTEP : S_FOOTSTEP, pos, NULL, d != focus ? 0 : SND_NOCULL, vol, footstepsoundmaxrad, footstepsoundminrad, &d->sschan[curfoot]);
             }
         }
@@ -1395,9 +1408,9 @@ namespace game
                 {
                     vec p = d->headpos(-d->height/4);
                     if(!nogore && bloodscale > 0)
-                        part_splash(PART_BLOOD, int(clamp(damage/20, 1, 5)*bloodscale)*(bleeding || material ? 2 : 1), bloodfade, p, 0x229999, (rnd(bloodsize/2)+(bloodsize/2))/10.f, 1, 100, DECAL_BLOOD, int(d->radius), 10);
+                        part_splash(PART_BLOOD, int(std::clamp(damage/20, 1, 5)*bloodscale)*(bleeding || material ? 2 : 1), bloodfade, p, 0x229999, (rnd(bloodsize/2)+(bloodsize/2))/10.f, 1, 100, DECAL_BLOOD, int(d->radius), 10);
                     if(nogore != 2 && (bloodscale <= 0 || bloodsparks))
-                        part_splash(PART_PLASMA, int(clamp(damage/20, 1, 5))*(bleeding || material ? 2: 1), bloodfade, p, 0x882222, 1, 0.5f, 50, DECAL_STAIN, int(d->radius));
+                        part_splash(PART_PLASMA, int(std::clamp(damage/20, 1, 5))*(bleeding || material ? 2: 1), bloodfade, p, 0x882222, 1, 0.5f, 50, DECAL_STAIN, int(d->radius));
                 }
                 if(d != v)
                 {
@@ -1412,7 +1425,7 @@ namespace game
                 }
                 if(d->actortype < A_ENEMY && !issound(d->vschan)) playsound(S_PAIN, d->o, d, 0, -1, -1, -1, &d->vschan);
                 d->lastpain = lastmillis;
-                if(!WK(flags)) playsound(WSND2(weap, WS(flags), S_W_IMPACT), vec(d->center()).add(vec(dir).mul(dist)), NULL, 0, clamp(int(255*scale), 64, 255));
+                if(!WK(flags)) playsound(WSND2(weap, WS(flags), S_W_IMPACT), vec(d->center()).add(vec(dir).mul(dist)), NULL, 0, std::clamp(int(255*scale), 64, 255));
             }
             if(AA(d->actortype, abilities)&(1<<A_A_PUSHABLE))
             {
@@ -1426,8 +1439,8 @@ namespace game
                     }
                     float s = G(shockstunscale)*amt, g = G(shockstunfall)*amt;
                     d->addstun(weap, lastmillis, G(shockstuntime), shockstun&W_N_STADD ? s : 0.f, shockstun&W_N_GRADD ? g : 0.f);
-                    if(shockstun&W_N_STIMM && s > 0) d->vel.mul(1.f-clamp(s, 0.f, 1.f));
-                    if(shockstun&W_N_GRIMM && g > 0) d->falling.mul(1.f-clamp(g, 0.f, 1.f));
+                    if(shockstun&W_N_STIMM && s > 0) d->vel.mul(1.f-std::clamp(s, 0.f, 1.f));
+                    if(shockstun&W_N_GRIMM && g > 0) d->falling.mul(1.f-std::clamp(g, 0.f, 1.f));
                     if(shockstun&W_N_SLIDE) d->impulse[IM_SLIP] = lastmillis;
                 }
                 else if(isweap(weap) && !burning && !bleeding && !material && !shocking && WF(WK(flags), weap, damage, WS(flags)) != 0)
@@ -1443,8 +1456,8 @@ namespace game
                         }
                         float s = WF(WK(flags), weap, stunscale, WS(flags))*amt, g = WF(WK(flags), weap, stunfall, WS(flags))*amt;
                         d->addstun(weap, lastmillis, int(scale*WF(WK(flags), weap, stuntime, WS(flags))), stun&W_N_STADD ? s : 0.f, stun&W_N_GRADD ? g : 0.f);
-                        if(stun&W_N_STIMM && s > 0) d->vel.mul(1.f-clamp(s, 0.f, 1.f));
-                        if(stun&W_N_GRIMM && g > 0) d->falling.mul(1.f-clamp(g, 0.f, 1.f));
+                        if(stun&W_N_STIMM && s > 0) d->vel.mul(1.f-std::clamp(s, 0.f, 1.f));
+                        if(stun&W_N_GRIMM && g > 0) d->falling.mul(1.f-std::clamp(g, 0.f, 1.f));
                         if(stun&W_N_SLIDE) d->impulse[IM_SLIP] = lastmillis;
                     }
                     if(WF(WK(flags), weap, hitpush, WS(flags)) != 0 || WF(WK(flags), weap, hitvel, WS(flags)) != 0)
@@ -1778,7 +1791,7 @@ namespace game
 
         if(actor[d->actortype].living && nogore != 2 && gibscale > 0 && !(flags&HIT_LOST))
         {
-            int gib = clamp(max(damage, 10)/20, 1, 10), amt = int((rnd(gib)+gib)*gibscale);
+            int gib = std::clamp(max(damage, 10)/20, 1, 10), amt = int((rnd(gib)+gib)*gibscale);
             if(d->obliterated) amt *= 2;
             loopi(amt) projs::create(pos, pos, true, d, nogore ? PRJ_DEBRIS : PRJ_GIBS, -1, HIT_NONE, rnd(gibfade)+gibfade, 0, rnd(500)+1, rnd(50)+10);
         }
@@ -1980,7 +1993,7 @@ namespace game
 
     int levelcolour(int colour, float level)
     {
-        return (clamp(int((colour>>16)*level), 0, 255)<<16)|(clamp(int(((colour>>8)&0xFF)*level), 0, 255)<<8)|(clamp(int((colour&0xFF)*level), 0, 255));
+        return (std::clamp(int((colour>>16)*level), 0, 255)<<16)|(std::clamp(int(((colour>>8)&0xFF)*level), 0, 255)<<8)|(std::clamp(int((colour&0xFF)*level), 0, 255));
     }
 
     int findcolour(gameent *d, bool tone, bool mix, float level)
@@ -1997,9 +2010,9 @@ namespace game
                     float amt = (lastmillis-d->weaptime[d->weapselect])/float(d->weapwait[d->weapselect]);
                     int r2 = (col>>16), g2 = ((col>>8)&0xFF), b2 = (col&0xFF),
                         c = W(lastweap, colour), r1 = (c>>16), g1 = ((c>>8)&0xFF), b1 = (c&0xFF),
-                        r3 = clamp(int((r1*(1-amt))+(r2*amt)), 0, 255),
-                        g3 = clamp(int((g1*(1-amt))+(g2*amt)), 0, 255),
-                        b3 = clamp(int((b1*(1-amt))+(b2*amt)), 0, 255);
+                        r3 = std::clamp(int((r1*(1-amt))+(r2*amt)), 0, 255),
+                        g3 = std::clamp(int((g1*(1-amt))+(g2*amt)), 0, 255),
+                        b3 = std::clamp(int((b1*(1-amt))+(b2*amt)), 0, 255);
                     col = (r3<<16)|(g3<<8)|b3;
                 }
             }
@@ -2009,9 +2022,9 @@ namespace game
                 {
                     int r1 = (col>>16), g1 = ((col>>8)&0xFF), b1 = (col&0xFF),
                         c = TEAM(d->team, colour), r2 = (c>>16), g2 = ((c>>8)&0xFF), b2 = (c&0xFF),
-                        r3 = clamp(int((r1*(1-playertonemix))+(r2*playertonemix)), 0, 255),
-                        g3 = clamp(int((g1*(1-playertonemix))+(g2*playertonemix)), 0, 255),
-                        b3 = clamp(int((b1*(1-playertonemix))+(b2*playertonemix)), 0, 255);
+                        r3 = std::clamp(int((r1*(1-playertonemix))+(r2*playertonemix)), 0, 255),
+                        g3 = std::clamp(int((g1*(1-playertonemix))+(g2*playertonemix)), 0, 255),
+                        b3 = std::clamp(int((b1*(1-playertonemix))+(b2*playertonemix)), 0, 255);
                     col = (r3<<16)|(g3<<8)|b3;
                 }
                 return levelcolour(col, level);
@@ -2068,7 +2081,7 @@ namespace game
     const char *teamtexnamex(int team)
     {
         const char *teamtexs[T_MAX] = { "teamtex", "teamalphatex", "teamomegatex", "teamkappatex", "teamsigmatex", "teamtex" };
-        return teamtexs[clamp(team, 0, T_MAX-1)];
+        return teamtexs[std::clamp(team, 0, T_MAX-1)];
     }
 
     const char *colourteam(int team, const char *icon)
@@ -2125,7 +2138,7 @@ namespace game
             {
                 float dist = p->o.dist(p->d);
                 p->d = p->o = d->muzzlepos(d->weapselect);
-                p->d.add(vec(d->yaw*RAD, d->pitch*RAD).mul(dist));
+                p->d.add(vec(d->yaw*rad, d->pitch*rad).mul(dist));
                 break;
             }
             case PT_PART: case PT_FIREBALL: case PT_FLARE:
@@ -2187,8 +2200,8 @@ namespace game
         #define mousesens(a,b,c) ((float(a)/float(b))*c)
         if(hud::hasinput(true))
         {
-            cursorx = clamp(cursorx+mousesens(dx, w, mousesensitivity), 0.f, 1.f);
-            cursory = clamp(cursory+mousesens(dy, h, mousesensitivity), 0.f, 1.f);
+            cursorx = std::clamp(cursorx+mousesens(dx, w, mousesensitivity), 0.f, 1.f);
+            cursory = std::clamp(cursory+mousesens(dy, h, mousesensitivity), 0.f, 1.f);
             return true;
         }
         else if(!tvmode())
@@ -2230,8 +2243,8 @@ namespace game
                     if(vectocursor(pos, loc.x, loc.y, loc.z))
                     {
                         float amt = curtime/float(thirdpersoninterp);
-                        cursorx = clamp(cursorx+((loc.x-cursorx)*amt), 0.f, 1.f);
-                        cursory = clamp(cursory+((loc.y-cursory)*amt), 0.f, 1.f);
+                        cursorx = std::clamp(cursorx+((loc.x-cursorx)*amt), 0.f, 1.f);
+                        cursory = std::clamp(cursory+((loc.y-cursory)*amt), 0.f, 1.f);
                     }
                     break;
                 }
@@ -2249,8 +2262,8 @@ namespace game
     void getyawpitch(const vec &from, const vec &pos, float &yaw, float &pitch)
     {
         float dist = from.dist(pos);
-        yaw = -atan2(pos.x-from.x, pos.y-from.y)/RAD;
-        pitch = asin((pos.z-from.z)/dist)/RAD;
+        yaw = -atan2(pos.x-from.x, pos.y-from.y)/rad;
+        pitch = asin((pos.z-from.z)/dist)/rad;
     }
 
     void scaleyawpitch(float &yaw, float &pitch, float targyaw, float targpitch, float yawspeed, float pitchspeed, float rotate)
@@ -2327,9 +2340,9 @@ namespace game
         {
             float spineoff = firstpersonspine*d->zradius*0.5f;
             to.z -= spineoff;
-            float lean = clamp(pitch, -firstpersonpitchmin, firstpersonpitchmax);
+            float lean = std::clamp(pitch, -firstpersonpitchmin, firstpersonpitchmax);
             if(firstpersonpitchscale >= 0) lean *= firstpersonpitchscale;
-            to.add(vec(yaw*RAD, (lean+90)*RAD).mul(spineoff));
+            to.add(vec(yaw*rad, (lean+90)*rad).mul(spineoff));
         }
         if(firstpersonbob && gs_playing(gamestate) && d->state == CS_ALIVE)
         {
@@ -2338,11 +2351,11 @@ namespace game
             {
                 scale *= 1.f - zoom_ratio();
             }
-            if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
+            if(firstpersonbobtopspeed) scale *= std::clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
             {
-                float steps = bobdist/firstpersonbobstep*M_PI;
-                vec dir = vec(yaw*RAD, 0.f).mul(firstpersonbobside*cosf(steps)*scale);
+                float steps = bobdist/firstpersonbobstep*pi;
+                vec dir = vec(yaw*rad, 0.f).mul(firstpersonbobside*cosf(steps)*scale);
                 dir.z = firstpersonbobup*(fabs(sinf(steps)) - 1)*scale;
                 to.add(dir);
             }
@@ -2505,7 +2518,7 @@ namespace game
             yaw = c->player ? c->player->yaw : float(rnd(360));
             pitch = c->player ? c->player->pitch : float(rnd(91)-45);
             fixrange(yaw, pitch);
-            c->dir = vec(yaw*RAD, pitch*RAD);
+            c->dir = vec(yaw*rad, pitch*rad);
             if(force) return true;
         }
         return false;
@@ -2543,7 +2556,7 @@ namespace game
         static const int sphereyawchecks[8] = { 180, 135, 225, 90, 270, 45, 315 }, spherepitchchecks[5] = { 0, 45, -45, 89, -89 };
         loopi(5) loopj(5) loopk(8)
         {
-            c.o = vec(pos).add(vec(sphereyawchecks[k]*RAD, spherepitchchecks[j]*RAD).mul((i+1)*2));
+            c.o = vec(pos).add(vec(sphereyawchecks[k]*rad, spherepitchchecks[j]*rad).mul((i+1)*2));
             if(!collide(&c, vec(0, 0, 0), 0, false))
             {
                 pos = c.o;
@@ -2788,11 +2801,11 @@ namespace game
             {
                 scale *= 1.f - zoom_ratio();
             }
-            if(firstpersonbobtopspeed) scale *= clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
+            if(firstpersonbobtopspeed) scale *= std::clamp(d->vel.magnitude()/firstpersonbobtopspeed, firstpersonbobmin, 1.f);
             if(scale > 0)
             {
                 vec dir(c->yaw, c->pitch);
-                float steps = bobdist/firstpersonbobstep*M_PI, dist = raycube(c->o, dir, firstpersonbobfocusmaxdist, RAY_CLIPMAT|RAY_POLY), yaw, pitch;
+                float steps = bobdist/firstpersonbobstep*pi, dist = raycube(c->o, dir, firstpersonbobfocusmaxdist, RAY_CLIPMAT|RAY_POLY), yaw, pitch;
                 if(dist < 0 || dist > firstpersonbobfocusmaxdist) dist = firstpersonbobfocusmaxdist;
                 else if(dist < firstpersonbobfocusmindist) dist = firstpersonbobfocusmindist;
                 vectoyawpitch(vec(firstpersonbobside*cosf(steps), dist, firstpersonbobup*(fabs(sinf(steps)) - 1)), yaw, pitch);
@@ -3027,8 +3040,8 @@ namespace game
         vec o = third ? d->feetpos() : camerapos(d);
         if(third == 2)
         {
-            o.sub(vec(yaw*RAD, 0.f).mul(firstpersonbodydist+firstpersonspineoffset));
-            o.sub(vec(yaw*RAD, 0.f).rotate_around_z(90*RAD).mul(firstpersonbodyside));
+            o.sub(vec(yaw*rad, 0.f).mul(firstpersonbodydist+firstpersonspineoffset));
+            o.sub(vec(yaw*rad, 0.f).rotate_around_z(90*rad).mul(firstpersonbodyside));
             if(firstpersonbodyfeet >= 0 && d->wantshitbox())
             {
                 float minz = max(d->toe[0].z, d->toe[1].z)+(firstpersonbodyfeet*size);
@@ -3041,8 +3054,8 @@ namespace game
                 vectoyawpitch(vec(worldpos).sub(d->headpos()).normalize(), yaw, pitch);
             else if(!third && firstpersonsway)
             {
-                float steps = swaydist/(firstpersonbob ? firstpersonbobstep : firstpersonswaystep)*M_PI;
-                vec dir = vec(d->yaw*RAD, 0.f).mul(firstpersonswayside*cosf(steps));
+                float steps = swaydist/(firstpersonbob ? firstpersonbobstep : firstpersonswaystep)*pi;
+                vec dir = vec(d->yaw*rad, 0.f).mul(firstpersonswayside*cosf(steps));
                 dir.z = firstpersonswayup*(fabs(sinf(steps)) - 1);
                 o.add(dir).add(swaydir).add(swaypush);
             }
@@ -3154,7 +3167,7 @@ namespace game
                     e->light.material[2] = bvec::fromcolor(W(d->weapselect, colour));
                     if(lastmillis-d->weaptime[d->weapselect] > 0 && d->weapstate[d->weapselect] == W_S_POWER)
                     {
-                        float amt = clamp(float(lastmillis-d->weaptime[d->weapselect])/d->weapwait[d->weapselect], 0.f, 1.f);
+                        float amt = std::clamp(float(lastmillis-d->weaptime[d->weapselect])/d->weapwait[d->weapselect], 0.f, 1.f);
                         e->light.material[2].r += int((255-e->light.material[2].r)*amt);
                         e->light.material[2].g -= int(e->light.material[2].g*amt);
                         e->light.material[2].b -= int(e->light.material[2].b*amt);
@@ -3244,7 +3257,7 @@ namespace game
                     	{
                         	t = textureload(hud::dominatingtex, 3);
                     	}
-                        colour = pulsecols[PULSE_DISCO][clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)];
+                        colour = pulsecols[PULSE_DISCO][std::clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)];
                     }
                     else if(d->dominated.find(focus) >= 0)
                     {
@@ -3252,7 +3265,7 @@ namespace game
                     	{
                     		t = textureload(hud::dominatedtex, 3);
                     	}
-                        colour = pulsecols[PULSE_DISCO][clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)];
+                        colour = pulsecols[PULSE_DISCO][std::clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)];
                     }
                 }
             }
@@ -3328,7 +3341,11 @@ namespace game
                     if(t > 1000) animflags = ANIM_DEAD|ANIM_LOOP|ANIM_NOPITCH;
                     break;
                 }
-                case 3: if(m_duke(gamemode, mutators)) return;
+                case 3:
+                    if (m_duke(gamemode, mutators)) {
+                        return;
+                    }
+                    break;
                 case 2:
                 {
                     if(!validragdoll(d, lastaction)) animflags |= ANIM_RAGDOLL;
@@ -3485,7 +3502,7 @@ namespace game
             {
                 if(hashint || haslight || haspower || hasdom)
                 {
-                    vec c = vec::hexcolor(hasdom ? pulsecols[PULSE_DISCO][clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)] : (haslight ? WHCOL(d, d->weapselect, lightcol, physics::secondaryweap(d)) : getcolour(d, playerhinttone, playerhinttonelevel)));
+                    vec c = vec::hexcolor(hasdom ? pulsecols[PULSE_DISCO][std::clamp((lastmillis/100)%PULSECOLOURS, 0, PULSECOLOURS-1)] : (haslight ? WHCOL(d, d->weapselect, lightcol, physics::secondaryweap(d)) : getcolour(d, playerhinttone, playerhinttonelevel)));
                     float height = d->height, fade = blend;
                     if(hasdom) fade *= playerhintdom;
                     else if(haslight || haspower)
@@ -3520,7 +3537,7 @@ namespace game
                     vec o = d->center(), offset = vec(o).sub(camera1->o).rescale(d->radius/2);
                     offset.z = max(offset.z, -1.0f);
                     offset.add(o);
-                    part_create(PART_HINT_VERT_SOFT, 1, offset, c.tohexcolor(), clamp(height*playerhintsize, 1.f, playerhintmaxsize), fade*camera1->o.distrange(o, playerhintfadeat, playerhintfadecut));
+                    part_create(PART_HINT_VERT_SOFT, 1, offset, c.tohexcolor(), std::clamp(height*playerhintsize, 1.f, playerhintmaxsize), fade*camera1->o.distrange(o, playerhintfadeat, playerhintfadecut));
                 }
                 if(useth)
                 {
@@ -3691,8 +3708,8 @@ namespace game
         previewent.o = calcmodelpreviewpos(vec(xyrad, zrad), previewent.yaw).addz(previewent.height - zrad);
         previewent.colour = color;
         previewent.model = model;
-        previewent.team = clamp(team, 0, int(T_MULTI));
-        previewent.weapselect = clamp(weap, 0, W_ALL-1);
+        previewent.team = std::clamp(team, 0, int(T_MULTI));
+        previewent.weapselect = std::clamp(weap, 0, W_ALL-1);
         previewent.setvanity(vanity);
         previewent.light.millis = -1;
         renderplayer(&previewent, 1, blend, scale);

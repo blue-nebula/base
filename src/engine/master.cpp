@@ -438,7 +438,7 @@ bool checkmasterclientinput(masterclient &c)
             }
             else
             {
-                if(w[1] && *w[1]) c.port = clamp(atoi(w[1]), 1, VAR_MAX);
+                if(w[1] && *w[1]) c.port = std::clamp(atoi(w[1]), 1, VAR_MAX);
                 ENetAddress address = { ENET_HOST_ANY, enet_uint16(c.port) };
                 c.version = w[3] && *w[3] ? atoi(w[3]) : (w[2] && *w[2] ? 150 : 0);
                 if(w[4] && *w[4]) copystring(c.desc, w[4], MAXSDESCLEN+1);

@@ -113,14 +113,14 @@ struct editline
     void chop(int newlen)
     {
         if(!text) return;
-        len = clamp(newlen, 0, len);
+        len = std::clamp(newlen, 0, len);
         text[len] = '\0';
     }
 
     void insert(char *str, int start, int count = 0)
     {
         if(count <= 0) count = strlen(str);
-        start = clamp(start, 0, len);
+        start = std::clamp(start, 0, len);
         grow(len + count, "%s", text ? text : "");
         memmove(&text[start + count], &text[start], len - start + 1);
         memcpy(&text[start], str, count);

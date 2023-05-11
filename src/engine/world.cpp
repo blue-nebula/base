@@ -51,8 +51,8 @@ bool getentboundingbox(const extentity &e, ivec &o, ivec &r)
                 radius.max(entselradius);
                 o = ivec(vec(center).sub(radius));
                 r = ivec(vec(center).add(radius).add(1));
-                break;
             }
+            break;
         }
         // invisible mapmodels use entselradius
         default:
@@ -85,8 +85,7 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
             switch(e.type)
             {
                 case ET_MAPMODEL:
-                    if(loadmapmodel(e.attrs[0]))
-                    {
+                    if (loadmapmodel(e.attrs[0])) {
                         if(va)
                         {
                             va->bbmin.x = -1;
@@ -95,8 +94,8 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
                         oe.mapmodels.add(id);
                         oe.bbmin.min(bo).max(oe.o);
                         oe.bbmax.max(br).min(ivec(oe.o).add(oe.size));
-                        break;
                     }
+                    break;
                     // invisible mapmodel
                 default:
                     oe.other.add(id);
@@ -110,8 +109,7 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
             switch(e.type)
             {
                 case ET_MAPMODEL:
-                    if(loadmapmodel(e.attrs[0]))
-                    {
+                    if (loadmapmodel(e.attrs[0])) {
                         oe.mapmodels.removeobj(id);
                         if(va)
                         {
@@ -132,8 +130,8 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
                         }
                         oe.bbmin.max(oe.o);
                         oe.bbmax.min(ivec(oe.o).add(oe.size));
-                        break;
                     }
+                    break;
                     // invisible mapmodel
                 default:
                     oe.other.removeobj(id);
@@ -542,7 +540,7 @@ void renderentselection(const vec &o, const vec &ray, bool entmoving)
         }
         gle::colorub(150,0,0);
         boxs(entorient, eo, es);
-        boxs(entorient, eo, es, clamp(0.015f*camera1->o.dist(eo)*tan(fovy*0.5f*RAD), 0.1f, 1.0f));
+        boxs(entorient, eo, es, std::clamp(0.015f*camera1->o.dist(eo)*tan(fovy*0.5f*rad), 0.1f, 1.0f));
     }
 }
 
@@ -872,7 +870,7 @@ void entset(char *what, char *attr)
     entattrs(attr, attrs);
     groupedit({
         e.type = type;
-        e.attrs.add(0, clamp(attrs.length(), entities::numattrs(e.type), MAXENTATTRS) - e.attrs.length());
+        e.attrs.add(0, std::clamp(attrs.length(), entities::numattrs(e.type), MAXENTATTRS) - e.attrs.length());
         loopk(min(attrs.length(), e.attrs.length())) e.attrs[k] = attrs[k];
     });
 }

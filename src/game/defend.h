@@ -115,7 +115,7 @@ struct defendstate
 
         float occupied(bool instant, float amt)
         {
-            return (enemy ? enemy : owner) ? (!owner || enemy ? clamp(converted/amt, 0.f, 1.f) : 1.f) : 0.f;
+            return (enemy ? enemy : owner) ? (!owner || enemy ? std::clamp(converted/amt, 0.f, 1.f) : 1.f) : 0.f;
         }
     };
 

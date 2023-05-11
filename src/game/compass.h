@@ -159,7 +159,7 @@ int cmenuhit()
         if(sqrtf(cx*cx+cy*cy) <= compasssize*0.5f) return -1;
         else
         {
-            float yaw = -(float)atan2(cx, cy)/RAD+202.5f; if(yaw >= 360) yaw -= 360;
+            float yaw = -(float)atan2(cx, cy)/rad+202.5f; if(yaw >= 360) yaw -= 360;
             loopi(min(curcompass->actions.length(), 8)) if(yaw > i*45 && yaw <= (i+1)*45)
                 return i;
         }

@@ -36,7 +36,7 @@ static void renderlightning(Texture *tex, const vec &o, const vec &d, float sz, 
     vec step(d);
     step.sub(o);
     float len = step.magnitude();
-    int numsteps = clamp(int(ceil(len/LIGHTNINGSTEP)), 2, MAXLIGHTNINGSTEPS);
+    int numsteps = std::clamp(int(ceil(len/LIGHTNINGSTEP)), 2, MAXLIGHTNINGSTEPS);
     step.div(numsteps+1);
     int jitteroffset = detrnd(int(d.x+d.y+d.z), MAXLIGHTNINGSTEPS);
     vec cur(o), up, right;
@@ -46,7 +46,7 @@ static void renderlightning(Texture *tex, const vec &o, const vec &d, float sz, 
     right.normalize();
     float scroll = -float(lastmillis%lnscrollmillis)/lnscrollmillis,
           scrollscale = lnscrollscale*(LIGHTNINGSTEP*tex->ys)/(sz*tex->xs),
-          blend = pow(clamp(float(lastmillis - lastlnjitter)/lnjittermillis, 0.0f, 1.0f), lnblendpower),
+          blend = pow(std::clamp(float(lastmillis - lastlnjitter)/lnjittermillis, 0.0f, 1.0f), lnblendpower),
           jitter0 = (1-blend)*lnjitterscale*sz/lnjitterradius, jitter1 = blend*lnjitterscale*sz/lnjitterradius,
           fadescale = sz/step.magnitude();
     gle::begin(GL_TRIANGLE_STRIP);

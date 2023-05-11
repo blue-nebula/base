@@ -18,10 +18,10 @@ namespace sphere
         float ds = 1.0f/slices, dt = 1.0f/stacks, t = 1.0f;
         loopi(stacks+1)
         {
-            float rho = M_PI*(1-t), s = 0.0f, sinrho = i && i < stacks ? sin(rho) : 0, cosrho = !i ? 1 : (i < stacks ? cos(rho) : -1);
+            float rho = pi*(1-t), s = 0.0f, sinrho = i && i < stacks ? sin(rho) : 0, cosrho = !i ? 1 : (i < stacks ? cos(rho) : -1);
             loopj(slices+1)
             {
-                float theta = j==slices ? 0 : 2*M_PI*s;
+                float theta = j==slices ? 0 : 2*pi*s;
                 vert &v = verts[i*(slices+1) + j];
                 v.pos = vec(-sin(theta)*sinrho, cos(theta)*sinrho, cosrho);
                 v.s = ushort(s*0xFFFF);
@@ -216,7 +216,7 @@ struct explosionrenderer : sharedlistrenderer
             t = vec(dir.x*dir.z, dir.y*dir.z, -mag2/dist);
         }
 
-        matrix3 rot(lastmillis/1000.0f*143*RAD, vec(1/SQRT3, 1/SQRT3, 1/SQRT3));
+        matrix3 rot(lastmillis/1000.0f*143*rad, vec(1/sqrt3, 1/sqrt3, 1/sqrt3));
         LOCALPARAM(texgenS, rot.transposedtransform(s));
         LOCALPARAM(texgenT, rot.transposedtransform(t));
 

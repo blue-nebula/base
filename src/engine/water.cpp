@@ -95,7 +95,7 @@ void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
     wx2 = wx1 + size,
     wy2 = wy1 + size;
     wsize = size;
-    whscale = 59.0f/(23.0f*wsize*wsize)/(2*M_PI);
+    whscale = 59.0f/(23.0f*wsize*wsize)/(2*pi);
 
     ASSERT((wx1 & (subdiv - 1)) == 0);
     ASSERT((wy1 & (subdiv - 1)) == 0);
@@ -104,14 +104,14 @@ void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
     {
         case MAT_WATER:
         {
-            whoffset = fmod(float(lastmillis/600.0f/(2*M_PI)), 1.0f);
+            whoffset = fmod(float(lastmillis/600.0f/(2*pi)), 1.0f);
             renderwaterstrips(vertwt, z);
             break;
         }
 
         case MAT_LAVA:
         {
-            whoffset = fmod(float(lastmillis/2000.0f/(2*M_PI)), 1.0f);
+            whoffset = fmod(float(lastmillis/2000.0f/(2*pi)), 1.0f);
             renderwaterstrips(vertl, z);
             break;
         }
@@ -885,10 +885,10 @@ static bool calcscissorbox(Reflection &ref, int size, vec &clipmin, vec &clipmax
     sy2 = min(sy2, 1.0f);
     if(reflectvfc)
     {
-        clipmin.x = clamp(clipmin.x, sx1, sx2);
-        clipmin.y = clamp(clipmin.y, sy1, sy2);
-        clipmax.x = clamp(clipmax.x, sx1, sx2);
-        clipmax.y = clamp(clipmax.y, sy1, sy2);
+        clipmin.x = std::clamp(clipmin.x, sx1, sx2);
+        clipmin.y = std::clamp(clipmin.y, sy1, sy2);
+        clipmax.x = std::clamp(clipmax.x, sx1, sx2);
+        clipmax.y = std::clamp(clipmax.y, sy1, sy2);
     }
     sx = int(floor((sx1+1)*0.5f*size));
     sy = int(floor((sy1+1)*0.5f*size));

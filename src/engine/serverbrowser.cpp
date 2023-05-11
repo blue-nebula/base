@@ -355,7 +355,7 @@ void checkpings()
         if(!si && searchlan) si = newserver(NULL, addr.port-1, 1, NULL, NULL, NULL, NULL, addr.host);
         if(!si) continue;
         ucharbuf p(ping, len);
-        int millis = getint(p), rtt = clamp(totalmillis - millis, 0, min(serverdecay*1000, totalmillis));
+        int millis = getint(p), rtt = std::clamp(totalmillis - millis, 0, min(serverdecay*1000, totalmillis));
         if(millis >= lastreset && rtt < serverdecay*1000) si->addping(rtt, millis);
         si->lastinfo = totalmillis;
         si->numplayers = getint(p);

@@ -14,7 +14,7 @@ enum {FIELDCOMMIT, FIELDABORT, FIELDEDIT, FIELDSHOW, FIELDKEY};
 static int fieldmode = FIELDSHOW;
 static bool fieldsactive = false;
 
-FVAR(IDF_PERSIST, ui_scale, FVAR_NONZERO, 0.00055f, VAR_MAX);
+FVAR(IDF_PERSIST, ui_scale, FVAR_NONZERO, 0.00055f, FVAR_MAX);
 VAR(IDF_PERSIST, ui_size_skin, 0, 48, VAR_MAX); // 0 = texture size, otherwise = size in pixels for skin scaling
 VAR(IDF_PERSIST, ui_size_slider, 1, 58, VAR_MAX);
 VAR(IDF_PERSIST, ui_size_separator, 1, 6, VAR_MAX);
@@ -614,20 +614,20 @@ struct gui : guient
                     if(ishorizontal()) vnew = int((vnew*(reverse ? hity - y - ui_size_slider / 2 : y + ysize - ui_size_slider / 2 - hity)) / (ysize - ui_size_slider));
                     else vnew = int((vnew*(reverse ? x + xsize - ui_size_slider / 2 - hitx : hitx - x - ui_size_slider / 2)) / (xsize - ui_size_slider));
                     vnew += vmin;
-                    vnew = clamp(vnew, vmin, vmax);
+                    vnew = std::clamp(vnew, vmin, vmax);
                     if(vnew != val) val = vnew;
                 }
                 else if(mouse_action[1] & GUI_UP)
                 {
                     int vval = val+(reverse == !(mouse_action[1] & GUI_ALT) ? -1 : 1),
-                        vnew = clamp(vval, vmin, vmax);
+                        vnew = std::clamp(vval, vmin, vmax);
                     if(vnew != val) val = vnew;
                 }
             }
             else if(scroll && lists[curlist].mouse[1]&GUI_UP)
             {
                 int vval = val+(reverse == !(lists[curlist].mouse[1]&GUI_ALT) ? -1 : 1),
-                    vnew = clamp(vval, vmin, vmax);
+                    vnew = std::clamp(vval, vmin, vmax);
                 if(vnew != val) val = vnew;
             }
         }
@@ -1324,25 +1324,39 @@ namespace UI
             return true;
         }
 
-        if(code < 0) switch(code)
-        { // fall-through-o-rama
-            case -5: mouse_action[1] |= GUI_ALT;
-            case -4: mouse_action[1] |= isdown ? GUI_DOWN : GUI_UP;
-                if(active()) return true;
-                break;
-            case -3: mouse_action[0] |= GUI_ALT;
-            case -1: mouse_action[0] |= (ui_action_on = isdown) ? GUI_DOWN : GUI_UP;
-                if(isdown)
-                {
-                    firstx = gui::hitx;
-                    firsty = gui::hity;
+        if (code < 0) {
+            switch (code) {
+            case -5:
+                mouse_action[1] |= GUI_ALT;
+                [[fallthrough]];
+            case -4:
+                mouse_action[1] |= isdown ? GUI_DOWN : GUI_UP;
+                if (active()) {
+                        return true;
                 }
-                if(active()) return true;
+                break;
+            case -3:
+                mouse_action[0] |= GUI_ALT;
+                [[fallthrough]];
+            case -1:
+                mouse_action[0] |= (ui_action_on = isdown) ? GUI_DOWN : GUI_UP;
+                if (isdown) {
+                        firstx = gui::hitx;
+                        firsty = gui::hity;
+                }
+                if (active()) {
+                        return true;
+                }
                 break;
             case -2:
-                if(isdown) cleargui(1);
-                if(active()) return true;
+                if (isdown) {
+                        cleargui(1);
+                }
+                if (active()) {
+                        return true;
+                }
                 break;
+            }
         }
 
         if(fieldmode == FIELDSHOW || !e || e->mode == EDITORREADONLY) return false;
@@ -1357,7 +1371,10 @@ namespace UI
                 return e->mode != EDITORFOREVER;
             case SDLK_RETURN:
             case SDLK_TAB:
-                if(e->maxy != 1) break;
+                if(e->maxy != 1) {
+                    break;
+                }
+                [[fallthrough]];
             case SDLK_KP_ENTER:
                 if(isdown) fieldmode = FIELDCOMMIT; //signal field commit (handled when drawing field)
                 return true;

@@ -601,21 +601,21 @@ struct Texture
     GLuint idframe(int id)
     {
         if(!frames.empty())
-            return frames[::clamp(id, 0, frames.length()-1)];
+            return frames[std::clamp(id, 0, frames.length()-1)];
         return id;
     }
 
     GLuint getframe(float amt)
     {
         if(!frames.empty())
-            return frames[::clamp(int((frames.length()-1)*amt), 0, frames.length()-1)];
+            return frames[std::clamp(int((frames.length()-1)*amt), 0, frames.length()-1)];
         return id;
     }
 
     GLuint retframe(int cur, int total)
     {
         if(!frames.empty())
-            return frames[::clamp((frames.length()-1)*cur/min(1, total), 0, frames.length()-1)];
+            return frames[std::clamp((frames.length()-1)*cur/min(1, total), 0, frames.length()-1)];
         return id;
     }
 };

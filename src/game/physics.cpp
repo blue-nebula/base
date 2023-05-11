@@ -241,7 +241,7 @@ namespace physics
         if(gameent::is(d))
         {
             gameent *e = (gameent *)d;
-            vel *= 1.f-clamp(e->stunned(lastmillis), 0.f, 1.f);
+            vel *= 1.f-std::clamp(e->stunned(lastmillis), 0.f, 1.f);
         }
         return vel;
     }
@@ -252,7 +252,7 @@ namespace physics
         if(gameent::is(d))
         {
             gameent *e = (gameent *)d;
-            vel *= 1.f-clamp(e->stunned(lastmillis, true), 0.f, 1.f);
+            vel *= 1.f-std::clamp(e->stunned(lastmillis, true), 0.f, 1.f);
         }
         return vel;
     }
@@ -299,7 +299,7 @@ namespace physics
             if(gameent::is(pl))
             {
                 gameent *e = (gameent *)pl;
-                vel *= movespeed/100.f*(1.f-clamp(e->stunned(lastmillis), 0.f, 1.f));
+                vel *= movespeed/100.f*(1.f-std::clamp(e->stunned(lastmillis), 0.f, 1.f));
                 if((d->physstate >= PHYS_SLOPE || d->onladder) && !e->sliding(true) && e->crouching()) vel *= movecrawl;
                 else if(isweap(e->weapselect) && e->weapstate[e->weapselect] == W_S_ZOOM) vel *= movecrawl;
                 if(e->move >= 0) vel *= e->strafe ? movestrafe : movestraight;
@@ -327,7 +327,7 @@ namespace physics
         if(gameent::is(d))
         {
             gameent *e = (gameent *)d;
-            scale *= 1.f-clamp(e->stunned(lastmillis), 0.f, 1.f);
+            scale *= 1.f-std::clamp(e->stunned(lastmillis), 0.f, 1.f);
             if(carryaffinity(e))
             {
                 if(m_capture(game::gamemode)) scale *= capturecarryspeed;
@@ -816,7 +816,7 @@ namespace physics
             }
             if(d->hasmelee(lastmillis, true, d->sliding(true), onfloor))
             {
-                vec oldpos = d->o, dir(d->yaw*RAD, 0.f);
+                vec oldpos = d->o, dir(d->yaw*rad, 0.f);
                 d->o.add(dir);
                 bool collided = collide(d, dir);
                 d->o = oldpos;
@@ -1032,7 +1032,7 @@ namespace physics
             if(liquid || pl->physstate >= PHYS_SLOPE)
             {
                 float coast = liquid ? liquidmerge(pl, PHYS(aircoast), PHYS(liquidcoast)) : PHYS(floorcoast)*coastscale(pl->feetpos(-1)),
-                      c = liquid ? 1.0f : clamp((pl->floor.z - slopez)/(floorz-slopez), 0.0f, 1.0f);
+                      c = liquid ? 1.0f : std::clamp((pl->floor.z - slopez)/(floorz-slopez), 0.0f, 1.0f);
                 pl->falling.mul(pow(max(1.0f - c/coast, 0.0f), curtime/20.0f));
             }
         }
@@ -1050,7 +1050,7 @@ namespace physics
             { \
                 int col = (int(mcol[2]*mq) + (int(mcol[1]*mq) << 8) + (int(mcol[0]*mq) << 16)); \
                 regularshape(mp, mt, col, 21, 20, mz, mo, ms, 1, 10, 0, 20); \
-                if(mw >= 0) playsound(mw, mo, pl); \
+                if((mw) >= 0) playsound(mw, mo, pl); \
             }
             if(curmat == MAT_WATER || oldmat == MAT_WATER)
             {
@@ -1429,12 +1429,12 @@ namespace physics
         doposchk;
         if(gameent::is(d)) loopk(18)
         {
-            vec dir = vec(d->yaw*RAD, d->pitch*RAD).rotate_around_z(k*20.f*RAD);
+            vec dir = vec(d->yaw*rad, d->pitch*rad).rotate_around_z(k*20.f*rad);
             if(!dir.iszero()) inmapchk(100, d->o.add(vec(dir).mul(n/10.f+maxrad)));
         }
         if(!d->vel.iszero()) loopk(18)
         {
-            vec dir = vec(d->vel).normalize().rotate_around_z(k*20.f*RAD);
+            vec dir = vec(d->vel).normalize().rotate_around_z(k*20.f*rad);
             inmapchk(100, d->o.add(vec(dir).mul(n/10.f+maxrad)));
         }
         inmapchk(100, d->o.add(vec((rnd(21)-10)/10.f, (rnd(21)-10)/10.f, (rnd(21)-10)/10.f).normalize().mul(vec(n/10.f+maxrad, n/10.f+maxrad, n/25.f+maxrad))));

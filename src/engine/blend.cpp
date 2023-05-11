@@ -194,7 +194,7 @@ uchar lookupblendmap(BlendMapCache *cache, const vec &pos)
         rx = ix-cache->origin.x, ry = iy-cache->origin.y;
     loop(vy, 2) loop(vx, 2)
     {
-        int cx = clamp(rx+vx, 0, (1<<cache->scale)-1), cy = clamp(ry+vy, 0, (1<<cache->scale)-1);
+        int cx = std::clamp(rx+vx, 0, (1<<cache->scale)-1), cy = std::clamp(ry+vy, 0, (1<<cache->scale)-1);
         if(cache->node.type==BM_IMAGE)
             *val++ = cache->node.image->data[cy*BM_IMAGE_SIZE + cx];
         else *val++ = lookupblendmap(cx, cy, cache->node.branch, cache->scale);
@@ -265,10 +265,10 @@ static void fillblendmap(uchar &type, BlendMapNode &node, int size, uchar val, i
 void fillblendmap(int x, int y, int w, int h, uchar val)
 {
     int bmsize = hdr.worldsize>>BM_SCALE,
-        x1 = clamp(x, 0, bmsize),
-        y1 = clamp(y, 0, bmsize),
-        x2 = clamp(x+w, 0, bmsize),
-        y2 = clamp(y+h, 0, bmsize);
+        x1 = std::clamp(x, 0, bmsize),
+        y1 = std::clamp(y, 0, bmsize),
+        x2 = std::clamp(x+w, 0, bmsize),
+        y2 = std::clamp(y+h, 0, bmsize);
     if(max(x1, y1) >= bmsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
     fillblendmap(blendmap.type, blendmap, bmsize, val, x1, y1, x2, y2);
 }
@@ -312,10 +312,10 @@ static void invertblendmap(uchar &type, BlendMapNode &node, int size, int x1, in
 void invertblendmap(int x, int y, int w, int h)
 {
     int bmsize = hdr.worldsize>>BM_SCALE,
-        x1 = clamp(x, 0, bmsize),
-        y1 = clamp(y, 0, bmsize),
-        x2 = clamp(x+w, 0, bmsize),
-        y2 = clamp(y+h, 0, bmsize);
+        x1 = std::clamp(x, 0, bmsize),
+        y1 = std::clamp(y, 0, bmsize),
+        x2 = std::clamp(x+w, 0, bmsize),
+        y2 = std::clamp(y+h, 0, bmsize);
     if(max(x1, y1) >= bmsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
     invertblendmap(blendmap.type, blendmap, bmsize, x1, y1, x2, y2);
 }
@@ -392,8 +392,8 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
         memset(node.image->data, val, sizeof(node.image->data));
     }
 
-    int x1 = clamp(sx - bmx, 0, bmsize), y1 = clamp(sy - bmy, 0, bmsize),
-        x2 = clamp(sx+sw - bmx, 0, bmsize), y2 = clamp(sy+sh - bmy, 0, bmsize);
+    int x1 = std::clamp(sx - bmx, 0, bmsize), y1 = std::clamp(sy - bmy, 0, bmsize),
+        x2 = std::clamp(sx+sw - bmx, 0, bmsize), y2 = std::clamp(sy+sh - bmy, 0, bmsize);
     uchar *dst = &node.image->data[y1*BM_IMAGE_SIZE + x1];
     src += max(bmy - sy, 0)*sw + max(bmx - sx, 0);
     loopi(y2-y1)
@@ -545,7 +545,7 @@ void delblendbrush(const char *name)
         delete brushes[i];
         brushes.remove(i--);
     }
-    curbrush = brushes.empty() ? -1 : clamp(curbrush, 0, brushes.length()-1);
+    curbrush = brushes.empty() ? -1 : std::clamp(curbrush, 0, brushes.length()-1);
 }
 
 void addblendbrush(const char *name, const char *imgname)
@@ -626,7 +626,7 @@ void rotateblendbrush(int *val)
 {
     if(!canpaintblendmap()) return;
 
-    int numrots = *val < 0 ? 3 : clamp(*val, 1, 5);
+    int numrots = *val < 0 ? 3 : std::clamp(*val, 1, 5);
     BlendBrush *brush = brushes[curbrush];
     brush->reorient(numrots>=2 && numrots<=4, numrots<=2 || numrots==5, (numrots&5)==1);
 }
@@ -638,8 +638,8 @@ void paintblendmap(bool msg)
     if(!canpaintblendmap(true, false, msg)) return;
 
     BlendBrush *brush = brushes[curbrush];
-    int x = (int)floor(clamp(worldpos.x, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->w),
-        y = (int)floor(clamp(worldpos.y, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->h);
+    int x = (int)floor(std::clamp(worldpos.x, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->w),
+        y = (int)floor(std::clamp(worldpos.y, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->h);
     blitblendmap(brush->data, x, y, brush->w, brush->h);
     previewblends(ivec((x-1)<<BM_SCALE, (y-1)<<BM_SCALE, 0),
                   ivec((x+brush->w+1)<<BM_SCALE, (y+brush->h+1)<<BM_SCALE, hdr.worldsize));
@@ -733,8 +733,8 @@ void renderblendbrush()
     if(!blendpaintmode || !brushes.inrange(curbrush)) return;
 
     BlendBrush *brush = brushes[curbrush];
-    int x1 = (int)floor(clamp(worldpos.x, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->w) << BM_SCALE,
-        y1 = (int)floor(clamp(worldpos.y, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->h) << BM_SCALE,
+    int x1 = (int)floor(std::clamp(worldpos.x, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->w) << BM_SCALE,
+        y1 = (int)floor(std::clamp(worldpos.y, 0.0f, float(hdr.worldsize))/(1<<BM_SCALE) - 0.5f*brush->h) << BM_SCALE,
         x2 = x1 + (brush->w << BM_SCALE),
         y2 = y1 + (brush->h << BM_SCALE);
 

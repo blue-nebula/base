@@ -399,12 +399,12 @@ void calcvol(int flags, int vol, int slotvol, int maxrad, int minrad, const vec 
 {
     vec v;
     float dist = pos.dist(camera1->o, v);
-    int svol = flags&SND_CLAMPED ? 255 : clamp(vol, 0, 255), span = 127;
+    int svol = flags&SND_CLAMPED ? 255 : std::clamp(vol, 0, 255), span = 127;
     if(!(flags&SND_NOATTEN) && dist > 0)
     {
         if(!(flags&SND_NOPAN) && !soundmono && (v.x != 0 || v.y != 0))
         {
-            v.rotate_around_z(-camera1->yaw*RAD);
+            v.rotate_around_z(-camera1->yaw*rad);
             span = int(255.9f*(0.5f - 0.5f*v.x/v.magnitude2())); // range is from 0 (left) to 255 (right)
         }
         if(!(flags&SND_NODIST))
@@ -419,8 +419,8 @@ void calcvol(int flags, int vol, int slotvol, int maxrad, int minrad, const vec 
         }
     }
     if(!(flags&SND_NOQUIET) && svol > 0 && liquid) svol = int(svol*0.65f);
-    if(flags&SND_CLAMPED) svol = max(svol, clamp(vol, 0, 255));
-    *curvol = clamp(int((mastervol/255.f)*(soundvol/255.f)*(slotvol/255.f)*(svol/255.f)*MIX_MAX_VOLUME*(flags&SND_MAP ? soundenvvol : soundevtvol)), 0, MIX_MAX_VOLUME);
+    if(flags&SND_CLAMPED) svol = max(svol, std::clamp(vol, 0, 255));
+    *curvol = std::clamp(int((mastervol/255.f)*(soundvol/255.f)*(slotvol/255.f)*(svol/255.f)*MIX_MAX_VOLUME*(flags&SND_MAP ? soundenvvol : soundevtvol)), 0, MIX_MAX_VOLUME);
     *curpan = span;
 }
 
@@ -560,7 +560,7 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
             oldhook = NULL;
 
         vec o = d ? game::camerapos(d) : pos;
-        int cvol = 0, cpan = 0, v = clamp(vol >= 0 ? vol : 255, flags&SND_CLAMPED ? 64 : 0, 255),
+        int cvol = 0, cpan = 0, v = std::clamp(vol >= 0 ? vol : 255, flags&SND_CLAMPED ? 64 : 0, 255),
             x = maxrad > 0 ? maxrad : (flags&SND_CLAMPED ? getworldsize() : (slot->maxrad > 0 ? slot->maxrad : soundmaxrad)),
             y = minrad >= 0 ? minrad : (flags&SND_CLAMPED ? 32 : (slot->minrad >= 0 ? slot->minrad : soundminrad)),
             mat = lookupmaterial(o);
@@ -791,8 +791,8 @@ void updatemumble()
     mumbleinfo->timestamp = ++timestamp;
 
     mumbleinfo->pos = mumblevec(camera1->o, true);
-    mumbleinfo->front = mumblevec(vec(RAD*camera1->yaw, RAD*camera1->pitch));
-    mumbleinfo->top = mumblevec(vec(RAD*camera1->yaw, RAD*(camera1->pitch+90)));
+    mumbleinfo->front = mumblevec(vec(rad*camera1->yaw, rad*camera1->pitch));
+    mumbleinfo->top = mumblevec(vec(rad*camera1->yaw, rad*(camera1->pitch+90)));
 #endif
 }
 

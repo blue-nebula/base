@@ -61,7 +61,7 @@ struct bomberstate
                         if(totalmillis != rendertime)
                         {
                             float yaw = 360-((lastmillis/2)%360), off = (lastmillis%1000)/500.f;
-                            renderpos = vec(yaw*RAD, 0.f).mul(owner->radius+4).add(owner->center());
+                            renderpos = vec(yaw*rad, 0.f).mul(owner->radius+4).add(owner->center());
                             renderpos.z += owner->height*(off > 1 ?  2-off : off);
                             rendertime = totalmillis;
                         }

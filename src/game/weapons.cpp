@@ -324,7 +324,7 @@ namespace weapons
                     }
                     else return false;
                 }
-                cooked = len ? clamp(lastmillis-d->weaptime[weap], 1, len) : 1;
+                cooked = len ? std::clamp(lastmillis-d->weaptime[weap], 1, len) : 1;
                 if(zooming)
                 {
                     if(pressed && wassecond) return false;
@@ -352,7 +352,7 @@ namespace weapons
             if(weap == W_MELEE)
             {
                 from = d->center();
-                to = vec(from).add(vec(d->yaw*RAD, d->pitch*RAD).mul(d->radius*2.f));
+                to = vec(from).add(vec(d->yaw*rad, d->pitch*rad).mul(d->radius*2.f));
             }
             else
             {

@@ -949,7 +949,7 @@ namespace server
             ident *id = getident(#a); \
             if(id && id->type == ID_VAR && id->flags&IDF_SERVER) \
             { \
-                *id->storage.i = clamp(b, id->minval, id->maxval); \
+                *id->storage.i = std::clamp(b, id->minval, id->maxval); \
                 id->changed(); \
                 const char *sval = intstr(id); \
                 sendf(-1, 1, "ri2sis", N_COMMAND, -1, &id->name[3], strlen(sval), sval); \
@@ -963,7 +963,7 @@ namespace server
             ident *id = getident(#a); \
             if(id && id->type == ID_FVAR && id->flags&IDF_SERVER) \
             { \
-                *id->storage.f = clamp(b, id->minvalf, id->maxvalf); \
+                *id->storage.f = std::clamp(b, id->minvalf, id->maxvalf); \
                 id->changed(); \
                 const char *sval = floatstr(id); \
                 if(sval) sendf(-1, 1, "ri2sis", N_COMMAND, -1, &id->name[3], strlen(sval), sval); \
@@ -1164,8 +1164,8 @@ namespace server
     void deleteinfo(void *ci) { delete (clientinfo *)ci; }
 
     int numchannels() { return 3; }
-    int spectatorslots() { return clamp(G(serverspectators) > 0 ? G(serverspectators) : G(serverclients), 1, MAXCLIENTS); }
-    int maxslots() { return clamp(G(serverclients)+spectatorslots(), 1, MAXCLIENTS); }
+    int spectatorslots() { return std::clamp(G(serverspectators) > 0 ? G(serverspectators) : G(serverclients), 1, MAXCLIENTS); }
+    int maxslots() { return std::clamp(G(serverclients)+spectatorslots(), 1, MAXCLIENTS); }
     int reserveclients() { return maxslots()+4; }
     int dupclients() { return G(serverdupclients); }
 
@@ -1235,7 +1235,7 @@ namespace server
             { "none", "player account", "global supporter", "global moderator", "global operator", "global administrator", "project developer", "project founder" },
             { "none", "player account", "local supporter", "local moderator", "local operator", "local administrator", "none", "none" }
         };
-        return privnames[priv&PRIV_LOCAL ? 1 : 0][clamp(priv&PRIV_TYPE, 0, int(priv&PRIV_LOCAL ? PRIV_ADMINISTRATOR : PRIV_LAST))];
+        return privnames[priv&PRIV_LOCAL ? 1 : 0][std::clamp(priv&PRIV_TYPE, 0, int(priv&PRIV_LOCAL ? PRIV_ADMINISTRATOR : PRIV_LAST))];
     }
 
     const char *privnamex(int priv, int actortype, bool local)
@@ -1245,7 +1245,7 @@ namespace server
             { "none", "player", "supporter", "moderator", "operator", "administrator", "developer", "founder" },
             { "none", "player", "localsupporter", "localmoderator", "localoperator", "localadministrator", "developer", "founder" }
         };
-        return privnames[local && priv&PRIV_LOCAL ? 1 : 0][clamp(priv&PRIV_TYPE, 0, int(priv&PRIV_LOCAL ? PRIV_ADMINISTRATOR : PRIV_LAST))];
+        return privnames[local && priv&PRIV_LOCAL ? 1 : 0][std::clamp(priv&PRIV_TYPE, 0, int(priv&PRIV_LOCAL ? PRIV_ADMINISTRATOR : PRIV_LAST))];
     }
 
     const char *colourname(clientinfo *ci, char *name = NULL, bool icon = true, bool dupname = true, int colour = 3)
@@ -1281,7 +1281,7 @@ namespace server
     const char *teamtexnamex(int team)
     {
         const char *teamtexs[T_MAX] = { "teamtex", "teamalphatex", "teamomegatex", "teamkappatex", "teamsigmatex", "teamtex" };
-        return teamtexs[clamp(team, 0, T_MAX-1)];
+        return teamtexs[std::clamp(team, 0, T_MAX-1)];
     }
 
     const char *colourteam(int team, const char *icon = "")
@@ -1340,7 +1340,7 @@ namespace server
         if(!m_game(mode)) mode = G_DEATHMATCH;
         if(gametype[mode].implied) muts |= gametype[mode].implied;
         static string gname; gname[0] = '\0';
-        int start = clamp(compact, 0, 3), lps = clamp(4-start, 1, 4);
+        int start = std::clamp(compact, 0, 3), lps = std::clamp(4-start, 1, 4);
         loopk(lps)
         {
             int iter = start+k;
@@ -2168,8 +2168,7 @@ namespace server
                 else if(m_play(gamemode) && m_team(gamemode, mutators) && (!m_race(gamemode) || m_ra_gauntlet(gamemode, mutators)) && !spawns[ci->team].ents.empty()) team = ci->team;
                 else switch(rotate)
                 {
-                    case 2:
-                    { // random
+                    case 2: // random
                         static vector<int> lowest;
                         lowest.setsize(0);
                         loopv(spawns[team].cycle) if(lowest.empty() || spawns[team].cycle[i] <= spawns[team].cycle[lowest[0]])
@@ -2183,8 +2182,7 @@ namespace server
                             spawns[team].current = lowest[lowest.length() >= 2 ? rnd(lowest.length()) : 0];
                             break;
                         }
-                        // fall through if this fails..
-                    }
+                        [[fallthrough]];
                     case 1:
                     { // sequential
                         if(++spawns[team].current >= spawns[team].ents.length()) spawns[team].current = 0;
@@ -2421,7 +2419,7 @@ namespace server
 
     void prunedemos(int extra = 0)
     {
-        int n = clamp(demos.length()+extra-G(democount), 0, demos.length());
+        int n = std::clamp(demos.length()+extra-G(democount), 0, demos.length());
         if(n <= 0) return;
         loopi(n) delete[] demos[i].data;
         demos.remove(0, n);
@@ -3293,7 +3291,11 @@ namespace server
                 break;
             }
             case ALST_SPEC: return ci->actortype == A_PLAYER; // spec
-            case ALST_WALK: if(ci->state != CS_EDITING) return false;
+            case ALST_WALK:
+                if (ci->state != CS_EDITING) {
+                    return false;
+                }
+                break;
             case ALST_EDIT: // edit on/off
             {
                 if(ci->quarantine || (ci->state == CS_SPECTATOR && numclients(ci->clientnum, true) >= G(serverclients)) || ci->actortype != A_PLAYER || !m_edit(gamemode)) return false;
@@ -3380,12 +3382,10 @@ namespace server
             {
                 std::vector<std::string> prev;
                 explodelist(sv_previousmaps, prev);
-                loopvrev(prev) if(prev[i] == smapname)
-                {
+                loopvrev(prev) if (prev[i] == smapname) {
                     prev.erase( prev.begin() + i );
                 }
-                while(prev.size() >= G(maphistory))
-                {
+                while (prev.size() >= static_cast<size_t>(G(maphistory))) {
                     prev.pop_back();
                 }
                 loopv(prev)
@@ -3395,7 +3395,10 @@ namespace server
                 }
                 prev.clear();
             }
-            if(!buf.empty()) setmods(sv_previousmaps, buf.c_str());
+
+            if (!buf.empty()) {
+                setmods(sv_previousmaps, buf.c_str());
+            }
         }
         else setmods(sv_previousmaps, "");
 
@@ -3777,7 +3780,7 @@ namespace server
                 putint(p, ci->colour);
                 putint(p, ci->model);
                 sendstring(ci->vanity, p);
-                putint(p, ci->loadweap.length());
+                putint(p, ci->loadweap.size());
                 loopv(ci->loadweap) putint(p, ci->loadweap[i]);
             }
         }
@@ -3792,9 +3795,9 @@ namespace server
             putint(p, ci->privilege);
             sendstring(ci->name, p);
             sendstring(ci->vanity, p);
-            putint(p, ci->loadweap.length());
+            putint(p, ci->loadweap.size());
             loopv(ci->loadweap) putint(p, ci->loadweap[i]);
-            putint(p, ci->randweap.length());
+            putint(p, ci->randweap.size());
             loopv(ci->randweap) putint(p, ci->randweap[i]);
             sendstring(ci->handle, p);
             sendstring(allow ? gethostip(ci->clientnum) : "*", p); // TODO proto 231
@@ -4243,7 +4246,7 @@ namespace server
                         logs++;
                         if(logs >= 2)
                         {
-                            int offset = clamp(logs-2, 0, 2), type = 1<<(FRAG_MKILL+offset); // double, triple, multi..
+                            int offset = std::clamp(logs-2, 0, 2), type = 1<<(FRAG_MKILL+offset); // double, triple, multi..
                             if(!(v->rewards[0]&type))
                             {
                                 style |= type;
@@ -4260,7 +4263,7 @@ namespace server
                     }
                     if(v->spree <= G(spreecount)*FRAG_SPREES && !(v->spree%G(spreecount)))
                     {
-                        int offset = clamp((v->spree/G(spreecount)), 1, int(FRAG_SPREES))-1, type = 1<<(FRAG_SPREE+offset);
+                        int offset = std::clamp((v->spree/G(spreecount)), 1, int(FRAG_SPREES))-1, type = 1<<(FRAG_SPREE+offset);
                         if(!(v->rewards[0]&type))
                         {
                             style |= type;
@@ -4452,7 +4455,7 @@ namespace server
             flags |= HIT_WAVE;
         }
 
-        float skew = clamp(scale, 0.f, 1.f)*G(damagescale);
+        float skew = std::clamp(scale, 0.f, 1.f)*G(damagescale);
 
         if(flags&HIT_WHIPLASH) skew *= WF(WK(flags), weap, damagewhiplash, WS(flags));
         else if(flags&HIT_HEAD) skew *= WF(WK(flags), weap, damagehead, WS(flags));
@@ -4460,9 +4463,9 @@ namespace server
         else if(flags&HIT_LEGS) skew *= WF(WK(flags), weap, damagelegs, WS(flags));
         else return 0;
 
-        if(radial > 0) skew *= clamp(1.f-dist/size, 1e-6f, 1.f);
+        if(radial > 0) skew *= std::clamp(1.f-dist/size, 1e-6f, 1.f);
         else if(WF(WK(flags), weap, taper, WS(flags)) != 0)
-            skew *= clamp(dist, WF(WK(flags), weap, tapermin, WS(flags)), WF(WK(flags), weap, tapermax, WS(flags)));
+            skew *= std::clamp(dist, WF(WK(flags), weap, tapermin, WS(flags)), WF(WK(flags), weap, tapermax, WS(flags)));
 
         if(!m_insta(gamemode, mutators))
         {
@@ -4577,7 +4580,7 @@ namespace server
                 else
                 {
                     int hflags = flags|h.flags;
-                    float skew = float(scale)/DNF, rad = radial > 0 ? clamp(radial/DNF, 0.f, WX(WK(flags), weap, explode, WS(flags), gamemode, mutators, skew)) : 0.f,
+                    float skew = float(scale)/DNF, rad = radial > 0 ? std::clamp(radial/DNF, 0.f, WX(WK(flags), weap, explode, WS(flags), gamemode, mutators, skew)) : 0.f,
                           size = rad > 0 ? (hflags&HIT_WAVE ? rad*WF(WK(flags), weap, wavepush, WS(flags)) : rad) : 0.f, dist = float(h.dist)/DNF;
                     if(m->state == CS_ALIVE && !m->protect(gamemillis, m_protect(gamemode, mutators)))
                     {
@@ -4990,7 +4993,7 @@ namespace server
                                 total = ci->health;
                                 low = m_health(gamemode, mutators, ci->actortype);
                             }
-                            int heal = clamp(ci->health+amt, low, total), eff = heal-ci->health;
+                            int heal = std::clamp(ci->health+amt, low, total), eff = heal-ci->health;
                             if(eff)
                             {
                                 ci->health = heal;
@@ -5104,7 +5107,6 @@ namespace server
                 switch(gamestate)
                 {
                     case G_S_WAITING: // start check
-                    {
                         if(!G(waitforplayermaps))
                         {
                             gamewaittime = totalmillis+G(waitforplayertime);
@@ -5134,8 +5136,7 @@ namespace server
                             sendtick();
                             break;
                         }
-                        // fall through
-                    }
+                        [[fallthrough]];
                     case G_S_GETMAP: // waiting for server
                     {
                         if(!gamewaittime)
@@ -5158,7 +5159,6 @@ namespace server
                         break;
                     }
                     case G_S_SENDMAP: // waiting for players
-                    {
                         if(!gamewaittime)
                         {
                             gamewaittime = totalmillis+G(waitforplayermaps);
@@ -5168,8 +5168,7 @@ namespace server
                         gamewaittime = totalmillis+G(waitforplayertime);
                         gamestate = G_S_READYING;
                         sendtick();
-                        // fall through
-                    }
+                        [[fallthrough]];
                     case G_S_READYING: // waiting for ready
                     {
                         if(!gamewaittime)
@@ -5203,7 +5202,6 @@ namespace server
                         break;
                     }
                     case G_S_GAMEINFO:
-                    {
                         if(!gamewaittime)
                         {
                             gamewaittime = totalmillis+G(waitforplayerinfo);
@@ -5224,9 +5222,9 @@ namespace server
                                     sendf(cs->clientnum, 1, "ri", N_GETGAMEINFO);
                                     asked++;
                                 }
-                                if(!asked) srvoutf(4, "\fyno game information response, and nobody to ask, giving up..");
-                                else
-                                {
+                                if (!asked) {
+                                    srvoutf(4, "\fyno game information response, and nobody to ask, giving up..");
+                                } else {
                                     srvoutf(4, "\fyno game information response, broadcasting..");
                                     gamewaittime = totalmillis+G(waitforplayerinfo);
                                     sendtick();
@@ -5236,8 +5234,10 @@ namespace server
                             else srvoutf(4, "\fyno broadcast game information response, giving up..");
                         }
                         mapgameinfo = -1;
-                    }
-                    default: gamestate = G_S_PLAYING; break;
+                        [[fallthrough]];
+                    default:
+                        gamestate = G_S_PLAYING;
+                        break;
                 }
                 if(gamestate == G_S_PLAYING)
                 {
@@ -5729,18 +5729,24 @@ namespace server
                         getstring(text, p);
                         ci->setvanity(text);
                         int lw = getint(p);
-                        ci->loadweap.shrink(0);
+                        ci->loadweap.clear();
                         loopk(lw)
                         {
-                            if(k >= W_LOADOUT) getint(p);
-                            else ci->loadweap.add(getint(p));
+                            if (k >= W_LOADOUT) {
+                                getint(p);
+                            } else {
+                                ci->loadweap.emplace_back(getint(p));
+                            }
                         }
                         int rw = getint(p);
-                        ci->randweap.shrink(0);
+                        ci->randweap.clear();
                         loopk(rw)
                         {
-                            if(k >= W_LOADOUT) getint(p);
-                            else ci->randweap.add(getint(p));
+                            if (k >= W_LOADOUT) {
+                                getint(p);
+                            } else {
+                                ci->randweap.emplace_back(getint(p));
+                            }
                         }
 
                         string password = "", authname = "";
@@ -5872,13 +5878,13 @@ namespace server
                     int dir = p.get();
                     dir |= p.get()<<8;
                     yaw = dir%360;
-                    pitch = clamp(dir/360, 0, 180)-90;
-                    roll = clamp(int(p.get()), 0, 180)-90;
+                    pitch = std::clamp(dir/360, 0, 180)-90;
+                    roll = std::clamp(int(p.get()), 0, 180)-90;
                     int mag = p.get();
                     if(flags&(1<<6)) mag |= p.get()<<8;
                     dir = p.get();
                     dir |= p.get()<<8;
-                    vecfromyawpitch(dir%360, clamp(dir/360, 0, 180)-90, 1, 0, vel);
+                    vecfromyawpitch(dir%360, std::clamp(dir/360, 0, 180)-90, 1, 0, vel);
                     vel.mul(mag/DVELF);
                     if(flags&(1<<7))
                     {
@@ -5888,7 +5894,7 @@ namespace server
                         {
                             dir = p.get();
                             dir |= p.get()<<8;
-                            vecfromyawpitch(dir%360, clamp(dir/360, 0, 180)-90, 1, 0, falling);
+                            vecfromyawpitch(dir%360, std::clamp(dir/360, 0, 180)-90, 1, 0, falling);
                         }
                         else falling = vec(0, 0, -1);
                         falling.mul(mag/DVELF);
@@ -6119,7 +6125,7 @@ namespace server
                     if(!isweap(ev->weap)) havecn = false;
                     else
                     {
-                        ev->scale = clamp(ev->scale, 0, W2(ev->weap, cooktime, WS(ev->flags)));
+                        ev->scale = std::clamp(ev->scale, 0, W2(ev->weap, cooktime, WS(ev->flags)));
                         if(havecn) ev->millis = cp->getmillis(gamemillis, ev->id);
                     }
                     loopk(3) ev->from[k] = getint(p);
@@ -6340,7 +6346,11 @@ namespace server
                                     commit = kin = true;
                                     break;
                                 }
-                                case TR_ONCE: if(sents[ent].spawned) break;
+                                case TR_ONCE:
+                                    if (sents[ent].spawned) {
+                                        break;
+                                    }
+                                    [[fallthrough]];
                                 case TR_LINK:
                                 {
                                     sents[ent].millis = gamemillis+(triggertime(ent)*2);
@@ -6518,20 +6528,23 @@ namespace server
                     ci->checkpointspawn = max(getint(p), 0);
                     getstring(text, p);
                     ci->setvanity(text);
-                    ci->loadweap.shrink(0);
+                    ci->loadweap.clear();
                     int lw = getint(p);
                     vector<int> lweaps;
                     loopk(lw)
                     {
                         if(k >= W_LOADOUT) getint(p);
-                        else ci->loadweap.add(getint(p));
+                        else ci->loadweap.emplace_back(getint(p));
                     }
-                    ci->randweap.shrink(0);
+                    ci->randweap.clear();
                     int rw = getint(p);
                     loopk(rw)
                     {
-                        if(k >= W_LOADOUT) getint(p);
-                        else ci->randweap.add(getint(p));
+                        if (k >= W_LOADOUT) {
+                            getint(p);
+                        } else {
+                            ci->randweap.emplace_back(getint(p));
+                        }
                     }
                     ci->lastplayerinfo = totalmillis ? totalmillis : 1;
                     QUEUE_STR(ci->name);
@@ -6539,9 +6552,9 @@ namespace server
                     QUEUE_INT(ci->model);
                     QUEUE_INT(ci->checkpointspawn);
                     QUEUE_STR(ci->vanity);
-                    QUEUE_INT(ci->loadweap.length());
+                    QUEUE_INT(ci->loadweap.size());
                     loopvk(ci->loadweap) QUEUE_INT(ci->loadweap[k]);
-                    QUEUE_INT(ci->randweap.length());
+                    QUEUE_INT(ci->randweap.size());
                     loopvk(ci->randweap) QUEUE_INT(ci->randweap[k]);
                     break;
                 }
@@ -6662,7 +6675,7 @@ namespace server
                             sents[n].type = type;
                             sents[n].spawned = false; // wait a bit then load 'em up
                             sents[n].millis = gamemillis;
-                            sents[n].attrs.add(0, clamp(numattr, type >= 0 && type < MAXENTTYPES ? enttype[type].numattrs : 0, MAXENTATTRS));
+                            sents[n].attrs.add(0, std::clamp(numattr, type >= 0 && type < MAXENTTYPES ? enttype[type].numattrs : 0, MAXENTATTRS));
                             loopk(numattr)
                             {
                                 if(p.overread()) break;
@@ -6677,7 +6690,7 @@ namespace server
                             if(enttype[type].synckin)
                             {
                                 int numkin = getint(p);
-                                sents[n].kin.add(0, clamp(numkin, 0, MAXENTKIN));
+                                sents[n].kin.add(0, std::clamp(numkin, 0, MAXENTKIN));
                                 loopk(numkin)
                                 {
                                     if(p.overread()) break;

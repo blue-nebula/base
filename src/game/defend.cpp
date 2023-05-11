@@ -20,7 +20,7 @@ namespace defend
         {
             int team = owner && enemy && !m_dac_quick(game::gamemode, game::mutators) ? T_NEUTRAL : enemy;
             int timestep = totalmillis%1000;
-            float amt = clamp((timestep <= 500 ? timestep/500.f : (1000-timestep)/500.f)*occupy, 0.f, 1.f);
+            float amt = std::clamp((timestep <= 500 ? timestep/500.f : (1000-timestep)/500.f)*occupy, 0.f, 1.f);
             colour.lerp(vec::hexcolor(TEAM(team, colour)), amt);
         }
         return colour;
@@ -144,7 +144,7 @@ namespace defend
             loopv(st.flags) if(insideaffinity(st.flags[i], game::focus) && (st.flags[i].owner == game::focus->team || st.flags[i].enemy == game::focus->team))
             {
                 defendstate::flag &f = st.flags[i];
-                float occupy = !f.owner || f.enemy ? clamp(f.converted/float(defendcount), 0.f, 1.f) : 1.f;
+                float occupy = !f.owner || f.enemy ? std::clamp(f.converted/float(defendcount), 0.f, 1.f) : 1.f;
                 bool overthrow = f.owner && f.enemy == game::focus->team;
                 ty -= draw_textf("You are %s: %s \fs\f[%d]\f(%s)\f(%s)\fS \fs%s%d%%\fS", tx, ty, int(FONTW*hud::eventpadx), int(FONTH*hud::eventpady), tr, tg, tb, int(255*blend), TEXT_SKIN|TEXT_CENTERED, -1, -1, 1, overthrow ? "overthrowing" : "securing", f.name, TEAM(f.owner, colour), hud::teamtexname(f.owner), hud::pointtex, overthrow ? "\fy" : (occupy < 1.f ? "\fc" : "\fg"), int(occupy*100.f))+FONTH/4;
                 break;
@@ -167,7 +167,7 @@ namespace defend
             if(headsup || f.hasflag || millis <= 1000)
             {
                 float skew = headsup ? hud::inventoryskew : 0.f,
-                    occupy = f.enemy ? clamp(f.converted/float(defendcount), 0.f, 1.f) : (f.owner ? 1.f : 0.f);
+                    occupy = f.enemy ? std::clamp(f.converted/float(defendcount), 0.f, 1.f) : (f.owner ? 1.f : 0.f);
                 vec c = vec::hexcolor(TEAM(f.owner, colour)), c1 = c;
                 if(f.enemy)
                 {
@@ -175,8 +175,8 @@ namespace defend
                     if(amt > 1.f) amt = 2.f-amt;
                     c.lerp(vec::hexcolor(TEAM(f.enemy, colour)), amt);
                 }
-                if(f.hasflag) skew += (millis <= 1000 ? clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew) : 1.f-skew);
-                else if(millis <= 1000) skew += (1.f-skew)-(clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew));
+                if(f.hasflag) skew += (millis <= 1000 ? std::clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew) : 1.f-skew);
+                else if(millis <= 1000) skew += (1.f-skew)-(std::clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew));
                 int oldy = y-sy;
                 if(hasflag || f.enemy)
                     sy += hud::drawitem(hud::pointtex, x, oldy, size, 0, true, false, c.r, c.g, c.b, blend, skew, "super", "%s%d%%", hasflag ? (f.owner && f.enemy == game::focus->team ? "\fy" : (occupy < 1.f ? "\fc" : "\fg")) : "\fw", int(occupy*100.f));

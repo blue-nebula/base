@@ -540,7 +540,7 @@ char *svariable(const char *name, const char *cur, char **storage, identfun fun,
 void setvar(const char *name, int i, bool dofunc, bool def)
 {
     GETVAR(id, ID_VAR, name, );
-    *id->storage.i = clamp(i, id->minval, id->maxval);
+    *id->storage.i = std::clamp(i, id->minval, id->maxval);
     if(def || versioning)
     {
         id->def.i = i;
@@ -554,7 +554,7 @@ void setvar(const char *name, int i, bool dofunc, bool def)
 void setfvar(const char *name, float f, bool dofunc, bool def)
 {
     GETVAR(id, ID_FVAR, name, );
-    *id->storage.f = clamp(f, id->minvalf, id->maxvalf);
+    *id->storage.f = std::clamp(f, id->minvalf, id->maxvalf);
     if(def || versioning)
     {
         id->def.f = f;
@@ -1559,10 +1559,13 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
         bool more = compileword(code, p, VAL_ANY, idname, idlen);
         if(!more) goto endstatement;
         skipcomments(p);
-        if(p[0] == '=') switch(p[1])
-        {
+        if (p[0] == '=') {
+            switch(p[1]) {
             case '/':
-                if(p[2] != '/') break;
+                if (p[2] != '/') {
+                    break;
+                }
+                [[fallthrough]];
             case ';': case ' ': case '\t': case '\r': case '\n': case '\0':
                 p++;
                 if(idname)
@@ -1574,6 +1577,8 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
                 if(!(more = compilearg(code, p, VAL_ANY))) compilestr(code);
                 code.add(id && idname ? (id->index < MAXARGS ? CODE_ALIASARG : CODE_ALIAS)|(id->index<<8) : CODE_ALIASU);
                 goto endstatement;
+                break;
+            }
         }
         numargs = 0;
         if(!idname)
@@ -2797,8 +2802,10 @@ void explodelist(const char *s, vector<char *> &elems, int limit)
 void explodelist(const char *s, std::vector<std::string> &elems, int limit)
 {
     const char *start, *end;
-    while((limit < 0 || elems.size() < limit) && parselist(s, start, end))
+
+    while ((limit < 0 || elems.size() < static_cast<size_t>(limit)) && parselist(s, start, end)) {
         elems.emplace_back(std::string(start, end-start));
+    }
 }
 
 char *indexlist(const char *s, int pos)
@@ -2842,8 +2849,8 @@ COMMAND(0, at, "si1V");
 
 void substring(char *s, int *start, int *count, int *numargs)
 {
-    int len = strlen(s), offset = clamp(*start, 0, len);
-    commandret->setstr(newstring(&s[offset], *numargs >= 3 ? clamp(*count, 0, len - offset) : len - offset));
+    int len = strlen(s), offset = std::clamp(*start, 0, len);
+    commandret->setstr(newstring(&s[offset], *numargs >= 3 ? std::clamp(*count, 0, len - offset) : len - offset));
 }
 COMMAND(0, substring, "siiN");
 
@@ -3273,7 +3280,7 @@ ICOMMAND(0, ^~, "ii", (int *a, int *b), intret(*a ^ ~*b));
 ICOMMAND(0, &~, "ii", (int *a, int *b), intret(*a & ~*b));
 ICOMMAND(0, |~, "ii", (int *a, int *b), intret(*a | ~*b));
 ICOMMAND(0, <<, "ii", (int *a, int *b), intret(*b < 32 ? *a << max(*b, 0) : 0));
-ICOMMAND(0, >>, "ii", (int *a, int *b), intret(*a >> clamp(*b, 0, 31)));
+ICOMMAND(0, >>, "ii", (int *a, int *b), intret(*a >> std::clamp(*b, 0, 31)));
 ICOMMAND(0, &&, "e1V", (tagval *args, int numargs),
 {
     if(!numargs) intret(1);
@@ -3297,17 +3304,17 @@ ICOMMAND(0, ||, "e1V", (tagval *args, int numargs),
 
 ICOMMAND(0, mod, "ii", (int *a, int *b), intret(*b ? *a % *b : 0));
 ICOMMAND(0, modf, "ff", (float *a, float *b), floatret(*b ? fmod(*a, *b) : 0));
-ICOMMAND(0, sin, "f", (float *a), floatret(sin(*a*RAD)));
-ICOMMAND(0, cos, "f", (float *a), floatret(cos(*a*RAD)));
-ICOMMAND(0, tan, "f", (float *a), floatret(tan(*a*RAD)));
-ICOMMAND(0, asin, "f", (float *a), floatret(asin(*a)/RAD));
-ICOMMAND(0, acos, "f", (float *a), floatret(acos(*a)/RAD));
-ICOMMAND(0, atan, "f", (float *a), floatret(atan(*a)/RAD));
-ICOMMAND(0, atan2, "ff", (float *y, float *x), floatret(atan2(*y, *x)/RAD));
+ICOMMAND(0, sin, "f", (float *a), floatret(sin(*a*rad)));
+ICOMMAND(0, cos, "f", (float *a), floatret(cos(*a*rad)));
+ICOMMAND(0, tan, "f", (float *a), floatret(tan(*a*rad)));
+ICOMMAND(0, asin, "f", (float *a), floatret(asin(*a)/rad));
+ICOMMAND(0, acos, "f", (float *a), floatret(acos(*a)/rad));
+ICOMMAND(0, atan, "f", (float *a), floatret(atan(*a)/rad));
+ICOMMAND(0, atan2, "ff", (float *y, float *x), floatret(atan2(*y, *x)/rad));
 ICOMMAND(0, sqrt, "f", (float *a), floatret(sqrt(*a)));
 ICOMMAND(0, pow, "ff", (float *a, float *b), floatret(pow(*a, *b)));
 ICOMMAND(0, loge, "f", (float *a), floatret(log(*a)));
-ICOMMAND(0, log2, "f", (float *a), floatret(log(*a)/M_LN2));
+ICOMMAND(0, log2, "f", (float *a), floatret(log(*a)/ln2));
 ICOMMAND(0, log10, "f", (float *a), floatret(log10(*a)));
 ICOMMAND(0, exp, "f", (float *a), floatret(exp(*a)));
 ICOMMAND(0, min, "V", (tagval *args, int numargs),
@@ -3509,8 +3516,8 @@ ICOMMAND(0, stringreplace, "sss", (char *s, char *o, char *n), commandret->setst
 void stringsplice(const char *s, const char *vals, int *skip, int *count)
 {
     int slen = strlen(s), vlen = strlen(vals),
-        offset = clamp(*skip, 0, slen),
-        len = clamp(*count, 0, slen - offset);
+        offset = std::clamp(*skip, 0, slen),
+        len = std::clamp(*count, 0, slen - offset);
     char *p = newstring(slen - len + vlen);
     if(offset) memcpy(p, s, offset);
     if(vlen) memcpy(&p[offset], vals, vlen);

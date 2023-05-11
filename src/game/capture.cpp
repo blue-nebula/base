@@ -61,7 +61,7 @@ namespace capture
                 bool arrow = false;
                 float fade = blend*hud::radaraffinityblend, size = hud::radaraffinitysize;
                 int millis = lastmillis-f.displaytime;
-                if(millis < 1000) size *= 1.f+(1-clamp(float(millis)/1000.f, 0.f, 1.f));
+                if(millis < 1000) size *= 1.f+(1-std::clamp(float(millis)/1000.f, 0.f, 1.f));
                 if(f.owner) size *= 0.75f;
                 if(k)
                 {
@@ -69,7 +69,7 @@ namespace capture
                     pos = f.pos(true);
                     int interval = lastmillis%500;
                     if(interval >= 300 || interval <= 200)
-                        fade *= clamp(interval >= 300 ? 1.f-((interval-300)/200.f) : interval/200.f, 0.f, 1.f);
+                        fade *= std::clamp(interval >= 300 ? 1.f-((interval-300)/200.f) : interval/200.f, 0.f, 1.f);
                 }
                 else
                 {
@@ -209,17 +209,17 @@ namespace capture
                 {
                     if(f.owner == game::focus)
                     {
-                        if(millis <= 1000) skew += (1.f-skew)*clamp(float(millis)/1000.f, 0.f, 1.f);
+                        if(millis <= 1000) skew += (1.f-skew)*std::clamp(float(millis)/1000.f, 0.f, 1.f);
                         else skew = 1; // override it
                     }
-                    else if(millis <= 1000) skew += (1.f-skew)*clamp(float(millis)/1000.f, 0.f, 1.f);
+                    else if(millis <= 1000) skew += (1.f-skew)*std::clamp(float(millis)/1000.f, 0.f, 1.f);
                     else skew = 1;
                 }
-                else if(millis <= 1000) skew += (1.f-skew)-(clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew));
+                else if(millis <= 1000) skew += (1.f-skew)-(std::clamp(float(millis)/1000.f, 0.f, 1.f)*(1.f-skew));
                 int oldy = y-sy;
                 if(gs_playing(game::gamestate) && (f.droptime || (m_ctf_protect(game::gamemode, game::mutators) && f.taketime && f.owner && f.owner->team != f.team)))
                 {
-                    float wait = f.droptime ? clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f);
+                    float wait = f.droptime ? std::clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : std::clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f);
                     if(wait > 0.5f)
                     {
                         int delay = wait > 0.7f ? (wait > 0.85f ? 150 : 300) : 600, millis = lastmillis%(delay*2);
@@ -303,7 +303,7 @@ namespace capture
         {
             capturestate::flag &f = st.flags[i];
             vec pos = f.pos(true);
-            float wait = f.droptime ? clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : ((m_ctf_protect(game::gamemode, game::mutators) && f.taketime && f.owner && f.owner->team != f.team) ? clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f) : 0.f),
+            float wait = f.droptime ? std::clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : ((m_ctf_protect(game::gamemode, game::mutators) && f.taketime && f.owner && f.owner->team != f.team) ? std::clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f) : 0.f),
                   blend = (!f.owner && (!f.droptime || m_ctf_defend(game::gamemode, game::mutators)) && f.team == game::focus->team ? camera1->o.distrange(pos, enttype[AFFINITY].radius, enttype[AFFINITY].radius/8) : 1.f)*(f.owner && f.owner == game::focus ? (game::thirdpersonview(true) ? (f.owner != &game::player1 ? followflagblend : thirdflagblend) : firstflagblend) : freeflagblend);
             vec effect = vec::hexcolor(TEAM(f.team, colour));
             int colour = effect.tohexcolor();
@@ -343,7 +343,7 @@ namespace capture
                 }
                 if(gs_playing(game::gamestate) && (f.droptime || (m_ctf_protect(game::gamemode, game::mutators) && f.taketime && f.owner && f.owner->team != f.team)))
                 {
-                    float wait = f.droptime ? clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f);
+                    float wait = f.droptime ? std::clamp(f.dropleft(lastmillis, capturestore)/float(capturedelay), 0.f, 1.f) : std::clamp((lastmillis-f.taketime)/float(captureprotectdelay), 0.f, 1.f);
                     part_icon(flagpos, textureload(hud::progringtex, 3), 5, blend, 0, 0, 1, colour, (lastmillis%1000)/1000.f, 0.1f);
                     part_icon(flagpos, textureload(hud::progresstex, 3), 5, 0.25f*blend, 0, 0, 1, colour);
                     part_icon(flagpos, textureload(hud::progresstex, 3), 5, blend, 0, 0, 1, colour, 0, wait);
