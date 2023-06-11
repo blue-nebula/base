@@ -222,6 +222,10 @@ namespace hud
     VAR(IDF_PERSIST, crosshairdistancex, VAR_MIN, 160, VAR_MAX); // offset from the crosshair
     VAR(IDF_PERSIST, crosshairdistancey, VAR_MIN, 80, VAR_MAX); // offset from the crosshair
     VAR(IDF_PERSIST, crosshairweapons, 0, 0, 3); // 0 = off, &1 = crosshair-specific weapons, &2 = also appy colour
+    VAR(IDF_PERSIST|IDF_HEX, crosshaircolornormal, -1, 0xFFFFFF, 0xFFFFFF);
+    VAR(IDF_PERSIST|IDF_HEX, crosshaircolorzoom, -1, 0xFFFFFF, 0xFFFFFF);
+    VAR(IDF_PERSIST|IDF_HEX, crosshaircolorhit, -1, 0xFFFFFF, 0xFFFFFF);
+    VAR(IDF_PERSIST|IDF_HEX, crosshaircolorteam, -1, 0xFFFFFF, 0xFFFFFF);
     FVAR(IDF_PERSIST, crosshairsize, 0, 0.03f, 1000);
     VAR(IDF_PERSIST, crosshairhitspeed, 0, 500, VAR_MAX);
     FVAR(IDF_PERSIST, crosshairblend, 0, 0.75f, 1);
@@ -1316,12 +1320,34 @@ namespace hud
 
     void drawpointer(int w, int h, int index)
     {
+        bool use_custom_crosshair_colors = (crosshairweapons & 2) == 0;
         int cs = int((index == POINTER_GUI ? cursorsize : crosshairsize)*hudsize);
         float fade = index == POINTER_GUI ? cursorblend : crosshairblend;
         vec c(1, 1, 1);
         if(game::focus->state == CS_ALIVE && index >= POINTER_HAIR)
         {
-            if(crosshairweapons&2) c = vec::hexcolor(W(game::focus->weapselect, colour));
+            
+            if (use_custom_crosshair_colors)
+            {
+                if (index == POINTER_TEAM)
+                {
+                    c = vec::hexcolor(crosshaircolorteam);
+                } 
+                else if (index == POINTER_ZOOM)
+                {
+                    c = vec::hexcolor(crosshaircolorzoom);
+                }
+                else
+                {
+                    c = vec::hexcolor(crosshaircolornormal);
+                }
+            }
+            else
+            {
+                c = vec::hexcolor(W(game::focus->weapselect, colour));
+            }
+
+            
             if(index == POINTER_ZOOM && game::inzoom())
             {
                 int off = int(zoomcrosshairsize*hudsize)-cs;
@@ -1352,7 +1378,9 @@ namespace hud
         int cx = int(hudwidth*cursorx), cy = int(hudheight*cursory);
         if(index != POINTER_GUI)
         {
-            drawpointertex(getpointer(index, game::focus->weapselect), cx-cs/2, cy-cs/2, cs, c.r, c.g, c.b, fade*hudblend);
+            bool hit = false;
+            vec color_hit(1, 1, 1);
+
             if(index > POINTER_GUI)
             {
                 if(minimal(showcirclebar)) drawcirclebar(cx, cy, hudsize);
@@ -1363,12 +1391,33 @@ namespace hud
                 }
                 if(crosshairhitspeed && totalmillis-game::focus->lasthit <= crosshairhitspeed)
                 {
-                    vec c2(1, 1, 1);
-                    if(hitcrosshairtone) skewcolour(c2.r, c2.g, c2.b, hitcrosshairtone);
-                    else c2 = c;
-                    drawpointertex(getpointer(POINTER_HIT, game::focus->weapselect), cx-cs/2, cy-cs/2, cs, c2.r, c2.g, c2.b, crosshairblend*hudblend);
+                    hit = true; 
+                    if (hitcrosshairtone)
+                    {
+                        skewcolour(color_hit.r, color_hit.g, color_hit.b, hitcrosshairtone);
+                    }
+                    else
+                    {
+                        if (use_custom_crosshair_colors)
+                        {
+                            color_hit = vec::hexcolor(crosshaircolorhit);
+                            // so the default crosshair will also have the hit color
+                            c = color_hit;
+                        }
+                        else
+                        {
+                            color_hit = c;
+                        }
+                    }
                 }
                 if(crosshairdistance && game::focus->state == CS_EDITING) draw_textf("\fa%.1f\fwm", cx+crosshairdistancex, cy+crosshairdistancey, 0, 0, 255, 255, 255, int(hudblend*255), TEXT_RIGHT_JUSTIFY, -1, -1, 1, game::focus->o.dist(worldpos)/8.f);
+            }
+            // draw the default crosshair
+            drawpointertex(getpointer(index, game::focus->weapselect), cx-cs/2, cy-cs/2, cs, c.r, c.g, c.b, fade*hudblend);
+            if (hit)
+            {
+                // draw the hit crosshair above
+                drawpointertex(getpointer(POINTER_HIT, game::focus->weapselect), cx-cs/2, cy-cs/2, cs, color_hit.r, color_hit.g, color_hit.b, crosshairblend*hudblend);
             }
         }
         else
