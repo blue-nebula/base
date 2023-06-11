@@ -95,6 +95,44 @@ struct gui : guient
     static int curdepth, curlist, xsize, ysize, curx, cury, fontdepth, mergelist, mergedepth;
     static bool hitfx, skinfx, cursorfx;
 
+    // Example: {3, 2} means that the current object (button/slider/whatever) is the 2nd child of the 3rd top-level child.
+    // The exact numbers don't matter as long as they are unique for each object.
+    static vector<int> curchildpath;
+
+    // This is a copy of curchildpath made when pressing down a mouse button on an object.
+    // It's used to remember what item is interacted with (on the previous frame).
+    static vector<int> activechildpath;
+
+    // This is used to set activechildpath on the next frame.
+    // The reason we don't set activechildpath directly is that then it will be half set in the middle of each frame.
+    static vector<int> nextactivechildpath;
+
+    bool current_is_active()
+    {
+        if(activechildpath.size() != curchildpath.size()) return false;
+        for(int i = 0; i < curchildpath.size(); i++)
+        {
+            if(curchildpath[i] != activechildpath[i]) return false;
+        }
+        return true;
+    }
+
+    // Registers current object as unique and returns whether it's active (pressed with mouse).
+    bool unique_object_active(bool hit)
+    {
+        bool active = current_is_active();
+        if(active && mouse_action[0] & GUI_UP)
+        {
+            nextactivechildpath.clear();
+        }
+        else if(hit && mouse_action[0] & GUI_DOWN)
+        {
+            nextactivechildpath = curchildpath;
+        }
+        curchildpath.last()++;
+        return active;
+    }
+
     static void reset()
     {
         if(statusstr) DELETEA(statusstr);
@@ -212,9 +250,11 @@ struct gui : guient
             int x1 = curx+tx, x2 = x1 + width + ui_size_spacer, y1 = cury - ui_size_spacer - height, y2 = cury - ui_size_spacer * 3 / 4, alpha = ui_blend_text, border = -1;
             if(!visibletab())
             {
-                if(tcurrent && !passthrough && fieldmode != FIELDKEY && hitx>=x1 && hity>=y1 && hitx<x2 && hity<y2)
+                bool hit = hitx >= x1 && hity >= y1 && hitx < x2 && hity < y2;
+                bool active = unique_object_active(hit);
+                if(tcurrent && !passthrough && fieldmode != FIELDKEY && hit)
                 {
-                    if(!ui_click_tab || mouse_action[0] & GUI_UP) *tcurrent = tpos; // switch tab
+                    if(active && (!ui_click_tab || mouse_action[0] & GUI_UP)) *tcurrent = tpos; // switch tab
                     tcolor = ui_color_active;
                     alpha = max(alpha, ui_fade_text);
                     if(ui_tab_border) border = tcolor;
@@ -245,11 +285,11 @@ struct gui : guient
             #define uibtn(a,b) \
             { \
                 int border = -1; \
-                bool hit = false; \
-                if(!passthrough && fieldmode != FIELDKEY && hitx>=x1 && hity>=y1 && hitx<x2 && hity<y2) \
+                bool hit = !passthrough && fieldmode != FIELDKEY && hitx>=x1 && hity>=y1 && hitx<x2 && hity<y2; \
+                bool active = unique_object_active(hit); \
+                if(hit) \
                 { \
-                    if(mouse_action[0]&GUI_UP) { b; } \
-                    hit = true; \
+                    if(active && mouse_action[0]&GUI_UP) { b; } \
                     if(ui_tab_border) border = ui_color_active; \
                 } \
                 else if(ui_tab_border == 2) border = vec::hexcolor(ui_color_border).mul(0.25f).tohexcolor(); \
@@ -313,10 +353,13 @@ struct gui : guient
             mergelist = curlist;
             mergedepth = curdepth;
         }
+        if(!curchildpath.empty()) curchildpath.last()++;
+        curchildpath.emplace_back(0);
     }
 
     int poplist()
     {
+        if(curchildpath.size()) curchildpath.pop_back();
         if(!lists.inrange(curlist)) return 0;
         list &l = lists[curlist];
         if(guilayoutpass)
@@ -440,7 +483,15 @@ struct gui : guient
     {
         if(scale == 0) scale = 1;
         int size = (int)(scale*2*FONTH) - ui_shadow;
-        if(visible()) icon_(t, overlaid, curx, cury, size, ishit(size + ui_shadow, size + ui_shadow), icolour, o, ocolour);
+        bool hit = ishit(size + ui_shadow, size + ui_shadow);
+        if(visible())
+        {
+            bool active = unique_object_active(hit);
+            icon_(t, overlaid, curx, cury, size, hit, icolour, o, ocolour);
+            int ret = layout(size + ui_shadow, size + ui_shadow);
+            if(!active) ret &= ~GUI_UP;
+            return ret;
+        }
         return layout(size + ui_shadow, size + ui_shadow);
     }
 
@@ -459,6 +510,7 @@ struct gui : guient
         if(visible())
         {
             bool hit = ishit(size + ui_shadow, size + ui_shadow);
+            bool active = unique_object_active(hit);
             float xs = size, ys = size, xi = curx, yi = cury, xpad = 0, ypad = 0;
             if(overlaid)
             {
@@ -486,6 +538,10 @@ struct gui : guient
                 rect_(xi - xpad, yi - ypad, xs + 2*xpad, ys + 2*ypad, 0);
             }
             if(hit && hitfx && cursorfx && !ui_cursor_type) ui_cursor_type = 1;
+
+            int ret = layout(size + ui_shadow, size + ui_shadow);
+            if(!active) ret &= ~GUI_UP;
+            return ret;
         }
         return layout(size + ui_shadow, size + ui_shadow);
     }
@@ -603,12 +659,13 @@ struct gui : guient
         int space = slider_(ui_size_slider, percent, ishorizontal() ? FONTW * 3 : FONTH, hit, style, scolour);
         if(visible())
         {
-            if(hit)
+            bool active = unique_object_active(hit);
+            if((hit && activechildpath.empty()) || active)
             {
                 if(!label) label = intstr(val);
                 settooltip("\f[%d]%s", -1, colour, label);
                 tooltipforce = true;
-                if(mouse_action[0] & GUI_PRESSED)
+                if(active)
                 {
                     int vnew = vmax-vmin+1;
                     if(ishorizontal()) vnew = int((vnew*(reverse ? hity - y - ui_size_slider / 2 : y + ysize - ui_size_slider / 2 - hity)) / (ysize - ui_size_slider));
@@ -1136,6 +1193,8 @@ struct gui : guient
         if(visible())
         {
             bool hit = ishit(w, h);
+            bool active = unique_object_active(hit);
+
             int x = curx;
             if((icon && *icon) || (oicon && *oicon))
             {
@@ -1148,6 +1207,10 @@ struct gui : guient
             }
             if(text && *text) text_(text, x, cury, color, (hit && hitfx) || !faded || !clickable ? ui_blend_text : ui_fade_text, hit && clickable, wrap > 0 ? wrap : -1);
             if(clickable && hit && hitfx && cursorfx && !ui_cursor_type) ui_cursor_type = 1;
+
+            int ret = layout(w, h);
+            if(!active) ret &= ~GUI_UP;
+            return ret;
         }
         return layout(w, h);
     }
@@ -1172,6 +1235,7 @@ struct gui : guient
 
     void start(int starttime, int *tab, bool allowinput, bool wantstitle, bool wantsbgfx)
     {
+        if(!guilayoutpass) activechildpath = nextactivechildpath;
         fontdepth = 0;
         gui::pushfont("default");
         basescale = ui_scale;
@@ -1285,6 +1349,9 @@ float gui::basescale, gui::maxscale = 1, gui::hitx, gui::hity;
 bool gui::passthrough, gui::hitfx = true, gui::cursorfx = true, gui::skinfx = true;
 int gui::curdepth, gui::fontdepth, gui::curlist, gui::xsize, gui::ysize, gui::curx, gui::cury, gui::mergelist, gui::mergedepth;
 int gui::ty, gui::tx, gui::tpos, *gui::tcurrent, gui::tcolor;
+vector<int> gui::curchildpath;
+vector<int> gui::activechildpath;
+vector<int> gui::nextactivechildpath;
 static vector<gui> guis;
 
 namespace UI

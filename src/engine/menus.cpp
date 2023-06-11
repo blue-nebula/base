@@ -638,7 +638,9 @@ void ui_body(uint *contents, char *action, char *altact, uint *onhover)
     cgui->pushlist(action && *action ? true : false);
     execute(contents);
     int ret = cgui->poplist();
-    if(ret&GUI_UP)
+    if(guilayoutpass) return;
+    bool active = cgui->unique_object_active(ret & GUI_ROLLOVER);
+    if(ret&GUI_UP && active)
     {
         char *act = NULL;
         if(ret&GUI_ALT && altact && *altact) act = altact;
