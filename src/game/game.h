@@ -1662,8 +1662,6 @@ namespace hud
     extern bool chkcond(int val, bool cond);
     extern void drawindicator(int weap, int x, int y, int s);
     extern void drawclip(int weap, int x, int y, float s);
-    extern void drawpointertex(const char *tex, int x, int y, int s, float r = 1, float g = 1, float b = 1, float fade = 1);
-    extern void drawpointer(int w, int h, int index);
     extern int numteamkills();
     extern int radarrange();
     extern void drawblip(const char *tex, float area, int w, int h, float s, float blend, int style, const vec &pos, const vec &colour = vec(1, 1, 1), const char *font = "reduced", bool rotate = true, const char *text = NULL, ...);
@@ -1746,7 +1744,7 @@ namespace game
     extern float zoom_ratio();
     extern void zoomview(bool down);
     extern bool tvmode(bool check = true, bool force = true);
-    extern void resetcamera(bool cam = true, bool input = true);
+    extern void resetcamera(bool cam = true);
     extern void resetworld();
     extern void resetstate();
     extern void hiteffect(int weap, int flags, int damage, gameent *d, gameent *v, vec &dir, vec &vel, float dist, bool local = false);
