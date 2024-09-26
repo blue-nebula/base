@@ -3506,6 +3506,63 @@ char *strreplace(const char *s, const char *oldval, const char *newval)
 
 ICOMMAND(0, stringreplace, "sss", (char *s, char *o, char *n), commandret->setstr(strreplace(s, o, n)));
 
+// Surrounds all occurrences in `s` of the words in `words` with `before` and `after`.
+// Words that overlap will be merged and count as one big word.
+// Example: string_highlight_list("abcdefghi", "b efg gh", "<", ">")
+//          returns "a<b>cd<efgh>i".
+char *string_highlight_list(const char *s, const char *words, const char *before, const char *after)
+{
+    if(!s || !*s) return newstring("");
+
+    std::vector<std::string> word_list;
+    explodelist(words, word_list);
+    size_t s_len = strlen(s);
+    char *highlight_mask = new char[s_len];  // This is a byte array, not string
+    memset(highlight_mask, 0, s_len);
+
+    // First mark the characters that will be highlighted.
+    for(const std::string &word : word_list)
+    {
+        for(size_t s_i = 0; s_i < s_len; s_i++)
+        {
+            char *mp = &highlight_mask[s_i];
+            const char *cp = &s[s_i];
+            if(strncmp(word.c_str(), cp, word.length()) == 0)
+            {
+                memset(mp, 1, word.length());
+            }
+        }
+    }
+
+    std::string replaced;
+    replaced.reserve(s_len);
+    char prev_m = 0;
+    // Now do the replacing using highlight_mask to see where the highlights start and end.
+    for(size_t s_i = 0; s_i < s_len; s_i++)
+    {
+        char m = highlight_mask[s_i];
+        char c = s[s_i];
+        // Start highlighting
+        if(m && !prev_m)
+        {
+            replaced += before;
+        }
+        // End highlighting
+        else if(!m && prev_m)
+        {
+            replaced += after;
+        }
+        replaced += c;
+        prev_m = m;
+    }
+    if(highlight_mask[s_len - 1]) replaced += after;
+
+    delete[] highlight_mask;
+    return newstring(replaced.c_str(), replaced.length());
+}
+
+ICOMMAND(0, string_highlight_list, "ssss", (char *s, char *words, char *before, char *after), commandret->setstr(string_highlight_list(s, words, before, after)));
+
 void stringsplice(const char *s, const char *vals, int *skip, int *count)
 {
     int slen = strlen(s), vlen = strlen(vals),
@@ -3610,11 +3667,24 @@ void getvarinfo(int n, int types, int notypes, int flags, int noflags, char *str
     }
     if(str && *str)
     {
+        std::vector<std::string> words;
+        explodelist(str, words);
         static char *laststr = NULL;
         if(ids[1].empty() || !laststr || strcmp(str, laststr))
         {
             ids[1].setsize(0);
-            loopv(ids[0]) if(rigcasestr(ids[0][i]->name, str)) ids[1].add(ids[0][i]);
+            loopv(ids[0])
+            {
+                bool matches = true;
+                for (const std::string &word : words)
+                {
+                    if(!rigcasestr(ids[0][i]->name, word.c_str()))
+                    {
+                        matches = false;
+                    }
+                }
+                if(matches) ids[1].add(ids[0][i]);
+            }
             if(laststr) DELETEA(laststr);
             laststr = newstring(str);
         }
