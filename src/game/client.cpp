@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include "game.h"
+#include <string>
 
 namespace client
 {
@@ -1066,6 +1067,9 @@ namespace client
                 default: break;
             }
         });
+
+        // otherwise you could "answer" to random people when joining another server
+        game::last_whisperer_cn = -1;
     }
 
     bool addmsg(int type, const char *fmt, ...)
@@ -1129,6 +1133,12 @@ namespace client
         return true;
     }
 
+    /**
+     * @param f sender (from)
+     * @param t receiver (to)
+     * @param flags text flags
+     * @param text text string
+     */
     void saytext(gameent *f, gameent *t, int flags, char *text)
     {
         bigstring msg, line;
@@ -1141,6 +1151,14 @@ namespace client
             if(!t) return;
             defformatstring(sw, " [\fs\fy%d\fS] (\fs\fcwhispers to %s\fS [\fs\fy%d\fS])", f->clientnum, t == &game::player1 ? "you" : game::colourname(t), t->clientnum);
             concatstring(name, sw);
+
+            // don't register bots or yourself as last_whisperer, also, make sure that the
+            // whisper is directed to you
+            if (   f->clientnum != game::player1.clientnum
+                && t->clientnum == game::player1.clientnum
+                && f->actortype != ENT_AI) {
+                game::last_whisperer_cn = f->clientnum;
+            }
         }
         else if(flags&SAY_TEAM)
         {
@@ -1172,32 +1190,71 @@ namespace client
         ai::scanchat(f, t, flags, text);
     }
 
-    void toserver(int flags, const char *text, const char *target)
+    void toserver(int flags, const char* text, const int target_cn)
     {
-        if(!waiting(false) && !client::demoplayback)
+        if (!waiting(false) && !client::demoplayback)
         {
-            bigstring output;
-            copystring(output, text, messagelength);
-            if(flags&SAY_WHISPER)
+            std::string output = text;
+            // cut away anything that is longer than the max message length
+            output = output.substr(0, messagelength);
+
+            if (flags & SAY_WHISPER)
             {
-                gameent *e = game::getclient(parseplayer(target));
-                if(e && e->clientnum != game::player1.clientnum)
-                    addmsg(N_TEXT, "ri3s", game::player1.clientnum, e->clientnum, flags, output);
+                gameent* target_client = game::getclient(target_cn);
+                // player can't whisper himself
+                if (   target_client != nullptr
+                    && target_client->clientnum != game::player1.clientnum)
+                {
+                    addmsg(N_TEXT, "ri3s", game::player1.clientnum, target_client->clientnum, flags, output.c_str());
+                }
             }
             else
             {
-                if(flags&SAY_TEAM && !m_team(game::gamemode, game::mutators))
+                // strip away SAY_TEAM flag if this gamemode doesn't have teams (e.g. ffa)
+                if (flags & SAY_TEAM && !m_team(game::gamemode, game::mutators)) {
                     flags &= ~SAY_TEAM;
-                addmsg(N_TEXT, "ri3s", game::player1.clientnum, -1, flags, output);
+                }
+
+                addmsg(N_TEXT, "ri3s", game::player1.clientnum, -1, flags, output.c_str());
             }
         }
     }
-    ICOMMAND(0, say, "C", (char *s), toserver(SAY_NONE, s));
-    ICOMMAND(0, me, "C", (char *s), toserver(SAY_ACTION, s));
-    ICOMMAND(0, sayteam, "C", (char *s), toserver(SAY_TEAM, s));
-    ICOMMAND(0, meteam, "C", (char *s), toserver(SAY_ACTION|SAY_TEAM, s));
+
+    void toserver(int flags, const char *text, const char *target)
+    {
+        toserver(flags, text, parseplayer(target));
+    }
+
+    ICOMMAND(0, say, "C", (char *s), toserver(SAY_NONE, s, -1));
+    ICOMMAND(0, me, "C", (char *s), toserver(SAY_ACTION, s, -1));
+    ICOMMAND(0, sayteam, "C", (char *s), toserver(SAY_TEAM, s, -1));
+    ICOMMAND(0, meteam, "C", (char *s), toserver(SAY_ACTION|SAY_TEAM, s, -1));
     ICOMMAND(0, whisper, "ss", (char *t, char *s), toserver(SAY_WHISPER, s, t));
     ICOMMAND(0, mewhisper, "ss", (char *t, char *s), toserver(SAY_ACTION|SAY_WHISPER, s, t));
+
+    void answer_last_whisper(const char* text)
+    {
+        if (game::last_whisperer_cn == -1) {
+            // would probably be kinda fun to add some "poetic" answers to this
+            // e.g. quotes from ppl like "There always need to be 2 people to have a conversation"
+            // stuff like that idk
+            conoutft(CON_EVENT, "\frThere's nobody you could answer...");
+            return;
+        }
+
+        // check if there is still a player with that cn in the game
+        if (game::getclient(game::last_whisperer_cn) != nullptr)
+        {
+            toserver(SAY_WHISPER, text, game::last_whisperer_cn);
+        }
+        // there is nobody with that cn anymore, reset it
+        else {
+            conoutft(CON_EVENT, "\frThere's nobody you could answer...");
+            game::last_whisperer_cn = -1;
+        }
+    }
+    ICOMMAND(0, answer, "s", (char* text), answer_last_whisper(text));
+
 
     void parsecommand(gameent *d, const char *cmd, const char *arg)
     {
