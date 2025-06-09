@@ -8,6 +8,7 @@ RUN apk add gcc g++ binutils sdl2-dev zlib-dev perl git wget ca-certificates cor
 RUN mkdir /blue-nebula
 WORKDIR /blue-nebula
 
+COPY doc/ /blue-nebula/doc
 COPY src/ /blue-nebula/src
 COPY config/ /blue-nebula/config
 COPY data/ /blue-nebula/data
