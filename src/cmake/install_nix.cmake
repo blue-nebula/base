@@ -1,5 +1,14 @@
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # TODO: install appstream data
+    # install appstream data
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/install/nix/blue-nebula.metainfo.xml.am
+        ${CMAKE_CURRENT_BINARY_DIR}/blue-nebula.metainfo.xml
+        @ONLY
+    )
+    install(
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/blue-nebula.metainfo.xml
+        DESTINATION share/metainfo
+    )
 
     # install desktop file
     configure_file(
