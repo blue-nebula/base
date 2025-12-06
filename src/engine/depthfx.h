@@ -36,16 +36,16 @@ static struct depthfxtexture : rendertarget
 
     float eyedepth(const vec &p) const
     {
-        return max(-cammatrix.transform<vec>(p).z, 0.0f);
+        return std::max(-cammatrix.transform<vec>(p).z, 0.0f);
     }
 
     void addscissorvert(const vec &v, float &sx1, float &sy1, float &sx2, float &sy2)
     {
         vec p = camprojmatrix.perspectivetransform(v);
-        sx1 = min(sx1, p.x);
-        sy1 = min(sy1, p.y);
-        sx2 = max(sx2, p.x);
-        sy2 = max(sy2, p.y);
+        sx1 = std::min(sx1, p.x);
+        sy1 = std::min(sy1, p.y);
+        sx2 = std::max(sx2, p.x);
+        sy2 = std::max(sy2, p.y);
     }
 
     bool addscissorbox(const vec &center, float size)

@@ -185,10 +185,10 @@ namespace projs
         float maxdist = push ? radius*WF(WK(proj.flags), proj.weap, wavepush, WS(proj.flags)) : radius;
         #define radialpush(xx,yx,yy,yz1,yz2,zz) \
             if(!proj.o.rejectxyz(xx, yx, yy, yz1, yz2)) zz = 0; \
-            else if(!proj.o.reject(xx, maxdist+max(yx, yy))) \
+            else if(!proj.o.reject(xx, maxdist + std::max(yx, yy))) \
             { \
                 vec bottom(xx), top(xx); bottom.z -= yz1; top.z += yz2; \
-                zz = closestpointcylinder(proj.o, bottom, top, max(yx, yy)).dist(proj.o); \
+                zz = closestpointcylinder(proj.o, bottom, top, std::max(yx, yy)).dist(proj.o); \
             }
         if(gameent::is(d))
         {
@@ -584,8 +584,8 @@ namespace projs
             }
             if(!dir[1].iszero())
             {
-                mag = max(mag, proj.speedmin);
-                if(proj.speedmax > 0) mag = min(mag, proj.speedmax);
+                mag = std::max(mag, proj.speedmin);
+                if(proj.speedmax > 0) mag = std::min(mag, proj.speedmax);
                 proj.vel = vec(dir[1]).mul(mag);
             }
         }
@@ -609,7 +609,7 @@ namespace projs
                     case W_SHOTGUN: case W_SMG:
                     {
                         part_splash(PART_SPARK, 5, 350, proj.o, FWCOL(H, partcol, proj), 0.35f, 1, 1, 0, 16, 15);
-                        adddecal(DECAL_BULLET, proj.o, proj.norm, max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4*proj.curscale);
+                        adddecal(DECAL_BULLET, proj.o, proj.norm, std::max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4*proj.curscale);
                         break;
                     }
                     case W_FLAMER:
@@ -695,8 +695,8 @@ namespace projs
                 {
                     if(rev)
                     {
-                        float mag = max(max(proj.vel.magnitude()*proj.elasticity, proj.speedmin), 1.f);
-                        if(proj.speedmax > 0) mag = min(mag, proj.speedmax);
+                        float mag = std::max(std::max(proj.vel.magnitude()*proj.elasticity, proj.speedmin), 1.f);
+                        if(proj.speedmax > 0) mag = std::min(mag, proj.speedmax);
                         proj.vel = vec(proj.o).sub(orig).normalize().mul(mag);
                     }
                     return true;
@@ -714,8 +714,8 @@ namespace projs
                 {
                     if(rev)
                     {
-                        float mag = max(max(proj.vel.magnitude()*proj.elasticity, proj.speedmin), 1.f);
-                        if(proj.speedmax > 0) mag = min(mag, proj.speedmax);
+                        float mag = std::max(std::max(proj.vel.magnitude()*proj.elasticity, proj.speedmin), 1.f);
+                        if(proj.speedmax > 0) mag = std::min(mag, proj.speedmax);
                         proj.vel = vec(proj.o).sub(orig).normalize().mul(mag);
                     }
                     return true;
@@ -738,7 +738,7 @@ namespace projs
                 if(init) break;
                 else if(proj.lifemillis && proj.fadetime)
                 {
-                    int interval = min(proj.lifemillis, proj.fadetime);
+                    int interval = std::min(proj.lifemillis, proj.fadetime);
                     if(proj.lifetime < interval)
                     {
                         size *= float(proj.lifetime)/float(interval);
@@ -758,7 +758,7 @@ namespace projs
             rotatebb(center, radius, proj.yaw, 0, 0);
             proj.xradius = radius.x;
             proj.yradius = radius.y;
-            proj.radius = max(radius.x, radius.y);
+            proj.radius = std::max(radius.x, radius.y);
             proj.height = proj.zradius = proj.aboveeye = radius.z;
         }
         else switch(proj.projtype)
@@ -1054,7 +1054,7 @@ namespace projs
                 float blocked = tracecollide(&proj, proj.owner->o, eyedir, eyedist, RAY_CLIPMAT|RAY_ALPHAPOLY, false);
                 if(blocked >= 0)
                 {
-                    proj.o = proj.from = vec(eyedir).mul(blocked-max(proj.radius, 1e-3f)).add(proj.owner->o);
+                    proj.o = proj.from = vec(eyedir).mul(blocked - std::max(proj.radius, 1e-3f)).add(proj.owner->o);
                     proj.to = vec(eyedir).mul(blocked).add(proj.owner->o);
                 }
             }
@@ -1165,8 +1165,8 @@ namespace projs
             if(cooked&W_C_SCALEN)  skew = 1-scale; // inverted scale
             if(cooked&W_C_LIFE)    life = int(ceilf(life*scale)); // life scale
             if(cooked&W_C_LIFEN)   life = int(ceilf(life*(1-scale))); // inverted life
-            if(cooked&W_C_SPEED)   speed = speedlimit+int(ceilf(max(speed-speedlimit, 0)*scale)); // speed scale
-            if(cooked&W_C_SPEEDN)  speed = speedlimit+int(ceilf(max(speed-speedlimit, 0)*(1-scale))); // inverted speed
+            if(cooked&W_C_SPEED)   speed = speedlimit+int(ceilf(std::max(speed - speedlimit, 0) * scale)); // speed scale
+            if(cooked&W_C_SPEEDN)  speed = speedlimit+int(ceilf(std::max(speed - speedlimit, 0) * (1-scale))); // inverted speed
         }
 
         if(weaptype[weap].sound >= 0 && (weap != W_MELEE || !(WS(flags))))
@@ -1225,16 +1225,16 @@ namespace projs
                 targ.sub(from).normalize().mul(weapfx[weap].flarelen).add(from);
                 part_flare(from, targ, delayattack/2, PART_MUZZLE_FLARE, colour, weapfx[weap].flaresize, muz, 0, 0, d);
             }
-            int peak = delayattack/4, fade = min(peak/2, 75);
+            int peak = delayattack/4, fade = std::min(peak/2, 75);
             adddynlight(from, 32, vec::hexcolor(colour).mul(0.5f), fade, peak - fade, DL_FLASH);
         }
         loopv(shots)
-            create(from, vec(shots[i].pos).div(DMF), local, d, PRJ_SHOT, weap, flags, max(life, 1), W2(weap, time, WS(flags)), delay+(iter*i), speed, shots[i].id, weap, -1, flags, skew);
+            create(from, vec(shots[i].pos).div(DMF), local, d, PRJ_SHOT, weap, flags, std::max(life, 1), W2(weap, time, WS(flags)), delay+(iter*i), speed, shots[i].id, weap, -1, flags, skew);
         if(ejectfade && weaptype[weap].eject && *weaptype[weap].eprj) loopi(clamp(sub, 1, W2(weap, ammosub, WS(flags))))
             create(from, from, local, d, PRJ_EJECT, -1, HIT_NONE, rnd(ejectfade)+ejectfade, 0, delay, rnd(weaptype[weap].espeed)+weaptype[weap].espeed, 0, weap, -1, flags);
 
         d->setweapstate(weap, WS(flags) ? W_S_SECONDARY : W_S_PRIMARY, delayattack, lastmillis);
-        d->ammo[weap] = max(d->ammo[weap]-sub-offset, 0);
+        d->ammo[weap] = std::max(d->ammo[weap]-sub-offset, 0);
         d->weapshot[weap] = sub;
         if(offset > 0) d->weapload[weap] = -offset;
         d->lastshoot = lastmillis;
@@ -1292,8 +1292,8 @@ namespace projs
                       spanout = WF(WK(proj.flags), proj.weap, taperout, WS(proj.flags));
                 if(type >= 3)
                 { // timer-to-span translation
-                    spanin /= max(proj.lifemillis, 1);
-                    spanout /= max(proj.lifemillis, 1);
+                    spanin /= std::max(proj.lifemillis, 1);
+                    spanout /= std::max(proj.lifemillis, 1);
                 }
                 if(spanin+spanout > 1)
                 {
@@ -1308,7 +1308,7 @@ namespace projs
                             spanout = 0;
                         }
                     }
-                    spanin = max(0.f, spanin-off);
+                    spanin = std::max(0.f, spanin - off);
                 }
                 if(proj.lifespan < spanin)
                 {
@@ -1330,7 +1330,7 @@ namespace projs
 
     void iter(projent &proj)
     {
-        proj.lifespan = clamp((proj.lifemillis-proj.lifetime)/float(max(proj.lifemillis, 1)), 0.f, 1.f);
+        proj.lifespan = clamp((proj.lifemillis-proj.lifetime) / float(std::max(proj.lifemillis, 1)), 0.f, 1.f);
         if(proj.target && proj.target->state != CS_ALIVE) proj.target = NULL;
         updatesticky(proj);
         if(proj.projtype == PRJ_SHOT)
@@ -1348,7 +1348,7 @@ namespace projs
             float yaw, pitch;
             vectoyawpitch(vec(proj.vel).normalize(), yaw, pitch);
             part_radius(proj.o, vec(proj.radius, proj.radius, proj.radius), 2, 1, 1, 0x22FFFF);
-            part_dir(proj.o, yaw, pitch, max(proj.vel.magnitude(), proj.radius+2), 2, 1, 1, 0xFF22FF);
+            part_dir(proj.o, yaw, pitch, std::max(proj.vel.magnitude(), proj.radius+2), 2, 1, 1, 0xFF22FF);
         }
         switch(proj.projtype)
         {
@@ -1395,8 +1395,8 @@ namespace projs
                     }
                     case W_PISTOL:
                     {
-                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
-                        if(proj.lastbounce) size = min(size, max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
+                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, std::min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
+                        if(proj.lastbounce) size = std::min(size, std::max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
                         if(size > 0)
                         {
                             proj.to = vec(proj.o).sub(vec(proj.vel).normalize().mul(size));
@@ -1412,12 +1412,12 @@ namespace projs
                     case W_FLAMER:
                     {
                         float blend = clamp(1.25f-proj.lifespan, 0.35f, 0.85f)*(0.6f+(rnd(40)/100.f))*trans,
-                            size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
-                        if(proj.lastbounce) size = min(size, max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
+                            size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, std::min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
+                        if(proj.lastbounce) size = std::min(size, std::max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
                         if(projfirehint) part_create(PART_HINT_SOFT, 1, proj.o, projhint(proj.owner, 0x120228), size*projfirehintsize, blend*projhintblend);
                         if(projtrails && lastmillis-proj.lasteffect >= projtraildelay)
                         {
-                            part_create(PART_FIREBALL_SOFT, max(int(projtraillength*0.5f*max(1.f-proj.lifespan, 0.1f)), 1), proj.o, FWCOL(H, partcol, proj), size, blend, -5);
+                            part_create(PART_FIREBALL_SOFT, std::max(int(projtraillength * 0.5f * std::max(1.f - proj.lifespan, 0.1f)), 1), proj.o, FWCOL(H, partcol, proj), size, blend, -5);
                             proj.lasteffect = lastmillis - (lastmillis%projtraildelay);
                         }
                         else part_create(PART_FIREBALL_SOFT, 1, proj.o, FWCOL(H, partcol, proj), size, blend);
@@ -1428,8 +1428,8 @@ namespace projs
                     {
                         int interval = lastmillis%1000;
                         float fluc = 1.f+(interval ? (interval <= 500 ? interval/500.f : (1000-interval)/500.f) : 0.f);
-                        part_create(PART_PLASMA_SOFT, 1, proj.o, FWCOL(H, partcol, proj), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*max(proj.lifespan, 0.25f)+fluc, max(proj.lifespan, 0.25f)*trans);
-                        if(projhints) part_create(PART_HINT_SOFT, 1, proj.o, projhint(proj.owner, FWCOL(H, partcol, proj)), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*max(proj.lifespan, 0.25f)*projhintsize+fluc, max(proj.lifespan, 0.25f)*projhintblend*trans);
+                        part_create(PART_PLASMA_SOFT, 1, proj.o, FWCOL(H, partcol, proj), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)) * std::max(proj.lifespan, 0.25f) + fluc, std::max(proj.lifespan, 0.25f) * trans);
+                        if(projhints) part_create(PART_HINT_SOFT, 1, proj.o, projhint(proj.owner, FWCOL(H, partcol, proj)), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)) * std::max(proj.lifespan, 0.25f) * projhintsize + fluc, std::max(proj.lifespan, 0.25f) * projhintblend * trans);
                         if(projtrails && lastmillis-proj.lasteffect >= projtraildelay)
                         {
                             part_create(PART_SMOKE_LERP, projtraillength, proj.o, 0x888888, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.75f*trans, -5);
@@ -1441,8 +1441,8 @@ namespace projs
                     {
                         int interval = lastmillis%1000;
                         float fluc = 1.f+(interval ? (interval <= 500 ? interval/500.f : (1000-interval)/500.f) : 0.f);
-                        part_create(PART_PLASMA_SOFT, 1, proj.o, FWCOL(H, partcol, proj), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*0.25f*max(proj.lifespan, 0.25f)+fluc, max(proj.lifespan, 0.25f)*trans);
-                        if(projhints) part_create(PART_HINT_SOFT, 1, proj.o, projhint(proj.owner, FWCOL(H, partcol, proj)), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*0.25f*max(proj.lifespan, 0.25f)*projhintsize+fluc, max(proj.lifespan, 0.25f)*projhintblend*trans);
+                        part_create(PART_PLASMA_SOFT, 1, proj.o, FWCOL(H, partcol, proj), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)) * 0.25f * std::max(proj.lifespan, 0.25f) + fluc, std::max(proj.lifespan, 0.25f) * trans);
+                        if(projhints) part_create(PART_HINT_SOFT, 1, proj.o, projhint(proj.owner, FWCOL(H, partcol, proj)), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)) * 0.25f * std::max(proj.lifespan, 0.25f) * projhintsize + fluc, std::max(proj.lifespan, 0.25f) * projhintblend * trans);
                         break;
                     }
                     case W_ROCKET:
@@ -1453,8 +1453,8 @@ namespace projs
                         if(projhints) part_create(PART_HINT_SOFT, 1, proj.o, projhint(proj.owner, FWCOL(H, partcol, proj)), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*projhintsize+fluc, projhintblend*trans);
                         if(projtrails && lastmillis-proj.lasteffect >= projtraildelay/10)
                         {
-                            part_create(PART_FIREBALL_SOFT, max(projtraillength, 2)/2, proj.o, FWCOL(H, partcol, proj), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.85f*trans, -1);
-                            part_create(PART_SMOKE_LERP, max(projtraillength, 1), proj.o, 0x222222, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*1.5f, trans, -5);
+                            part_create(PART_FIREBALL_SOFT, std::max(projtraillength, 2) / 2, proj.o, FWCOL(H, partcol, proj), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.85f*trans, -1);
+                            part_create(PART_SMOKE_LERP, std::max(projtraillength, 1), proj.o, 0x222222, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*1.5f, trans, -5);
                             proj.lasteffect = lastmillis - (lastmillis%(projtraildelay/10));
                         }
                         break;
@@ -1469,8 +1469,8 @@ namespace projs
                         }
                         else
                         {
-                            float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
-                            if(proj.lastbounce) size = min(size, max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
+                            float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, std::min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
+                            if(proj.lastbounce) size = std::min(size, std::max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
                             if(size > 0)
                             {
                                 proj.to = vec(proj.o).sub(vec(proj.vel).normalize().mul(size));
@@ -1482,8 +1482,8 @@ namespace projs
                     }
                     case W_SMG:
                     {
-                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
-                        if(proj.lastbounce) size = min(size, max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
+                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, std::min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(proj.from)));
+                        if(proj.lastbounce) size = std::min(size, std::max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
                         if(size > 0)
                         {
                             proj.to = vec(proj.o).sub(vec(proj.vel).normalize().mul(size));
@@ -1523,8 +1523,8 @@ namespace projs
                     case W_RIFLE: case W_ZAPPER:
                     {
                         vec from = type != W_ZAPPER || !proj.owner || proj.owner->weapselect != proj.weap || WK(proj.flags) ? proj.from : proj.owner->muzzlepos(proj.weap);
-                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(from)));
-                        if(proj.lastbounce) size = min(size, max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
+                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, std::min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(from)));
+                        if(proj.lastbounce) size = std::min(size, std::max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
                         if(size > 0)
                         {
                             if(type != W_ZAPPER || !proj.owner || proj.owner->weapselect != proj.weap || WK(proj.flags))
@@ -1566,7 +1566,7 @@ namespace projs
             {
                 if(proj.projtype == PRJ_GIBS && !game::nogore && game::bloodscale > 0)
                 {
-                    if(proj.movement >= 1 && lastmillis-proj.lasteffect >= 1000 && proj.lifetime >= min(proj.lifemillis, proj.fadetime))
+                    if(proj.movement >= 1 && lastmillis-proj.lasteffect >= 1000 && proj.lifetime >= std::min(proj.lifemillis, proj.fadetime))
                     {
                         part_splash(PART_BLOOD, 1, game::bloodfade, proj.o, 0x229999, (rnd(game::bloodsize/2)+(game::bloodsize/2))/10.f, 1, 100, DECAL_BLOOD, int(proj.radius), 15);
                         proj.lasteffect = lastmillis - (lastmillis%1000);
@@ -1578,7 +1578,7 @@ namespace projs
                     bool effect = false;
                     float radius = (proj.radius+0.5f)*(clamp(1.f-proj.lifespan, 0.1f, 1.f)+0.25f), blend = clamp(1.25f-proj.lifespan, 0.25f, 1.f)*(0.75f+(rnd(25)/100.f)); // gets smaller as it gets older
                     if(projtrails && lastmillis-proj.lasteffect >= projtraildelay) { effect = true; proj.lasteffect = lastmillis - (lastmillis%projtraildelay); }
-                    int len = effect ? max(int(projtraillength*0.5f*max(1.f-proj.lifespan, 0.1f)), 1) : 1,
+                    int len = effect ? std::max(int(projtraillength * 0.5f * std::max(1.f - proj.lifespan, 0.1f)), 1) : 1,
                         colour = !proj.id && isweap(proj.weap) ? FWCOL(H, explcol, proj) : pulsecols[PULSE_FIRE][rnd(PULSECOLOURS)];
                     part_create(proj.projtype == PRJ_GIBS || (!proj.id && isweap(proj.weap) && WF(WK(proj.flags), proj.weap, explcol, WS(proj.flags)) <= PC(DISCO)) ? PART_SPARK : PART_FIREBALL, len, proj.o, colour, radius, blend, -5);
                 }
@@ -1587,11 +1587,11 @@ namespace projs
             case PRJ_EJECT:
             {
                 if(isweap(proj.weap) && ejecthint)
-                    part_create(PART_HINT_SOFT, 1, proj.o, W(proj.weap, colour), max(proj.xradius, proj.yradius)*1.25f, clamp(1.f-proj.lifespan, 0.1f, 1.f)*0.35f);
+                    part_create(PART_HINT_SOFT, 1, proj.o, W(proj.weap, colour), std::max(proj.xradius, proj.yradius) * 1.25f, clamp(1.f-proj.lifespan, 0.1f, 1.f)*0.35f);
                 bool moving = proj.movement >= 1;
                 if(moving && lastmillis-proj.lasteffect >= 100)
                 {
-                    part_create(PART_SMOKE, 75, proj.o, 0x222222, max(proj.xradius, proj.yradius), clamp(1.f-proj.lifespan, 0.1f, 1.f)*0.35f, -3);
+                    part_create(PART_SMOKE, 75, proj.o, 0x222222, std::max(proj.xradius, proj.yradius), clamp(1.f-proj.lifespan, 0.1f, 1.f)*0.35f, -3);
                     proj.lasteffect = lastmillis - (lastmillis%100);
                 }
             }
@@ -1601,9 +1601,9 @@ namespace projs
                 if(moving && lastmillis-proj.lasteffect >= 50)
                 {
                     vec o(proj.o);
-                    float size = max(proj.xradius, proj.yradius);
+                    float size = std::max(proj.xradius, proj.yradius);
                     if(m_capture(game::gamemode)) o.z -= proj.zradius;
-                    else size = max(proj.zradius, size);
+                    else size = std::max(proj.zradius, size);
                     part_create(PART_SMOKE, 150, o, 0xFFFFFF, size, 0.5f, -10);
                     proj.lasteffect = lastmillis - (lastmillis%50);
                 }
@@ -1614,7 +1614,7 @@ namespace projs
 
     void destroy(projent &proj)
     {
-        proj.lifespan = clamp((proj.lifemillis-proj.lifetime)/float(max(proj.lifemillis, 1)), 0.f, 1.f);
+        proj.lifespan = clamp((proj.lifemillis-proj.lifetime)/float(std::max(proj.lifemillis, 1)), 0.f, 1.f);
         if(proj.projcollide&COLLIDE_PROJ)
         {
             collideprojs.removeobj(&proj);
@@ -1642,13 +1642,13 @@ namespace projs
                             adddecal(DECAL_SCORCH_SHORT, proj.o, proj.norm, expl*0.5f);
                             adddynlight(proj.o, expl, FWCOL(P, explcol, proj), len, 10);
                         }
-                        else adddecal(DECAL_BULLET, proj.o, proj.norm, max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4);
+                        else adddecal(DECAL_BULLET, proj.o, proj.norm, std::max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4);
                         break;
                     }
                     case W_FLAMER: case W_GRENADE: case W_MINE: case W_ROCKET:
                     { // all basically explosions
                         float expl = WX(WK(proj.flags), proj.weap, explode, WS(proj.flags), game::gamemode, game::mutators, proj.curscale*proj.lifesize);
-                        if(type != W_FLAMER) part_create(PART_PLASMA_SOFT, len, proj.o, FWCOL(H, partcol, proj), max(expl*0.5f, 0.5f), 0.5f*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags))); // corona
+                        if(type != W_FLAMER) part_create(PART_PLASMA_SOFT, len, proj.o, FWCOL(H, partcol, proj), std::max(expl*0.5f, 0.5f), 0.5f*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags))); // corona
                         if(expl > 0)
                         {
                             if(type != W_FLAMER) part_explosion(proj.o, expl, PART_EXPLOSION, len, FWCOL(H, explcol, proj), 1.f, WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags)));
@@ -1656,7 +1656,7 @@ namespace projs
                             if(WF(WK(proj.flags), proj.weap, wavepush, WS(proj.flags)) >= 1)
                                 part_explosion(proj.o, expl*WF(WK(proj.flags), proj.weap, wavepush, WS(proj.flags)), PART_SHOCKWAVE, len/2, projhint(proj.owner, FWCOL(H, explcol, proj)), 1.f, 0.5f*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags))*projhintblend);
                         }
-                        else expl = max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4;
+                        else expl = std::max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4;
                         part_create(PART_SMOKE_LERP_SOFT, len*3, proj.o, 0x444444, expl*1.5f, 0.75f*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags)), type != W_FLAMER ? -15 : -10);
                         if(type != W_FLAMER && !m_kaboom(game::gamemode, game::mutators) && game::nogore != 2 && game::debrisscale > 0)
                         {
@@ -1687,7 +1687,7 @@ namespace projs
                             adddecal(DECAL_SCORCH_SHORT, proj.o, proj.norm, expl*0.5f);
                             adddynlight(proj.o, expl, FWCOL(P, explcol, proj), len, 10);
                         }
-                        else adddecal(DECAL_BULLET, proj.o, proj.norm, max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4);
+                        else adddecal(DECAL_BULLET, proj.o, proj.norm, std::max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4);
                         break;
                     }
                     case W_PLASMA:
@@ -1699,7 +1699,7 @@ namespace projs
                             if(WF(WK(proj.flags), proj.weap, wavepush, WS(proj.flags)) >= 1)
                                 part_explosion(proj.o, expl*WF(WK(proj.flags), proj.weap, wavepush, WS(proj.flags)), PART_SHOCKWAVE, len/2, projhint(proj.owner, FWCOL(H, explcol, proj)), 1.f, 0.25f*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags))*projhintblend);
                         }
-                        else expl = max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4;
+                        else expl = std::max(WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags)), 0.25f)*4;
                         part_splash(PART_SPARK, 20, len*2, proj.o, FWCOL(H, partcol, proj), 0.25f, WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags)), 1, 0, expl, 20);
                         part_create(PART_PLASMA_SOFT, len, proj.o, FWCOL(H, partcol, proj), expl*0.75f, 0.5f*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags)));
                         part_create(PART_ELECTRIC_SOFT, len/2, proj.o, FWCOL(H, partcol, proj), expl*0.375f, WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags)));
@@ -1712,8 +1712,8 @@ namespace projs
                     {
                         vec from = type != W_ZAPPER || !proj.owner || proj.owner->weapselect != proj.weap || WK(proj.flags) ? proj.from : proj.owner->muzzlepos(proj.weap);
                         float expl = WX(WK(proj.flags), proj.weap, explode, WS(proj.flags), game::gamemode, game::mutators, proj.curscale*proj.lifesize),
-                              size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(from)));
-                        if(proj.lastbounce) size = min(size, max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
+                              size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, std::min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.o.dist(from)));
+                        if(proj.lastbounce) size = std::min(size, std::max(proj.movement, WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale));
                         if(size > 0)
                         {
                             if(type != W_ZAPPER || !proj.owner || proj.owner->weapselect != proj.weap || WK(proj.flags))
@@ -1730,8 +1730,8 @@ namespace projs
                         }
                         part_flare(proj.to, proj.o, len, type != W_ZAPPER ? PART_FLARE : PART_LIGHTZAP_FLARE, FWCOL(H, partcol, proj), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*proj.curscale, 0.85f*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags)));
                         if(projhints) part_flare(proj.to, proj.o, len, type != W_ZAPPER ? PART_FLARE : PART_LIGHTZAP_FLARE, projhint(proj.owner, FWCOL(H, partcol, proj)), WF(WK(proj.flags), proj.weap, partsize, WS(proj.flags))*projhintsize*proj.curscale, projhintblend*WF(WK(proj.flags), proj.weap, partblend, WS(proj.flags)));
-                        adddecal(DECAL_SCORCH, proj.o, proj.norm, max(expl, 2.f));
-                        adddecal(DECAL_ENERGY, proj.o, proj.norm, max(expl*0.5f, 1.f), bvec::fromcolor(FWCOL(P, explcol, proj)));
+                        adddecal(DECAL_SCORCH, proj.o, proj.norm, std::max(expl, 2.f));
+                        adddecal(DECAL_ENERGY, proj.o, proj.norm, std::max(expl*0.5f, 1.f), bvec::fromcolor(FWCOL(P, explcol, proj)));
                         adddynlight(proj.o, 1.1f*expl, FWCOL(P, explcol, proj), len, 10);
                         break;
                     }
@@ -1748,13 +1748,13 @@ namespace projs
                     {
                         int f = W2(proj.weap, fragweap, WS(proj.flags)), w = f%W_MAX,
                             life = W2(proj.weap, fragtime, WS(proj.flags)), delay = W2(proj.weap, fragtimedelay, WS(proj.flags));
-                        float mag = max(proj.vel.magnitude(), W2(proj.weap, fragspeedmin, WS(proj.flags))),
+                        float mag = std::max(proj.vel.magnitude(), W2(proj.weap, fragspeedmin, WS(proj.flags))),
                               scale = W2(proj.weap, fragscale, WS(proj.flags))*proj.curscale,
                               offset = proj.hit || proj.stick ? W2(proj.weap, fragoffset, WS(proj.flags)) : 1e-6f,
                               skew = proj.hit || proj.stuck ? W2(proj.weap, fragskew, WS(proj.flags)) : W2(proj.weap, fragspread, WS(proj.flags));
                         vec dir = vec(proj.stuck ? proj.norm : proj.vel).normalize(),
                             pos = vec(proj.o).sub(vec(dir).mul(offset));
-                        if(W2(proj.weap, fragspeedmax, WS(proj.flags)) > 0) mag = min(mag, W2(proj.weap, fragspeedmax, WS(proj.flags)));
+                        if(W2(proj.weap, fragspeedmax, WS(proj.flags)) > 0) mag = std::min(mag, W2(proj.weap, fragspeedmax, WS(proj.flags)));
                         if(W2(proj.weap, fragjump, WS(proj.flags)) > 0) life -= int(ceilf(life*W2(proj.weap, fragjump, WS(proj.flags))));
                         loopi(W2(proj.weap, fragrays, WS(proj.flags)))
                         {
@@ -1763,7 +1763,7 @@ namespace projs
                                 mag = rnd(W2(proj.weap, fragspeed, WS(proj.flags)))*0.5f+W2(proj.weap, fragspeed, WS(proj.flags))*0.5f;
                             if(skew > 0) to.add(vec(rnd(2001)-1000, rnd(2001)-1000, rnd(2001)-1000).normalize().mul(skew*mag));
                             if(W2(proj.weap, fragrel, WS(proj.flags)) != 0) to.add(vec(dir).mul(W2(proj.weap, fragrel, WS(proj.flags))*mag));
-                            create(pos, to, proj.local, proj.owner, PRJ_SHOT, proj.weap, proj.flags, max(life, 1), W2(proj.weap, fragtime, WS(proj.flags)), delay, W2(proj.weap, fragspeed, WS(proj.flags)), proj.id, w, -1, (f >= W_MAX ? HIT_ALT : 0)|HIT_FLAK, scale, true, &proj);
+                            create(pos, to, proj.local, proj.owner, PRJ_SHOT, proj.weap, proj.flags, std::max(life, 1), W2(proj.weap, fragtime, WS(proj.flags)), delay, W2(proj.weap, fragspeed, WS(proj.flags)), proj.id, w, -1, (f >= W_MAX ? HIT_ALT : 0)|HIT_FLAK, scale, true, &proj);
                             delay += W2(proj.weap, fragtimeiter, WS(proj.flags));
                         }
                     }
@@ -1804,7 +1804,7 @@ namespace projs
             if(chk&1 && !proj.limited && !WK(proj.flags) && proj.weap != W_MELEE)
             {
                 int vol = clamp(int(ceilf(48*proj.curscale)), 0, 255), snd = S_EXTINGUISH;
-                float size = max(proj.radius, 1.f);
+                float size = std::max(proj.radius, 1.f);
                 if(proj.projtype == PRJ_SHOT && isweap(proj.weap))
                 {
                     snd = WSND2(proj.weap, WS(proj.flags), S_W_EXTINGUISH);
@@ -1815,7 +1815,7 @@ namespace projs
                 }
                 else size *= 2.5f;
                 if(vol > 0) playsound(snd, proj.o, NULL, 0, vol);
-                part_create(PART_SMOKE, 500, proj.o, 0xAAAAAA, max(size, 1.5f), 1, -10);
+                part_create(PART_SMOKE, 500, proj.o, 0xAAAAAA, std::max(size, 1.5f), 1, -10);
                 proj.limited = true;
                 if(proj.projtype == PRJ_DEBRIS) proj.light.material[0] = bvec(255, 255, 255);
             }
@@ -1952,8 +1952,8 @@ namespace projs
                 else if(proj.projcollide&COLLIDE_TRACE)
                 {
                     vec to = vec(pos).add(dir);
-                    float x1 = floor(min(pos.x, to.x)), y1 = floor(min(pos.y, to.y)),
-                          x2 = ceil(max(pos.x, to.x)), y2 = ceil(max(pos.y, to.y)),
+                    float x1 = floor(std::min(pos.x, to.x)), y1 = floor(std::min(pos.y, to.y)),
+                          x2 = ceil(std::max(pos.x, to.x)), y2 = ceil(std::max(pos.y, to.y)),
                           maxdist = dir.magnitude(), dist = 1e16f;
                     if(!physics::xtracecollide(&proj, pos, to, x1, x2, y1, y2, maxdist, dist, proj.owner) || dist > maxdist) proj.escaped = true;
                 }
@@ -2009,7 +2009,7 @@ namespace projs
                 {
                     case 2: proj.o = pos; if(proj.projtype == PRJ_SHOT) blocked = true; break;
                     case 1: default: break;
-                    case 0: proj.o = pos; if(proj.projtype == PRJ_SHOT) { dir.rescale(max(dir.magnitude()-0.15f, 0.0f)); proj.o.add(dir); } return false;
+                    case 0: proj.o = pos; if(proj.projtype == PRJ_SHOT) { dir.rescale(std::max(dir.magnitude()-0.15f, 0.0f)); proj.o.add(dir); } return false;
                     case -1: return moveproj(proj, secs, true);
                 }
             }
@@ -2034,8 +2034,8 @@ namespace projs
                     }
                     if(proj.pitch != 0)
                     {
-                        if(proj.pitch < 0) { proj.pitch += max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch > 0) proj.pitch = 0; }
-                        else if(proj.pitch > 0) { proj.pitch -= max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch < 0) proj.pitch = 0; }
+                        if(proj.pitch < 0) { proj.pitch += std::max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch > 0) proj.pitch = 0; }
+                        else if(proj.pitch > 0) { proj.pitch -= std::max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch < 0) proj.pitch = 0; }
                     }
                     break;
                 }
@@ -2071,13 +2071,13 @@ namespace projs
             {
                 if(proj.pitch != 0)
                 {
-                    if(proj.pitch < 0) { proj.pitch += max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch > 0) proj.pitch = 0; }
-                    else if(proj.pitch > 0) { proj.pitch -= max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch < 0) proj.pitch = 0; }
+                    if(proj.pitch < 0) { proj.pitch += std::max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch > 0) proj.pitch = 0; }
+                    else if(proj.pitch > 0) { proj.pitch -= std::max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.pitch < 0) proj.pitch = 0; }
                 }
                 if(proj.roll != 0)
                 {
-                    if(proj.roll < 0) { proj.roll += max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.roll > 0) proj.roll = 0; }
-                    else if(proj.roll > 0) { proj.roll -= max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.roll < 0) proj.roll = 0; }
+                    if(proj.roll < 0) { proj.roll += std::max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.roll > 0) proj.roll = 0; }
+                    else if(proj.roll > 0) { proj.roll -= std::max(diff, !proj.lastbounce || proj.movement >= 1 ? 1.f : 5.f); if(proj.roll < 0) proj.roll = 0; }
                 }
                 break;
             }
@@ -2095,8 +2095,8 @@ namespace projs
             if(!targ.iszero())
             {
                 vec dir = vec(proj.vel).normalize();
-                float amt = clamp(bomberspeeddelta*secs, 1e-8f, 1.f), mag = max(proj.vel.magnitude(), bomberspeedmin);
-                if(bomberspeedmax > 0) mag = min(mag, bomberspeedmax);
+                float amt = clamp(bomberspeeddelta*secs, 1e-8f, 1.f), mag = std::max(proj.vel.magnitude(), bomberspeedmin);
+                if(bomberspeedmax > 0) mag = std::min(mag, bomberspeedmax);
                 dir.mul(1.f-amt).add(targ.mul(amt)).normalize();
                 if(!dir.iszero()) (proj.vel = dir).mul(mag);
             }
@@ -2151,7 +2151,7 @@ namespace projs
             if(!proj.dest.iszero())
             {
                 float amt = clamp(WF(WK(proj.flags), proj.weap, speeddelta, WS(proj.flags))*secs, 1e-8f, 1.f),
-                      mag = max(proj.vel.magnitude(), physics::movevelocity(&proj));
+                      mag = std::max(proj.vel.magnitude(), physics::movevelocity(&proj));
                 dir.mul(1.f-amt).add(vec(proj.dest).sub(proj.o).safenormalize().mul(amt)).normalize();
                 if(!dir.iszero()) (proj.vel = dir).mul(mag);
             }
@@ -2287,7 +2287,7 @@ namespace projs
                             if(!proj.beenused)
                             {
                                 proj.beenused = 1;
-                                proj.lifetime = min(proj.lifetime, proj.fadetime);
+                                proj.lifetime = std::min(proj.lifetime, proj.fadetime);
                             }
                             if(proj.lifetime > 0) break;
                         }
@@ -2296,7 +2296,7 @@ namespace projs
                 }
                 else for(int rtime = curtime; proj.state != CS_DEAD && rtime > 0;)
                 {
-                    int qtime = min(rtime, 30);
+                    int qtime = std::min(rtime, 30);
                     rtime -= qtime;
 
                     if(((proj.lifetime -= qtime) <= 0 && proj.lifemillis) || (!proj.stuck && !move(proj, qtime)))
@@ -2340,7 +2340,7 @@ namespace projs
                             if(proxim == 1 && !proj.beenused && f != oldstick && f->center().dist(proj.o) <= dist)
                             {
                                 proj.beenused = 1;
-                                proj.lifetime = min(proj.lifetime, WF(WK(proj.flags), proj.weap, proxtime, WS(proj.flags)));
+                                proj.lifetime = std::min(proj.lifetime, WF(WK(proj.flags), proj.weap, proxtime, WS(proj.flags)));
                             }
                         }
                         if(proxim == 2 && !proj.beenused)
@@ -2354,7 +2354,7 @@ namespace projs
                                 if(blocked >= 0 && hitplayer && hitplayer->state == CS_ALIVE && physics::issolid(hitplayer, &proj, true, false))
                                 {
                                     proj.beenused = 1;
-                                    proj.lifetime = min(proj.lifetime, WF(WK(proj.flags), proj.weap, proxtime, WS(proj.flags)));
+                                    proj.lifetime = std::min(proj.lifetime, WF(WK(proj.flags), proj.weap, proxtime, WS(proj.flags)));
                                 }
                             }
                         }
@@ -2396,7 +2396,7 @@ namespace projs
         if(proj.projtype == PRJ_SHOT && proj.owner && physics::isghost(proj.owner, game::focus, true)) trans *= 0.5f;
         if(proj.fadetime && proj.lifemillis)
         {
-            int interval = min(proj.lifemillis, proj.fadetime);
+            int interval = std::min(proj.lifemillis, proj.fadetime);
             if(proj.lifetime < interval)
             {
                 float amt = float(proj.lifetime)/float(interval);
@@ -2405,7 +2405,7 @@ namespace projs
             }
             else if(proj.projtype != PRJ_EJECT && proj.lifemillis > interval)
             {
-                interval = min(proj.lifemillis-interval, proj.fadetime);
+                interval = std::min(proj.lifemillis-interval, proj.fadetime);
                 if(proj.lifemillis-proj.lifetime < interval)
                 {
                     float amt = float(proj.lifemillis-proj.lifetime)/float(interval);
@@ -2528,7 +2528,7 @@ namespace projs
                     float expl = WX(WK(proj.flags), proj.weap, explode, WS(proj.flags), game::gamemode, game::mutators, proj.curscale*proj.lifesize);
                     if(type != W_ZAPPER || expl <= 0)
                     {
-                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, proj.curscale, min(16.f, min(min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.movement), proj.o.dist(proj.from))));
+                        float size = clamp(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags))*(1.f-proj.lifespan)*proj.curscale, proj.curscale, std::min(16.f, std::min(std::min(WF(WK(proj.flags), proj.weap, partlen, WS(proj.flags)), proj.movement), proj.o.dist(proj.from))));
                         adddynlight(proj.o, 1.25f*size*trans, FWCOL(P, partcol, proj));
                         break;
                     }

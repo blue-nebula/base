@@ -40,8 +40,8 @@ struct animmodel : model
             }
             else
             {
-                fr1 = min(fr1, info.range-1)+info.frame;
-                fr2 = min(fr1+1, info.frame+info.range-1);
+                fr1 = std::min(fr1, info.range - 1) + info.frame;
+                fr2 = std::min(fr1 + 1, info.frame + info.range - 1);
             }
             if(info.anim&ANIM_REVERSE)
             {
@@ -139,8 +139,8 @@ struct animmodel : model
                 gle::color(vec(lightcolor).max(mincolor), trans);
             }
 
-            if(material > 0 && lightmaterial) LOCALPARAM(lightmaterial, lightmaterial[min(material, int(MAXLIGHTMATERIALS))-1].tocolor().mul(2));
-            if(material2 > 0 && lightmaterial) LOCALPARAM(lightmaterial2, lightmaterial[min(material2, int(MAXLIGHTMATERIALS))-1].tocolor().mul(2));
+            if(material > 0 && lightmaterial) LOCALPARAM(lightmaterial, lightmaterial[std::min(material, int(MAXLIGHTMATERIALS)) - 1].tocolor().mul(2));
+            if(material2 > 0 && lightmaterial) LOCALPARAM(lightmaterial2, lightmaterial[std::min(material2, int(MAXLIGHTMATERIALS)) - 1].tocolor().mul(2));
 
             if(key->checkversion() && Shader::lastshader->owner == key) return;
             Shader::lastshader->owner = key;
@@ -153,8 +153,8 @@ struct animmodel : model
             }
             else
             {
-                float bias = max(mincolor-1.0f, 0.2f), scale = 0.5f*max(0.8f-bias, 0.0f),
-                      minshade = scale*max(ambient, mincolor);
+                float bias = std::max(mincolor - 1.0f, 0.2f), scale = 0.5f * std::max(0.8f - bias, 0.0f),
+                      minshade = scale * std::max(ambient, mincolor);
                 LOCALPARAMF(lightscale, scale - minshade, scale, minshade + bias);
             }
             float curglow = glow;
@@ -519,7 +519,7 @@ struct animmodel : model
         virtual int totalframes() const { return 1; }
         bool hasframe(int i) const { return i>=0 && i<totalframes(); }
         bool hasframes(int i, int n) const { return i>=0 && i+n<=totalframes(); }
-        int clipframes(int i, int n) const { return min(n, totalframes() - i); }
+        int clipframes(int i, int n) const { return std::min(n, totalframes() - i); }
 
         virtual void cleanup() {}
         virtual void preload(part *p) {}
@@ -836,7 +836,7 @@ struct animmodel : model
             if(d && interp>=0)
             {
                 animinterpinfo &ai = d->animinterp[interp];
-                if((info.anim&ANIM_CLAMP)==ANIM_CLAMP) aitime = min(aitime, int(info.range*info.speed*0.5e-3f));
+                if((info.anim&ANIM_CLAMP)==ANIM_CLAMP) aitime = std::min(aitime, int(info.range * info.speed * 0.5e-3f));
                 void *ak = meshes->animkey();
                 if(d->ragdoll && !(anim&ANIM_RAGDOLL))
                 {
@@ -1515,7 +1515,7 @@ template<class MDL, class MESH> struct modelcommands
 
     static void setalphatest(char *meshname, float *cutoff)
     {
-        loopskins(meshname, s, s.alphatest = max(0.0f, min(1.0f, *cutoff)));
+        loopskins(meshname, s, s.alphatest = std::max(0.0f, std::min(1.0f, *cutoff)));
     }
 
     static void setalphablend(char *meshname, int *blend)

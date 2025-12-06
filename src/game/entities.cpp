@@ -391,7 +391,7 @@ namespace entities
             projent &proj = *projs::projs[i];
             if(proj.projtype != PRJ_ENT || proj.id != n) continue;
             proj.beenused = 2;
-            proj.lifetime = min(proj.lifetime, proj.fadetime);
+            proj.lifetime = std::min(proj.lifetime, proj.fadetime);
         }
     }
 
@@ -631,7 +631,7 @@ namespace entities
                             else
                             {
                                 int offset = f->weapload[f->weapselect];
-                                f->ammo[f->weapselect] = max(f->ammo[f->weapselect]-offset, 0);
+                                f->ammo[f->weapselect] = std::max(f->ammo[f->weapselect] - offset, 0);
                                 f->weapload[f->weapselect] = -f->weapload[f->weapselect];
                             }
                         }
@@ -672,7 +672,7 @@ namespace entities
                         int r = rnd(teleports.length()), q = teleports[r];
                         gameentity &f = *(gameentity *)ents[q];
                         d->o = vec(f.o).add(f.attrs[5] >= 3 ? vec(orig).sub(e.o) : vec(0, 0, d->height*0.5f));
-                        float mag = f.attrs[2] < 0 ? 0.f : max(vec(d->vel).add(d->falling).magnitude(), f.attrs[2] ? float(f.attrs[2]) : 50.f),
+                        float mag = f.attrs[2] < 0 ? 0.f : std::max(vec(d->vel).add(d->falling).magnitude(), f.attrs[2] ? float(f.attrs[2]) : 50.f),
                               yaw = f.attrs[0] < 0 ? (lastmillis/5)%360 : f.attrs[0], pitch = f.attrs[1];
                         game::fixrange(yaw, pitch);
                         if(mag > 0 && f.attrs[5] < 6) d->vel = vec(yaw*RAD, pitch*RAD).mul(mag);
@@ -745,7 +745,7 @@ namespace entities
                                     if(!g->beenused)
                                     {
                                         g->beenused = 1;
-                                        g->lifetime = min(g->lifetime, g->fadetime);
+                                        g->lifetime = std::min(g->lifetime, g->fadetime);
                                     }
                                     if(g->lifetime > 0) break;
                                 }
@@ -760,7 +760,7 @@ namespace entities
                     int millis = d->lastused(n, true);
                     e.lastemit = lastmillis;
                     d->setused(n, lastmillis);
-                    float mag = max(e.attrs[2], 1), maxrad = e.attrs[3] ? e.attrs[3] : enttype[PUSHER].radius, minrad = e.attrs[4];
+                    float mag = std::max(e.attrs[2], 1), maxrad = e.attrs[3] ? e.attrs[3] : enttype[PUSHER].radius, minrad = e.attrs[4];
                     if(dist > 0 && minrad > 0 && maxrad > minrad && dist > minrad && maxrad >= dist)
                         mag *= 1.f-clamp((dist-minrad)/float(maxrad-minrad), 0.f, 1.f);
                     vec dir(e.attrs[0]*RAD, e.attrs[1]*RAD), rel = vec(dir).mul(mag);
@@ -831,8 +831,8 @@ namespace entities
         static vector<actitem> actitems;
         actitems.setsize(0);
         vec pos = d->center();
-        float radius = max(d->xradius, d->yradius);
-        if(gameent::is(d)) radius = max(d->height*0.5f, radius);
+        float radius = std::max(d->xradius, d->yradius);
+        if(gameent::is(d)) radius = std::max(d->height * 0.5f, radius);
         if(collateitems(d, pos, radius, actitems))
         {
             bool tried = false;
@@ -885,7 +885,7 @@ namespace entities
                 gameentity &e = *(gameentity *)ents[i];
                 putint(p, i);
                 putint(p, int(e.type));
-                putint(p, min(e.attrs.length(), MAXENTATTRS));
+                putint(p, std::min(e.attrs.length(), MAXENTATTRS));
                 loopvj(e.attrs)
                 {
                     if(j >= MAXENTATTRS) break;
@@ -894,7 +894,7 @@ namespace entities
                 if(enttype[e.type].syncpos) loopj(3) putint(p, int(e.o[j]*DMF));
                 if(enttype[e.type].synckin)
                 {
-                    putint(p, min(e.kin.length(), MAXENTKIN));
+                    putint(p, std::min(e.kin.length(), MAXENTKIN));
                     loopvj(e.kin)
                     {
                         if(j >= MAXENTKIN) break;
@@ -961,7 +961,7 @@ namespace entities
     void fixentity(int n, bool recurse, bool create)
     {
         gameentity &e = *(gameentity *)ents[n];
-        int num = max(5, enttype[e.type].numattrs);
+        int num = std::max(5, enttype[e.type].numattrs);
         if(e.attrs.length() < num) e.attrs.add(0, num - e.attrs.length());
         else if(e.attrs.length() > num) e.attrs.setsize(num);
         loopvrev(e.links)
@@ -1137,7 +1137,7 @@ namespace entities
             gameentity &e = *(gameentity *)ents[index];
             if(e.type == TRIGGER && !cantrigger(index)) return;
             bool commit = false;
-            int numents = max(lastent(MAPMODEL), max(lastent(LIGHTFX), max(lastent(PARTICLES), lastent(MAPSOUND))));
+            int numents = std::max(lastent(MAPMODEL), std::max(lastent(LIGHTFX), std::max(lastent(PARTICLES), lastent(MAPSOUND))));
             loopi(numents) if(ents[i]->links.find(index) >= 0)
             {
                 gameentity &f = *(gameentity *)ents[i];
@@ -1260,8 +1260,8 @@ namespace entities
             client::addmsg(N_EDITENT, "ri5iv", i, (int)(e.o.x*DMF), (int)(e.o.y*DMF), (int)(e.o.z*DMF), e.type, e.attrs.length(), e.attrs.length(), e.attrs.getbuf()); // FIXME
         if(e.type < MAXENTTYPES)
         {
-            lastenttype[e.type] = max(lastenttype[e.type], i+1);
-            lastusetype[enttype[e.type].usetype] = max(lastusetype[enttype[e.type].usetype], i+1);
+            lastenttype[e.type] = std::max(lastenttype[e.type], i + 1);
+            lastusetype[enttype[e.type].usetype] = std::max(lastusetype[enttype[e.type].usetype], i + 1);
         }
     }
 
@@ -1506,7 +1506,7 @@ namespace entities
         int offsets[MAXENTTYPES];
         memset(offsets, -1, sizeof(offsets));
         int priority = INT_MIN, nextpriority = INT_MIN;
-        loopi(MAXENTTYPES) nextpriority = max(nextpriority, enttype[i].priority);
+        loopi(MAXENTTYPES) nextpriority = std::max(nextpriority, enttype[i].priority);
         int offset = 0;
         do
         {
@@ -1515,7 +1515,7 @@ namespace entities
             loopi(MAXENTTYPES) if(offsets[i] < 0)
             {
                 if(enttype[i].priority >= priority) { offsets[i] = offset; offset += numents[i]; }
-                else nextpriority = max(nextpriority, enttype[i].priority);
+                else nextpriority = std::max(nextpriority, enttype[i].priority);
             }
         } while(nextpriority < priority);
         idxs.setsize(0);
@@ -1933,7 +1933,7 @@ namespace entities
         {
             gameentity &e = *(gameentity *)ents[i];
             progress(i/float(ents.length()), "setting entity attributes...");
-            int num = max(5, enttype[e.type].numattrs);
+            int num = std::max(5, enttype[e.type].numattrs);
             if(e.attrs.length() < num) e.attrs.add(0, num - e.attrs.length());
             else if(e.attrs.length() > num) e.attrs.setsize(num);
         }
@@ -1959,7 +1959,7 @@ namespace entities
                 ents.add(&e);
                 e.type = ACTOR;
                 e.o = ents[i]->o;
-                e.attrs.add(0, max(5, enttype[ACTOR].numattrs));
+                e.attrs.add(0, std::max(5, enttype[ACTOR].numattrs));
                 e.attrs[0] = (i%5 != 4 || ents[i]->type == WEAPON ? A_GRUNT : A_TURRET)-1;
                 switch(ents[i]->type)
                 {
@@ -1994,8 +1994,8 @@ namespace entities
             if(mtype == MAP_MAPZ && gver <= 221 && (e.type == ROUTE || e.type == UNUSEDENT)) e.type = NOTUSED;
             if(e.type < MAXENTTYPES)
             {
-                lastenttype[e.type] = max(lastenttype[e.type], i+1);
-                lastusetype[enttype[e.type].usetype] = max(lastusetype[enttype[e.type].usetype], i+1);
+                lastenttype[e.type] = std::max(lastenttype[e.type], i + 1);
+                lastusetype[enttype[e.type].usetype] = std::max(lastusetype[enttype[e.type].usetype], i + 1);
             }
             if(enttype[e.type].usetype == EU_ITEM || e.type == TRIGGER)
             {
@@ -2038,7 +2038,7 @@ namespace entities
 
     bool shouldshowents(int level)
     {
-        return max(showentradius, max(showentdir, showentlinks)) >= level;
+        return std::max(showentradius, std::max(showentdir, showentlinks)) >= level;
     }
 
     void renderentshow(gameentity &e, int idx, int level)
@@ -2385,7 +2385,7 @@ namespace entities
         float fluc = interval >= 500 ? (1500-interval)/1000.f : (500+interval)/1000.f;
         if(enttype[e.type].usetype == EU_ITEM && (active || isedit))
         {
-            float blend = fluc*skew, radius = max(((e.type == WEAPON ? weaptype[attr].halo : enttype[e.type].radius*0.5f)+(fluc*0.5f))*skew, 0.125f);
+            float blend = fluc*skew, radius = std::max(((e.type == WEAPON ? weaptype[attr].halo : enttype[e.type].radius * 0.5f) + (fluc * 0.5f)) * skew, 0.125f);
             if(simpleitems == 1)
             {
                 part_icon(o, textureload(hud::itemtex(e.type, attr), 3), simpleitemsize*skew, simpleitemblend*skew, 0, 0, 1, colour);
@@ -2398,7 +2398,7 @@ namespace entities
                 blend *= haloitemblend;
             }
             vec offset = vec(o).sub(camera1->o).rescale(radius/2);
-            offset.z = max(offset.z, -1.0f);
+            offset.z = std::max(offset.z, -1.0f);
             part_create(PART_HINT_BOLD_SOFT, 1, offset.add(o), colour, radius, blend);
         }
         if(isedit ? (showentinfo&(hasent ? 1 : 2)) : (enttype[e.type].usetype == EU_ITEM && active && showentdescs >= 3))
@@ -2464,9 +2464,9 @@ namespace entities
     void drawparticles()
     {
         float maxdist = float(maxparticledistance)*float(maxparticledistance);
-        int numents = m_edit(game::gamemode) ? ents.length() : max(lastuse(EU_ITEM), max(lastent(PARTICLES), lastent(TELEPORT)));
+        int numents = m_edit(game::gamemode) ? ents.length() : std::max(lastuse(EU_ITEM), std::max(lastent(PARTICLES), lastent(TELEPORT)));
         bool hasroute = (m_edit(game::gamemode) || m_race(game::gamemode)) && routeid >= 0;
-        if(hasroute) numents = max(numents, lastent(ROUTE));
+        if(hasroute) numents = std::max(numents, lastent(ROUTE));
         loopi(numents)
         {
             gameentity &e = *(gameentity *)ents[i];
@@ -2501,11 +2501,11 @@ namespace entities
             float skew = 1;
             if(proj.fadetime && proj.lifemillis)
             {
-                int interval = min(proj.lifemillis, proj.fadetime);
+                int interval = std::min(proj.lifemillis, proj.fadetime);
                 if(proj.lifetime < interval) skew = float(proj.lifetime)/float(interval);
                 else if(proj.lifemillis > interval)
                 {
-                    interval = min(proj.lifemillis-interval, proj.fadetime);
+                    interval = std::min(proj.lifemillis-interval, proj.fadetime);
                     if(proj.lifemillis-proj.lifetime < interval) skew = float(proj.lifemillis-proj.lifetime)/float(interval);
                 }
             }

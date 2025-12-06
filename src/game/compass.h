@@ -160,7 +160,7 @@ int cmenuhit()
         else
         {
             float yaw = -(float)atan2(cx, cy)/RAD+202.5f; if(yaw >= 360) yaw -= 360;
-            loopi(min(curcompass->actions.length(), 8)) if(yaw > i*45 && yaw <= (i+1)*45)
+            loopi(std::min(curcompass->actions.length(), 8)) if(yaw > i*45 && yaw <= (i+1)*45)
                 return i;
         }
     }
@@ -196,7 +196,7 @@ void rendercmenu()
     else if(*compassringtex) t = textureload(compassringtex, 3);
     renderaction(0, size, t, 0, curcompass->name, hit < 0);
     t = *compasstex ? textureload(compasstex, 3) : NULL;
-    loopi(min(curcompass->actions.length(), 8))
+    loopi(std::min(curcompass->actions.length(), 8))
         renderaction(i+1, size, t, curcompass->actions[i].code, curcompass->actions[i].name, hit == i);
     if(curcompass->actions.length() > 8)
     {

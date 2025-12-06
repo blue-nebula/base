@@ -255,7 +255,7 @@ namespace bomber
                         int interval = lastmillis%500;
                         float rp = 1, gp = 1, bp = 1,
                               sp = interval >= 250 ? (500-interval)/250.f : interval/250.f,
-                              sq = max(sp, 0.5f);
+                              sq = std::max(sp, 0.5f);
                         hud::colourskew(rp, gp, bp, sp);
                         int sx = int(cx*hud::hudwidth-size*sq), sy = int(cy*hud::hudsize-size*sq), ss = int(size*2*sq);
                         Texture *t = textureload(hud::indicatortex, 3);
@@ -368,7 +368,7 @@ namespace bomber
                     float amt = millis <= 250 ? 1.f-(millis/250.f) : (millis-250)/250.f;
                     flashcolour(c.r, c.g, c.b, 1.f, 0.f, 0.f, amt);
                     vec offset = vec(above).sub(camera1->o).rescale(-enttype[AFFINITY].radius*0.5f);
-                    offset.z = max(offset.z, -1.0f);
+                    offset.z = std::max(offset.z, -1.0f);
                     offset.add(above);
                     part_icon(offset, textureload(hud::warningtex, 3, true, false), enttype[AFFINITY].radius*0.75f, amt*blend, 0, 0, 1, c.tohexcolor());
                 }
@@ -589,7 +589,7 @@ namespace bomber
             if(!d->ai || f.owner != d) return;
             bool forever = m_ffa(game::gamemode, game::mutators) || d->health >= m_health(game::gamemode, game::mutators, d->actortype)/3 || findtarget(d) < 0;
             if(!carrytime && forever) return;
-            int takemillis = lastmillis-f.taketime, length = forever ? carrytime-550-bomberlockondelay : min(carrytime, 1000);
+            int takemillis = lastmillis-f.taketime, length = forever ? carrytime-550-bomberlockondelay : std::min(carrytime, 1000);
             if(takemillis >= length)
             {
                 if(d->action[AC_AFFINITY])

@@ -241,7 +241,7 @@ struct duelservmode : servmode
             if(!dueltime)
             {
                 shrink();
-                int wants = max(numteams(gamemode, mutators), 2);
+                int wants = std::max(numteams(gamemode, mutators), 2);
                 loopv(clients) if(clients[i]->state != CS_SPECTATOR && clients[i]->state != CS_ALIVE) queue(clients[i], false);
                 if(gamestate == G_S_OVERTIME && DSGS(overtime) && m_ffa(gamemode, mutators) && restricted.empty())
                 {

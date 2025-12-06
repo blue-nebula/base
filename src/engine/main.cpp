@@ -251,8 +251,8 @@ void screenres(int w, int h)
     {
         if(fullscreendesktop)
         {
-            scr_w = min(scr_w, desktopw);
-            scr_h = min(scr_h, desktoph);
+            scr_w = std::min(scr_w, desktopw);
+            scr_h = std::min(scr_h, desktoph);
         }
         if(SDL_GetWindowFlags(screen) & SDL_WINDOW_FULLSCREEN)
         {
@@ -330,8 +330,8 @@ void setupscreen()
     scr_h = clamp(scr_h, SCR_MINH, SCR_MAXH);
     if(fullscreendesktop)
     {
-        scr_w = min(scr_w, desktopw);
-        scr_h = min(scr_h, desktoph);
+        scr_w = std::min(scr_w, desktopw);
+        scr_h = std::min(scr_h, desktoph);
     }
 
     int winx = SDL_WINDOWPOS_UNDEFINED, winy = SDL_WINDOWPOS_UNDEFINED, winw = scr_w, winh = scr_h, flags = SDL_WINDOW_RESIZABLE;
@@ -683,7 +683,7 @@ VAR(IDF_PERSIST, menufps, 0, 60, 1000);
 
 void limitfps(int &millis, int curmillis)
 {
-    int limit = (hasnoview() || minimized) && menufps ? (maxfps ? min(maxfps, menufps) : menufps) : maxfps;
+    int limit = (hasnoview() || minimized) && menufps ? (maxfps ? std::min(maxfps, menufps) : menufps) : maxfps;
     if(!limit) return;
     static int fpserror = 0;
     int delay = 1000/limit - (millis-curmillis);
@@ -810,7 +810,7 @@ void resetfps()
 
 void updatefps(int frames, int millis)
 {
-    fpshistory[fpspos++] = max(1, min(1000, millis));
+    fpshistory[fpspos++] = std::max(1, std::min(1000, millis));
     if(fpspos >= MAXFPSHISTORY) fpspos = 0;
 
     int fps, bestdiff, worstdiff;

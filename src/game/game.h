@@ -753,7 +753,7 @@ struct clientstate
     void useitem(int id, int type, int attr, int ammoamt, int sweap, int millis, int delay)
     {
         if(type != WEAPON || !isweap(attr)) return;
-        int prev = max(ammo[attr], 0), ammoval = ammoamt >= 0 ? ammoamt : WUSE(attr);
+        int prev = std::max(ammo[attr], 0), ammoval = ammoamt >= 0 ? ammoamt : WUSE(attr);
         weapswitch(attr, millis, delay, W_S_USE);
         ammo[attr] = clamp(prev+ammoval, 0, W(attr, ammomax));
         weapload[attr] = ammo[attr]-prev;
@@ -799,18 +799,18 @@ struct clientstate
     float scoretime(bool update = true)
     {
         if(update) updatetimeplayed();
-        return totalpoints/float(max(timeplayed, 1));
+        return totalpoints / float(std::max(timeplayed, 1));
     }
 
     float kdratio(bool total = true)
     {
-        if(total) return totalfrags >= totaldeaths ? (totalfrags/float(max(totaldeaths, 1))) : -(totaldeaths/float(max(totalfrags, 1)));
-        return frags >= deaths ? (frags/float(max(deaths, 1))) : -(deaths/float(max(frags, 1)));
+        if(total) return totalfrags >= totaldeaths ? (totalfrags / float(std::max(totaldeaths, 1))) : -(totaldeaths / float(std::max(totalfrags, 1)));
+        return frags >= deaths ? (frags / float(std::max(deaths, 1))) : -(deaths / float(std::max(frags, 1)));
     }
 
     float combinedkdratio()
     {
-        return ((totalfrags / float(max(totaldeaths, 1))) + (frags / float(max(deaths, 1)))) / ((frags || deaths) ? 2.0f : 1.0f);
+        return ((totalfrags / float(std::max(totaldeaths, 1))) + (frags / float(std::max(deaths, 1)))) / ((frags || deaths) ? 2.0f : 1.0f);
     }
 
     float balancescore(float none=0.0f)
@@ -843,20 +843,20 @@ struct clientstate
         if(s >= W_ALL) s = W_CLAW;
         if(isweap(s))
         {
-            ammo[s] = max(1, W(s, ammomax));
+            ammo[s] = std::max(1, W(s, ammomax));
             weapselect = s;
         }
-        if(s != W_CLAW && AA(actortype, abilities)&(1<<A_A_CLAW)) ammo[W_CLAW] = max(1, W(W_CLAW, ammomax));
-        if(s != W_MELEE && AA(actortype, abilities)&(1<<A_A_MELEE)) ammo[W_MELEE] = max(1, W(W_MELEE, ammomax));
+        if(s != W_CLAW && AA(actortype, abilities)&(1<<A_A_CLAW)) ammo[W_CLAW] = std::max(1, W(W_CLAW, ammomax));
+        if(s != W_MELEE && AA(actortype, abilities)&(1<<A_A_MELEE)) ammo[W_MELEE] = std::max(1, W(W_MELEE, ammomax));
         if(actortype < A_ENEMY)
         {
-            if(m_kaboom(gamemode, mutators)) ammo[W_MINE] = max(1, W(W_MINE, ammomax));
+            if(m_kaboom(gamemode, mutators)) ammo[W_MINE] = std::max(1, W(W_MINE, ammomax));
             else if(!m_race(gamemode) || m_ra_gauntlet(gamemode, mutators))
             {
                 if(s != W_GRENADE && AA(actortype, spawngrenades) >= (m_insta(gamemode, mutators) ? 2 : 1))
-                    ammo[W_GRENADE] = max(1, W(W_GRENADE, ammomax));
+                    ammo[W_GRENADE] = std::max(1, W(W_GRENADE, ammomax));
                 if(s != W_MINE && AA(actortype, spawnmines) >= (m_insta(gamemode, mutators) ? 2 : 1))
-                    ammo[W_MINE] = max(1, W(W_MINE, ammomax));
+                    ammo[W_MINE] = std::max(1, W(W_MINE, ammomax));
             }
         }
         if(AA(actortype, maxcarry) && m_loadout(gamemode, mutators))
@@ -878,7 +878,7 @@ struct clientstate
                         aweap[j] = randsrc.remove(i);
                     }
                 }
-                ammo[aweap[j]] = max(1, W(aweap[j], ammomax));
+                ammo[aweap[j]] = std::max(1, W(aweap[j], ammomax));
             }
             weapselect = aweap[0];
         }
@@ -892,7 +892,7 @@ struct clientstate
 
     int respawnwait(int millis, int delay)
     {
-        return lastdeath ? max(0, delay-(millis-lastdeath)) : 0;
+        return lastdeath ? std::max(0, delay - (millis - lastdeath)) : 0;
     }
 
     int protect(int millis, int delay)
@@ -1057,7 +1057,7 @@ struct gameent : dynent, clientstate
         if(reset) height = zradius;
         speed = AA(type, speed);
         weight = AA(type, weight)*curscale;
-        radius = max(xradius, yradius);
+        radius = std::max(xradius, yradius);
         aboveeye = curscale;
     }
 
@@ -1066,7 +1066,7 @@ struct gameent : dynent, clientstate
         if(scale != curscale)
         {
             if(!reset && state == CS_ALIVE && millis > 0)
-                curscale = scale > curscale ? min(curscale+millis/2000.f, scale) : max(curscale-millis/2000.f, scale);
+                curscale = scale > curscale ? std::min(curscale + millis / 2000.f, scale) : std::max(curscale - millis / 2000.f, scale);
             else curscale = scale;
         }
         setparams(reset);
@@ -1232,7 +1232,7 @@ struct gameent : dynent, clientstate
 
     void hitboxes()
     {
-        float hsize = max(xradius*0.45f, yradius*0.45f);
+        float hsize = std::max(xradius * 0.45f, yradius * 0.45f);
         if(head == vec(-1, -1, -1))
         {
             head = o;
@@ -1335,7 +1335,7 @@ struct gameent : dynent, clientstate
                     }
                     default: break;
                 }
-                icons[i].length = max(icons[i].fade, fade);
+                icons[i].length = std::max(icons[i].fade, fade);
                 icons[i].fade = millis-icons[i].millis+fade;
                 icons[i].value = value;
                 return;
@@ -1576,7 +1576,7 @@ struct cament
 
     vec pos(float amt = 0)
     {
-        if(amt > 0 && moveto) return vec(o).add(vec(moveto->o).sub(o).mul(min(amt, 1.f)));
+        if(amt > 0 && moveto) return vec(o).add(vec(moveto->o).sub(o).mul(std::min(amt, 1.f)));
         return o;
     }
 };

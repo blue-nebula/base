@@ -1696,7 +1696,7 @@ namespace client
         q.put(physstate);
         putuint(q, d->impulse[IM_METER]);
         ivec o = ivec(vec(d->o.x, d->o.y, d->o.z-d->height).mul(DMF)), f = ivec(vec(d->floorpos.x, d->floorpos.y, d->floorpos.z).mul(DMF));
-        uint vel = min(int(d->vel.magnitude()*DVELF), 0xFFFF), fall = min(int(d->falling.magnitude()*DVELF), 0xFFFF);
+        uint vel = std::min(int(d->vel.magnitude() * DVELF), 0xFFFF), fall = std::min(int(d->falling.magnitude() * DVELF), 0xFFFF);
         // 3 bits position, 3 bits floor, 1 bit velocity, 3 bits falling, 1 bit conopen, X bits actions
         uint flags = 0;
         if(o.x < 0 || o.x > 0xFFFF) flags |= 1<<0;
@@ -2668,7 +2668,7 @@ namespace client
                 {
                     int tcn = getint(p), unpacklen = getint(p), packlen = getint(p);
                     gameent *d = game::getclient(tcn);
-                    ucharbuf q = p.subbuf(max(packlen, 0));
+                    ucharbuf q = p.subbuf(std::max(packlen, 0));
                     if(d) unpackeditinfo(d->edit, q.buf, q.maxlen, unpacklen);
                     break;
                 }
@@ -2678,7 +2678,7 @@ namespace client
                 {
                     int cn = getint(p), unpacklen = getint(p), packlen = getint(p);
                     gameent *d = game::getclient(cn);
-                    ucharbuf q = p.subbuf(max(packlen, 0));
+                    ucharbuf q = p.subbuf(std::max(packlen, 0));
                     if(d) unpackundo(q.buf, q.maxlen, unpacklen);
                     break;
                 }
@@ -2761,7 +2761,7 @@ namespace client
                     float x = getint(p)/DMF, y = getint(p)/DMF, z = getint(p)/DMF;
                     int type = getint(p), numattrs = getint(p);
                     attrvector attrs;
-                    attrs.add(0, max(entities::numattrs(type), min(numattrs, MAXENTATTRS)));
+                    attrs.add(0, std::max(entities::numattrs(type), std::min(numattrs, MAXENTATTRS)));
                     loopk(numattrs)
                     {
                         int val = getint(p);

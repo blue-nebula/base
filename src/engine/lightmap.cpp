@@ -255,7 +255,7 @@ bool PackNode::insert(ushort &tx, ushort &ty, ushort tw, ushort th)
     {
         bool inserted = child1->insert(tx, ty, tw, th) ||
                         child2->insert(tx, ty, tw, th);
-        available = max(child1->available, child2->available);
+        available = std::max(child1->available, child2->available);
         if(!available) clear();
         return inserted;
     }
@@ -279,7 +279,7 @@ bool PackNode::insert(ushort &tx, ushort &ty, ushort tw, ushort th)
     }
 
     bool inserted = child1->insert(tx, ty, tw, th);
-    available = max(child1->available, child2->available);
+    available = std::max(child1->available, child2->available);
     return inserted;
 }
 
@@ -441,7 +441,7 @@ static bool packlightmap(lightmapinfo &l, layoutinfo &surface)
 
 static void updatelightmap(const layoutinfo &surface)
 {
-    if(max(LM_PACKW, LM_PACKH) > hwtexsize) return;
+    if(std::max(LM_PACKW, LM_PACKH) > hwtexsize) return;
 
     LightMap &lm = lightmaps[surface.lmid-LMID_RESERVED];
     if(lm.tex < 0)
@@ -566,9 +566,9 @@ static uint generatelumel(lightmapworker *w, const float tolerance, uint lightma
             w->raydata[y*w->w+x].add(vec(S.dot(avgray)/S.magnitude(), T.dot(avgray)/T.magnitude(), normal.dot(avgray)));
             break;
     }
-    sample.x = min(255.0f, max(r, float(ambientcolor[0])));
-    sample.y = min(255.0f, max(g, float(ambientcolor[1])));
-    sample.z = min(255.0f, max(b, float(ambientcolor[2])));
+    sample.x = std::min(255.0f, std::max(r, float(ambientcolor[0])));
+    sample.y = std::min(255.0f, std::max(g, float(ambientcolor[1])));
+    sample.z = std::min(255.0f, std::max(b, float(ambientcolor[2])));
     return lightused;
 }
 
@@ -628,7 +628,7 @@ static void calcskylight(lightmapworker *w, const vec &o, const vec &normal, flo
         if(normal.dot(rays[i])>=0 && shadowray(vec(rays[i]).mul(tolerance).add(o), rays[i], 1e16f, flags, t)>1e15f) hit++;
     }
 
-    loopk(3) slight[k] = uchar(ambientcolor[k] + (max(skylightcolor[k], ambientcolor[k]) - ambientcolor[k])*hit/17.0f);
+    loopk(3) slight[k] = uchar(ambientcolor[k] + (std::max(skylightcolor[k], ambientcolor[k]) - ambientcolor[k])*hit/17.0f);
 }
 
 void calcsunlight(lightmapworker *w, const vec &o, const vec &normal, float tolerance, uchar *slight, int flags = RAY_ALPHAPOLY, extentity *t = NULL)
@@ -668,9 +668,9 @@ void calcsunlight(lightmapworker *w, const vec &o, const vec &normal, float tole
                     hit++;
                 spoke = rot.transform(spoke);
             }
-            loopk(3) slight[k] = max(uchar(light.attrs[2+k]*hit/9.f), slight[k]);
+            loopk(3) slight[k] = std::max(uchar(light.attrs[2+k]*hit/9.f), slight[k]);
         }
-        else if(hit) loopk(3) slight[k] = max(uchar(light.attrs[2+k]), slight[k]);
+        else if(hit) loopk(3) slight[k] = std::max(uchar(light.attrs[2+k]), slight[k]);
     }
 }
 
@@ -702,10 +702,10 @@ static inline void generatealpha(lightmapworker *w, float tolerance, const vec &
         uchar maskval = mask.data[mask.bpp*(mx + 1) - 1 + mask.pitch*my];
         switch(w->slot->layermaskmode)
         {
-            case 2: alpha = min(alpha, maskval); break;
-            case 3: alpha = max(alpha, maskval); break;
-            case 4: alpha = min(alpha, uchar(0xFF - maskval)); break;
-            case 5: alpha = max(alpha, uchar(0xFF - maskval)); break;
+            case 2: alpha = std::min(alpha, maskval); break;
+            case 3: alpha = std::max(alpha, maskval); break;
+            case 4: alpha = std::min(alpha, uchar(0xFF - maskval)); break;
+            case 5: alpha = std::max(alpha, uchar(0xFF - maskval)); break;
             default: alpha = maskval; break;
         }
     }
@@ -754,7 +754,7 @@ static bool generatelightmap(lightmapworker *w, float lpu, const lerpvert *lv, i
     origin1.sub(vec(ystep1).add(xstep1).mul(blurlms));
     origin2.sub(vec(ystep2).add(xstep2).mul(blurlms));
 
-    int aasample = min(1 << lmaa, 4);
+    int aasample = std::min(1 << lmaa, 4);
     int stride = aasample*(w->w+1);
     vec *sample = w->colordata;
     uchar *slight = w->ambient;
@@ -781,7 +781,7 @@ static bool generatelightmap(lightmapworker *w, float lpu, const lerpvert *lv, i
             {
                 if((w->type&LM_TYPE)==LM_BUMPMAP0 || !adaptivesample || sample->x<skylightcolor[0] || sample->y<skylightcolor[1] || sample->z<skylightcolor[2])
                     calcskylight(w, u, normal, t, slight, lmshadows > 1 ? RAY_ALPHAPOLY : 0);
-                else loopk(3) slight[k] = max(skylightcolor[k], ambientcolor[k]);
+                else loopk(3) slight[k] = std::max(skylightcolor[k], ambientcolor[k]);
             }
             else loopk(3) slight[k] = ambientcolor[k];
             if(sunlights.length()) calcsunlight(w, u, normal, t, slight, lmshadows > 1 ? RAY_ALPHAPOLY : 0);
@@ -790,7 +790,7 @@ static bool generatelightmap(lightmapworker *w, float lpu, const lerpvert *lv, i
         }
         sample += aasample;
     }
-    if(adaptivesample > 1 && min(w->w, w->h) >= 2) lightmask = ~lightused;
+    if(adaptivesample > 1 && std::min(w->w, w->h) >= 2) lightmask = ~lightused;
     sample = w->colordata;
     initlerpbounds(-blurlms, -blurlms, lv, numv, start, end);
     sidex = side0 + blurlms*sidestep;
@@ -846,9 +846,9 @@ static bool generatelightmap(lightmapworker *w, float lpu, const lerpvert *lv, i
             vec u = x < sidex ? vec(xstep1).mul(x).add(vec(ystep1).mul(w->h)).add(origin1) : vec(xstep2).mul(x).add(vec(ystep2).mul(w->h)).add(origin2);
             const vec *offsets = x < sidex ? offsets1 : offsets2;
             vec n = vec(normal).normalize();
-            generatelumel(w, edgetolerance * tolerance, lightmask, w->lights, vec(u).add(offsets[1]), n, sample[1], min(x, w->w-1), w->h-1);
+            generatelumel(w, edgetolerance * tolerance, lightmask, w->lights, vec(u).add(offsets[1]), n, sample[1], std::min(x, w->w-1), w->h-1);
             if(aasample > 2)
-                generatelumel(w, edgetolerance * tolerance, lightmask, w->lights, vec(u).add(offsets[2]), n, sample[2], min(x, w->w-1), w->h-1);
+                generatelumel(w, edgetolerance * tolerance, lightmask, w->lights, vec(u).add(offsets[2]), n, sample[2], std::min(x, w->w-1), w->h-1);
             sample += aasample;
         }
     }
@@ -863,7 +863,7 @@ static int finishlightmap(lightmapworker *w)
         std::swap(w->blur, w->ambient);
     }
     vec *sample = w->colordata;
-    int aasample = min(1 << lmaa, 4), stride = aasample*(w->w+1);
+    int aasample = std::min(1 << lmaa, 4), stride = aasample*(w->w+1);
     float weight = 1.0f / (1.0f + 4.0f*lmaa),
           cweight = weight * (lmaa == 3 ? 5.0f : 1.0f);
     uchar *skylight = w->ambient;
@@ -896,19 +896,19 @@ static int finishlightmap(lightmapworker *w)
                 g = int(center.y*cweight + l.y*weight),
                 b = int(center.z*cweight + l.z*weight),
                 ar = skylight[0], ag = skylight[1], ab = skylight[2];
-            dstcolor[0] = max(ar, r);
-            dstcolor[1] = max(ag, g);
-            dstcolor[2] = max(ab, b);
+            dstcolor[0] = std::max(ar, r);
+            dstcolor[1] = std::max(ag, g);
+            dstcolor[2] = std::max(ab, b);
             loopk(3)
             {
-                mincolor[k] = min(mincolor[k], dstcolor[k]);
-                maxcolor[k] = max(maxcolor[k], dstcolor[k]);
+                mincolor[k] = std::min(mincolor[k], dstcolor[k]);
+                maxcolor[k] = std::max(maxcolor[k], dstcolor[k]);
             }
             if(w->type&LM_ALPHA)
             {
                 dstcolor[3] = skylight[3];
-                mincolor[3] = min(mincolor[3], dstcolor[3]);
-                maxcolor[3] = max(maxcolor[3], dstcolor[3]);
+                mincolor[3] = std::min(mincolor[3], dstcolor[3]);
+                maxcolor[3] = std::max(maxcolor[3], dstcolor[3]);
             }
             if((w->type&LM_TYPE) == LM_BUMPMAP0)
             {
@@ -918,15 +918,15 @@ static int finishlightmap(lightmapworker *w)
                     // bias the normals towards the amount of ambient/skylight in the lumel
                     // this is necessary to prevent the light values in shaders from dropping too far below the skylight (to the ambient) if N.L is small
                     ray->normalize();
-                    int l = max(r, max(g, b)), a = max(ar, max(ag, ab));
-                    ray->mul(max(l-a, 0));
+                    int l = std::max(r, std::max(g, b)), a = std::max(ar, std::max(ag, ab));
+                    ray->mul(std::max(l-a, 0));
                     ray->z += a;
                     dstray[0] = bvec(ray->normalize());
                 }
                 loopk(3)
                 {
-                    minray[k] = min(minray[k], dstray[0][k]);
-                    maxray[k] = max(maxray[k], dstray[0][k]);
+                    minray[k] = std::min(minray[k], dstray[0][k]);
+                    maxray[k] = std::max(maxray[k], dstray[0][k]);
                 }
                 ray++;
                 dstray++;
@@ -991,8 +991,8 @@ static int previewlightmapalpha(lightmapworker *w, float lpu, const vec &origin1
                 vec(xstep2).mul(x).add(vec(ystep2).mul(y)).add(origin2);
             loopk(3) dst[k] = fullbrightlevel;
             generatealpha(w, tolerance, u, dst[3]);
-            minalpha = min(minalpha, dst[3]);
-            maxalpha = max(maxalpha, dst[3]);
+            minalpha = std::min(minalpha, dst[3]);
+            maxalpha = std::max(maxalpha, dst[3]);
         }
     }
     if(minalpha==255) return SURFACE_AMBIENT_TOP;
@@ -1061,8 +1061,8 @@ void clearlightcache(int id)
         if(light.type == ET_LIGHT && light.attrs[0])
         {
             int radius = light.attrs[0];
-            for(int x = int(max(light.o.x-radius, 0.0f))>>lightcachesize, ex = int(min(light.o.x+radius, hdr.worldsize-1.0f))>>lightcachesize; x <= ex; x++)
-            for(int y = int(max(light.o.y-radius, 0.0f))>>lightcachesize, ey = int(min(light.o.y+radius, hdr.worldsize-1.0f))>>lightcachesize; y <= ey; y++)
+            for(int x = int(std::max(light.o.x-radius, 0.0f))>>lightcachesize, ex = int(std::min(light.o.x+radius, hdr.worldsize-1.0f))>>lightcachesize; x <= ex; x++)
+            for(int y = int(std::max(light.o.y-radius, 0.0f))>>lightcachesize, ey = int(std::min(light.o.y+radius, hdr.worldsize-1.0f))>>lightcachesize; y <= ey; y++)
             {
                 lightcacheentry &lce = lightcache[LIGHTCACHEHASH(x, y)];
                 if(lce.x != x || lce.y != y) continue;
@@ -1244,9 +1244,9 @@ static lightmapinfo *alloclightmap(lightmapworker *w)
         needspace = needspace1 + needspace2,
         bufend = (w->bufstart + w->bufused)%LIGHTMAPBUFSIZE,
         availspace = LIGHTMAPBUFSIZE - w->bufused,
-        availspace1 = min(availspace, LIGHTMAPBUFSIZE - bufend),
-        availspace2 = min(availspace, w->bufstart);
-    if(availspace < needspace || (max(availspace1, availspace2) < needspace && (availspace1 < needspace1 || availspace2 < needspace2)))
+        availspace1 = std::min(availspace, LIGHTMAPBUFSIZE - bufend),
+        availspace2 = std::min(availspace, w->bufstart);
+    if(availspace < needspace || (std::max(availspace1, availspace2) < needspace && (availspace1 < needspace1 || availspace2 < needspace2)))
     {
         if(tasklock) SDL_LockMutex(tasklock);
         while(!w->doneworking)
@@ -1265,9 +1265,9 @@ static lightmapinfo *alloclightmap(lightmapworker *w)
             }
             bufend = (w->bufstart + w->bufused)%LIGHTMAPBUFSIZE;
             availspace = LIGHTMAPBUFSIZE - w->bufused;
-            availspace1 = min(availspace, LIGHTMAPBUFSIZE - bufend);
-            availspace2 = min(availspace, w->bufstart);
-            if(availspace >= needspace && (max(availspace1, availspace2) >= needspace || (availspace1 >= needspace1 && availspace2 >= needspace2))) break;
+            availspace1 = std::min(availspace, LIGHTMAPBUFSIZE - bufend);
+            availspace2 = std::min(availspace, w->bufstart);
+            if(availspace >= needspace && (std::max(availspace1, availspace2) >= needspace || (availspace1 >= needspace1 && availspace2 >= needspace2))) break;
             if(packlightmaps(w)) continue;
             if(!w->spacecond || !tasklock) break;
             w->needspace = true;
@@ -1346,12 +1346,12 @@ static int setupsurface(lightmapworker *w, plane planes[2], int numplanes, const
     c[0] = vec2(0, 0);
     if(numplanes >= 2) t.cross(planes[1], u); else t = v;
     vec r1 = vec(p[1]).sub(p[0]);
-    c[1] = vec2(r1.dot(u), min(r1.dot(v), 0.0f));
+    c[1] = vec2(r1.dot(u), std::min(r1.dot(v), 0.0f));
     c[2] = vec2(vec(p[2]).sub(p[0]).dot(u), 0);
     for(int i = 3; i < numverts; i++)
     {
         vec r = vec(p[i]).sub(p[0]);
-        c[i] = vec2(r.dot(u), max(r.dot(t), 0.0f));
+        c[i] = vec2(r.dot(u), std::max(r.dot(t), 0.0f));
     }
 
     float carea = 1e16f;
@@ -1367,17 +1367,17 @@ static int setupsurface(lightmapworker *w, plane planes[2], int numplanes, const
         loopj(numverts)
         {
             vec2 rj = vec2(c[j]).sub(c[i]), pj(rj.dot(px), rj.dot(py));
-            pmin.x = min(pmin.x, pj.x);
-            pmin.y = min(pmin.y, pj.y);
-            pmax.x = max(pmax.x, pj.x);
-            pmax.y = max(pmax.y, pj.y);
+            pmin.x = std::min(pmin.x, pj.x);
+            pmin.y = std::min(pmin.y, pj.y);
+            pmax.x = std::max(pmax.x, pj.x);
+            pmax.y = std::max(pmax.y, pj.y);
         }
         float area = (pmax.x-pmin.x)*(pmax.y-pmin.y);
         if(area < carea) { carea = area; cx = px; cy = py; co = c[i]; cmin = pmin; cmax = pmax; }
     }
 
-    int scale = int(min(cmax.x - cmin.x, cmax.y - cmin.y));
-    float lpu = 16.0f / float(lightlod && scale < (1 << lightlod) ? max(curlightprecision / 2, 1) : curlightprecision);
+    int scale = int(std::min(cmax.x - cmin.x, cmax.y - cmin.y));
+    float lpu = 16.0f / float(lightlod && scale < (1 << lightlod) ? std::max(curlightprecision / 2, 1) : curlightprecision);
     int lw = clamp(int(ceil((cmax.x - cmin.x + 1)*lpu)), LM_MINW, LM_MAXW), lh = clamp(int(ceil((cmax.y - cmin.y + 1)*lpu)), LM_MINH, LM_MAXH);
     w->w = lw;
     w->h = lh;
@@ -2105,7 +2105,7 @@ static void setupthreads(int numthreads)
         w->reset();
         if(lightmapping <= 1 || w->setupthread()) continue;
         w->cleanupthread();
-        lightmapping = i >= 1 ? max(i, 2) : 1;
+        lightmapping = i >= 1 ? std::max(i, 2) : 1;
         break;
     }
     if(lightmapping <= 1) cleanuplocks();
@@ -2329,10 +2329,10 @@ static void rotatenormals(cube *c)
             loopk(numverts)
             {
                 vertinfo &v = verts[k];
-                x1 = min(x1, v.u);
-                y1 = min(y1, v.u);
-                x2 = max(x2, v.u);
-                y2 = max(y2, v.v);
+                x1 = std::min(x1, v.u);
+                y1 = std::min(y1, v.u);
+                x2 = std::max(x2, v.u);
+                y2 = std::max(y2, v.v);
             }
             if(x1 > x2 || y1 > y2) continue;
             x1 /= (USHRT_MAX+1)/LM_PACKW;
@@ -2483,8 +2483,8 @@ void genlightmaptexs(int flagmask, int flagval)
         if(lm.unlitx < 0) findunlit(i);
     }
 
-    int sizelimit = (maxtexsize ? min(maxtexsize, hwtexsize) : hwtexsize)/max(LM_PACKW, LM_PACKH);
-    sizelimit = min(batchlightmaps, sizelimit*sizelimit);
+    int sizelimit = (maxtexsize ? std::min(maxtexsize, hwtexsize) : hwtexsize)/std::max(LM_PACKW, LM_PACKH);
+    sizelimit = std::min(batchlightmaps, sizelimit*sizelimit);
     while(total)
     {
         int type = LM_DIFFUSE;
@@ -2498,14 +2498,14 @@ void genlightmaptexs(int flagmask, int flagval)
             break;
         }
         if(!firstlm) break;
-        int used = 0, uselimit = min(remaining[type], sizelimit);
+        int used = 0, uselimit = std::min(remaining[type], sizelimit);
         do used++; while((1<<used) <= uselimit);
         used--;
         int oldval = remaining[type];
         remaining[type] -= 1<<used;
-        if(remaining[type] && (2<<used) <= min(roundlightmaptex, sizelimit))
+        if(remaining[type] && (2<<used) <= std::min(roundlightmaptex, sizelimit))
         {
-            remaining[type] -= min(remaining[type], 1<<used);
+            remaining[type] -= std::min(remaining[type], 1<<used);
             used++;
         }
         total -= oldval - remaining[type];
@@ -2624,7 +2624,7 @@ static inline void fastskylight(const vec &o, float tolerance, uchar *skylight, 
         };
         int hit = 0;
         loopi(5) if(shadowray(vec(rays[i]).mul(tolerance).add(o), rays[i], 1e16f, flags, t)>1e15f) hit++;
-        loopk(3) skylight[k] = uchar(ambientcolor[k] + (max(skylightcolor[k], ambientcolor[k]) - ambientcolor[k])*hit/5.0f);
+        loopk(3) skylight[k] = uchar(ambientcolor[k] + (std::max(skylightcolor[k], ambientcolor[k]) - ambientcolor[k])*hit/5.0f);
     }
 }
 
@@ -2640,7 +2640,7 @@ static inline void fastsunlight(const vec &o, float tolerance, uchar *slight, in
         vec dir(yaw*RAD, pitch*RAD);
         if(shadowray(vec(dir).mul(tolerance).add(o), dir, 1e16f, flags, t) > 1e15f)
         {
-            loopk(3) slight[k] = max(uchar(light.attrs[2+k]), slight[k]);
+            loopk(3) slight[k] = std::max(uchar(light.attrs[2+k]), slight[k]);
         }
     }
 }
@@ -2715,16 +2715,16 @@ void lightreaching(const vec &target, vec &color, vec &dir, bool fast, extentity
         uchar skylight[3];
         if(t) calcskylight(NULL, target, vec(0, 0, 0), 0.5f, skylight, RAY_POLY, t);
         else fastskylight(target, 0.5f, skylight, RAY_POLY, t, fast);
-        loopk(3) slight[k] = max(skylight[k]/255.0f, ambient);
+        loopk(3) slight[k] = std::max(skylight[k]/255.0f, ambient);
     }
-    else loopk(3) slight[k] = max(ambientcolor[k]/255.0f, ambient);
+    else loopk(3) slight[k] = std::max(ambientcolor[k]/255.0f, ambient);
     if(sunlights.length() || entities::lastent(ET_SUNLIGHT))
     {
         if(sunlights.empty()) findsunlights();
         uchar col[3] = {0, 0, 0};
         if(t) calcsunlight(NULL, target, vec(0, 0, 0), 0.5f, col, RAY_POLY, t);
         else fastsunlight(target, 0.5f, col, RAY_POLY, t);
-        loopk(3) slight[k] = max(slight[k], col[k]/255.0f);
+        loopk(3) slight[k] = std::max(slight[k], col[k]/255.0f);
     }
     loopk(3) color[k] = clamp(color[k], slight[k], 1.5f);
     if(dir.iszero()) dir = vec(0, 0, 1);

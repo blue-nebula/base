@@ -210,7 +210,7 @@ void addnormals(cube &c, const ivec &o, int size)
             int axis = abs(d.x) > abs(d.y) ? (abs(d.x) > abs(d.z) ? 0 : 2) : (abs(d.y) > abs(d.z) ? 1 : 2);
             if(d[axis] < 0) d.neg();
             reduceslope(d);
-            int origin = int(min(v1[axis], v2[axis])*8)&~0x7FFF,
+            int origin = int(std::min(v1[axis], v2[axis])*8)&~0x7FFF,
                 offset1 = (int(v1[axis]*8) - origin) / d[axis],
                 offset2 = (int(v2[axis]*8) - origin) / d[axis];
             vec o = vec(v1).sub(vec(d).mul(offset1/8.0f)), n1, n2;

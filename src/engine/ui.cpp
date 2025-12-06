@@ -190,7 +190,7 @@ struct gui : guient
         {
             if(guilayoutpass)
             {
-                ty = max(ty, ysize);
+                ty = std::max(ty, ysize);
                 ysize = 0;
             }
             else cury = -ysize;
@@ -203,7 +203,7 @@ struct gui : guient
         text_bounds(name, width, height, 0, 0, -1, TEXT_NO_INDENT);
         if(guilayoutpass)
         {
-            ty = max(ty, ysize);
+            ty = std::max(ty, ysize);
             ysize = 0;
         }
         else
@@ -216,7 +216,7 @@ struct gui : guient
                 {
                     if(!ui_click_tab || mouse_action[0] & GUI_UP) *tcurrent = tpos; // switch tab
                     tcolor = ui_color_active;
-                    alpha = max(alpha, ui_fade_text);
+                    alpha = std::max(alpha, ui_fade_text);
                     if(ui_tab_border) border = tcolor;
                 }
                 else
@@ -387,7 +387,7 @@ struct gui : guient
         if(curlist < 0) return;
         list &l = lists[curlist];
         if(guilayoutpass) { if(l.parent >= 0) l.springs += weight; return; }
-        int nextspring = min(l.curspring + weight, l.springs);
+        int nextspring = std::min(l.curspring + weight, l.springs);
         if(nextspring <= l.curspring) return;
         if(ishorizontal())
         {
@@ -409,11 +409,11 @@ struct gui : guient
             if(ishorizontal())
             {
                 xsize += w;
-                ysize = max(ysize, h);
+                ysize = std::max(ysize, h);
             }
             else
             {
-                xsize = max(xsize, w);
+                xsize = std::max(xsize, w);
                 ysize += h;
             }
         }
@@ -598,7 +598,7 @@ struct gui : guient
     int slider(int &val, int vmin, int vmax, int colour, const char *label, bool reverse, bool scroll, int style, int scolour)
     {
         int x = curx, y = cury;
-        float percent = (val-vmin)/float(max(vmax-vmin, 1));
+        float percent = (val-vmin)/float(std::max(vmax-vmin, 1));
         bool hit = false;
         int space = slider_(ui_size_slider, percent, ishorizontal() ? FONTW * 3 : FONTH, hit, style, scolour);
         if(visible())
@@ -662,7 +662,7 @@ struct gui : guient
                 int ph = e->pixelheight%FONTH;
                 if(ph) e->pixelheight += FONTH-ph;
             }
-            else e->pixelheight = max(height, 1)*FONTH;
+            else e->pixelheight = std::max(height, 1)*FONTH;
         }
         int hpad = FONTH/4, wpad = FONTW, h = e->pixelheight+hpad, w = e->pixelwidth+wpad;
 
@@ -857,7 +857,7 @@ struct gui : guient
         int textureid = -1;
         if(t)
         {
-            float scale = float(size)/max(t->xs, t->ys); //scale and preserve aspect ratio
+            float scale = float(size)/std::max(t->xs, t->ys); //scale and preserve aspect ratio
             xs = t->xs*scale;
             ys = t->ys*scale;
             x += int((size-xs)/2);
@@ -878,7 +878,7 @@ struct gui : guient
             {
                 defformatstring(texname, "%s", mapname);
                 if((t = textureload(texname, 3, true, false)) == notexture) t = textureload(emblemtex, 3, true, false);
-                float scale = float(size)/max(t->xs, t->ys); //scale and preserve aspect ratio
+                float scale = float(size)/std::max(t->xs, t->ys); //scale and preserve aspect ratio
                 xs = t->xs*scale; ys = t->ys*scale;
                 x += int((size-xs)/2);
                 y += int((size-ys)/2);
@@ -959,7 +959,7 @@ struct gui : guient
         }
         else if(slot.thumbnail && slot.thumbnail != notexture) t = slot.thumbnail;
         else return;
-        float xt = min(1.0f, t->xs/(float)t->ys), yt = min(1.0f, t->ys/(float)t->xs), xs = size, ys = size;
+        float xt = std::min(1.0f, t->xs/(float)t->ys), yt = std::min(1.0f, t->ys/(float)t->xs), xs = size, ys = size;
         float xi = x, yi = y, xpad = 0, ypad = 0;
         if(overlaid)
         {
@@ -1032,11 +1032,11 @@ struct gui : guient
 
     void slice_(Texture *t, int x, int y, int size, float start = 0, float end = 1, const char *text = NULL)
     {
-        float scale = float(size)/max(t->xs, t->ys), xs = t->xs*scale, ys = t->ys*scale, fade = 1;
+        float scale = float(size)/std::max(t->xs, t->ys), xs = t->xs*scale, ys = t->ys*scale, fade = 1;
         if(start == end) { end = 1; fade = 0.5f; }
         glBindTexture(GL_TEXTURE_2D, t->id);
         gle::colorf(1, 1, 1, fade);
-        int s = max(xs,ys)/2;
+        int s = std::max(xs,ys)/2;
         drawslice(start, end, x+s/2, y+s/2, s);
         if(text && *text)
         {
@@ -1047,7 +1047,7 @@ struct gui : guient
 
     int slider_(int size, float percent, int space, bool &hit, int style, int colour)
     {
-        space = max(max(space, FONTW), size);
+        space = std::max(std::max(space, FONTW), size);
         if(visible())
         {
             int x = ishorizontal() ? curx+space/2-size/2 : curx, w = ishorizontal() ? size : xsize,
@@ -1078,7 +1078,7 @@ struct gui : guient
 
     int line_(int size, int space = 0, int colour = -1, int border = -1)
     {
-        space = max(max(space, FONTW), size);
+        space = std::max(std::max(space, FONTW), size);
         if(visible())
         {
             int colour1 = colour >= 0 ? colour : (ui_color_background >= 0 ? ui_color_background : (ui_color_border >= 0 ? ui_color_border : 0x000000)),
@@ -1176,7 +1176,7 @@ struct gui : guient
         gui::pushfont("default");
         basescale = ui_scale;
         if(guilayoutpass)
-            uiscale.x = uiscale.y = uiscale.z = ui_time_scale ? min(basescale * (totalmillis - starttime) / float(ui_time_scale), basescale) : basescale;
+            uiscale.x = uiscale.y = uiscale.z = ui_time_scale ? std::min(basescale * (totalmillis - starttime) / float(ui_time_scale), basescale) : basescale;
         needsinput = allowinput;
         hastitle = wantstitle;
         hasbgfx = wantsbgfx;
@@ -1214,11 +1214,11 @@ struct gui : guient
         if(guilayoutpass)
         {
             if(needsinput) uibuttons();
-            xsize = max(tx, xsize);
-            ysize = max(ty, ysize);
-            ysize = max(ysize, FONTH);
+            xsize = std::max(tx, xsize);
+            ysize = std::max(ty, ysize);
+            ysize = std::max(ysize, FONTH);
 
-            if(tcurrent) *tcurrent = max(1, min(*tcurrent, tpos));
+            if(tcurrent) *tcurrent = std::max(1, std::min(*tcurrent, tpos));
             adjustscale();
 
             if(!passthrough && fieldmode != FIELDKEY)
@@ -1233,7 +1233,7 @@ struct gui : guient
             if(ui_status_line && statusstr && *statusstr)
             {
                 gui::pushfont("reduced");
-                int width = 0, height = 0, tw = min(statuswidth ? statuswidth : (ui_width_status ? ui_width_status : -1), int(screenw * (1 / uiscale.y)) - FONTH * 4);
+                int width = 0, height = 0, tw = std::min(statuswidth ? statuswidth : (ui_width_status ? ui_width_status : -1), int(screenw * (1 / uiscale.y)) - FONTH * 4);
                 text_bounds(statusstr, width, height, 0, 0, tw, TEXT_CENTERED|TEXT_NO_INDENT);
                 int w = width+FONTW*2, h = height+FONTH/2, x1 = -w/2, y1 = ui_size_spacer, x2 = x1 + w, y2 = y1 + h;
                 if(hasbgfx) skin(x1, y1, x2, y2, ui_color_background, ui_blend_background, ui_color_border, ui_blend_border);
@@ -1252,7 +1252,7 @@ struct gui : guient
                 if(tooltipforce || totalmillis-lasttooltip >= ui_time_tooltip)
                 {
                     gui::pushfont("little");
-                    int width, height, tw = min(tooltipwidth ? tooltipwidth : (ui_width_tooltip ? ui_width_tooltip : -1), int(screenw * (1 / uiscale.y)) - FONTH * 4);
+                    int width, height, tw = std::min(tooltipwidth ? tooltipwidth : (ui_width_tooltip ? ui_width_tooltip : -1), int(screenw * (1 / uiscale.y)) - FONTH * 4);
                     text_bounds(tooltipstr, width, height, 0, 0, tw, TEXT_NO_INDENT);
                     int w = width+FONTW*2, h = FONTH/2+height, x1 = hitx, y1 = hity-height-FONTH/2, x2 = x1+w, y2 = y1+h,
                         offset = totalmillis - lasttooltip - ui_time_tooltip;
@@ -1462,8 +1462,8 @@ namespace UI
         {
             int n = e->lines.length()-limit;
             e->removelines(0, n);
-            e->cy = max(e->cy - n, 0);
-            if(e->scrolly != editor::SCROLLEND) e->scrolly = max(e->scrolly - n, 0);
+            e->cy = std::max(e->cy - n, 0);
+            if(e->scrolly != editor::SCROLLEND) e->scrolly = std::max(e->scrolly - n, 0);
         }
         e->mark(false);
     }

@@ -826,7 +826,7 @@ bool ircaddsockets(ENetSocket &maxsock, ENetSocketSet &readset, ENetSocketSet &w
                 ENET_SOCKETSET_ADD(writeset, n->sock);
                 // fall-through
             case IRC_ONLINE: case IRC_CONN: case IRC_QUIT:
-                maxsock = maxsock == ENET_SOCKET_NULL ? n->sock : max(maxsock, n->sock);
+                maxsock = maxsock == ENET_SOCKET_NULL ? n->sock : std::max(maxsock, n->sock);
                 ENET_SOCKETSET_ADD(readset, n->sock);
                 numsocks++;
                 break;

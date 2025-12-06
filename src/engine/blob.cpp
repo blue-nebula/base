@@ -123,7 +123,7 @@ struct blobrenderer
         maxindexes = tris*3 + 3;
         availindexes = maxindexes - 3;
         indexes = new ushort[maxindexes];
-        maxverts = min(tris*3/2 + 1, (1<<16)-1);
+        maxverts = std::min(tris * 3 / 2 + 1, (1 << 16) - 1);
         availverts = maxverts - 1;
         verts = new blobvert[maxverts];
     }
@@ -282,7 +282,7 @@ struct blobrenderer
                 dupblob();
                 limit = maxverts - 2;
             }
-            limit = min(int(end - cur), min(limit, (maxindexes - endindex)/3));
+            limit = std::min(int(end - cur), std::min(limit, (maxindexes - endindex) / 3));
             while(availverts < limit+2) if(!freeblob()) return;
             while(availindexes < limit*3) if(!freeblob()) return;
 
@@ -409,7 +409,7 @@ struct blobrenderer
                    m.o[r] + m.rsize >= blobmin[r] && m.o[r] <= blobmax[r])
                 {
                     static cube dummy;
-                    gentris(dummy, m.orient, m.o, max(m.csize, m.rsize), &m);
+                    gentris(dummy, m.orient, m.o, std::max(m.csize, m.rsize), &m);
                 }
                 if(i+1 >= matsurfs) break;
                 materialsurface &n = matbuf[i+1];

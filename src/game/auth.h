@@ -237,7 +237,7 @@ namespace auth
             }
             if(serverpass[0] && checkpassword(ci, serverpass, pwd)) return true;
         }
-        int minpriv = max(int(PRIV_ELEVATED), G(connectlock));
+        int minpriv = std::max(int(PRIV_ELEVATED), G(connectlock));
         if(haspriv(ci, minpriv)) return true;
         return false;
     }

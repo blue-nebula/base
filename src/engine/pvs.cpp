@@ -83,8 +83,8 @@ static void genpvsnodes(cube *c, int parent = 0, const ivec &co = ivec(0, 0, 0),
             if(face==F_SOLID) n.edges[k] = 0x80;
             else
             {
-                uchar low = max(max(face&0xF, (face>>8)&0xF), max((face>>16)&0xF, (face>>24)&0xF)),
-                      high = min(min((face>>4)&0xF, (face>>12)&0xF), min((face>>20)&0xF, (face>>28)&0xF));
+                uchar low = std::max(std::max(face&0xF, (face>>8)&0xF), std::max((face>>16)&0xF, (face>>24)&0xF)),
+                      high = std::min(std::min((face>>4)&0xF, (face>>12)&0xF), std::min((face>>20)&0xF, (face>>28)&0xF));
                 if(size<8)
                 {
                     if(low&((8/size)-1)) { low += 8/size - (low&((8/size)-1)); }
@@ -607,10 +607,10 @@ struct pvsworker
                             }
                             if(dmax[stepdim] < stepend) dstep = 0;
                         }
-                        dlimit = min(dlimit, ddir*(dmax[dim] - (int)bb.min[dim]));
+                        dlimit = std::min(dlimit, ddir*(dmax[dim] - (int)bb.min[dim]));
                         if(!dstep) dmax[dim] -= ddir;
-                        if(ddir>0) dval = min(dval, dmax[dim]);
-                        else dval = max(dval, dmax[dim]);
+                        if(ddir>0) dval = std::min(dval, dmax[dim]);
+                        else dval = std::max(dval, dmax[dim]);
                     }
                     if(numsides>0)
                     {
@@ -870,8 +870,8 @@ static void calcpvsbounds()
         loopk(3)
         {
             if(va->geommin[k]>va->geommax[k]) continue;
-            pvsbounds.min[k] = min(pvsbounds.min[k], (ushort)va->geommin[k]);
-            pvsbounds.max[k] = max(pvsbounds.max[k], (ushort)va->geommax[k]);
+            pvsbounds.min[k] = std::min(pvsbounds.min[k], (ushort)va->geommin[k]);
+            pvsbounds.max[k] = std::max(pvsbounds.max[k], (ushort)va->geommax[k]);
         }
     }
 }
@@ -1174,7 +1174,7 @@ void genpvs(int *viewcellsize)
         conoutf("\frgenpvs aborted");
     }
     else conoutf("\fggenerated %d unique view cells totaling %.1f kB and averaging %d B (%.1f seconds)",
-            pvs.length(), pvsbuf.length()/1024.0f, pvsbuf.length()/max(pvs.length(), 1), (end - start) / 1000.0f);
+            pvs.length(), pvsbuf.length()/1024.0f, pvsbuf.length()/std::max(pvs.length(), 1), (end - start) / 1000.0f);
 }
 
 COMMAND(0, genpvs, "i");
@@ -1182,7 +1182,7 @@ COMMAND(0, genpvs, "i");
 void pvsstats()
 {
     conoutf("\fa%d unique view cells totaling %.1f kB and averaging %d B",
-        pvs.length(), pvsbuf.length()/1024.0f, pvsbuf.length()/max(pvs.length(), 1));
+        pvs.length(), pvsbuf.length()/1024.0f, pvsbuf.length()/std::max(pvs.length(), 1));
 }
 
 COMMAND(0, pvsstats, "");

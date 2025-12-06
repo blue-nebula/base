@@ -807,7 +807,7 @@ static void gendynlightvariant(Shader &s, const char *sname, const char *vs, con
         defformatstring(color, "uniform vec3 dynlightcolor[%d];\n", i+1);
         psdl.put(color, strlen(color));
 
-        loopk(min(i+1, numlights))
+        loopk(std::min(i+1, numlights))
         {
             defformatstring(dir, "%sdynlight%ddir%s", !k ? "varying vec3 " : " ", k, k==i || k+1==numlights ? ";\n" : ",");
             vsdl.put(dir, strlen(dir));
@@ -1208,7 +1208,7 @@ void fastshader(char *nice, char *fast, int *detail)
 {
     Shader *ns = shaders.access(nice), *fs = shaders.access(fast);
     if(!ns || !fs) return;
-    loopi(min(*detail+1, MAXSHADERDETAIL)) ns->fastshader[i] = fs;
+    loopi(std::min(*detail+1, MAXSHADERDETAIL)) ns->fastshader[i] = fs;
     ns->fixdetailshader(false);
 }
 
@@ -1290,7 +1290,7 @@ static int allocatepostfxtex(int scale)
     postfxtex &t = postfxtexs.add();
     t.scale = scale;
     glGenTextures(1, &t.id);
-    createtexture(t.id, max(screenw>>scale, 1), max(screenh>>scale, 1), NULL, 3, 1, GL_RGB);
+    createtexture(t.id, std::max(screenw>>scale, 1), std::max(screenh>>scale, 1), NULL, 3, 1, GL_RGB);
     return postfxtexs.length()-1;
 }
 
@@ -1352,8 +1352,8 @@ void renderpostfx()
             glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postfxtexs[tex].id, 0);
         }
 
-        int w = tex >= 0 ? max(screenw>>postfxtexs[tex].scale, 1) : screenw,
-            h = tex >= 0 ? max(screenh>>postfxtexs[tex].scale, 1) : screenh;
+        int w = tex >= 0 ? std::max(screenw>>postfxtexs[tex].scale, 1) : screenw,
+            h = tex >= 0 ? std::max(screenh>>postfxtexs[tex].scale, 1) : screenh;
         glViewport(0, 0, w, h);
         p.shader->set();
         LOCALPARAM(params, p.params);
@@ -1362,8 +1362,8 @@ void renderpostfx()
         {
             if(!tmu)
             {
-                tw = max(screenw>>postfxtexs[binds[j]].scale, 1);
-                th = max(screenh>>postfxtexs[binds[j]].scale, 1);
+                tw = std::max(screenw>>postfxtexs[binds[j]].scale, 1);
+                th = std::max(screenh>>postfxtexs[binds[j]].scale, 1);
             }
             else glActiveTexture_(GL_TEXTURE0 + tmu);
             glBindTexture(GL_TEXTURE_2D, postfxtexs[binds[j]].id);
@@ -1428,7 +1428,7 @@ ICOMMAND(0, addpostfx, "siisffff", (char *name, int *bind, int *scale, char *inp
     else if(*inputs=='-') freeinputs = true;
     inputmask &= (1<<NUMPOSTFXBINDS)-1;
     freemask &= (1<<NUMPOSTFXBINDS)-1;
-    addpostfx(name, clamp(*bind, 0, NUMPOSTFXBINDS-1), max(*scale, 0), inputmask, freemask, vec4(*x, *y, *z, *w));
+    addpostfx(name, clamp(*bind, 0, NUMPOSTFXBINDS-1), std::max(*scale, 0), inputmask, freemask, vec4(*x, *y, *z, *w));
 });
 
 ICOMMAND(0, setpostfx, "sffff", (char *name, float *x, float *y, float *z, float *w),
