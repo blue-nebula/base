@@ -1335,6 +1335,7 @@ namespace game
                 if(flags&BURN) snd = S_BURNED;
                 else if(flags&BLEED) snd = S_BLEED;
                 else if(flags&SHOCK) snd = S_SHOCK;
+                else if (d->conopen) snd = S_ALARM;
                 else loopirev(8) if(damage >= dmgsnd[i]) { snd = S_DAMAGE+i; break; }
                 if(snd >= 0) playsound(snd, d->o, d, SND_IMPORT|(v == focus ? SND_NODIST : SND_CLAMPED), damagetonevol);
             }
@@ -1565,6 +1566,9 @@ namespace game
                 else concatstring(d->obit, WF(WK(flags), weap, obituary, WS(flags)));
             }
             else concatstring(d->obit, obitkilled);
+            if (d->conopen) {
+                concatstring(d->obit, " while chatting");
+            }
             concatstring(d->obit, " by");
             bool override = false;
             if(d->headless)
