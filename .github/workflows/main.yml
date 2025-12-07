@@ -7,7 +7,7 @@ env:
 
 jobs:
   build-nix:
-    name: Ubuntu focal (x86_64) debug
+    name: Ubuntu (x86_64) debug
     runs-on: ubuntu-22.04
     env:
       BUILD_TYPE: Debug
@@ -21,7 +21,7 @@ jobs:
         run: bash -xe ci/build-nix.sh
 
   build-nix-release:
-    name: Ubuntu focal (x86_64) release
+    name: Ubuntu (x86_64) release
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
@@ -45,7 +45,7 @@ jobs:
         run: bash -xe ci/build-mac.sh
 
   windows-release-cross:
-    name: Windows (x86_64) release (crossbuild from Ubuntu focal x86_64, MinGW-w64)
+    name: Windows (x86_64) release (crossbuild from Ubuntu x86_64, MinGW-w64)
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
