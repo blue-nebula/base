@@ -8,7 +8,7 @@ env:
 jobs:
   build-nix:
     name: Ubuntu focal (x86_64) debug
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       BUILD_TYPE: Debug
     steps:
@@ -22,7 +22,7 @@ jobs:
 
   build-nix-release:
     name: Ubuntu focal (x86_64) release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Checkout enet submodule
@@ -34,7 +34,7 @@ jobs:
 
   macos-release:
     name: macOS (x86_64) release
-    runs-on: macos-10.15
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v2
       - name: Checkout enet submodule
@@ -46,7 +46,7 @@ jobs:
 
   windows-release-cross:
     name: Windows (x86_64) release (crossbuild from Ubuntu focal x86_64, MinGW-w64)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Checkout enet submodule
