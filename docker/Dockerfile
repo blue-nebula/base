@@ -1,6 +1,6 @@
 # first, let's build the software
 # this is going to take the most time
-FROM alpine:3.17 AS builder
+FROM alpine:3.22 AS builder
 
 LABEL org.opencontainers.image.source = "https://github.com/blue-nebula/base"
 
@@ -28,7 +28,7 @@ RUN mkdir build && \
 
 # next, we convert the example server config to a template
 # this is done in no time, so we do not have to benefit from Docker's caching a lot there
-FROM python:3.10-alpine AS template
+FROM python:3.13-alpine AS template
 
 COPY docker/generate-servinit-template.py doc/examples/servinit.cfg /
 
@@ -36,7 +36,7 @@ RUN python3 /generate-servinit-template.py /servinit.cfg > /servinit.tmpl
 
 
 # finally, let's build the final runtime image (doesn't need all of the build dependencies)
-FROM alpine:3.17
+FROM alpine:3.22
 
 LABEL maintainer="https://blue-nebula.org"
 
