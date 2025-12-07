@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
 # avoid annoying warnings due to use of a ${PREFIX} variable in the toolchain(s)
 # http://www.steveire.com/embracing-modern-cmake.pdf
