@@ -37,8 +37,8 @@ struct bomberstate
             owner = lastowner = -1;
             votes.shrink(0);
 #else
-            owner = lastowner = NULL;
-            proj = NULL;
+            owner = lastowner = nullptr;
+            proj = nullptr;
             displaytime = movetime = inittime = viewtime = rendertime = interptime = 0;
             viewpos = renderpos = vec(-1, -1, -1);
 #endif
@@ -133,7 +133,7 @@ struct bomberstate
 
     void destroy(int id)
     {
-        flags[id].proj = NULL;
+        flags[id].proj = nullptr;
         loopv(projs::projs) if(projs::projs[i]->projtype == PRJ_AFFINITY && projs::projs[i]->id == id)
         {
             projs::projs[i]->state = CS_DEAD;
@@ -144,7 +144,7 @@ struct bomberstate
     void create(int id, int target)
     {
         flag &f = flags[id];
-        f.proj = projs::create(f.droploc, f.inertia, false, NULL, PRJ_AFFINITY, -1, HIT_NONE, bomberresetdelay, bomberresetdelay, 1, 1, id, target);
+        f.proj = projs::create(f.droploc, f.inertia, false, nullptr, PRJ_AFFINITY, -1, HIT_NONE, bomberresetdelay, bomberresetdelay, 1, 1, id, target);
     }
 #endif
 
@@ -192,7 +192,7 @@ struct bomberstate
 #else
         f.movetime = 0;
         if(!f.inittime) f.inittime = t;
-        f.owner = NULL;
+        f.owner = nullptr;
         destroy(i);
         create(i, target);
 #endif
@@ -212,7 +212,7 @@ struct bomberstate
         f.votes.shrink(0);
 #else
         f.inittime = f.movetime = 0;
-        f.owner = NULL;
+        f.owner = nullptr;
         destroy(i);
 #endif
     }

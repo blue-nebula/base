@@ -66,7 +66,7 @@ struct ipinfo
     int type, flag, time, version;
     char *reason;
 
-    ipinfo() : ip(0), mask(0), type(-1), flag(TEMPORARY), time(-1), version(-1), reason(NULL) {}
+    ipinfo() : ip(0), mask(0), type(-1), flag(TEMPORARY), time(-1), version(-1), reason(nullptr) {}
     ~ipinfo()
     {
         if(reason) delete[] reason;
@@ -74,8 +74,8 @@ struct ipinfo
 };
 extern vector<ipinfo> control;
 extern const char *ipinfotypes[ipinfo::MAXTYPES];
-extern void addipinfo(vector<ipinfo> &info, int type, const char *name, const char *reason = NULL);
-extern char *printipinfo(const ipinfo &info, char *buf = NULL);
+extern void addipinfo(vector<ipinfo> &info, int type, const char *name, const char *reason = nullptr);
+extern char *printipinfo(const ipinfo &info, char *buf = nullptr);
 extern ipinfo *checkipinfo(vector<ipinfo> &info, int type, enet_uint32 ip);
 extern void writecfg();
 extern void rehash(bool reload = true);
@@ -121,7 +121,7 @@ struct font
     vector<charinfo> chars;
     int charoffset, defaultw, defaulth, maxw, maxh, scale;
 
-    font() : name(NULL) {}
+    font() : name(nullptr) {}
     ~font() { DELETEA(name); }
 };
 
@@ -282,10 +282,10 @@ namespace modelpreview
     extern void end();
 }
 
-extern void drawskin(Texture *t, int x1, int y1, int x2, int y2, int colour = 0, float blend = 1, int size = 0, const matrix4x3 *m = NULL);
+extern void drawskin(Texture *t, int x1, int y1, int x2, int y2, int colour = 0, float blend = 1, int size = 0, const matrix4x3 *m = nullptr);
 
 // renderextras
-extern void render3dbox(vec &o, float tofloor, float toceil, float xradius, float yradius = 0, const matrix4x3 *m = NULL);
+extern void render3dbox(vec &o, float tofloor, float toceil, float xradius, float yradius = 0, const matrix4x3 *m = nullptr);
 extern void renderellipse(vec &o, float xradius, float yradius, float yaw);
 
 // octa
@@ -495,14 +495,14 @@ extern void localconnect(bool force = true);
 extern void localdisconnect();
 
 // serverbrowser
-extern void addserver(const char *name, int port, int priority = 0, const char *desc = NULL, const char *handle = NULL, const char *flags = NULL, const char *branch = NULL);
+extern void addserver(const char *name, int port, int priority = 0, const char *desc = nullptr, const char *handle = nullptr, const char *flags = nullptr, const char *branch = nullptr);
 
 // client
 extern char *connectname;
 extern int connectport;
 extern void localservertoclient(int chan, ENetPacket *packet);
 extern bool connected(bool attempt = true, bool local = true);
-extern void connectserv(const char *name = NULL, int port = MASTER_PORT, const char *password = NULL);
+extern void connectserv(const char *name = nullptr, int port = MASTER_PORT, const char *password = nullptr);
 extern void reconnect(const char *pass);
 extern void lanconnect();
 extern void abortconnect(bool msg = true);
@@ -544,7 +544,7 @@ void setfullscreen(bool enable);
 extern bool progressing, pixeling;
 extern float loadprogress, progresspart, progressamt;
 extern char *progresstitle, *progresstext;
-extern void progress(float bar1 = 0, const char *text1 = NULL, float bar2 = 0, const char *text2 = NULL);
+extern void progress(float bar1 = 0, const char *text1 = nullptr, float bar2 = 0, const char *text2 = nullptr);
 extern void limitfps(int &millis, int curmillis);
 
 enum
@@ -582,12 +582,12 @@ extern void clearchanges(int type);
 extern bool pointincube(const clipplanes &p, const vec &v);
 extern bool overlapsdynent(const vec &o, float radius);
 extern void rotatebb(vec &center, vec &radius, int yaw, int pitch, int roll = 0);
-extern float shadowray(const vec &o, const vec &ray, float radius, int mode, extentity *t = NULL);
+extern float shadowray(const vec &o, const vec &ray, float radius, int mode, extentity *t = nullptr);
 struct ShadowRayCache;
 extern ShadowRayCache *newshadowraycache();
 extern void freeshadowraycache(ShadowRayCache *&cache);
 extern void resetshadowraycache(ShadowRayCache *cache);
-extern float shadowray(ShadowRayCache *cache, const vec &o, const vec &ray, float radius, int mode, extentity *t = NULL);
+extern float shadowray(ShadowRayCache *cache, const vec &o, const vec &ray, float radius, int mode, extentity *t = nullptr);
 extern bool getsight(vec &o, float yaw, float pitch, vec &q, vec &v, float mdist, float fovx, float fovy);
 
 // worldio
@@ -632,9 +632,9 @@ static inline model *loadmapmodel(int n)
     if(mapmodels.inrange(n))
     {
         model *m = mapmodels[n].m;
-        return m ? m : loadmodel(NULL, n);
+        return m ? m : loadmodel(nullptr, n);
     }
-    return NULL;
+    return nullptr;
 }
 
 // renderparticles

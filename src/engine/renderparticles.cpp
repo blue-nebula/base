@@ -2,7 +2,7 @@
 #include "engine.h"
 #include "rendertarget.h"
 
-Shader *particleshader = NULL, *particlenotextureshader = NULL;
+Shader *particleshader = nullptr, *particlenotextureshader = nullptr;
 
 VARF(IDF_PERSIST, maxparticles, 10, 512, 40000, initparticles());
 VARF(IDF_PERSIST, fewparticles, 10, 64, 40000, initparticles());
@@ -45,16 +45,16 @@ struct partrenderer
     string info;
 
     partrenderer(const char *texname, int texclamp, int type)
-        : tex(NULL), texname(texname), texclamp(texclamp), type(type) { }
+        : tex(nullptr), texname(texname), texclamp(texclamp), type(type) { }
     partrenderer(int type)
-        : tex(NULL), texname(NULL), texclamp(0), type(type) {}
+        : tex(nullptr), texname(nullptr), texclamp(0), type(type) {}
 
     virtual ~partrenderer() { }
 
     virtual void init(int n) { }
     virtual void reset() = 0;
     virtual void resettracked(physent *owner) { }
-    virtual particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) = 0;
+    virtual particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr) = 0;
     virtual int adddepthfx(vec &bbmin, vec &bbmax) { return 0; }
     virtual void update() { }
     virtual void render() = 0;
@@ -173,11 +173,11 @@ struct listrenderer : partrenderer
     T *list;
 
     listrenderer(const char *texname, int texclamp, int type)
-        : partrenderer(texname, texclamp, type), list(NULL)
+        : partrenderer(texname, texclamp, type), list(nullptr)
     {
     }
     listrenderer(int type)
-        : partrenderer(type), list(NULL)
+        : partrenderer(type), list(nullptr)
     {
     }
 
@@ -201,7 +201,7 @@ struct listrenderer : partrenderer
         }
         p->next = parempty;
         parempty = list;
-        list = NULL;
+        list = nullptr;
     }
 
     void resettracked(physent *pl)
@@ -218,7 +218,7 @@ struct listrenderer : partrenderer
         }
     }
 
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL)
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr)
     {
         if(!parempty)
         {
@@ -241,7 +241,7 @@ struct listrenderer : partrenderer
         p->blend = blend;
         p->grav = grav;
         p->collide = collide;
-        if((p->owner = pl) != NULL && (p->owner->type == ENT_PLAYER || p->owner->type == ENT_AI)) switch(type&PT_TYPE)
+        if((p->owner = pl) != nullptr && (p->owner->type == ENT_PLAYER || p->owner->type == ENT_AI)) switch(type&PT_TYPE)
         {
             case PT_TEXT: case PT_ICON: p->m.add(vec(p->o).sub(p->owner->abovehead())); break;
             default: break;
@@ -260,7 +260,7 @@ struct listrenderer : partrenderer
 
     bool haswork()
     {
-        return (list != NULL);
+        return (list != nullptr);
     }
 
     virtual void startrender() = 0;
@@ -298,7 +298,7 @@ struct listrenderer : partrenderer
     }
 };
 
-template<class T> T *listrenderer<T>::parempty = NULL;
+template<class T> T *listrenderer<T>::parempty = nullptr;
 
 typedef listrenderer<sharedlistparticle> sharedlistrenderer;
 
@@ -344,7 +344,7 @@ struct textrenderer : sharedlistrenderer
 
         textmatrix = &m;
         draw_text(text, 0, 0, p->color.r, p->color.g, p->color.b, int(p->blend*blend));
-        textmatrix = NULL;
+        textmatrix = nullptr;
         popfont();
     }
 };
@@ -398,7 +398,7 @@ struct portalrenderer : listrenderer<portal>
     }
 
     // use addportal() instead
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) { return NULL; }
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr) { return nullptr; }
 };
 
 struct icon : listparticle<icon>
@@ -417,7 +417,7 @@ struct iconrenderer : listrenderer<icon>
 
     void startrender()
     {
-        lasttex = NULL;
+        lasttex = nullptr;
         gle::defvertex();
         gle::deftexcoord0();
         gle::defcolor(4, GL_UNSIGNED_BYTE);
@@ -481,7 +481,7 @@ struct iconrenderer : listrenderer<icon>
         }
     }
 
-    icon *addicon(const vec &o, Texture *tex, int fade, int color, float size, float blend, int grav, int collide, float start, float length, physent *pl = NULL)
+    icon *addicon(const vec &o, Texture *tex, int fade, int color, float size, float blend, int grav, int collide, float start, float length, physent *pl = nullptr)
     {
         icon *p = (icon *)listrenderer<icon>::addpart(o, vec(0, 0, 0), fade, color, size, blend, grav, collide);
         p->tex = tex;
@@ -493,7 +493,7 @@ struct iconrenderer : listrenderer<icon>
     }
 
     // use addicon() instead
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) { return NULL; }
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr) { return nullptr; }
 };
 static iconrenderer icons;
 
@@ -572,7 +572,7 @@ struct varenderer : partrenderer
 
     varenderer(const char *texname, int type, int texclamp = 3)
         : partrenderer(texname, texclamp, type),
-          verts(NULL), parts(NULL), maxparts(0), numparts(0), lastupdate(-1), rndmask(0), vbo(0)
+          verts(nullptr), parts(nullptr), maxparts(0), numparts(0), lastupdate(-1), rndmask(0), vbo(0)
     {
         if(type & PT_HFLIP) rndmask |= 0x01;
         if(type & PT_VFLIP) rndmask |= 0x02;
@@ -622,7 +622,7 @@ struct varenderer : partrenderer
         return (numparts > 0);
     }
 
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL)
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr)
     {
         particle *p = parts + (numparts < maxparts ? numparts++ : rnd(maxparts)); //next free slot, or kill a random kitten
         p->o = o;
@@ -718,7 +718,7 @@ struct varenderer : partrenderer
 
         if(!vbo) glGenBuffers_(1, &vbo);
         gle::bindvbo(vbo);
-        glBufferData_(GL_ARRAY_BUFFER, maxparts*4*sizeof(partvert), NULL, GL_STREAM_DRAW);
+        glBufferData_(GL_ARRAY_BUFFER, maxparts*4*sizeof(partvert), nullptr, GL_STREAM_DRAW);
         glBufferSubData_(GL_ARRAY_BUFFER, 0, numparts*4*sizeof(partvert), verts);
         gle::clearvbo();
     }
@@ -827,7 +827,7 @@ struct lineprimitiverenderer : listrenderer<lineprimitive>
     }
 
     // use addline() instead
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) { return NULL; }
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr) { return nullptr; }
 };
 static lineprimitiverenderer lineprimitives, lineontopprimitives(PT_ONTOP);
 
@@ -886,7 +886,7 @@ struct trisprimitiverenderer : listrenderer<trisprimitive>
     }
 
     // use addtriangle() instead
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) { return NULL; }
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr) { return nullptr; }
 };
 static trisprimitiverenderer trisprimitives, trisontopprimitives(PT_ONTOP);
 
@@ -950,7 +950,7 @@ struct loopprimitiverenderer : listrenderer<loopprimitive>
     }
 
     // use addellipse() instead
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) { return NULL; }
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr) { return nullptr; }
 };
 static loopprimitiverenderer loopprimitives, loopontopprimitives(PT_ONTOP);
 
@@ -1013,7 +1013,7 @@ struct coneprimitiverenderer : listrenderer<coneprimitive>
     }
 
     // use addcone() instead
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = NULL) { return NULL; }
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, float blend = 1, int grav = 0, int collide = 0, physent *pl = nullptr) { return nullptr; }
 };
 static coneprimitiverenderer coneprimitives, coneontopprimitives(PT_ONTOP);
 
@@ -1092,7 +1092,7 @@ void finddepthfxranges()
                 if(!numdepthfxranges)
                 {
                     numdepthfxranges = 1;
-                    depthfxowners[0] = NULL;
+                    depthfxowners[0] = nullptr;
                     depthfxranges[0] = 0;
                 }
             }

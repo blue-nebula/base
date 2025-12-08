@@ -114,7 +114,7 @@ struct animmodel : model
         bool alphablend, cullface;
         shaderparamskey *key;
 
-        skin() : owner(0), tex(notexture), masks(notexture), envmap(NULL), normalmap(NULL), shader(NULL), alphablend(true), cullface(true), key(NULL) {}
+        skin() : owner(0), tex(notexture), masks(notexture), envmap(nullptr), normalmap(nullptr), shader(nullptr), alphablend(true), cullface(true), key(nullptr) {}
 
         bool masked() const { return masks != notexture; }
         bool envmapped() { return envmapmax>0 && envmapmodels; }
@@ -175,7 +175,7 @@ struct animmodel : model
         {
             #define DOMODELSHADER(name, body) \
                 do { \
-                    static Shader *name##shader = NULL; \
+                    static Shader *name##shader = nullptr; \
                     if(!name##shader) name##shader = useshaderbyname(#name); \
                     body; \
                 } while(0)
@@ -200,7 +200,7 @@ struct animmodel : model
 
         void cleanup()
         {
-            if(shader && shader->standard) shader = NULL;
+            if(shader && shader->standard) shader = nullptr;
         }
 
         void preloadBIH()
@@ -297,7 +297,7 @@ struct animmodel : model
         char *name;
         bool noclip;
 
-        mesh() : group(NULL), name(NULL), noclip(false)
+        mesh() : group(nullptr), name(nullptr), noclip(false)
         {
         }
 
@@ -491,7 +491,7 @@ struct animmodel : model
         char *name;
         vector<mesh *> meshes;
 
-        meshgroup() : next(NULL), shared(0), name(NULL)
+        meshgroup() : next(nullptr), shared(0), name(nullptr)
         {
         }
 
@@ -600,7 +600,7 @@ struct animmodel : model
         }
     };
 
-    virtual meshgroup *loadmeshes(const char *name, va_list args) { return NULL; }
+    virtual meshgroup *loadmeshes(const char *name, va_list args) { return nullptr; }
 
     meshgroup *sharemeshes(const char *name, ...)
     {
@@ -611,7 +611,7 @@ struct animmodel : model
             va_start(args, name);
             meshgroup *group = loadmeshes(name, args);
             va_end(args);
-            if(!group) return NULL;
+            if(!group) return nullptr;
             meshgroups.add(group);
         }
         return meshgroups[name];
@@ -625,7 +625,7 @@ struct animmodel : model
         modelattach *attached;
         matrix4 matrix;
 
-        linkedpart() : p(NULL), tag(-1), anim(-1), basetime(0), translate(0, 0, 0), rotate(0, 0, 0), attached(NULL) {}
+        linkedpart() : p(nullptr), tag(-1), anim(-1), basetime(0), translate(0, 0, 0), rotate(0, 0, 0), attached(nullptr) {}
     };
 
     struct part
@@ -640,9 +640,9 @@ struct animmodel : model
         float pitchscale, pitchoffset, pitchmin, pitchmax;
         vec translate;
 
-        part(animmodel *model, int index = 0) : model(model), index(index), meshes(NULL), numanimparts(1), pitchscale(1), pitchoffset(0), pitchmin(0), pitchmax(0), translate(0, 0, 0)
+        part(animmodel *model, int index = 0) : model(model), index(index), meshes(nullptr), numanimparts(1), pitchscale(1), pitchoffset(0), pitchmin(0), pitchmax(0), translate(0, 0, 0)
         {
-            loopk(MAXANIMPARTS) anims[k] = NULL;
+            loopk(MAXANIMPARTS) anims[k] = nullptr;
         }
         virtual ~part()
         {
@@ -685,7 +685,7 @@ struct animmodel : model
             }
         }
 
-        bool link(part *p, const char *tag, const vec &translate = vec(0, 0, 0), const vec &rotate = vec(0, 0, 0), int anim = -1, int basetime = 0, modelattach *attached = NULL)
+        bool link(part *p, const char *tag, const vec &translate = vec(0, 0, 0), const vec &rotate = vec(0, 0, 0), int anim = -1, int basetime = 0, modelattach *attached = nullptr)
         {
             int i = meshes ? meshes->findtag(tag) : -1;
             if(i<0)
@@ -774,7 +774,7 @@ struct animmodel : model
             }
             else
             {
-                animspec *spec = NULL;
+                animspec *spec = nullptr;
                 if(anims[animpart])
                 {
                     int primaryidx = anim&ANIM_INDEX;
@@ -1009,7 +1009,7 @@ struct animmodel : model
                 animmodel *m = (animmodel *)a[i].m;
                 if(!m)
                 {
-                    if(a[i].pos) link(NULL, a[i].tag, vec(0, 0, 0), vec(0, 0, 0), 0, 0, &a[i]);
+                    if(a[i].pos) link(nullptr, a[i].tag, vec(0, 0, 0), vec(0, 0, 0), 0, 0, &a[i]);
                     continue;
                 }
                 part *p = m->parts[0];
@@ -1031,14 +1031,14 @@ struct animmodel : model
         }
 
         animstate as[MAXANIMPARTS];
-        parts[0]->render(anim, basetime, basetime2, pitch, axis, forward, d, NULL, as);
+        parts[0]->render(anim, basetime, basetime2, pitch, axis, forward, d, nullptr, as);
 
         if(a) for(int i = numtags-1; i >= 0; i--)
         {
             animmodel *m = (animmodel *)a[i].m;
             if(!m)
             {
-                if(a[i].pos) unlink(NULL);
+                if(a[i].pos) unlink(nullptr);
                 continue;
             }
             part *p = m->parts[0];
@@ -1192,7 +1192,7 @@ struct animmodel : model
         return bih;
     }
 
-    bool link(part *p, const char *tag, const vec &translate = vec(0, 0, 0), const vec &rotate = vec(0, 0, 0), int anim = -1, int basetime = 0, modelattach *attached = NULL)
+    bool link(part *p, const char *tag, const vec &translate = vec(0, 0, 0), const vec &rotate = vec(0, 0, 0), int anim = -1, int basetime = 0, modelattach *attached = nullptr)
     {
         if(parts.empty()) return false;
         return parts[0]->link(p, tag, translate, rotate, anim, basetime, attached);
@@ -1352,7 +1352,7 @@ struct animmodel : model
         enablecullface = true;
         lastalphatest = -1;
         lastvbuf = lasttcbuf = lastxbuf = lastnbuf = lastbbuf = lastebuf = lastenvmaptex = closestenvmaptex = 0;
-        lasttex = lastmasks = lastnormalmap = NULL;
+        lasttex = lastmasks = lastnormalmap = nullptr;
         transparent = sizescale = 1;
         shaderparamskey::invalidate();
     }
@@ -1410,11 +1410,11 @@ bool animmodel::enabletc = false, animmodel::enablealphablend = false,
      animmodel::enablecullface = true,
      animmodel::enablenormals = false, animmodel::enabletangents = false, animmodel::enablebones = false, animmodel::enabledepthoffset = false;
 vec animmodel::lightdir(0, 0, 1), animmodel::lightcolor(1, 1, 1);
-const bvec *animmodel::lightmaterial = NULL;
+const bvec *animmodel::lightmaterial = nullptr;
 float animmodel::transparent = 1, animmodel::lastalphatest = -1, animmodel::sizescale = 1;
 GLuint animmodel::lastvbuf = 0, animmodel::lasttcbuf = 0, animmodel::lastnbuf = 0, animmodel::lastxbuf = 0, animmodel::lastbbuf = 0,
        animmodel::lastebuf = 0, animmodel::lastenvmaptex = 0, animmodel::closestenvmaptex = 0;
-Texture *animmodel::lasttex = NULL, *animmodel::lastmasks = NULL, *animmodel::lastnormalmap = NULL;
+Texture *animmodel::lasttex = nullptr, *animmodel::lastmasks = nullptr, *animmodel::lastnormalmap = nullptr;
 int animmodel::matrixpos = 0;
 matrix4 animmodel::matrixstack[64];
 
@@ -1441,7 +1441,7 @@ template<class MDL> struct modelloader
     static bool multimeshed() { return true; }
 };
 
-template<class MDL> MDL *modelloader<MDL>::loading = NULL;
+template<class MDL> MDL *modelloader<MDL>::loading = nullptr;
 template<class MDL> string modelloader<MDL>::dir = {'\0'}; // crashes clang if "" is used here
 
 template<class MDL, class MESH> struct modelcommands

@@ -88,7 +88,7 @@ namespace physics
         {
             if(game::allowmove(&game::player1))
             {
-                int style = 0, *last = NULL;
+                int style = 0, *last = nullptr;
                 switch(type)
                 {
                     case AC_CROUCH: style = crouchstyle; last = &lastcrouch; break;

@@ -195,7 +195,7 @@ namespace hud
                 {
                     int anc = sg.players.find(&game::player1) >= 0 ? S_V_YOUWIN : (game::player1.state != CS_SPECTATOR ? S_V_YOULOSE : -1);
                     if(m_defend(game::gamemode) && sg.total == INT_MAX)
-                        game::announcef(anc, CON_MESG, NULL, true, "\fwteam %s secured all flags", game::colourteam(sg.team));
+                        game::announcef(anc, CON_MESG, nullptr, true, "\fwteam %s secured all flags", game::colourteam(sg.team));
                     else
                     {
                         if(numgroups > 1 && sg.total == groups[1]->total)
@@ -210,9 +210,9 @@ namespace hud
                                 }
                                 else break;
                             }
-                            game::announcef(S_V_DRAW, CON_MESG, NULL, true, "\fw%s tied %swith a total score of \fs\fc%s\fS", game::colourteam(sg.team), winner, m_laptime(game::gamemode, game::mutators) ? timestr(sg.total, scoreracestyle) : intstr(sg.total));
+                            game::announcef(S_V_DRAW, CON_MESG, nullptr, true, "\fw%s tied %swith a total score of \fs\fc%s\fS", game::colourteam(sg.team), winner, m_laptime(game::gamemode, game::mutators) ? timestr(sg.total, scoreracestyle) : intstr(sg.total));
                         }
-                        else game::announcef(anc, CON_MESG, NULL, true, "\fwteam %s won the match with a total score of \fs\fc%s\fS", game::colourteam(sg.team), m_laptime(game::gamemode, game::mutators) ? timestr(sg.total, scoreracestyle) : intstr(sg.total));
+                        else game::announcef(anc, CON_MESG, nullptr, true, "\fwteam %s won the match with a total score of \fs\fc%s\fS", game::colourteam(sg.team), m_laptime(game::gamemode, game::mutators) ? timestr(sg.total, scoreracestyle) : intstr(sg.total));
                     }
                 }
                 else
@@ -232,9 +232,9 @@ namespace hud
                                 }
                                 else break;
                             }
-                            game::announcef(S_V_DRAW, CON_MESG, NULL, true, "\fw%s tied %swith the fastest lap \fs\fc%s\fS", game::colourname(sg.players[0]), winner, sg.players[0]->cptime ? timestr(sg.players[0]->cptime, scoreracestyle) : "dnf");
+                            game::announcef(S_V_DRAW, CON_MESG, nullptr, true, "\fw%s tied %swith the fastest lap \fs\fc%s\fS", game::colourname(sg.players[0]), winner, sg.players[0]->cptime ? timestr(sg.players[0]->cptime, scoreracestyle) : "dnf");
                         }
-                        else game::announcef(anc, CON_MESG, NULL, true, "\fw%s won the match with the fastest lap \fs\fc%s\fS", game::colourname(sg.players[0]), sg.players[0]->cptime ? timestr(sg.players[0]->cptime, scoreracestyle) : "dnf");
+                        else game::announcef(anc, CON_MESG, nullptr, true, "\fw%s won the match with the fastest lap \fs\fc%s\fS", game::colourname(sg.players[0]), sg.players[0]->cptime ? timestr(sg.players[0]->cptime, scoreracestyle) : "dnf");
                     }
                     else
                     {
@@ -250,9 +250,9 @@ namespace hud
                                 }
                                 else break;
                             }
-                            game::announcef(S_V_DRAW, CON_MESG, NULL, true, "\fw%s tied %swith a total score of \fs\fc%d\fS", game::colourname(sg.players[0]), winner, sg.players[0]->points);
+                            game::announcef(S_V_DRAW, CON_MESG, nullptr, true, "\fw%s tied %swith a total score of \fs\fc%d\fS", game::colourname(sg.players[0]), winner, sg.players[0]->points);
                         }
-                        else game::announcef(anc, CON_MESG, NULL, true, "\fw%s won the match with a total score of \fs\fc%d\fS", game::colourname(sg.players[0]), sg.players[0]->points);
+                        else game::announcef(anc, CON_MESG, nullptr, true, "\fw%s won the match with a total score of \fs\fc%d\fS", game::colourname(sg.players[0]), sg.players[0]->points);
                     }
                 }
             }
@@ -269,7 +269,7 @@ namespace hud
             gameent *e = game::getclient(d->ownernum);
             if(e)
             {
-                concatstring(hoststr, game::colourname(e, NULL, false, false));
+                concatstring(hoststr, game::colourname(e, nullptr, false, false));
                 concatstring(hoststr, " ");
             }
             defformatstring(owner, "[%d]", d->ownernum);
@@ -288,12 +288,12 @@ namespace hud
 
     void renderscoreboard(guient &g, bool firstpass)
     {
-        g.start(menustart, NULL, false, false, scorebgfx != 0);
+        g.start(menustart, nullptr, false, false, scorebgfx != 0);
         int numgroups = groupplayers();
         
         // gamename
         uicenterlist(g, uifont(g, "emphasis", {
-            g.textf("\faMode: \fw%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
+            g.textf("\faMode: \fw%s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
         }));
         
         uilist(g, {
@@ -311,10 +311,10 @@ namespace hud
                             uicenterlist(g, {
                                 if (*maptitle) {
                                     int len = strlen(maptitle);
-                                    uifont(g, (len >= 24 ? (len >= 40 ? "big" : "emphasis") : "huge"), { g.textf("%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, maptitle); });
+                                    uifont(g, (len >= 24 ? (len >= 40 ? "big" : "emphasis") : "huge"), { g.textf("%s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, maptitle); });
                                 } else {
                                     int len = strlen(mapname);
-                                    uifont(g, (len >= 24 ? (len >= 40 ? "big" : "emphasis") : "huge"), { g.textf("%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, mapname); });
+                                    uifont(g, (len >= 24 ? (len >= 40 ? "big" : "emphasis") : "huge"), { g.textf("%s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, mapname); });
                                 }
                             });
 
@@ -323,7 +323,7 @@ namespace hud
                             {
                                 g.space(0.25f);
                                 uicenterlist(g, {
-                                    g.image(NULL, scoreimagesize, true);
+                                    g.image(nullptr, scoreimagesize, true);
                                 });
                             }
 
@@ -332,7 +332,7 @@ namespace hud
                                 if (*mapauthor) {
                                     int len = strlen(mapauthor);
                                     
-                                    uifont(g, (len >= 24 ? (len >= 40 ? "tiny" : "little") : "reduced"), { g.textf("\faby %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, mapauthor); });
+                                    uifont(g, (len >= 24 ? (len >= 40 ? "tiny" : "little") : "reduced"), { g.textf("\faby %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, mapauthor); });
                                 }
                             });
                             g.space(0.25f);      
@@ -360,31 +360,31 @@ namespace hud
                                     {
                                         uicenterlist(g, uifont(g, "default", {
                                             if(gs_waiting(game::gamestate) || m_duke(game::gamemode, game::mutators)) g.text("Queued for new round", 0xFFFFFF);
-                                            else if(delay) g.textf("%s: Down for \fs\fy%s\fS", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::player1.state == CS_WAITING ? "Please Wait" : "Fragged", timestr(delay));
+                                            else if(delay) g.textf("%s: Down for \fs\fy%s\fS", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::player1.state == CS_WAITING ? "Please Wait" : "Fragged", timestr(delay));
                                             else if(game::player1.state == CS_WAITING && m_play(game::gamemode) && maxalive > 0 && maxalivequeue)
                                             {
-                                                if(game::player1.queuepos) g.textf("Waiting for \fs\fy%d\fS %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::player1.queuepos, game::player1.queuepos != 1 ? "players" : "player");
+                                                if(game::player1.queuepos) g.textf("Waiting for \fs\fy%d\fS %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::player1.queuepos, game::player1.queuepos != 1 ? "players" : "player");
                                                 else g.text("You are \fs\fgnext\fS in the queue", 0xFFFFFF);
                                             }
                                         }));
                                         if(game::player1.state != CS_WAITING && lastmillis-game::player1.lastdeath >= 500)
-                                            uicenterlist(g, uifont(g, "little", g.textf("Press \fs\fw\f{=primary}\fS to enter respawn queue", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF)));
+                                            uicenterlist(g, uifont(g, "little", g.textf("Press \fs\fw\f{=primary}\fS to enter respawn queue", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF)));
                                     }
                                     else
                                     {
                                         uicenterlist(g, uifont(g, "default", g.text("Ready to respawn", 0xFFFFFF)));
-                                        if(game::player1.state != CS_WAITING) uicenterlist(g, uifont(g, "little", g.textf("Press \fs\fw\f{=primary}\fS to respawn now", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF)));
+                                        if(game::player1.state != CS_WAITING) uicenterlist(g, uifont(g, "little", g.textf("Press \fs\fw\f{=primary}\fS to respawn now", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF)));
                                     }
                                     if(shownotices >= 2)
                                     {
                                         uifont(g, "little", {
                                             if(game::player1.state == CS_WAITING && lastmillis-game::player1.lastdeath >= 500)
-                                                uicenterlist(g, g.textf("Press \fs\fw\f{=3:waitmodeswitch}\fS to %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
+                                                uicenterlist(g, g.textf("Press \fs\fw\f{=3:waitmodeswitch}\fS to %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
                                             /*
                                             if(m_loadout(game::gamemode, game::mutators))
-                                                uicenterlist(g, g.textf("Press \fs\fw\f{=showgui profile 2}\fS to \fs%s\fS loadout", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::player1.loadweap.empty() ? "\fzoyselect" : "change"));
+                                                uicenterlist(g, g.textf("Press \fs\fw\f{=showgui profile 2}\fS to \fs%s\fS loadout", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::player1.loadweap.empty() ? "\fzoyselect" : "change"));
                                             if(m_play(game::gamemode) && m_team(game::gamemode, game::mutators))
-                                                uicenterlist(g, g.textf("Press \fs\fw\f{=showgui team}\fS to change teams", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF));
+                                                uicenterlist(g, g.textf("Press \fs\fw\f{=showgui team}\fS to change teams", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF));
                                             */
                                         });
                                     }
@@ -394,7 +394,7 @@ namespace hud
                                     /*
                                     uifont(g, "default", uicenterlist(g, {
                                         if(m_team(game::gamemode, game::mutators))
-                                            g.textf("Playing for team %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::colourteam(game::player1.team));
+                                            g.textf("Playing for team %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::colourteam(game::player1.team));
                                         else g.text("Playing free-for-all", 0xFFFFFF);
                                     }));*/
                                 }
@@ -402,27 +402,27 @@ namespace hud
                                 {
                                     /*
                                     uifont(g, "default", uicenterlist(g, {
-                                        g.textf("You are %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "watching SpecTV" : "a spectator");
+                                        g.textf("You are %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::tvmode() ? "watching SpecTV" : "a spectator");
                                     }));
                                     uifont(g, "little", {
-                                        uicenterlist(g, g.textf("Press \fs\fw\f{=1:spectator 0}\fS to join the game", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF));
+                                        uicenterlist(g, g.textf("Press \fs\fw\f{=1:spectator 0}\fS to join the game", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF));
                                         if(!m_edit(game::gamemode) && shownotices >= 2)
-                                            uicenterlist(g, g.textf("Press \fs\fw\f{=1:specmodeswitch}\fS to %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
+                                            uicenterlist(g, g.textf("Press \fs\fw\f{=1:specmodeswitch}\fS to %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::tvmode() ? "interact" : "switch to TV"));
                                     });*/
                                 }
 
                                 if(m_edit(game::gamemode) && (game::player1.state != CS_EDITING || shownotices >= 4))
-                                    uicenterlist(g, uifont(g, "reduced", g.textf("Press \fs\fw\f{=1:edittoggle}\fS to %s editmode", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, game::player1.state != CS_EDITING ? "enter" : "exit")));
+                                    uicenterlist(g, uifont(g, "reduced", g.textf("Press \fs\fw\f{=1:edittoggle}\fS to %s editmode", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::player1.state != CS_EDITING ? "enter" : "exit")));
                             }
 
-                            //uicenterlist(g, uifont(g, "little", g.textf("%s \fs\fw\f{=1:showscores}\fS to close this window", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, scoresoff ? "Release" : "Press")));
+                            //uicenterlist(g, uifont(g, "little", g.textf("%s \fs\fw\f{=1:showscores}\fS to close this window", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, scoresoff ? "Release" : "Press")));
                             uicenterlist(g, uifont(g, "tiny", g.text("Double-tap to keep the window open", 0xFFFFFF)));
                             /*
                             if(m_play(game::gamemode) && game::player1.state != CS_SPECTATOR && (!gs_playing(game::gamestate) || scoresinfo))
                             {
                                 float ratio = game::player1.frags >= game::player1.deaths ? (game::player1.frags/float(max(game::player1.deaths, 1))) : -(game::player1.deaths/float(max(game::player1.frags, 1)));
                                 uicenterlist(g, uifont(g, "little", {
-                                    g.textf("\fs\fg%d\fS %s, \fs\fg%d\fS %s (\fs\fy%.1f\fS:\fs\fy%.1f\fS) \fs\fg%d\fS damage", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF,
+                                    g.textf("\fs\fg%d\fS %s, \fs\fg%d\fS %s (\fs\fy%.1f\fS:\fs\fy%.1f\fS) \fs\fg%d\fS damage", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF,
                                         game::player1.frags, game::player1.frags != 1 ? "frags" : "frag",
                                         game::player1.deaths, game::player1.deaths != 1 ? "deaths" : "death", ratio >= 0 ? ratio : 1.f, ratio >= 0 ? 1.f : -ratio,
                                         game::player1.totaldamage);
@@ -443,7 +443,7 @@ namespace hud
                 // show the gamemode and gamestate
                 /*
                 uilist(g, {
-                    g.textf("\fy%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
+                    g.textf("\fy%s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, server::gamename(game::gamemode, game::mutators, 0, 32));
 
                     if(paused) g.text(", \fs\fopaused\fS", 0xFFFFFF);
                     else if(m_play(game::gamemode) || client::demoplayback)
@@ -451,9 +451,9 @@ namespace hud
                         int timecorrected = max(game::timeremaining * 1000-((gs_playing(game::gamestate) ? lastmillis : totalmillis)-game::lasttimeremain), 0);
                         // display gamestate
                         if (game::gamestate != G_S_PLAYING)
-                            g.textf(", \fs\fc%s\fS", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, gamestates[0][game::gamestate], gs_waiting(game::gamestate) ? "\fr" : (game::gamestate == G_S_OVERTIME ? "\fzoy" : "\fg"));
+                            g.textf(", \fs\fc%s\fS", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, gamestates[0][game::gamestate], gs_waiting(game::gamestate) ? "\fr" : (game::gamestate == G_S_OVERTIME ? "\fzoy" : "\fg"));
                         else if (m_mmvar(game::gamemode, game::mutators, timelimit))
-                            g.textf(", \fs\fc%s\fS", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, gamestates[0][game::gamestate], timecorrected > 60000 ? "\fg" : "\fzgy");
+                            g.textf(", \fs\fc%s\fS", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, gamestates[0][game::gamestate], timecorrected > 60000 ? "\fg" : "\fzgy");
                     }
                 });
                 */
@@ -494,7 +494,7 @@ namespace hud
                             scoregroup &sg = k == numgroups ? spectators : *groups[k];
                             loopscoregroup({
                                 if(scorebotinfo && o->actortype > A_PLAYER) hasbots = true;
-                                namepad = max(namepad, text_widthf(game::colourname(o, NULL, false, true))/FONTW*0.51f);
+                                namepad = max(namepad, text_widthf(game::colourname(o, nullptr, false, true))/FONTW*0.51f);
                                 if(scorehandles && o->handle[0])
                                 {
                                     handlepad = max(handlepad, text_widthf(o->handle)/FONTW*0.51f);
@@ -557,12 +557,12 @@ namespace hud
                                     }
                                     else if(sg.team > 0 && m_team(game::gamemode, game::mutators))
                                     {
-                                        g.textf("Team %s", 0xFFFFFF, teamtexname(sg.team), colour, -1, false, NULL, 0xFFFFFF, TEAM(sg.team, name));
+                                        g.textf("Team %s", 0xFFFFFF, teamtexname(sg.team), colour, -1, false, nullptr, 0xFFFFFF, TEAM(sg.team, name));
                                         g.spring();
                                         if(m_defend(game::gamemode) && ((defendlimit && sg.total >= defendlimit) || sg.total == INT_MAX)) g.text("WINNER", 0xFFFFFF);
-                                        else if(m_laptime(game::gamemode, game::mutators)) g.textf("%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, sg.total ? timestr(sg.total, scoreracestyle) : "\fadnf");
-                                        else if(m_race(game::gamemode)) g.textf("%d %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, sg.total, sg.total != 1 ? "laps" : "lap");
-                                        else g.textf("%d %s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, sg.total, sg.total != 1 ? "Points" : "Point");
+                                        else if(m_laptime(game::gamemode, game::mutators)) g.textf("%s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, sg.total ? timestr(sg.total, scoreracestyle) : "\fadnf");
+                                        else if(m_race(game::gamemode)) g.textf("%d %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, sg.total, sg.total != 1 ? "laps" : "lap");
+                                        else g.textf("%d %s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, sg.total, sg.total != 1 ? "Points" : "Point");
                                     }
                                     else
                                     {
@@ -577,7 +577,7 @@ namespace hud
                                         uicenter(g, uipad(g, 0.25f, g.space(1); g.strut(1)));
                                     });
                                     loopscoregroup(uilist(g, {
-                                        uicenter(g, uipad(g, 0.25f, uicenterlist(g, g.textf("\f($priv%stex)", game::findcolour(o), NULL, 0, -1, false, NULL, 0xFFFFFF, server::privnamex(o->privilege, o->actortype, true)))));
+                                        uicenter(g, uipad(g, 0.25f, uicenterlist(g, g.textf("\f($priv%stex)", game::findcolour(o), nullptr, 0, -1, false, nullptr, 0xFFFFFF, server::privnamex(o->privilege, o->actortype, true)))));
                                     }));
                                 });
                                 // name
@@ -587,7 +587,7 @@ namespace hud
                                     });
                                     loopscoregroup(uilist(g, {
                                         ownerbg;
-                                        uicenter(g, uipad(g, 0.25f, uicenterlist(g, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, game::colourname(o, NULL, false, true, scorebgrows >= 2 || (scorehilight && o == &game::player1) ? 0 : 3)))));
+                                        uicenter(g, uipad(g, 0.25f, uicenterlist(g, g.textf("%s", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, game::colourname(o, nullptr, false, true, scorebgrows >= 2 || (scorehilight && o == &game::player1) ? 0 : 3)))));
                                     }));
                                 });
                                 // points
@@ -601,9 +601,9 @@ namespace hud
                                             ownerbg;
                                             if(scoretotalpoints)
                                             {
-                                                uicenter(g, uipad(g, 0.5f, g.textf("%d (%d)", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->points, o->totalpoints)));
+                                                uicenter(g, uipad(g, 0.5f, g.textf("%d (%d)", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->points, o->totalpoints)));
                                             }
-                                            else uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->points)));
+                                            else uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->points)));
                                         }));
                                     });
                                 }
@@ -618,7 +618,7 @@ namespace hud
                                             });
                                             loopscoregroup(uilist(g, {
                                                 ownerbg;
-                                                uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->cptime ? timestr(o->cptime, scoreracestyle) : "\fadnf")));
+                                                uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->cptime ? timestr(o->cptime, scoreracestyle) : "\fadnf")));
                                             }));
                                         });
                                     }
@@ -634,9 +634,9 @@ namespace hud
                                             ownerbg;
                                             if(scoretotalfrags)
                                             {
-                                                uicenter(g, uipad(g, 0.5f, g.textf("%d (%d)", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->frags, o->totalfrags)));
+                                                uicenter(g, uipad(g, 0.5f, g.textf("%d (%d)", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->frags, o->totalfrags)));
                                             }
-                                            else uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->frags)));
+                                            else uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->frags)));
                                         }));
                                     });
                                 }
@@ -651,9 +651,9 @@ namespace hud
                                             ownerbg;
                                             if(scoretotaldeaths)
                                             {
-                                                uicenter(g, uipad(g, 0.5f, g.textf("%d (%d)", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->deaths, o->totaldeaths)));
+                                                uicenter(g, uipad(g, 0.5f, g.textf("%d (%d)", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->deaths, o->totaldeaths)));
                                             }
-                                            else uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->deaths)));
+                                            else uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->deaths)));
                                         }));
                                     });
                                 }
@@ -671,9 +671,9 @@ namespace hud
                                             if(hastotal)
                                             {
                                                 float tkdratio = o->kdratio(true);
-                                                uicenter(g, uipad(g, 0.5f, g.textf("%.1f\fs\fa:\fS%.1f (%.1f\fs\fa:\fS%.1f)", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, kdratio >= 0 ? kdratio : 1.f, kdratio >= 0 ? 1.f : -kdratio, tkdratio >= 0 ? tkdratio : 1.f, tkdratio >= 0 ? 1.f : -tkdratio)));
+                                                uicenter(g, uipad(g, 0.5f, g.textf("%.1f\fs\fa:\fS%.1f (%.1f\fs\fa:\fS%.1f)", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, kdratio >= 0 ? kdratio : 1.f, kdratio >= 0 ? 1.f : -kdratio, tkdratio >= 0 ? tkdratio : 1.f, tkdratio >= 0 ? 1.f : -tkdratio)));
                                             }
-                                            else uicenter(g, uipad(g, 0.5f, g.textf("%.1f\fs\fa:\fS%.1f", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, kdratio >= 0 ? kdratio : 1.f, kdratio >= 0 ? 1.f : -kdratio)));
+                                            else uicenter(g, uipad(g, 0.5f, g.textf("%.1f\fs\fa:\fS%.1f", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, kdratio >= 0 ? kdratio : 1.f, kdratio >= 0 ? 1.f : -kdratio)));
                                         }));
                                     });
                                 }
@@ -686,7 +686,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%.1f", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->balancescore())));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%.1f", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->balancescore())));
                                         }));
                                     });
                                 }
@@ -699,7 +699,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->plag)));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->plag)));
                                         })); 
                                     });
                                 }
@@ -712,7 +712,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL,
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, nullptr, 0, -1, false, nullptr,
                                                                                0xFFFFFF, o->ping)));
                                         }));
                                     });
@@ -726,7 +726,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->clientnum)));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%d", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->clientnum)));
                                         }));
                                     });
                                 }
@@ -740,7 +740,7 @@ namespace hud
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
                                             uicenter(g, uipad(g, 0.5f, {
-                                                if(o->actortype > A_PLAYER) g.textf("%d", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->skill);
+                                                if(o->actortype > A_PLAYER) g.textf("%d", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->skill);
                                                 else { g.space(1); g.strut(1); }
                                             }));
                                         }));
@@ -755,7 +755,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, o->handle[0] ? o->handle : "-")));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, o->handle[0] ? o->handle : "-")));
                                         }));
                                     });
                                 }
@@ -768,7 +768,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scorehost(o, false))));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, scorehost(o, false))));
                                         }));
                                     });
                                 }
@@ -781,7 +781,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scorehost(o, true))));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, scorehost(o, true))));
                                         }));
                                     }); 
                                 }
@@ -794,7 +794,7 @@ namespace hud
                                         });
                                         loopscoregroup(uilist(g, {
                                             ownerbg;
-                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, NULL, 0, -1, false, NULL, 0xFFFFFF, scoreversion(o))));
+                                            uicenter(g, uipad(g, 0.5f, g.textf("%s", ownerfgc, nullptr, 0, -1, false, nullptr, 0xFFFFFF, scoreversion(o))));
                                         }));
                                     });
                                 }
@@ -818,7 +818,7 @@ namespace hud
                                                 case CS_EDITING: status = editingtex; break;
                                                 default: break; // spectators shouldn't be here
                                             }
-                                            uicenter(g, uipad(g, 0.125f, g.textf("\f(%s)", colour, NULL, 0, -1, false, NULL, 0xFFFFFF, status)));
+                                            uicenter(g, uipad(g, 0.125f, g.textf("\f(%s)", colour, nullptr, 0, -1, false, nullptr, 0xFFFFFF, status)));
                                         }));
                                     });
                                 }
@@ -849,12 +849,12 @@ namespace hud
             {
                 // servername
                 uifont(g, "normal", {
-                    g.textf("\faon: \fw%s", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, serverdesc);
+                    g.textf("\faon: \fw%s", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, serverdesc);
                 });
             } else if (connectname != nullptr && connectport != 0) {
                 // serverip/port
                 uifont(g, "big", {
-                    g.textf("\faon: \fw%s:[%d]", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, connectname, connectport);
+                    g.textf("\faon: \fw%s:[%d]", 0xFFFFFF, nullptr, 0, -1, false, nullptr, 0xFFFFFF, connectname, connectport);
                 });
             }
             
@@ -913,7 +913,7 @@ namespace hud
                     if(!sg.team || ((sg.team != game::focus->team) == !i)) continue;
                     float sk = numout && inventoryscoreshrink > 0 ? 1.f-min(numout*inventoryscoreshrink, inventoryscoreshrinkmax) : 1;
                     int offset = numgroups > 1 ? sg.total-groups[k ? 0 : 1]->total : 0;
-                    sy += drawscoreitem(inventoryscorename >= 2 ? game::colourteam(sg.team) : NULL, TEAM(sg.team, colour), x, y+sy, s, sk*inventoryscoresize, blend*inventoryblend, pos, sg.total, offset);
+                    sy += drawscoreitem(inventoryscorename >= 2 ? game::colourteam(sg.team) : nullptr, TEAM(sg.team, colour), x, y+sy, s, sk*inventoryscoresize, blend*inventoryblend, pos, sg.total, offset);
                     if(++numout >= count) return sy;
                 }
                 else
@@ -932,7 +932,7 @@ namespace hud
                         float sk = numout && inventoryscoreshrink > 0 ? 1.f-min(numout*inventoryscoreshrink, inventoryscoreshrinkmax) : 1;
                         int score = m_laptime(game::gamemode, game::mutators) ? d->cptime : d->points,
                             offset = (sg.players.length() > 1 && (!m_laptime(game::gamemode, game::mutators) || score)) ? score-(m_laptime(game::gamemode, game::mutators) ? sg.players[j ? 0 : 1]->cptime : sg.players[j ? 0 : 1]->points) : 0;
-                        sy += drawscoreitem(inventoryscorename ? game::colourname(d) : NULL, game::getcolour(d, game::playerteamtone, game::playerteamtonelevel), x, y+sy, s, sk*inventoryscoresize, blend*inventoryblend, pos, score, offset);
+                        sy += drawscoreitem(inventoryscorename ? game::colourname(d) : nullptr, game::getcolour(d, game::playerteamtone, game::playerteamtonelevel), x, y+sy, s, sk*inventoryscoresize, blend*inventoryblend, pos, score, offset);
                         if(++numout >= count) return sy;
                     }
                 }

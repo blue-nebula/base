@@ -18,9 +18,9 @@ namespace aiman
         return (ci->bots.length() * G(aihostnum)) + (ci->ping * G(aihostping));
     }
 
-    clientinfo *findaiclient(clientinfo *exclude = NULL)
+    clientinfo *findaiclient(clientinfo *exclude = nullptr)
     {
-        clientinfo *least = NULL;
+        clientinfo *least = nullptr;
         loopv(clients)
         {
             clientinfo *ci = clients[i];
@@ -225,7 +225,7 @@ namespace aiman
         }
     }
 
-    void shiftai(clientinfo *ci, clientinfo *owner = NULL)
+    void shiftai(clientinfo *ci, clientinfo *owner = nullptr)
     {
         clientinfo *prevowner = (clientinfo *)getinfo(ci->ownernum);
         if(prevowner) prevowner->bots.removeobj(ci);
@@ -235,12 +235,12 @@ namespace aiman
 
     void removeai(clientinfo *ci, bool complete)
     { // either schedules a removal, or someone else to assign to
-        loopvrev(ci->bots) shiftai(ci->bots[i], complete ? NULL : findaiclient(ci));
+        loopvrev(ci->bots) shiftai(ci->bots[i], complete ? nullptr : findaiclient(ci));
     }
 
     bool reassignai(clientinfo *exclude)
     {
-        clientinfo *hi = NULL, *lo = NULL;
+        clientinfo *hi = nullptr, *lo = nullptr;
         loopv(clients)
         {
             clientinfo *ci = clients[i];
@@ -266,8 +266,8 @@ namespace aiman
         loopv(clients) if(clients[i]->actortype > A_PLAYER && clients[i]->ownernum >= 0)
         {
             clientinfo *ci = clients[i];
-            if(ci->actortype == A_BOT && ++numbots >= blimit) { shiftai(ci, NULL); continue; }
-            if(ci->actortype >= A_ENEMY && ++numenemies >= elimit) { shiftai(ci, NULL); continue; }
+            if(ci->actortype == A_BOT && ++numbots >= blimit) { shiftai(ci, nullptr); continue; }
+            if(ci->actortype >= A_ENEMY && ++numenemies >= elimit) { shiftai(ci, nullptr); continue; }
             setskill(ci);
         }
 

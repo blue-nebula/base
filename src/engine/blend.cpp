@@ -124,7 +124,7 @@ struct BlendMapCache
 
 BlendMapCache *newblendmapcache() { return new BlendMapCache; }
 
-void freeblendmapcache(BlendMapCache *&cache) { delete cache; cache = NULL; }
+void freeblendmapcache(BlendMapCache *&cache) { delete cache; cache = nullptr; }
 
 bool setblendmaporigin(BlendMapCache *cache, const ivec &o, int size)
 {

@@ -48,7 +48,7 @@ namespace game
         SVAR(IDF_WORLD, obit##name##2, ""); \
         SVAR(IDF_WORLD, obit##name##3, ""); \
         SVAR(IDF_WORLD, obit##name##4, ""); \
-        const char *getobit##name(int mat, const char *def = NULL) \
+        const char *getobit##name(int mat, const char *def = nullptr) \
         { \
             loopi(2) switch(i ? 0 : mat&MATF_INDEX) \
             { \
@@ -424,7 +424,7 @@ namespace game
 
     const char *vanityfname(gameent *d, int n, bool proj)
     {
-        const char *file = NULL;
+        const char *file = nullptr;
         if(vanities.inrange(n)) switch(vanities[n].style)
         {
             case 1: case 2:
@@ -629,7 +629,7 @@ namespace game
         }
         announce(idx, d, forced);
     }
-    ICOMMAND(0, announce, "iiisN", (int *idx, int *targ, int *cn, int *forced, char *s, int *numargs), (*numargs >= 5 ? announcef(*numargs >= 1 ? *idx : -1, *numargs >= 2 ? *targ : CON_MESG, *numargs >= 3 ? getclient(*cn) : NULL, *numargs >= 4 ? *forced!=0 : false, "\fw%s", s) : announcef(*numargs >= 1 ? *idx : -1, *numargs >= 2 ? *targ : CON_MESG, *numargs >= 3 ? getclient(*cn) : NULL, *numargs >= 4 ? *forced!=0 : false, NULL)));
+    ICOMMAND(0, announce, "iiisN", (int *idx, int *targ, int *cn, int *forced, char *s, int *numargs), (*numargs >= 5 ? announcef(*numargs >= 1 ? *idx : -1, *numargs >= 2 ? *targ : CON_MESG, *numargs >= 3 ? getclient(*cn) : nullptr, *numargs >= 4 ? *forced!=0 : false, "\fw%s", s) : announcef(*numargs >= 1 ? *idx : -1, *numargs >= 2 ? *targ : CON_MESG, *numargs >= 3 ? getclient(*cn) : nullptr, *numargs >= 4 ? *forced!=0 : false, nullptr)));
 
     void resetfollow()
     {
@@ -675,7 +675,7 @@ namespace game
                             if(i == lastcamcn) lastcamcn = -1;
                             lastcamera = lasttvcam = lasttvchg = 0;
                         }
-                        else c->player = NULL;
+                        else c->player = nullptr;
                     }
                 }
                 if(d == focus) resetfollow();
@@ -914,9 +914,9 @@ namespace game
                 else if(m_defend(gamemode)) defend::adddynlights();
                 else if(m_bomber(gamemode)) bomber::adddynlights();
             }
-            gameent *d = NULL;
+            gameent *d = nullptr;
             int numdyns = numdynents();
-            loopi(numdyns) if((d = (gameent *)iterdynents(i)) != NULL)
+            loopi(numdyns) if((d = (gameent *)iterdynents(i)) != nullptr)
             {
                 if(d->state == CS_ALIVE && isweap(d->weapselect))
                 {
@@ -1069,7 +1069,7 @@ namespace game
                 float amt = clamp(mag/n, 0.f, 1.f)*(d != focus ? footstepsoundlevel : footstepsoundfocus);
                 if(onfloor && !d->running(moveslow)) amt *= footstepsoundlight;
                 int vol = clamp(int(amt*footstepsoundmaxvol), footstepsoundminvol, footstepsoundmaxvol);
-                playsound(liquid && (!onfloor || rnd(4)) ? S_SWIMSTEP : S_FOOTSTEP, pos, NULL, d != focus ? 0 : SND_NOCULL, vol, footstepsoundmaxrad, footstepsoundminrad, &d->sschan[curfoot]);
+                playsound(liquid && (!onfloor || rnd(4)) ? S_SWIMSTEP : S_FOOTSTEP, pos, nullptr, d != focus ? 0 : SND_NOCULL, vol, footstepsoundmaxrad, footstepsoundminrad, &d->sschan[curfoot]);
             }
         }
     }
@@ -1422,7 +1422,7 @@ namespace game
                 }
                 if(d->actortype < A_ENEMY && !issound(d->vschan)) playsound(S_PAIN, d->o, d, 0, -1, -1, -1, &d->vschan);
                 d->lastpain = lastmillis;
-                if(!WK(flags)) playsound(WSND2(weap, WS(flags), S_W_IMPACT), vec(d->center()).add(vec(dir).mul(dist)), NULL, 0, clamp(int(255*scale), 64, 255));
+                if(!WK(flags)) playsound(WSND2(weap, WS(flags), S_W_IMPACT), vec(d->center()).add(vec(dir).mul(dist)), nullptr, 0, clamp(int(255*scale), 64, 255));
             }
             if(AA(d->actortype, abilities)&(1<<A_A_PUSHABLE))
             {
@@ -1829,12 +1829,12 @@ namespace game
         {
             defformatstring(cnmsg, "clientnum [%d]", cn);
             neterr(cnmsg);
-            return NULL;
+            return nullptr;
         }
 
         if(cn == player1.clientnum) return &player1;
 
-        while(cn >= players.length()) players.add(NULL);
+        while(cn >= players.length()) players.add(nullptr);
 
         if(!players[cn])
         {
@@ -1850,7 +1850,7 @@ namespace game
     {
         if(cn == player1.clientnum) return &player1;
         if(players.inrange(cn)) return players[cn];
-        return NULL;
+        return nullptr;
     }
 
     void clientdisconnected(int cn, int reason)
@@ -1872,7 +1872,7 @@ namespace game
             else if(d->actortype == A_BOT && ai::showaiinfo)
                 conoutft(CON_EVENT, "\fo%s was removed from the game%s", colourname(d), formattedreason);
         }
-        gameent *e = NULL;
+        gameent *e = nullptr;
         int numdyns = numdynents();
         loopi(numdyns) if((e = (gameent *)iterdynents(i)))
         {
@@ -1893,7 +1893,7 @@ namespace game
         else if(m_defend(gamemode)) defend::removeplayer(d);
         else if(m_bomber(gamemode)) bomber::removeplayer(d);
         DELETEP(players[cn]);
-        players[cn] = NULL;
+        players[cn] = nullptr;
         cleardynentcache();
     }
 
@@ -1943,7 +1943,7 @@ namespace game
 
     gameent *intersectclosest(vec &from, vec &to, gameent *at)
     {
-        gameent *best = NULL, *o;
+        gameent *best = nullptr, *o;
         float bestdist = 1e16f;
         int numdyns = numdynents();
         loopi(numdyns) if((o = (gameent *)iterdynents(i)))
@@ -1975,7 +1975,7 @@ namespace game
         {
             if(i<projs::collideprojs.length()) return projs::collideprojs[i];
         }
-        return NULL;
+        return nullptr;
     }
     dynent *focusedent(bool force)
     {
@@ -1983,7 +1983,7 @@ namespace game
         return focus;
     }
 
-    bool duplicatename(gameent *d, char *name = NULL)
+    bool duplicatename(gameent *d, char *name = nullptr)
     {
         if(!name) name = d->name;
         if(!client::demoplayback && d != &player1 && !strcmp(name, player1.name)) return true;
@@ -2091,7 +2091,7 @@ namespace game
         concatstring(teamed, "\fs");
         formatstring(teamtmp, "\f[%d]", TEAM(team, colour));
         concatstring(teamed, teamtmp);
-        if(icon != NULL)
+        if(icon != nullptr)
         {
             formatstring(teamtmp, "\f($%s)", *icon ? icon : teamtexnamex(team));
             concatstring(teamed, teamtmp);
@@ -2206,7 +2206,7 @@ namespace game
         }
         else if(!tvmode())
         {
-            physent *d = (!gs_playing(gamestate) || player1.state >= CS_SPECTATOR) && (focus == &player1 || followaim()) ? camera1 : (allowmove(&player1) ? &player1 : NULL);
+            physent *d = (!gs_playing(gamestate) || player1.state >= CS_SPECTATOR) && (focus == &player1 || followaim()) ? camera1 : (allowmove(&player1) ? &player1 : nullptr);
             if(d)
             {
                 float scale = (focus == &player1 && inzoom() && zoomsensitivity > 0 ? (1.f-((zoomlevel+1)/float(zoomlevels+2)))*zoomsensitivity : 1.f)*sensitivity;
@@ -2427,7 +2427,7 @@ namespace game
                     break;
                 }
             }
-            if(!rejigger) cam->player = NULL;
+            if(!rejigger) cam->player = nullptr;
         }
         if(renew || rejigger || (cam->player && focus != cam->player) || (!cam->player && focus != &player1))
         {
@@ -2613,13 +2613,13 @@ namespace game
         for(int i = startcam(); i < cameras.length(); i++)
         {
             cament *c = cameras[i];
-            if(c->type == cament::PLAYER && (c->player || ((c->player = getclient(c->id)) != NULL)))
+            if(c->type == cament::PLAYER && (c->player || ((c->player = getclient(c->id)) != nullptr)))
             {
                 if(!found && c->id == spectvfollowing && c->player->state != CS_SPECTATOR) found = true;
                 c->o = c->player->headpos();
                 if(forced && c->player == focus) cam = c;
             }
-            else if(c->type != cament::PLAYER && c->player) c->player = NULL;
+            else if(c->type != cament::PLAYER && c->player) c->player = nullptr;
             if(m_capture(gamemode)) capture::updatecam(c);
             else if(m_defend(gamemode)) defend::updatecam(c);
             else if(m_bomber(gamemode)) bomber::updatecam(c);
@@ -2679,7 +2679,7 @@ namespace game
                 amt = 0;
                 lasttvchg = lastmillis;
                 renew = true;
-                cam->moveto = NULL;
+                cam->moveto = nullptr;
                 cam->resetlast();
                 if(cam->type == cament::ENTITY || cam->type == cament::WAYPOINT)
                 {
@@ -2877,21 +2877,21 @@ namespace game
                     if(*musicdir && (type == 2 || type == 5 || ((type == 1 || type == 4) && (!*musicfile || !fileexists(findfile(musicfile, "r"), "r")))))
                     {
                         vector<char *> files;
-                        listfiles(musicdir, NULL, files);
+                        listfiles(musicdir, nullptr, files);
                         while(!files.empty())
                         {
                             int r = rnd(files.length());
                             formatstring(musicfile, "%s/%s", musicdir, files[r]);
-                            if(files[r][0] != '.' && strcmp(files[r], "readme.txt") && playmusic(musicfile, type >= 4 ? "music" : NULL)) break;
+                            if(files[r][0] != '.' && strcmp(files[r], "readme.txt") && playmusic(musicfile, type >= 4 ? "music" : nullptr)) break;
                             else files.remove(r);
                         }
                     }
-                    else if(*musicfile) playmusic(musicfile, type >= 4 ? "music" : NULL);
+                    else if(*musicfile) playmusic(musicfile, type >= 4 ? "music" : nullptr);
                 }
             }
             player1.conopen = commandmillis > 0 || hud::hasinput(true);
             checkoften(&player1, true);
-            loopv(players) if(players[i]) checkoften(players[i], players[i]->ai != NULL);
+            loopv(players) if(players[i]) checkoften(players[i], players[i]->ai != nullptr);
             if(!allowmove(&player1)) player1.stopmoving(player1.state < CS_SPECTATOR);
             if(focus->state == CS_ALIVE && gs_playing(gamestate) && isweap(focus->weapselect))
             {
@@ -2994,7 +2994,7 @@ namespace game
             else findorientation(focus->o, focus->yaw, focus->pitch, worldpos);
             if(pthird)
             {
-                gameent *best = NULL, *o;
+                gameent *best = nullptr, *o;
                 float bestdist = 1e16f;
                 int numdyns = numdynents();
                 loopi(numdyns) if((o = (gameent *)iterdynents(i)))
@@ -3211,7 +3211,7 @@ namespace game
                 flashcolour(e->light.material[1].r, e->light.material[1].g, e->light.material[1].b, uchar(255), uchar(255), uchar(255), amt);
             }
         }
-        rendermodel(NULL, mdl, anim, o, yaw, third == 2 && firstpersonbodypitch >= 0 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags, e, attachments, basetime, basetime2, trans, size);
+        rendermodel(nullptr, mdl, anim, o, yaw, third == 2 && firstpersonbodypitch >= 0 ? pitch*firstpersonbodypitch : pitch, third == 2 ? 0.f : roll, flags, e, attachments, basetime, basetime2, trans, size);
     }
 
     void renderabovehead(gameent *d, float trans)
@@ -3241,7 +3241,7 @@ namespace game
         }
         if(aboveheadstatus)
         {
-            Texture *t = NULL;
+            Texture *t = nullptr;
             int colour = getcolour(d, playerteamtone, playerteamtonelevel);
             if(d->state == CS_DEAD || d->state == CS_WAITING) t = textureload(hud::deadtex, 3);
             else if(d->state == CS_ALIVE)
@@ -3475,7 +3475,7 @@ namespace game
                 a[ai++] = modelattach("tag_rtoe", &d->toe[1]);
             }
         }
-        renderclient(d, third, trans, size, a[0].tag ? a : NULL, secondary, animflags, animdelay, lastaction, early);
+        renderclient(d, third, trans, size, a[0].tag ? a : nullptr, secondary, animflags, animdelay, lastaction, early);
     }
 
     void rendercheck(gameent *d, bool third = false)

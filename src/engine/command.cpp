@@ -9,7 +9,7 @@ bool interactive = false;
 
 hashnameset<ident> idents; // contains ALL vars/commands/aliases
 vector<ident *> identmap;
-ident *dummyident = NULL;
+ident *dummyident = nullptr;
 
 int identflags = 0;
 
@@ -131,7 +131,7 @@ static inline void cleancode(ident &id)
     {
         id.code[0] -= 0x100;
         if(int(id.code[0]) < 0x100) delete[] id.code;
-        id.code = NULL;
+        id.code = nullptr;
     }
 }
 
@@ -190,7 +190,7 @@ void clearoverrides()
 }
 
 static bool initedidents = false;
-static vector<ident> *identinits = NULL;
+static vector<ident> *identinits = nullptr;
 
 static inline ident *addident(const ident &id)
 {
@@ -198,7 +198,7 @@ static inline ident *addident(const ident &id)
     {
         if(!identinits) identinits = new vector<ident>;
         identinits->add(id);
-        return NULL;
+        return nullptr;
     }
     ident &def = idents.access(id.name, id);
     def.index = identmap.length();
@@ -223,7 +223,7 @@ static bool initidents()
 }
 UNUSED static bool forceinitidents = initidents();
 
-static const char *sourcefile = NULL, *sourcestr = NULL;
+static const char *sourcefile = nullptr, *sourcestr = nullptr;
 
 static const char *debugline(const char *p, const char *fmt)
 {
@@ -256,7 +256,7 @@ static struct identlink
     identlink *next;
     int usedargs;
     identstack *argstack;
-} noalias = { NULL, NULL, (1<<MAXARGS)-1, NULL }, *aliasstack = &noalias;
+} noalias = { nullptr, nullptr, (1<<MAXARGS)-1, nullptr }, *aliasstack = &noalias;
 
 VAR(0, dbgalias, 0, 4, 1000);
 
@@ -395,7 +395,7 @@ ident *readident(const char *name)
 {
     ident *id = idents.access(name);
     if(id && id->index < MAXARGS && !(aliasstack->usedargs&(1<<id->index)))
-       return NULL;
+       return nullptr;
     return id;
 }
 
@@ -501,7 +501,7 @@ void loadalias(const char *name, const char *fname)
 {
     string s;
     copystring(s, fname);
-    char *buf = loadfile(s, NULL);
+    char *buf = loadfile(s, nullptr);
     if(!buf)
     {
         conoutf("\frcould not read %s", fname);
@@ -749,7 +749,7 @@ ICOMMAND(0, getsvardef, "si", (char *n, int *b), result(getsvardef(n, *b!=0)));
 ICOMMAND(0, getvardesc, "s", (char *n), result(getvardesc(n)));
 ICOMMAND(0, getvarfields, "sb", (char *n, int *p), getvarfields(n, *p));
 
-bool identexists(const char *name) { return idents.access(name)!=NULL; }
+bool identexists(const char *name) { return idents.access(name)!=nullptr; }
 ident *getident(const char *name) { return idents.access(name); }
 
 void touchvar(const char *name)
@@ -900,7 +900,7 @@ bool addcommand(const char *name, identfun fun, const char *args, int flags)
 
 bool addkeyword(int type, const char *name, int flags)
 {
-    addident(ident(type, name, "", 0, 0, NULL, flags));
+    addident(ident(type, name, "", 0, 0, nullptr, flags));
     return true;
 }
 
@@ -942,7 +942,7 @@ int unescapestring(char *dst, const char *src, const char *end)
     return dst - start;
 }
 
-static char *conc(vector<char> &buf, tagval *v, int n, bool space, const char *prefix = NULL, int prefixlen = 0)
+static char *conc(vector<char> &buf, tagval *v, int n, bool space, const char *prefix = nullptr, int prefixlen = 0)
 {
     if(prefix)
     {
@@ -1117,7 +1117,7 @@ static inline char *cutword(const char *&p, int &len)
     const char *word = p;
     p = parseword(p);
     len = p-word;
-    if(!len) return NULL;
+    if(!len) return nullptr;
     return newstring(word, len);
 }
 
@@ -1143,7 +1143,7 @@ static inline void compilestr(vector<uint> &code, const char *word, int len, boo
     code.add(end.u);
 }
 
-static inline void compilestr(vector<uint> &code, const char *word = NULL)
+static inline void compilestr(vector<uint> &code, const char *word = nullptr)
 {
     if(!word) { code.add(CODE_VALI|RET_STR); return; }
     compilestr(code, word, int(strlen(word)));
@@ -1179,12 +1179,12 @@ static inline void compileident(vector<uint> &code, ident *id)
     code.add((id->index < MAXARGS ? CODE_IDENTARG : CODE_IDENT)|(id->index<<8));
 }
 
-static inline void compileident(vector<uint> &code, const char *word = NULL)
+static inline void compileident(vector<uint> &code, const char *word = nullptr)
 {
     compileident(code, word ? newident(word, IDF_UNKNOWN) : dummyident);
 }
 
-static inline void compileint(vector<uint> &code, const char *word = NULL)
+static inline void compileint(vector<uint> &code, const char *word = nullptr)
 {
     return compileint(code, word ? parseint(word) : 0);
 }
@@ -1202,7 +1202,7 @@ static inline void compilefloat(vector<uint> &code, float f)
     }
 }
 
-static inline void compilefloat(vector<uint> &code, const char *word = NULL)
+static inline void compilefloat(vector<uint> &code, const char *word = nullptr)
 {
     return compilefloat(code, word ? parsefloat(word) : 0.0f);
 }
@@ -1239,7 +1239,7 @@ static bool compileword(vector<uint> &code, const char *&p, int wordtype, char *
 
 static void compilelookup(vector<uint> &code, const char *&p, int ltype)
 {
-    char *lookup = NULL;
+    char *lookup = nullptr;
     int lookuplen = 0;
     switch(*++p)
     {
@@ -1271,7 +1271,7 @@ static void compilelookup(vector<uint> &code, const char *&p, int ltype)
                     code.add(CODE_ENTER);
                     for(const char *fmt = id->args; *fmt; fmt++) switch(*fmt)
                     {
-                        case 's': compilestr(code, NULL, 0, true); numargs++; break;
+                        case 's': compilestr(code, nullptr, 0, true); numargs++; break;
                         case 'i': compileint(code); numargs++; break;
                         case 'b': compileint(code, INT_MIN); numargs++; break;
                         case 'f': compilefloat(code); numargs++; break;
@@ -1313,7 +1313,7 @@ invalid:
     switch(ltype)
     {
         case VAL_NULL: case VAL_ANY: compilenull(code); break;
-        default: compileval(code, ltype, NULL, 0); break;
+        default: compileval(code, ltype, nullptr, 0); break;
     }
 }
 
@@ -1369,7 +1369,7 @@ done:
 
 static bool compileblocksub(vector<uint> &code, const char *&p)
 {
-    char *lookup = NULL;
+    char *lookup = nullptr;
     int lookuplen = 0;
     switch(*p)
     {
@@ -1497,7 +1497,7 @@ done:
         default:
             if(!concs)
             {
-                if(p-1 <= start) compileval(code, wordtype, NULL, 0);
+                if(p-1 <= start) compileval(code, wordtype, nullptr, 0);
                 else code.add(CODE_FORCE|(wordtype<<CODE_RET));
             }
             break;
@@ -1528,12 +1528,12 @@ static bool compileword(vector<uint> &code, const char *&p, int wordtype, char *
             return true;
         default: word = cutword(p, wordlen); break;
     }
-    return word!=NULL;
+    return word!=nullptr;
 }
 
 static inline bool compilearg(vector<uint> &code, const char *&p, int wordtype)
 {
-    char *word = NULL;
+    char *word = nullptr;
     int wordlen = 0;
     bool more = compileword(code, p, wordtype, word, wordlen);
     if(!more) return false;
@@ -1548,14 +1548,14 @@ static inline bool compilearg(vector<uint> &code, const char *&p, int wordtype)
 static void compilestatements(vector<uint> &code, const char *&p, int rettype, int brak)
 {
     const char *line = p;
-    char *idname = NULL;
+    char *idname = nullptr;
     int idlen = 0;
-    ident *id = NULL;
+    ident *id = nullptr;
     int numargs = 0;
     for(;;)
     {
         skipcomments(p);
-        idname = NULL;
+        idname = nullptr;
         bool more = compileword(code, p, VAL_ANY, idname, idlen);
         if(!more) goto endstatement;
         skipcomments(p);
@@ -1568,7 +1568,7 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
                 if(idname)
                 {
                     id = newident(idname, IDF_UNKNOWN);
-                    if(!id || id->type != ID_ALIAS) { compilestr(code, idname, idlen, true); id = NULL; }
+                    if(!id || id->type != ID_ALIAS) { compilestr(code, idname, idlen, true); id = nullptr; }
                     delete[] idname;
                 }
                 if(!(more = compilearg(code, p, VAL_ANY))) compilestr(code);
@@ -1611,7 +1611,7 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
                         if(!more)
                         {
                             if(rep) break;
-                            compilestr(code, NULL, 0, true);
+                            compilestr(code, nullptr, 0, true);
                             fakeargs++;
                         }
                         else if(!fmt[1])
@@ -1923,7 +1923,7 @@ static const uint *runcode(const uint *code, tagval &result)
         return skipcode(code, result);
     }
     ++rundepth;
-    ident *id = NULL;
+    ident *id = nullptr;
     int numargs = 0;
     tagval args[MAXARGS+1], *prevret = commandret;
     commandret = &result;
@@ -2344,7 +2344,7 @@ char *executestr(const uint *code)
 {
     tagval result;
     runcode(code, result);
-    if(result.type == VAL_NULL) return NULL;
+    if(result.type == VAL_NULL) return nullptr;
     forcestr(result);
     return result.s;
 }
@@ -2353,7 +2353,7 @@ char *executestr(const char *p)
 {
     tagval result;
     executeret(p, result);
-    if(result.type == VAL_NULL) return NULL;
+    if(result.type == VAL_NULL) return nullptr;
     forcestr(result);
     return result.s;
 }
@@ -2451,7 +2451,7 @@ bool execfile(const char *cfgfile, bool msg, int flags)
 {
     string s;
     copystring(s, cfgfile);
-    char *buf = loadfile(s, NULL);
+    char *buf = loadfile(s, nullptr);
     if(!buf)
     {
         if(msg || verbose >= 2) conoutf("\frcould not read %s", cfgfile);
@@ -2740,7 +2740,7 @@ void format(tagval *args, int numargs)
 }
 COMMAND(0, format, "V");
 
-static const char *liststart = NULL, *listend = NULL, *listquotestart = NULL, *listquoteend = NULL;
+static const char *liststart = nullptr, *listend = nullptr, *listquotestart = nullptr, *listquoteend = nullptr;
 
 static inline void skiplist(const char *&p)
 {
@@ -3078,7 +3078,7 @@ COMMAND(0, listsplice, "ssii");
 ICOMMAND(0, listfiles, "ss", (char *dir, char *ext),
 {
     vector<char *> files;
-    listfiles(dir, ext[0] ? ext : NULL, files);
+    listfiles(dir, ext[0] ? ext : nullptr, files);
     vector<char> p;
     loopv(files)
     {
@@ -3094,7 +3094,7 @@ ICOMMAND(0, loopfiles, "rsse", (ident *id, char *dir, char *ext, uint *body),
     if(id->type!=ID_ALIAS) return;
     identstack stack;
     vector<char *> files;
-    listfiles(dir, ext[0] ? ext : NULL, files);
+    listfiles(dir, ext[0] ? ext : nullptr, files);
 //    loopvrev(files)
 //    {
 //        char *file = files[i];
@@ -3452,7 +3452,7 @@ STRMAPCOMMAND(stringupper, cubeupper);
 char *rigcasestr(const char *s, const char *n)
 {
     bool passed = true;
-    char *start = newstring(s), *needle = newstring(n), *a = start, *b = needle, *ret = NULL;
+    char *start = newstring(s), *needle = newstring(n), *a = start, *b = needle, *ret = nullptr;
     while(*a && *b)
     {
         *a = cubelower(*a);
@@ -3551,7 +3551,7 @@ void checksleep(int millis)
             int oldflags = identflags;
             identflags = s.flags;
             char *cmd = s.command; // execute might create more sleep commands
-            s.command = NULL;
+            s.command = nullptr;
             execute(cmd);
             delete[] cmd;
             identflags = oldflags;
@@ -3612,7 +3612,7 @@ void getvarinfo(int n, int types, int notypes, int flags, int noflags, char *str
     }
     if(str && *str)
     {
-        static char *laststr = NULL;
+        static char *laststr = nullptr;
         if(ids[1].empty() || !laststr || strcmp(str, laststr))
         {
             ids[1].setsize(0);

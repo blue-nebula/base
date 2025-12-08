@@ -266,7 +266,7 @@ static float shadowent(octaentities *oc, const vec &o, const vec &ray, float rad
                     dent = min(dent, edist); \
                 } \
             } \
-            if(lc->children==NULL) break; \
+            if(lc->children==nullptr) break; \
             lc = lc->children; \
             levels[lshift] = lc; \
         }
@@ -397,7 +397,7 @@ struct ShadowRayCache
 
 ShadowRayCache *newshadowraycache() { return new ShadowRayCache; }
 
-void freeshadowraycache(ShadowRayCache *&cache) { delete cache; cache = NULL; }
+void freeshadowraycache(ShadowRayCache *&cache) { delete cache; cache = nullptr; }
 
 void resetshadowraycache(ShadowRayCache *cache)
 {
@@ -449,7 +449,7 @@ float rayent(const vec &o, const vec &ray, float radius, int mode, int size, int
     float dist = raycube(o, ray, radius, mode, size);
     if((mode&RAY_ENTS) == RAY_ENTS)
     {
-        float dent = disttooutsideent(o, ray, dist < 0 ? 1e16f : dist, mode, NULL);
+        float dent = disttooutsideent(o, ray, dist < 0 ? 1e16f : dist, mode, nullptr);
         if(dent < 1e15f && (dist < 0 || dent < dist)) dist = dent;
     }
     orient = hitorient;
@@ -669,7 +669,7 @@ static inline bool plcollide(physent *d, const vec &dir, physent *o)
     E entvol(d);
     O obvol(o);
     vec cp;
-    if(mpr::collide(entvol, obvol, NULL, NULL, &cp))
+    if(mpr::collide(entvol, obvol, nullptr, nullptr, &cp))
     {
         vec wn = vec(cp).sub(obvol.center());
         collidewall = obvol.contactface(wn, dir.iszero() ? vec(wn).neg() : dir);
@@ -699,7 +699,7 @@ bool plcollide(physent *d, const vec &dir, bool insideplayercol)  // collide wit
 {
     if(d->type==ENT_CAMERA || d->state!=CS_ALIVE) return false;
     int lastinside = collideinside;
-    physent *insideplayer = NULL;
+    physent *insideplayer = nullptr;
     loopdynentcache(x, y, d->o, d->radius)
     {
         const vector<physent *> &dynents = checkdynentcache(x, y);
@@ -744,7 +744,7 @@ static inline bool mmcollide(physent *d, const vec &dir, const extentity &e, con
     E entvol(d);
     M mdlvol(e.o, center, radius, yaw, pitch, roll);
     vec cp(0, 0, 0);
-    if(mpr::collide(entvol, mdlvol, NULL, NULL, &cp))
+    if(mpr::collide(entvol, mdlvol, nullptr, nullptr, &cp))
     {
         vec wn = vec(cp).sub(mdlvol.center());
         collidewall = mdlvol.contactface(wn, dir.iszero() ? vec(wn).neg() : dir);
@@ -1187,7 +1187,7 @@ static inline bool octacollide(physent *d, const vec &dir, float cutoff, const i
 bool collide(physent *d, const vec &dir, float cutoff, bool playercol, bool insideplayercol)
 {
     collideinside = 0;
-    hitplayer = NULL;
+    hitplayer = nullptr;
     hitflags = HITFLAG_NONE;
     collidewall = vec(0, 0, 0);
     ivec bo(int(d->o.x-d->radius), int(d->o.y-d->radius), int(d->o.z-d->height)),
@@ -1224,7 +1224,7 @@ float pltracecollide(physent *d, const vec &from, const vec &ray, float maxdist)
 float tracecollide(physent *d, const vec &o, const vec &ray, float maxdist, int mode, bool playercol)
 {
     hitsurface = vec(0, 0, 0);
-    hitplayer = NULL;
+    hitplayer = nullptr;
     hitflags = HITFLAG_NONE;
     float dist = raycube(o, ray, maxdist+1e-3f, mode);
     if(playercol)

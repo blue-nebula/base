@@ -466,7 +466,7 @@ struct verinfo
     int type, flag, version, major, minor, patch, game, platform, arch, gpuglver, gpuglslver, crc;
     char *branch, *gpuvendor, *gpurenderer, *gpuversion;
 
-    verinfo() : branch(NULL), gpuvendor(NULL), gpurenderer(NULL), gpuversion(NULL) { reset(); }
+    verinfo() : branch(nullptr), gpuvendor(nullptr), gpurenderer(nullptr), gpuversion(nullptr) { reset(); }
     ~verinfo() { reset(); }
 
     void reset()
@@ -475,7 +475,7 @@ struct verinfo
         if(gpuvendor) delete[] gpuvendor;
         if(gpurenderer) delete[] gpurenderer;
         if(gpuversion) delete[] gpuversion;
-        branch = gpuvendor = gpurenderer = gpuversion = NULL;
+        branch = gpuvendor = gpurenderer = gpuversion = nullptr;
         type = flag = version = major = minor = patch = game = arch = gpuglver = gpuglslver = crc = 0;
         platform = -1;
     }
@@ -1029,7 +1029,7 @@ struct gameent : dynent, clientstate
     vector<stunevent> stuns;
     vector<int> vitems;
 
-    gameent() : edit(NULL), ai(NULL), team(T_NEUTRAL), clientnum(-1), privilege(PRIV_NONE), projid(0), checkpoint(-1), cplast(0), lastupdate(0), lastpredict(0), plag(0), ping(0),
+    gameent() : edit(nullptr), ai(nullptr), team(T_NEUTRAL), clientnum(-1), privilege(PRIV_NONE), projid(0), checkpoint(-1), cplast(0), lastupdate(0), lastpredict(0), plag(0), ping(0),
         totaldamage(0), smoothmillis(-1), turnmillis(0), lastattacker(-1), lastpoints(0), quake(0),
         conopen(false), k_up(false), k_down(false), k_left(false), k_right(false), obliterated(false)
     {
@@ -1485,7 +1485,7 @@ struct projent : dynent
     physent *hit;
     const char *mdl;
 
-    projent() : projtype(PRJ_SHOT), id(-1), hitflags(HITFLAG_NONE), owner(NULL), target(NULL), stick(NULL), hit(NULL), mdl(NULL) { reset(); }
+    projent() : projtype(PRJ_SHOT), id(-1), hitflags(HITFLAG_NONE), owner(nullptr), target(nullptr), stick(nullptr), hit(nullptr), mdl(nullptr) { reset(); }
     ~projent()
     {
         removetrackedparticles(this);
@@ -1533,23 +1533,23 @@ struct cament
     bool ignore;
     cament *moveto;
 
-    cament(int p, int t) : cn(p), type(t), id(-1), player(NULL), ignore(false), moveto(NULL)
+    cament(int p, int t) : cn(p), type(t), id(-1), player(nullptr), ignore(false), moveto(nullptr)
     {
         reset();
         resetlast();
     }
-    cament(int p, int t, int n) : cn(p), type(t), id(n), player(NULL), ignore(false), moveto(NULL)
+    cament(int p, int t, int n) : cn(p), type(t), id(n), player(nullptr), ignore(false), moveto(nullptr)
     {
         reset();
         resetlast();
     }
-    cament(int p, int t, int n, vec &d) : cn(p), type(t), id(n), player(NULL), ignore(false), moveto(NULL)
+    cament(int p, int t, int n, vec &d) : cn(p), type(t), id(n), player(nullptr), ignore(false), moveto(nullptr)
     {
         reset();
         resetlast();
         o = d;
     }
-    cament(int p, int t, int n, vec &c, gameent *d) : cn(p), type(t), id(n), player(d), ignore(false), moveto(NULL)
+    cament(int p, int t, int n, vec &c, gameent *d) : cn(p), type(t), id(n), player(d), ignore(false), moveto(nullptr)
     {
         reset();
         resetlast();
@@ -1596,7 +1596,7 @@ namespace client
     extern void ignore(int cn);
     extern void unignore(int cn);
     extern bool isignored(int cn);
-    extern bool addmsg(int type, const char *fmt = NULL, ...);
+    extern bool addmsg(int type, const char *fmt = nullptr, ...);
     extern void saytext(gameent *f, gameent *t, int flags, char *text);
     extern void c2sinfo(bool force = false);
     extern bool haspriv(gameent *d, int priv = PRIV_NONE);
@@ -1625,11 +1625,11 @@ namespace projs
 
     extern void reset();
     extern void update();
-    extern projent *create(const vec &from, const vec &to, bool local, gameent *d, int type, int fromweap, int fromflags, int lifetime, int lifemillis, int waittime, int speed, int id = 0, int weap = -1, int value = -1, int flags = 0, float scale = 1, bool child = false, projent *parent = NULL);
+    extern projent *create(const vec &from, const vec &to, bool local, gameent *d, int type, int fromweap, int fromflags, int lifetime, int lifemillis, int waittime, int speed, int id = 0, int weap = -1, int value = -1, int flags = 0, float scale = 1, bool child = false, projent *parent = nullptr);
     extern void preload();
     extern void remove(gameent *owner);
     extern void destruct(gameent *d, int id);
-    extern void sticky(gameent *d, int id, vec &norm, vec &pos, gameent *f = NULL);
+    extern void sticky(gameent *d, int id, vec &norm, vec &pos, gameent *f = nullptr);
     extern void shootv(int weap, int flags, int sub, int offset, float scale, vec &from, vector<shotmsg> &shots, gameent *d, bool local);
     extern void drop(gameent *d, int weap, int ent, int ammo = -1, bool local = true, int index = 0, int targ = -1);
     extern void adddynlights();
@@ -1672,12 +1672,12 @@ namespace hud
     extern void drawpointer(int w, int h, int index);
     extern int numteamkills();
     extern int radarrange();
-    extern void drawblip(const char *tex, float area, int w, int h, float s, float blend, int style, const vec &pos, const vec &colour = vec(1, 1, 1), const char *font = "reduced", bool rotate = true, const char *text = NULL, ...);
-    extern int drawprogress(int x, int y, float start, float length, float size, bool left, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, const char *font = NULL, const char *text = NULL, ...);
+    extern void drawblip(const char *tex, float area, int w, int h, float s, float blend, int style, const vec &pos, const vec &colour = vec(1, 1, 1), const char *font = "reduced", bool rotate = true, const char *text = nullptr, ...);
+    extern int drawprogress(int x, int y, float start, float length, float size, bool left, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, const char *font = nullptr, const char *text = nullptr, ...);
     extern int drawitembar(int x, int y, float size, bool left, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, float amt = 1, int type = 0);
-    extern int drawitem(const char *tex, int x, int y, float size, float sub = 0, bool bg = true, bool left = false, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, const char *font = NULL, const char *text = NULL, ...);
-    extern int drawitemtextx(int x, int y, float size, int flags = TEXT_LEFT_UP, float skew = 1, const char *font = NULL, float blend = 1, const char *text = NULL, ...);
-    extern int drawitemtext(int x, int y, float size, bool left = false, float skew = 1, const char *font = NULL, float blend = 1, const char *text = NULL, ...);
+    extern int drawitem(const char *tex, int x, int y, float size, float sub = 0, bool bg = true, bool left = false, float r = 1, float g = 1, float b = 1, float fade = 1, float skew = 1, const char *font = nullptr, const char *text = nullptr, ...);
+    extern int drawitemtextx(int x, int y, float size, int flags = TEXT_LEFT_UP, float skew = 1, const char *font = nullptr, float blend = 1, const char *text = nullptr, ...);
+    extern int drawitemtext(int x, int y, float size, bool left = false, float skew = 1, const char *font = nullptr, float blend = 1, const char *text = nullptr, ...);
     extern int drawweapons(int x, int y, int s, float blend = 1);
     extern int drawhealth(int x, int y, int s, float blend = 1, bool interm = false);
     extern void drawinventory(int w, int h, int edge, float blend = 1);
@@ -1726,14 +1726,14 @@ namespace game
     extern gameent *getclient(int cn);
     extern gameent *intersectclosest(vec &from, vec &to, gameent *at);
     extern void clientdisconnected(int cn, int reason = DISC_NONE);
-    extern const char *colourname(gameent *d, char *name = NULL, bool icon = true, bool dupname = true, int colour = 3);
+    extern const char *colourname(gameent *d, char *name = nullptr, bool icon = true, bool dupname = true, int colour = 3);
     extern const char *colourteam(int team, const char *icon = "");
     extern int findcolour(gameent *d, bool tone = true, bool mix = false, float level = 1);
     extern int getcolour(gameent *d, int type = 0, float level = 1.f);
     extern void errorsnd(gameent *d);
-    extern void announce(int idx, gameent *d = NULL, bool forced = false);
+    extern void announce(int idx, gameent *d = nullptr, bool forced = false);
     extern void announcef(int idx, int targ, gameent *d, bool forced, const char *msg, ...);
-    extern void specreset(gameent *d = NULL, bool clear = false);
+    extern void specreset(gameent *d = nullptr, bool clear = false);
     extern void respawn(gameent *d);
     extern void respawned(gameent *d, bool local, int ent = -1);
     extern vec pulsecolour(physent *d, int i = 0, int cycle = 50);

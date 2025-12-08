@@ -140,7 +140,7 @@ void fatal(const char *s, ...)    // failure exit
             }
             SDL_Quit();
             defformatstring(cap, "%s: Error", versionname);
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, cap, msg, NULL);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, cap, msg, nullptr);
         }
     }
     exit(EXIT_FAILURE);
@@ -160,8 +160,8 @@ bool initwarning(const char *desc, int level, int type, bool force)
 VAR(IDF_READONLY, desktopw, 1, 0, 0);
 VAR(IDF_READONLY, desktoph, 1, 0, 0);
 int screenw = 0, screenh = 0;
-SDL_Window *screen = NULL;
-SDL_GLContext glcontext = NULL;
+SDL_Window *screen = nullptr;
+SDL_GLContext glcontext = nullptr;
 
 #define SCR_MINW 320
 #define SCR_MINH 200
@@ -311,12 +311,12 @@ void setupscreen()
     if(glcontext)
     {
         SDL_GL_DeleteContext(glcontext);
-        glcontext = NULL;
+        glcontext = nullptr;
     }
     if(screen)
     {
         SDL_DestroyWindow(screen);
-        screen = NULL;
+        screen = nullptr;
     }
     curvsync = -1;
 
@@ -733,10 +733,10 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
     CONTEXT *context = ep->ContextRecord;
     bigstring out;
     formatstring(out, "%s Win32 Exception: 0x%x [0x%x]\n\n", versionname, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
-    SymInitialize(GetCurrentProcess(), NULL, TRUE);
+    SymInitialize(GetCurrentProcess(), nullptr, TRUE);
 #ifdef _AMD64_
     STACKFRAME64 sf = {{context->Rip, 0, AddrModeFlat}, {}, {context->Rbp, 0, AddrModeFlat}, {context->Rsp, 0, AddrModeFlat}, 0};
-    while(::StackWalk64(IMAGE_FILE_MACHINE_AMD64, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL))
+    while(::StackWalk64(IMAGE_FILE_MACHINE_AMD64, GetCurrentProcess(), GetCurrentThread(), &sf, context, nullptr, ::SymFunctionTableAccess, ::SymGetModuleBase, nullptr))
     {
         union { IMAGEHLP_SYMBOL64 sym; char symext[sizeof(IMAGEHLP_SYMBOL64) + sizeof(bigstring)]; };
         sym.SizeOfStruct = sizeof(sym);
@@ -748,7 +748,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
         if(SymGetSymFromAddr64(GetCurrentProcess(), sf.AddrPC.Offset, &symoff, &sym) && SymGetLineFromAddr64(GetCurrentProcess(), sf.AddrPC.Offset, &lineoff, &line))
 #else
     STACKFRAME sf = {{context->Eip, 0, AddrModeFlat}, {}, {context->Ebp, 0, AddrModeFlat}, {context->Esp, 0, AddrModeFlat}, 0};
-    while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL))
+    while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, nullptr, ::SymFunctionTableAccess, ::SymGetModuleBase, nullptr))
     {
         union { IMAGEHLP_SYMBOL sym; char symext[sizeof(IMAGEHLP_SYMBOL) + sizeof(bigstring)]; };
         sym.SizeOfStruct = sizeof(sym);
@@ -873,7 +873,7 @@ void progress(float bar1, const char *text1, float bar2, const char *text2)
 
 bool pixeling = false;
 bvec pixel(0, 0, 0);
-char *pixelact = NULL;
+char *pixelact = nullptr;
 
 ICOMMAND(0, printpixel, "", (void), conoutft(CON_SELF, "pixel = 0x%.6X (%d, %d, %d)", pixel.tohexcolor(), pixel.r, pixel.g, pixel.b));
 ICOMMAND(0, getpixel, "i", (int *n), {
@@ -891,7 +891,7 @@ void readpixel(char *act)
     if(pixeling) return;
     if(!editmode) { conoutf("\froperation only allowed in edit mode"); return; }
     if(pixelact) delete[] pixelact;
-    pixelact = act && *act ? newstring(act) : NULL;
+    pixelact = act && *act ? newstring(act) : nullptr;
     pixeling = true;
 }
 ICOMMAND(0, readpixel, "s", (char *act), readpixel(act));
@@ -909,15 +909,15 @@ int main(int argc, char **argv)
     #endif
     #endif
 
-    currenttime = time(NULL); // initialise
+    currenttime = time(nullptr); // initialise
     clocktime = mktime(gmtime(&currenttime));
     clockoffset = currenttime-clocktime;
 
-    setlogfile(NULL);
+    setlogfile(nullptr);
     setlocations(true);
     setverinfo(argv[0]);
 
-    char *initscript = NULL;
+    char *initscript = nullptr;
     initing = INIT_RESET;
 
     // bluenebula:// URI support
@@ -928,10 +928,10 @@ int main(int argc, char **argv)
     // (password and port are optional)
     const char blue_nebula_protocol_prefix[] = "bluenebula://";
     const int blue_nebula_protocol_length = sizeof(blue_nebula_protocol_prefix) - 1;
-    char *blue_nebula_protocol_arg = NULL;
-    char *connectstr = NULL;
-    char *connectpassword = NULL;
-    char *connecthost = NULL;
+    char *blue_nebula_protocol_arg = nullptr;
+    char *connectstr = nullptr;
+    char *connectpassword = nullptr;
+    char *connecthost = nullptr;
     int connectport = SERVER_PORT;
 
     // try to parse home directory argument
@@ -1076,7 +1076,7 @@ int main(int argc, char **argv)
 
     conoutf("loading world..");
     progress(0, "loading world..");
-    emptymap(0, true, NULL, true);
+    emptymap(0, true, nullptr, true);
 
     conoutf("loading config..");
     progress(0, "loading config..");
@@ -1113,12 +1113,12 @@ int main(int argc, char **argv)
     if(connectstr)
     {
         delete[] connectstr;
-        connectstr = NULL;
+        connectstr = nullptr;
     }
     if(blue_nebula_protocol_arg)
     {
         delete[] blue_nebula_protocol_arg;
-        blue_nebula_protocol_arg = NULL;
+        blue_nebula_protocol_arg = nullptr;
     }
 
     for(int frameloops = 0; ; frameloops = frameloops >= INT_MAX-1 ? MAXFPSHISTORY+1 : frameloops+1)
@@ -1163,7 +1163,7 @@ int main(int argc, char **argv)
                     if(pixelact) execute(pixelact);
                 }
                 if(pixelact) delete[] pixelact;
-                pixelact = NULL;
+                pixelact = nullptr;
                 pixeling = false;
             }
             if(*progresstitle || progressamt > 0)

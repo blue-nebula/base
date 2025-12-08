@@ -44,7 +44,7 @@ struct localop
 {
     char *name, *flags;
 
-    localop() : name(NULL), flags(NULL) {}
+    localop() : name(nullptr), flags(nullptr) {}
     localop(const char *n, const char *f) : name(newstring(n)), flags(newstring(f)) {}
     ~localop()
     {
@@ -94,14 +94,14 @@ namespace auth
     {
         loopv(clients) if(clients[i]->authreq == id) return clients[i];
         loopv(connects) if(connects[i]->authreq == id) return connects[i];
-        return NULL;
+        return nullptr;
     }
 
     clientinfo *findauthhandle(const char *handle)
     {
         loopv(clients) if(!strcmp(clients[i]->handle, handle)) return clients[i];
         loopv(connects) if(!strcmp(connects[i]->handle, handle)) return connects[i];
-        return NULL;
+        return nullptr;
     }
 
     void reqserverauth()
@@ -148,7 +148,7 @@ namespace auth
         return true;
     }
 
-    void setprivilege(clientinfo *ci, int val, int flags = 0, bool authed = false, clientinfo *setter = NULL)
+    void setprivilege(clientinfo *ci, int val, int flags = 0, bool authed = false, clientinfo *setter = nullptr)
     {
         string msg = "";
         bool resendinit = false;

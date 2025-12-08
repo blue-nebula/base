@@ -107,7 +107,7 @@ void addvisibleva(vtxarray *va)
 
 void sortvisiblevas()
 {
-    visibleva = NULL;
+    visibleva = nullptr;
     vtxarray **last = &visibleva;
     loopi(VASORTSIZE) if(vasort[i])
     {
@@ -137,7 +137,7 @@ void findvisiblevas(vector<vtxarray *> &vas, bool resetocclude = false)
             if(prevvfc>=VFC_NOT_VISIBLE)
             {
                 v.occluded = !v.texs ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
-                v.query = NULL;
+                v.query = nullptr;
             }
         }
     }
@@ -198,14 +198,14 @@ void visiblecubes(bool cull)
         vfcDfog = 1000000;
         memset(vfcDnear, 0, sizeof(vfcDnear));
         memset(vfcDfar, 0, sizeof(vfcDfar));
-        visibleva = NULL;
+        visibleva = nullptr;
         loopv(valist)
         {
             vtxarray *va = valist[i];
             va->distance = 0;
             va->curvfc = VFC_FULL_VISIBLE;
             va->occluded = !va->texs ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
-            va->query = NULL;
+            va->query = nullptr;
             va->next = visibleva;
             visibleva = va;
         }
@@ -231,13 +231,13 @@ struct queryframe
 
     queryframe() : cur(0), max(0) {}
 
-    void flip() { loopi(cur) queries[i].owner = NULL; cur = 0; }
+    void flip() { loopi(cur) queries[i].owner = nullptr; cur = 0; }
 
     occludequery *newquery(void *owner)
     {
         if(cur >= max)
         {
-            if(max >= MAXQUERY) return NULL;
+            if(max >= MAXQUERY) return nullptr;
             glGenQueries_(1, &queries[max++].id);
         }
         occludequery *query = &queries[cur++];
@@ -246,14 +246,14 @@ struct queryframe
         return query;
     }
 
-    void reset() { loopi(max) queries[i].owner = NULL; }
+    void reset() { loopi(max) queries[i].owner = nullptr; }
 
     void cleanup()
     {
         loopi(max)
         {
             glDeleteQueries_(1, &queries[i].id);
-            queries[i].owner = NULL;
+            queries[i].owner = nullptr;
         }
         cur = max = 0;
     }
@@ -408,7 +408,7 @@ static inline bool insideoe(const octaentities *oe, const vec &v, int margin = 1
 
 void findvisiblemms(const vector<extentity *> &ents, bool doquery)
 {
-    visiblemms = NULL;
+    visiblemms = nullptr;
     lastvisiblemms = &visiblemms;
     for(vtxarray *va = visibleva; va; va = va->next)
     {
@@ -423,7 +423,7 @@ void findvisiblemms(const vector<extentity *> &ents, bool doquery)
             {
                 oe->distance = -1;
 
-                oe->next = NULL;
+                oe->next = nullptr;
                 *lastvisiblemms = oe;
                 lastvisiblemms = &oe->next;
             }
@@ -448,7 +448,7 @@ void findvisiblemms(const vector<extentity *> &ents, bool doquery)
                     cur = cur->next;
                 }
 
-                if(*prev == NULL) lastvisiblemms = &oe->next;
+                if(*prev == nullptr) lastvisiblemms = &oe->next;
                 oe->next = *prev;
                 *prev = oe;
             }
@@ -490,7 +490,7 @@ void rendermapmodel(extentity &e)
         if(e.attrs[10]) yaw += e.attrs[10]*lastmillis/1000.0f;
         if(e.attrs[11]) pitch += e.attrs[11]*lastmillis/1000.0f;
         if(e.attrs[12]) roll += e.attrs[12]*lastmillis/1000.0f;
-        rendermodel(&e.light, mmi->name, anim, e.o, yaw, pitch, roll, flags, NULL, NULL, basetime, 0, e.attrs[4] ? min(e.attrs[4]/100.f, 1.f) : 1.f, e.attrs[5] ? max(e.attrs[5]/100.f, 1e-3f) : 1.f);
+        rendermodel(&e.light, mmi->name, anim, e.o, yaw, pitch, roll, flags, nullptr, nullptr, basetime, 0, e.attrs[4] ? min(e.attrs[4]/100.f, 1.f) : 1.f, e.attrs[5] ? max(e.attrs[5]/100.f, 1e-3f) : 1.f);
     }
 }
 
@@ -514,7 +514,7 @@ void renderreflectedmapmodels()
                 lastmms = &oe->rnext;
             }
         }
-        *lastmms = NULL;
+        *lastmms = nullptr;
     }
     for(octaentities *oe = mms; oe; oe = reflecting ? oe->rnext : oe->next) if(reflecting || oe->distance >= 0)
     {
@@ -562,7 +562,7 @@ void rendermapmodels()
             if(!rendered)
             {
                 rendered = true;
-                oe->query = doquery && oe->distance>0 && !(++skipoq%oqmm) ? newquery(oe) : NULL;
+                oe->query = doquery && oe->distance>0 && !(++skipoq%oqmm) ? newquery(oe) : nullptr;
                 if(oe->query) startmodelquery(oe->query);
             }
             rendermapmodel(e);
@@ -575,7 +575,7 @@ void rendermapmodels()
     bool queried = false;
     for(octaentities *oe = visiblemms; oe; oe = oe->next) if(oe->distance<0)
     {
-        oe->query = doquery && !insideoe(oe, camera1->o) ? newquery(oe) : NULL;
+        oe->query = doquery && !insideoe(oe, camera1->o) ? newquery(oe) : nullptr;
         if(!oe->query) continue;
         if(!queried)
         {
@@ -658,7 +658,7 @@ void renderoutline()
 
     if(!dtoutline) glDisable(GL_DEPTH_TEST);
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = visibleva; va; va = va->next)
     {
         if(va->occluded >= OCCLUDE_BB) continue;
@@ -716,7 +716,7 @@ void renderblendbrush(GLuint tex, float x, float y, float w, float h)
     LOCALPARAMF(texgenS, 1.0f/w, 0, 0, -x/w);
     LOCALPARAMF(texgenT, 0, 1.0f/h, 0, -y/h);
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = visibleva; va; va = va->next)
     {
         if(!va->texs || va->occluded >= OCCLUDE_GEOM) continue;
@@ -762,7 +762,7 @@ void rendershadowmapreceivers()
     glBlendEquation_(GL_MAX);
     glBlendFunc(GL_ONE, GL_ONE);
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = visibleva; va; va = va->next)
     {
         if(!va->texs || va->curvfc >= VFC_FOGGED || !isshadowmapreceiver(va)) continue;
@@ -824,7 +824,7 @@ void renderdepthobstacles(const vec &bbmin, const vec &bbmax, float scale, float
 
     gle::enablevertex();
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = visibleva; va; va = va->next)
     {
         if(!va->texs || va->occluded >= OCCLUDE_GEOM ||
@@ -876,7 +876,7 @@ struct renderstate
     int visibledynlights;
     uint dynlightmask;
 
-    renderstate() : colormask(true), depthmask(true), blending(false), alphaing(0), vbuf(0), vattribs(false), vquery(false), colorscale(1, 1, 1), alphascale(0), slot(NULL), texgenslot(NULL), vslot(NULL), texgenvslot(NULL), texgenscroll(0, 0), texgendim(-1), visibledynlights(0), dynlightmask(0)
+    renderstate() : colormask(true), depthmask(true), blending(false), alphaing(0), vbuf(0), vattribs(false), vquery(false), colorscale(1, 1, 1), alphascale(0), slot(nullptr), texgenslot(nullptr), vslot(nullptr), texgenvslot(nullptr), texgenscroll(0, 0), texgendim(-1), visibledynlights(0), dynlightmask(0)
     {
         loopk(8) textures[k] = 0;
     }
@@ -962,7 +962,7 @@ struct geombatch
 static vector<geombatch> geombatches;
 static int firstbatch = -1, numbatches = 0;
 
-static void mergetexs(renderstate &cur, vtxarray *va, elementset *texs = NULL, int numtexs = 0, ushort *edata = NULL)
+static void mergetexs(renderstate &cur, vtxarray *va, elementset *texs = nullptr, int numtexs = 0, ushort *edata = nullptr)
 {
     if(!texs)
     {
@@ -1192,7 +1192,7 @@ static void changeshader(renderstate &cur, Shader *s, Slot &slot, VSlot &vslot, 
 {
     if(glaring)
     {
-        static Shader *noglareshader = NULL, *noglareblendshader = NULL, *noglarealphashader = NULL;
+        static Shader *noglareshader = nullptr, *noglareblendshader = nullptr, *noglarealphashader = nullptr;
         Shader *fallback;
         if(cur.blending) { if(!noglareblendshader) noglareblendshader = lookupshaderbyname("noglareblendworld"); fallback = noglareblendshader; }
         else if(cur.alphaing) { if(!noglarealphashader) noglarealphashader = lookupshaderbyname("noglarealphaworld"); fallback = noglarealphashader; }
@@ -1244,7 +1244,7 @@ static void changetexgen(renderstate &cur, int dim, Slot &slot, VSlot &vslot)
 
 static void renderbatch(renderstate &cur, int pass, geombatch &b)
 {
-    geombatch *shadowed = NULL;
+    geombatch *shadowed = nullptr;
     int rendered = -1;
     for(geombatch *curbatch = &b;; curbatch = &geombatches[curbatch->batch])
     {
@@ -1292,8 +1292,8 @@ static void resetbatches()
 
 static void renderbatches(renderstate &cur, int pass)
 {
-    cur.slot = NULL;
-    cur.vslot = NULL;
+    cur.slot = nullptr;
+    cur.vslot = nullptr;
     int curbatch = firstbatch;
     if(curbatch >= 0)
     {
@@ -1375,7 +1375,7 @@ vector<vtxarray *> foggedvas;
 
 void renderfoggedvas(renderstate &cur, bool doquery = false)
 {
-    static Shader *fogshader = NULL;
+    static Shader *fogshader = nullptr;
     if(!fogshader) fogshader = lookupshaderbyname("fogworld");
     if(fading) fogshader->setvariant(0, 2);
     else fogshader->set();
@@ -1453,7 +1453,7 @@ void renderva(renderstate &cur, vtxarray *va, int pass = RENDERPASS_LIGHTMAP, bo
 
 #define NUMCAUSTICS 32
 
-static Texture *caustictex[NUMCAUSTICS] = { NULL };
+static Texture *caustictex[NUMCAUSTICS] = { nullptr };
 
 void loadcaustics(bool force)
 {
@@ -1475,7 +1475,7 @@ void cleanupva()
     clearqueries();
     cleanupbb();
     cleanupgrass();
-    loopi(NUMCAUSTICS) caustictex[i] = NULL;
+    loopi(NUMCAUSTICS) caustictex[i] = nullptr;
 }
 
 VAR(IDF_WORLD, causticscale, 1, 50, 10000);
@@ -1590,7 +1590,7 @@ void rendergeom(float causticspass, bool fogpass)
         {
             if(va->parent && va->parent->occluded >= OCCLUDE_BB)
             {
-                va->query = NULL;
+                va->query = nullptr;
                 va->occluded = OCCLUDE_PARENT;
                 continue;
             }
@@ -1612,7 +1612,7 @@ void rendergeom(float causticspass, bool fogpass)
         }
         else
         {
-            va->query = NULL;
+            va->query = nullptr;
             va->occluded = pvsoccluded(va->geommin, va->geommax) ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
             if(va->occluded >= OCCLUDE_GEOM) continue;
         }
@@ -1841,14 +1841,14 @@ void renderreflectedgeom(bool causticspass, bool fogpass)
 {
     if(reflecting)
     {
-        reflectedva = NULL;
+        reflectedva = nullptr;
         findreflectedvas(varoot);
         rendergeom(causticspass ? 1 : 0, fogpass);
     }
     else rendergeom(causticspass ? 1 : 0, fogpass);
 }
 
-static vtxarray *prevskyva = NULL;
+static vtxarray *prevskyva = nullptr;
 
 void renderskyva(vtxarray *va, bool explicitonly = false)
 {
@@ -1899,7 +1899,7 @@ void renderreflectedskyvas(vector<vtxarray *> &vas, int prevvfc = VFC_PART_VISIB
 
 bool rendersky(bool explicitonly)
 {
-    prevskyva = NULL;
+    prevskyva = nullptr;
     renderedsky = renderedexplicitsky = renderedskyfaces = 0;
     renderedskyclip = INT_MAX;
 

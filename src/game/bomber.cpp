@@ -39,7 +39,7 @@ namespace bomber
     int findtarget(gameent *d)
     {
         vec dest;
-        gameent *e = NULL;
+        gameent *e = nullptr;
         float bestangle = 1e16f, bestdist = 1e16f;
         int best = -1;
         int numdyns = game::numdynents();
@@ -340,7 +340,7 @@ namespace bomber
                 if(f.owner != game::focus || game::thirdpersonview(true) || !rendernormally)
                 {
                     if(f.owner == game::focus) trans *= 0.25f;
-                    rendermodel(&f.light, "props/ball", ANIM_MAPMODEL|ANIM_LOOP, above, yaw, pitch, roll, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED|MDL_LIGHTFX, NULL, NULL, 0, 0, trans, size);
+                    rendermodel(&f.light, "props/ball", ANIM_MAPMODEL|ANIM_LOOP, above, yaw, pitch, roll, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED|MDL_LIGHTFX, nullptr, nullptr, 0, 0, trans, size);
                     float fluc = interval >= 500 ? (1500-interval)/1000.f : (500+interval)/1000.f;
                     int pcolour = effect.tohexcolor();
                     part_create(PART_HINT_SOFT, 1, above, pcolour, enttype[AFFINITY].radius/4*trans+(2*fluc), fluc*trans*blend);
@@ -379,7 +379,7 @@ namespace bomber
                 part_icon(above, textureload(hud::teamtexname(f.team), 3), 4, trans*blend, 0, 0, 1, TEAM(f.team, colour));
             }
             if(!m_bb_hold(game::gamemode, game::mutators))
-                rendermodel(&f.baselight, "props/point", ANIM_MAPMODEL|ANIM_LOOP, f.render, f.yaw, 0, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, NULL, NULL, 0, 0, 1);
+                rendermodel(&f.baselight, "props/point", ANIM_MAPMODEL|ANIM_LOOP, f.render, f.yaw, 0, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, nullptr, nullptr, 0, 0, 1);
         }
     }
 
@@ -524,9 +524,9 @@ namespace bomber
         if(!m_kaboom(game::gamemode, game::mutators) && game::nogore != 2 && game::debrisscale > 0)
         {
             int debris = rnd(5)+5, amt = int((rnd(debris)+debris+1)*game::debrisscale);
-            loopi(amt) projs::create(o, o, true, NULL, PRJ_DEBRIS, -1, HIT_NONE, rnd(game::debrisfade)+game::debrisfade, 0, rnd(501), rnd(101)+50);
+            loopi(amt) projs::create(o, o, true, nullptr, PRJ_DEBRIS, -1, HIT_NONE, rnd(game::debrisfade)+game::debrisfade, 0, rnd(501), rnd(101)+50);
         }
-        playsound(WSND2(W_GRENADE, false, S_W_EXPLODE), o, NULL, 0, 255);
+        playsound(WSND2(W_GRENADE, false, S_W_EXPLODE), o, nullptr, 0, 255);
     }
 
     void resetaffinity(int i, int value, const vec &pos)
@@ -539,7 +539,7 @@ namespace bomber
             if(isbomberaffinity(f))
             {
                 affinityeffect(i, T_NEUTRAL, f.pos(true, true), f.spawnloc, 3, "RESET");
-                game::announcef(S_V_BOMBRESET, CON_SELF, NULL, true, "\fathe \fs\fzwvbomb\fS has been reset");
+                game::announcef(S_V_BOMBRESET, CON_SELF, nullptr, true, "\fathe \fs\fzwvbomb\fS has been reset");
             }
         }
         if(value == 2) st.dropaffinity(i, pos, vec(0, 0, 1), lastmillis);
@@ -612,7 +612,7 @@ namespace bomber
 
     void update()
     {
-        gameent *d = NULL;
+        gameent *d = nullptr;
         int numdyn = game::numdynents();
         loopj(numdyn) if(((d = (gameent *)game::iterdynents(j))) && d->state == CS_ALIVE && (d == &game::player1 || d->ai)) dropaffinity(d);
         loopv(st.flags)
@@ -702,7 +702,7 @@ namespace bomber
             ai::checkothers(targets, d, home || d->actortype != A_BOT ? ai::AI_S_DEFEND : ai::AI_S_PURSUE, ai::AI_T_AFFINITY, j, true);
             if(d->actortype == A_BOT)
             {
-                gameent *e = NULL;
+                gameent *e = nullptr;
                 int numdyns = game::numdynents();
                 float mindist = enttype[AFFINITY].radius*4; mindist *= mindist;
                 loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && !e->ai && e->state == CS_ALIVE && d->team == e->team)
@@ -796,7 +796,7 @@ namespace bomber
                         static vector<int> targets; // build a list of others who are interested in this
                         targets.setsize(0);
                         ai::checkothers(targets, d, ai::AI_S_DEFEND, ai::AI_T_AFFINITY, b.target, true);
-                        gameent *e = NULL;
+                        gameent *e = nullptr;
                         int numdyns = game::numdynents();
                         float mindist = enttype[AFFINITY].radius*4; mindist *= mindist;
                         loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && !e->ai && e->state == CS_ALIVE && d->team == e->team)

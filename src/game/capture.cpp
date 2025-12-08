@@ -317,7 +317,7 @@ namespace capture
             if(!f.owner && !f.droptime)
             {
                 vec flagpos = pos;
-                rendermodel(&f.light, "props/flag", ANIM_MAPMODEL|ANIM_LOOP, flagpos, f.yaw, f.pitch, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, NULL, NULL, 0, 0, blend);
+                rendermodel(&f.light, "props/flag", ANIM_MAPMODEL|ANIM_LOOP, flagpos, f.yaw, f.pitch, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, nullptr, nullptr, 0, 0, blend);
                 flagpos.z += enttype[AFFINITY].radius/3;
                 part_create(PART_HINT_VERT_SOFT, 1, flagpos, effect.tohexcolor(), enttype[AFFINITY].radius/2+1, blend*0.5f*camera1->o.distrange(flagpos, capturehintfadeat, capturehintfadecut));
             }
@@ -332,7 +332,7 @@ namespace capture
                     if(f.proj) flagpos.z -= f.proj->height;
                 }
                 while(yaw >= 360.f) yaw -= 360.f;
-                rendermodel(&f.light, "props/flag", ANIM_MAPMODEL|ANIM_LOOP, flagpos, yaw, pitch, roll, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED|MDL_LIGHT|MDL_LIGHTFX, NULL, NULL, 0, 0, blend);
+                rendermodel(&f.light, "props/flag", ANIM_MAPMODEL|ANIM_LOOP, flagpos, yaw, pitch, roll, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED|MDL_LIGHT|MDL_LIGHTFX, nullptr, nullptr, 0, 0, blend);
                 flagpos.z += enttype[AFFINITY].radius/3;
                 part_create(PART_HINT_VERT_SOFT, 1, flagpos, effect.tohexcolor(), enttype[AFFINITY].radius/2+1, blend*0.5f*camera1->o.distrange(flagpos, capturehintfadeat, capturehintfadecut));
                 flagpos.z += enttype[AFFINITY].radius/2;
@@ -349,7 +349,7 @@ namespace capture
                     part_icon(flagpos, textureload(hud::progresstex, 3), 5, blend, 0, 0, 1, colour, 0, wait);
                 }
             }
-            rendermodel(&f.baselight, "props/point", ANIM_MAPMODEL|ANIM_LOOP, f.render, f.yaw, 0, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, NULL, NULL, 0, 0, 1);
+            rendermodel(&f.baselight, "props/point", ANIM_MAPMODEL|ANIM_LOOP, f.render, f.yaw, 0, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, nullptr, nullptr, 0, 0, 1);
             vec above = f.above;
             above.z += !f.owner && !f.droptime ? enttype[AFFINITY].radius*2/3 : 3;
             blend = camera1->o.distrange(above, enttype[AFFINITY].radius, enttype[AFFINITY].radius/8);
@@ -514,13 +514,13 @@ namespace capture
             game::spawneffect(PART_SPARK, vec(f.pos()).add(vec(0, 0, enttype[AFFINITY].radius*0.45f)), enttype[AFFINITY].radius*0.25f, 0xFFFFFF, 1.5f);
             game::spawneffect(PART_SPARK, value == 2 ? pos : vec(f.spawnloc).add(vec(0, 0, enttype[AFFINITY].radius*0.45f)), enttype[AFFINITY].radius*0.25f, TEAM(f.team, colour), 1.5f);
             game::spawneffect(PART_SPARK, value == 2 ? pos : vec(f.spawnloc).add(vec(0, 0, enttype[AFFINITY].radius*0.45f)), enttype[AFFINITY].radius*0.25f, 0xFFFFFF, 1.5f);
-            game::announcef(S_V_FLAGRESET, CON_SELF, NULL, true, "\fathe %s flag has been reset", game::colourteam(f.team, "flagtex"));
+            game::announcef(S_V_FLAGRESET, CON_SELF, nullptr, true, "\fathe %s flag has been reset", game::colourteam(f.team, "flagtex"));
         }
         if(value == 2)
         {
             st.dropaffinity(i, pos, vec(0, 0, 1), lastmillis);
             f.proj->stuck = 1;
-            f.proj->stick = NULL;
+            f.proj->stick = nullptr;
         }
         else st.returnaffinity(i, lastmillis);
     }
@@ -574,7 +574,7 @@ namespace capture
 
     void update()
     {
-        gameent *d = NULL;
+        gameent *d = nullptr;
         int numdyn = game::numdynents();
         loopj(numdyn) if(((d = (gameent *)game::iterdynents(j))) && d->state == CS_ALIVE && (d == &game::player1 || d->ai)) dropaffinity(d);
         loopv(st.flags)
@@ -682,7 +682,7 @@ namespace capture
             ai::checkothers(targets, d, home || d->actortype != A_BOT ? ai::AI_S_DEFEND : ai::AI_S_PURSUE, ai::AI_T_AFFINITY, j, true);
             if(d->actortype == A_BOT)
             {
-                gameent *e = NULL;
+                gameent *e = nullptr;
                 int numdyns = game::numdynents();
                 float mindist = enttype[AFFINITY].radius*4; mindist *= mindist;
                 loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && !e->ai && e->state == CS_ALIVE && d->team == e->team)
@@ -775,7 +775,7 @@ namespace capture
                         static vector<int> targets; // build a list of others who are interested in this
                         targets.setsize(0);
                         ai::checkothers(targets, d, ai::AI_S_DEFEND, ai::AI_T_AFFINITY, b.target, true);
-                        gameent *e = NULL;
+                        gameent *e = nullptr;
                         int numdyns = game::numdynents();
                         float mindist = enttype[AFFINITY].radius*4; mindist *= mindist;
                         loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && !e->ai && e->state == CS_ALIVE && d->team == e->team)

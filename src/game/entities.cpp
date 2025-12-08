@@ -547,10 +547,10 @@ namespace entities
         return false;
     }
 
-    gameent *trigger = NULL;
+    gameent *trigger = nullptr;
     ICOMMAND(0, triggerclientnum, "", (), intret(trigger ? trigger->clientnum : -1));
 
-    bool cantrigger(int n, gameent *d = NULL)
+    bool cantrigger(int n, gameent *d = nullptr)
     {
         gameentity &e = *(gameentity *)ents[n];
         switch(e.type)
@@ -592,7 +592,7 @@ namespace entities
                     if(d == &game::player1)
                     {
                         defformatstring(s, "on_trigger_%d", e.attrs[0]);
-                        trigger = d; RUNWORLD(s); trigger = NULL;
+                        trigger = d; RUNWORLD(s); trigger = nullptr;
                     }
                     break;
                 }
@@ -925,14 +925,14 @@ namespace entities
                         else e.lastemit = lastmillis;
                     }
                     else e.lastemit = lastmillis;
-                    execlink(NULL, n, false);
+                    execlink(nullptr, n, false);
                     loopv(e.kin) if(ents.inrange(e.kin[i]))
                     {
                         gameentity &f = *(gameentity *)ents[e.kin[i]];
                         if(!cantrigger(e.kin[i])) continue;
                         f.setspawned(e.spawned());
                         f.lastemit = e.lastemit;
-                        execlink(NULL, e.kin[i], false, n);
+                        execlink(nullptr, e.kin[i], false, n);
                     }
                 }
             }
@@ -1168,7 +1168,7 @@ namespace entities
                         {
                             int flags = SND_MAP;
                             loopk(SND_LAST) if(f.attrs[4]&(1<<k)) flags |= 1<<k;
-                            playsound(f.attrs[0], both ? f.o : e.o, NULL, flags, f.attrs[3] ? f.attrs[3] : -1, f.attrs[1] || f.attrs[2] ? f.attrs[1] : -1, f.attrs[2] ? f.attrs[2] : -1, &f.schan);
+                            playsound(f.attrs[0], both ? f.o : e.o, nullptr, flags, f.attrs[3] ? f.attrs[3] : -1, f.attrs[1] || f.attrs[2] ? f.attrs[1] : -1, f.attrs[2] ? f.attrs[2] : -1, &f.schan);
                         }
                         break;
                     }
@@ -2214,7 +2214,7 @@ namespace entities
             {
                 int flags = SND_MAP|SND_LOOP; // ambient sounds loop
                 loopk(SND_LAST)  if(e.attrs[4]&(1<<k)) flags |= 1<<k;
-                playsound(e.attrs[0], e.o, NULL, flags, e.attrs[3] ? e.attrs[3] : 255, e.attrs[1] || e.attrs[2] ? e.attrs[1] : -1, e.attrs[2] ? e.attrs[2] : -1, &e.schan);
+                playsound(e.attrs[0], e.o, nullptr, flags, e.attrs[3] ? e.attrs[3] : 255, e.attrs[1] || e.attrs[2] ? e.attrs[1] : -1, e.attrs[2] ? e.attrs[2] : -1, &e.schan);
             }
         }
         if((m_edit(game::gamemode) || m_race(game::gamemode)) && routeid >= 0 && droproute)
@@ -2330,7 +2330,7 @@ namespace entities
                         }
                         else e.light.effect = vec(0, 0, 0);
                         e.light.material[0] = colour >= 0 ? bvec(colour) : bvec(255, 255, 255);
-                        rendermodel(&e.light, mdlname, ANIM_MAPMODEL|ANIM_LOOP, pos, yaw, pitch, 0.f, flags, NULL, NULL, 0, 0, fade, size);
+                        rendermodel(&e.light, mdlname, ANIM_MAPMODEL|ANIM_LOOP, pos, yaw, pitch, 0.f, flags, nullptr, nullptr, 0, 0, fade, size);
                     }
                 }
             }

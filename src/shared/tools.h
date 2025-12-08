@@ -94,8 +94,8 @@ static inline int bitscan(uint mask)
 #define loopkrev(m) looprev(k,m)
 #define looplrev(m) looprev(l,m)
 
-#define DELETEP(p) if(p) { delete   p; p = 0; }
-#define DELETEA(p) if(p) { delete[] p; p = 0; }
+#define DELETEP(p) if(p) { delete   p; p = nullptr; }
+#define DELETEA(p) if(p) { delete[] p; p = nullptr; }
 
 #define PI  (3.1415927f)
 #define PI2 (2*PI)

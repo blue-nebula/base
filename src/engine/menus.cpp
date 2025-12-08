@@ -5,8 +5,8 @@ VAR(0, guipasses, 1, -1, -1);
 
 struct menu;
 
-static guient *cgui = NULL;
-static menu *cmenu = NULL;
+static guient *cgui = nullptr;
+static menu *cmenu = nullptr;
 
 struct menu : guicb
 {
@@ -15,7 +15,7 @@ struct menu : guicb
     int passes, menu_tab, menu_start;
     bool world, use_input, use_title, use_bg_fx, built_in, *keep;
 
-    menu() : name(NULL), header(NULL), contents(NULL), init_script(NULL), passes(0), menu_tab(0), menu_start(0), world(false), use_input(true), use_title(true), use_bg_fx(true), built_in(false), keep(NULL) {}
+    menu() : name(nullptr), header(nullptr), contents(nullptr), init_script(nullptr), passes(0), menu_tab(0), menu_start(0), world(false), use_input(true), use_title(true), use_bg_fx(true), built_in(false), keep(nullptr) {}
 
     void gui(guient &g, bool firstpass)
     {
@@ -32,8 +32,8 @@ struct menu : guicb
         cgui->end();
         identflags = oldflags;
         guipasses = -1;
-        cmenu = NULL;
-        cgui = NULL;
+        cmenu = nullptr;
+        cgui = nullptr;
         if((++passes) <= 0) passes = 1;
     }
 
@@ -57,7 +57,7 @@ struct delayedupdate
         char *s;
     } val;
     bool world;
-    delayedupdate() : type(ACTION), id(NULL) { val.s = NULL; }
+    delayedupdate() : type(ACTION), id(nullptr) { val.s = nullptr; }
     ~delayedupdate() { if(type == STRING || type == ACTION) DELETEA(val.s); }
 
     void schedule(const char *s) { type = ACTION; val.s = newstring(s); world = (identflags&IDF_WORLD)!=0; }
@@ -71,7 +71,7 @@ struct delayedupdate
         {
             case INT: return val.i;
             case FLOAT: return int(val.f);
-            case STRING: return int(strtol(val.s, NULL, 0));
+            case STRING: return int(strtol(val.s, nullptr, 0));
             default: return 0;
         }
     }
@@ -143,7 +143,7 @@ bool remove_ui(menu *m)
     return false;
 }
 
-bool push_ui(menu *m, int pos = -1, int tab = 0, bool *keep = NULL)
+bool push_ui(menu *m, int pos = -1, int tab = 0, bool *keep = nullptr)
 {
     if(menustack.empty()) resetcursor();
     if(pos < 0) menustack.add(m);
@@ -161,7 +161,7 @@ bool push_ui(menu *m, int pos = -1, int tab = 0, bool *keep = NULL)
     return false;
 }
 
-bool restore_ui(int pos, int tab = 0, bool *keep = NULL)
+bool restore_ui(int pos, int tab = 0, bool *keep = nullptr)
 {
     int clear = menustack.length()-pos-1;
     loopi(clear) pop_ui();
@@ -259,10 +259,10 @@ SVAR(0, guirollovertype, "");
 void ui_button(char *name, char *action, char *altact, char *icon, int *colour, int *icolour, int *wrap, int *faded, char *oicon, int *ocolour)
 {
     if(!cgui) return;
-    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, *icon ? icon : NULL, *icolour >= 0 ? *icolour : 0xFFFFFF, *wrap > 0 ? *wrap : -1, *faded != 0, *oicon ? oicon : NULL, *ocolour >= 0 ? *ocolour : 0xFFFFFF);
+    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, *icon ? icon : nullptr, *icolour >= 0 ? *icolour : 0xFFFFFF, *wrap > 0 ? *wrap : -1, *faded != 0, *oicon ? oicon : nullptr, *ocolour >= 0 ? *ocolour : 0xFFFFFF);
     if(ret&GUI_UP)
     {
-        char *act = NULL;
+        char *act = nullptr;
         if(altact && *altact && ret&GUI_ALT) act = altact;
         else if(action && *action) act = action;
         if(act)
@@ -282,13 +282,13 @@ void ui_button(char *name, char *action, char *altact, char *icon, int *colour, 
 void ui_image(char *path, char *action, float *scale, int *overlaid, char *altpath, char *altact, int *colour, char *opath, int *ocolour)
 {
     if(!cgui) return;
-    Texture *t = path && *path ? textureload(path, 0, true, false) : NULL, *o = opath && *opath ? textureload(opath, 0, true, false) : NULL;
+    Texture *t = path && *path ? textureload(path, 0, true, false) : nullptr, *o = opath && *opath ? textureload(opath, 0, true, false) : nullptr;
     if(t == notexture && *altpath) t = textureload(altpath, 0, true, false);
-    if(o == notexture) o = NULL;
+    if(o == notexture) o = nullptr;
     int ret = cgui->image(t, *scale, *overlaid!=0, *colour >= 0 ? *colour : 0xFFFFFF, o, *ocolour >= 0 ? *ocolour : 0xFFFFFF);
     if(ret&GUI_UP)
     {
-        char *act = NULL;
+        char *act = nullptr;
         if(altact && *altact && ret&GUI_ALT) act = altact;
         else if(action && *action) act = action;
         if(act)
@@ -308,16 +308,16 @@ void ui_image(char *path, char *action, float *scale, int *overlaid, char *altpa
 void ui_slice(char *path, char *action, float *scale, float *start, float *end, char *text, char *altpath, char *altact)
 {
     if(!cgui) return;
-    Texture *t = path && *path ? textureload(path, 0, true, false) : NULL;
+    Texture *t = path && *path ? textureload(path, 0, true, false) : nullptr;
     if(t == notexture)
     {
         if(*altpath) t = textureload(altpath, 0, true, false);
         if(t == notexture) return;
     }
-    int ret = cgui->slice(t, *scale, *start, *end, text && *text ? text : NULL);
+    int ret = cgui->slice(t, *scale, *start, *end, text && *text ? text : nullptr);
     if(ret&GUI_UP)
     {
-        char *act = NULL;
+        char *act = nullptr;
         if(altact && *altact && ret&GUI_ALT) act = altact;
         else if(action && *action) act = action;
         if(act)
@@ -336,7 +336,7 @@ void ui_slice(char *path, char *action, float *scale, float *start, float *end, 
 
 void ui_text(char *name, char *icon, int *colour, int *icolour, int *wrap, int *faded, char *oicon, int *ocolor)
 {
-    if(cgui) cgui->text(name, *colour >= 0 ? *colour : 0xFFFFFF, *icon ? icon : NULL, *icolour >= 0 ? *icolour : 0xFFFFFF, *wrap > 0 ? *wrap : -1, *faded >= 0 ? *faded > 0 : false, *oicon ? oicon : NULL, *ocolor >= 0 ? *ocolor : 0xFFFFFF);
+    if(cgui) cgui->text(name, *colour >= 0 ? *colour : 0xFFFFFF, *icon ? icon : nullptr, *icolour >= 0 ? *icolour : 0xFFFFFF, *wrap > 0 ? *wrap : -1, *faded >= 0 ? *faded > 0 : false, *oicon ? oicon : nullptr, *ocolor >= 0 ? *ocolor : 0xFFFFFF);
 }
 
 void ui_tab(char *name)
@@ -518,7 +518,7 @@ void ui_slider(char *var, int *min, int *max, char *onchange, int *reverse, int 
         int vdef = getvardef(var);
         vmax = vdef > vmin ? vdef*3 : vmin*4;
     }
-    cgui->slider(val, vmin, vmax, *colour >= 0 ? *colour : 0xFFFFFF, NULL, *reverse ? true : false, *scroll ? true : false, *style, *scolour);
+    cgui->slider(val, vmin, vmax, *colour >= 0 ? *colour : 0xFFFFFF, nullptr, *reverse ? true : false, *scroll ? true : false, *style, *scolour);
     if(val != oldval) update_value(var, val, onchange);
 }
 
@@ -562,7 +562,7 @@ void ui_checkbox(char *name, char *var, float *on, float *off, char *onchange, i
 {
     if(!cgui) return;
     bool enabled = get_value_float(var) != *off, two = getfvarmax(var) == 2, next = two && get_value_float(var) == 1.0f;
-    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, enabled ? "checkboxon" : NULL, enabled && two && !next ? ui_color_checkbox_two : ui_color_checkbox);
+    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", 0xFFFFFF, -1, true, enabled ? "checkboxon" : nullptr, enabled && two && !next ? ui_color_checkbox_two : ui_color_checkbox);
     if(ret&GUI_UP) update_value(var, enabled ? (two && next ? 2.0f : *off) : (*on || *off ? *on : 1.0f), onchange);
     else if(ret&GUI_ROLLOVER)
     {
@@ -576,7 +576,7 @@ void ui_radiobutton(char *name, char *var, float *n, char *onchange, int *colour
 {
     if(!cgui) return;
     bool enabled = get_value_float(var) == *n;
-    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "radiobox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "radioboxon" : NULL, ui_color_radiobutton_box);
+    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "radiobox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "radioboxon" : nullptr, ui_color_radiobutton_box);
     if(ret&GUI_UP)
     {
         if(!enabled) update_value(var, *n, onchange);
@@ -594,7 +594,7 @@ void ui_bitfield(char *name, char *var, int *mask, char *onchange, int *colour)
     if(!cgui) return;
     int val = get_value_int(var);
     bool enabled = (val & *mask) != 0;
-    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "checkboxon" : NULL, ui_color_checkbox);
+    int ret = cgui->button(name, *colour >= 0 ? *colour : 0xFFFFFF, "checkbox", *colour >= 0 ? *colour : 0xFFFFFF, -1, true, enabled ? "checkboxon" : nullptr, ui_color_checkbox);
     if(ret&GUI_UP) update_value(var, enabled ? val & ~*mask : val | *mask, onchange);
     else if(ret&GUI_ROLLOVER)
     {
@@ -617,8 +617,8 @@ void ui_textfield(char *var, int *maxlength, char *onchange, int *colour, int *f
 void ui_editor(char *name, int *maxlength, int *height, int *mode, int *colour, int *focus, char *parent, char *str, char *prompt)
 {
     if(!cgui) return;
-    cgui->field(name, *colour >= 0 ? *colour : 0xFFFFFF, *maxlength ? *maxlength : 12, *height, str && *str ? str : NULL, *mode<=0 ? EDITORFOREVER : *mode, *focus!=0, parent, prompt);
-    //returns a non-NULL pointer (the currentline) when the user commits, could then manipulate via text* commands
+    cgui->field(name, *colour >= 0 ? *colour : 0xFFFFFF, *maxlength ? *maxlength : 12, *height, str && *str ? str : nullptr, *mode<=0 ? EDITORFOREVER : *mode, *focus!=0, parent, prompt);
+    //returns a non-nullptr pointer (the currentline) when the user commits, could then manipulate via text* commands
 }
 
 //-ve length indicates a wrapped text field of any (approx 260 chars) length, |length| is the field width
@@ -640,7 +640,7 @@ void ui_body(uint *contents, char *action, char *altact, uint *onhover)
     int ret = cgui->poplist();
     if(ret&GUI_UP)
     {
-        char *act = NULL;
+        char *act = nullptr;
         if(ret&GUI_ALT && altact && *altact) act = altact;
         else if(action && *action) act = action;
         if(act)
@@ -675,15 +675,15 @@ void newgui(char *name, char *contents, char *initscript)
         freecode(m->contents);
         freecode(m->init_script);
     }
-    m->contents = contents && *contents ? compilecode(contents) : NULL;
-    m->init_script = initscript && *initscript ? compilecode(initscript) : NULL;
+    m->contents = contents && *contents ? compilecode(contents) : nullptr;
+    m->init_script = initscript && *initscript ? compilecode(initscript) : nullptr;
 }
 
 void ui_header(char *name)
 {
     if(!cmenu) return;
     DELETEA(cmenu->header);
-    cmenu->header = name && *name ? newstring(name) : NULL;
+    cmenu->header = name && *name ? newstring(name) : nullptr;
 }
 
 void ui_modify(char *name, char *contents)
@@ -691,7 +691,7 @@ void ui_modify(char *name, char *contents)
     menu *m = menus.access(name);
     if(!m) return;
     freecode(m->contents);
-    m->contents = contents && *contents ? compilecode(contents) : NULL;
+    m->contents = contents && *contents ? compilecode(contents) : nullptr;
 }
 
 COMMAND(0, newgui, "sss");
@@ -747,7 +747,7 @@ void ui_player_preview(int *model, int *color, int *team, int *weap, char *vanit
     int ret = cgui->playerpreview(*model, *color, *team, *weap, vanity, *scale, *overlaid!=0, *size!=0 ? *size : 1.f, *blend >= 0 ? *blend : 1.f);
     if(ret&GUI_UP)
     {
-        char *act = NULL;
+        char *act = nullptr;
         if(altact && *altact && ret&GUI_ALT) act = altact;
         else if(action && *action) act = action;
         if(act)
@@ -788,7 +788,7 @@ void ui_model_view(char *model, char *animspec, char *action, float *scale, int 
     int ret = cgui->modelpreview(model, anim|ANIM_LOOP, *scale, *overlaid!=0, *size!=0 ? *size : 1.f, *blend!=0 ? *blend : 1.f);
     if(ret&GUI_UP)
     {
-        char *act = NULL;
+        char *act = nullptr;
         if(altact && *altact && ret&GUI_ALT) act = altact;
         else if(action && *action) act = action;
         if(act)
@@ -813,7 +813,7 @@ void ui_prefab_preview(char *prefab, int *color, char *action, float *scale, int
     int ret = cgui->prefabpreview(prefab, vec::hexcolor(*color), *scale, *overlaid!=0);
     if(ret&GUI_UP)
     {
-        char *act = NULL;
+        char *act = nullptr;
         if(altact && *altact && ret&GUI_ALT) act = altact;
         else if(action && *action) act = action;
         if(act)
@@ -847,7 +847,7 @@ static struct applymenu : menu
     void gui(guient &g, bool firstpass)
     {
         if(menustack.empty()) return;
-        g.start(menu_start, NULL, true);
+        g.start(menu_start, nullptr, true);
         g.text("the following settings have changed:");
         g.pushfont("little");
         loopv(needsapply) g.text(needsapply[i].desc, 0xFFFFFF, "point");

@@ -49,7 +49,7 @@ int resolverloop(void * data)
             resolverresult &rr = resolverresults.add();
             rr.query = rt->query;
             rr.address = address;
-            rt->query = NULL;
+            rt->query = nullptr;
             rt->starttime = 0;
             SDL_CondSignal(resultcond);
         }
@@ -68,7 +68,7 @@ void resolverinit()
     loopi(RESOLVERTHREADS)
     {
         resolverthread &rt = resolverthreads.add();
-        rt.query = NULL;
+        rt.query = nullptr;
         rt.starttime = 0;
         rt.thread = SDL_CreateThread(resolverloop, "resolver", &rt);
     }
@@ -85,7 +85,7 @@ void resolverstop(resolverthread &rt)
 #endif
         rt.thread = SDL_CreateThread(resolverloop, "resolver", &rt);
     }
-    rt.query = NULL;
+    rt.query = nullptr;
     rt.starttime = 0;
     SDL_UnlockMutex(resolvermutex);
 }
@@ -185,7 +185,7 @@ bool resolverwait(const char *name, ENetAddress *address)
 
 int connectwithtimeout(ENetSocket sock, const char *hostname, const ENetAddress &address)
 {
-    defformatstring(text, "connecting to %s:[%d]...", hostname != NULL ? hostname : "local server", address.port);
+    defformatstring(text, "connecting to %s:[%d]...", hostname != nullptr ? hostname : "local server", address.port);
     progress(0, text);
 
     ENetSocketSet readset, writeset;
@@ -219,7 +219,7 @@ bool sortedservers = true;
 ENetSocket pingsock = ENET_SOCKET_NULL;
 int lastinfo = 0;
 
-static serverinfo *newserver(const char *name, int port = SERVER_PORT, int priority = 0, const char *desc = NULL, const char *handle = NULL, const char *flags = NULL, const char *branch = NULL, uint ip = ENET_HOST_ANY)
+static serverinfo *newserver(const char *name, int port = SERVER_PORT, int priority = 0, const char *desc = nullptr, const char *handle = nullptr, const char *flags = nullptr, const char *branch = nullptr, uint ip = ENET_HOST_ANY)
 {
     serverinfo *si = new serverinfo(ip, port, priority);
 
@@ -227,7 +227,7 @@ static serverinfo *newserver(const char *name, int port = SERVER_PORT, int prior
     else if(ip == ENET_HOST_ANY || enet_address_get_host_ip(&si->address, si->name, sizeof(si->name)) < 0)
     {
         delete si;
-        return NULL;
+        return nullptr;
     }
     if(desc && *desc) copystring(si->sdesc, desc, MAXSDESCLEN+1);
     if(handle && *handle) copystring(si->authhandle, handle);
@@ -316,7 +316,7 @@ void checkresolver()
     }
     if(!resolving) return;
 
-    const char *name = NULL;
+    const char *name = nullptr;
     for(;;)
     {
         ENetAddress addr = { ENET_HOST_ANY, ENET_PORT_ANY };
@@ -350,9 +350,9 @@ void checkpings()
     {
         int len = enet_socket_receive(pingsock, &addr, &buf, 1);
         if(len <= 0) return;
-        serverinfo *si = NULL;
+        serverinfo *si = nullptr;
         loopv(servers) if(addr.host == servers[i]->address.host && addr.port == servers[i]->address.port) { si = servers[i]; break; }
-        if(!si && searchlan) si = newserver(NULL, addr.port-1, 1, NULL, NULL, NULL, NULL, addr.host);
+        if(!si && searchlan) si = newserver(nullptr, addr.port-1, 1, nullptr, nullptr, nullptr, nullptr, addr.host);
         if(!si) continue;
         ucharbuf p(ping, len);
         int millis = getint(p), rtt = clamp(totalmillis - millis, 0, min(serverdecay*1000, totalmillis));
@@ -441,7 +441,7 @@ void retrieveservers(vector<char> &data)
         {
             buf.data = (void *)req;
             buf.dataLength = reqlen;
-            int sent = enet_socket_send(sock, NULL, &buf, 1);
+            int sent = enet_socket_send(sock, nullptr, &buf, 1);
             if(sent < 0) break;
             req += sent;
             reqlen -= sent;
@@ -461,7 +461,7 @@ void retrieveservers(vector<char> &data)
             if(data.length() >= data.capacity()) data.reserve(4096);
             buf.data = data.getbuf() + data.length();
             buf.dataLength = data.capacity() - data.length();
-            int recv = enet_socket_receive(sock, NULL, &buf, 1);
+            int recv = enet_socket_receive(sock, nullptr, &buf, 1);
             if(recv <= 0) break;
             data.advance(recv);
         }

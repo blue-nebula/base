@@ -14,7 +14,7 @@ FVAR(IDF_PERSIST, textkeyimagescale, 0, 1, FVAR_MAX);
 VAR(IDF_PERSIST, textkeyseps, 0, 1, 1);
 VAR(IDF_PERSIST|IDF_HEX, textkeycolour, 0, 0x00FFFF, 0xFFFFFF);
 
-Texture *tbgbordertex = NULL, *tbgtex = NULL;
+Texture *tbgbordertex = nullptr, *tbgtex = nullptr;
 VAR(IDF_PERSIST, textskin, 0, 2, 2);
 VAR(IDF_PERSIST, textskinsize, 0, 48, VAR_MAX);
 VAR(IDF_PERSIST, textskinpad, 0, 16, VAR_MAX);
@@ -28,10 +28,10 @@ TVARN(IDF_PERSIST|IDF_PRELOAD, textskintex, "textures/textskin", tbgtex, 0);
 TVARN(IDF_PERSIST|IDF_PRELOAD, textskinbordertex, "textures/textskinborder", tbgbordertex, 0);
 
 static hashnameset<font> fonts;
-static font *fontdef = NULL;
+static font *fontdef = nullptr;
 static int fontdeftex = 0;
 
-font *curfont = NULL;
+font *curfont = nullptr;
 int curfonttex = 0;
 
 void newfont(char *name, char *tex, int *defaultw, int *defaulth)
@@ -191,7 +191,7 @@ void tabify(const char *str, int *numtabs)
 
 COMMAND(0, tabify, "si");
 
-const matrix4x3 *textmatrix = NULL;
+const matrix4x3 *textmatrix = nullptr;
 
 static float draw_char(Texture *&tex, int c, float x, float y, float scale)
 {
@@ -640,7 +640,7 @@ struct textkey
 {
     char *name, *file;
     Texture *tex;
-    textkey() : name(NULL), file(NULL), tex(NULL) {}
+    textkey() : name(nullptr), file(nullptr), tex(nullptr) {}
     textkey(char *n, char *f, Texture *t) : name(newstring(n)), file(newstring(f)), tex(t) {}
     ~textkey()
     {
@@ -661,7 +661,7 @@ textkey *findtextkey(const char *str)
     t->name = newstring(str);
     t->file = newstring(key);
     t->tex = textureload(t->file, 0, true, false);
-    if(t->tex == notexture) t->tex = NULL;
+    if(t->tex == notexture) t->tex = nullptr;
     textkeys.add(t);
     return t;
 }
@@ -671,7 +671,7 @@ struct tklookup
     char *name;
     int type;
     bindlist blist;
-    tklookup() : name(NULL), type(0) {}
+    tklookup() : name(nullptr), type(0) {}
     tklookup(char *n, int t) : name(newstring(n)), type(t) {}
     ~tklookup()
     {
@@ -862,7 +862,7 @@ int draw_textf(const char *fstr, int left, int top, int xpad, int ypad, int r, i
     {
         loopk(textskin)
         {
-            Texture *t = NULL;
+            Texture *t = nullptr;
             float blend = a/255.f, bright = 1;
             switch(k)
             {

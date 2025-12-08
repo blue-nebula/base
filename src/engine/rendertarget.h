@@ -66,7 +66,7 @@ struct rendertarget
     void setupblur()
     {
         if(!blurtex) glGenTextures(1, &blurtex);
-        createtexture(blurtex, texw, texh, NULL, 3, 1, colorfmt);
+        createtexture(blurtex, texw, texh, nullptr, 3, 1, colorfmt);
 
         if(!swaptexs() || rtsharefb) return;
         if(!blurfb) glGenFramebuffers_(1, &blurfb);
@@ -100,7 +100,7 @@ struct rendertarget
         int find = 0;
         do
         {
-            createtexture(rendertex, w, h, NULL, 3, filter() ? 1 : 0, colorfmt ? colorfmt : colorfmts[find]);
+            createtexture(rendertex, w, h, nullptr, 3, filter() ? 1 : 0, colorfmt ? colorfmt : colorfmts[find]);
             glFramebufferTexture2D_(GL_FRAMEBUFFER, attach, GL_TEXTURE_2D, rendertex, 0);
             if(glCheckFramebufferStatus_(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE) break;
         }
