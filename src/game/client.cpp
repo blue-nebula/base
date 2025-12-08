@@ -465,7 +465,7 @@ namespace client
 
     void setloadweap(const char *list)
     {
-        vector<int> items;
+        std::vector<int> items;
         if(list && *list)
         {
             std::vector<std::string> chunk;
@@ -477,11 +477,18 @@ namespace client
                 items.emplace_back(v >= W_OFFSET && v < W_ITEM ? v : 0);
             }
         }
-        game::player1.loadweap.shrink(0);
-        loopv(items) if(game::player1.loadweap.find(items[i]) < 0)
-        {
-            game::player1.loadweap.add(items[i]);
-            if(game::player1.loadweap.length() >= W_LOADOUT) break;
+        game::player1.loadweap.clear();
+        for (const auto i : items) {
+            bool no_weap = std::none_of(game::player1.loadweap.begin(),
+                game::player1.loadweap.end(), [=](auto d) { return d == i; });
+
+            if (no_weap) {
+                game::player1.loadweap.emplace_back(i);
+
+                if (game::player1.loadweap.size() >= W_LOADOUT) {
+                    break;
+                }
+            }
         }
         sendplayerinfo = true;
     }
@@ -501,18 +508,21 @@ namespace client
                 items.emplace_back(v != 0 ? 1 : 0);
             }
         }
-        game::player1.randweap.shrink(0);
+        game::player1.randweap.clear();
         loopv(items)
         {
-            game::player1.randweap.add(items[i]);
-            if(game::player1.randweap.length() >= W_LOADOUT) break;
+            game::player1.randweap.emplace_back(items[i]);
+
+            if (game::player1.randweap.size() >= W_LOADOUT) {
+                break;
+            }
         }
         sendplayerinfo = true;
     }
     SVARF(IDF_PERSIST, playerrandweap, "", setrandweap(playerrandweap));
 
-    ICOMMAND(0, getrandweap, "i", (int *n), intret(game::player1.randweap.inrange(*n) ? game::player1.randweap[*n] : 1));
-    ICOMMAND(0, getloadweap, "i", (int *n), intret(game::player1.loadweap.inrange(*n) ? game::player1.loadweap[*n] : -1));
+    ICOMMAND(0, getrandweap, "i", (int *n), intret(inrange(game::player1.randweap, *n) ? game::player1.randweap[*n] : 1));
+    ICOMMAND(0, getloadweap, "i", (int *n), intret(inrange(game::player1.loadweap, *n) ? game::player1.loadweap[*n] : -1));
     ICOMMAND(0, allowedweap, "i", (int *n), intret(isweap(*n) && m_check(W(*n, modes), W(*n, muts), game::gamemode, game::mutators) && !W(*n, disabled) ? 1 : 0));
     ICOMMAND(0, hasloadweap, "bb", (int *g, int *m), intret(m_loadout(m_game(*g) ? *g : game::gamemode, *m >= 0 ? *m : game::mutators) ? 1 : 0));
 
@@ -673,7 +683,7 @@ namespace client
 
     const char *getmodelname(int mdl, int idx)
     {
-        return mdl >= 0 ? playertypes[mdl%PLAYERTYPES][clamp(idx, 0, 5)] : "";
+        return mdl >= 0 ? playertypes[mdl%PLAYERTYPES][std::clamp(idx, 0, 5)] : "";
     }
     ICOMMAND(0, getmodelname, "iiN", (int *mdl, int *idx, int *numargs), result(getmodelname(*mdl, *numargs >= 2 ? *idx : 5)));
 
@@ -722,7 +732,7 @@ namespace client
     int getclientloadweap(int cn, int n)
     {
         gameent *d = game::getclient(cn);
-        return d ? (d->loadweap.inrange(n) ? d->loadweap[n] : 0) : -1;
+        return d ? (inrange(d->loadweap, n) ? d->loadweap[n] : 0) : -1;
     }
     ICOMMAND(0, getclientloadweap, "si", (char *who, int *n), intret(getclientloadweap(parsewho(who), *n)));
 
@@ -775,8 +785,9 @@ namespace client
                 defformatstring(str, "%d.%d.%d-%s%d-%s", d->version.major, d->version.minor, d->version.patch, plat_name(d->version.platform), d->version.arch, d->version.branch);
                 result(str);
             }
+            break;
             case -2: result(plat_name(d->version.platform)); break;
-            case -1: intret(14);
+            case -1: intret(14); break;
             case 0: intret(d->version.major); break;
             case 1: intret(d->version.minor); break;
             case 2: intret(d->version.patch); break;
@@ -1318,6 +1329,7 @@ namespace client
                 break;
             case -2:
                 conoutf("waiting for server to request the map..");
+                [[fallthrough]];
             default:
                 emptymap(0, true, name);
                 needsmap = totalmillis;
@@ -1668,9 +1680,9 @@ namespace client
         putint(p, game::player1.colour);
         putint(p, game::player1.model);
         sendstring(game::player1.vanity, p);
-        putint(p, game::player1.loadweap.length());
+        putint(p, game::player1.loadweap.size());
         loopv(game::player1.loadweap) putint(p, game::player1.loadweap[i]);
-        putint(p, game::player1.randweap.length());
+        putint(p, game::player1.randweap.size());
         loopv(game::player1.randweap) putint(p, game::player1.randweap[i]);
 
         string hash = "";
@@ -1738,15 +1750,15 @@ namespace client
             vectoyawpitch(vec(worldpos).sub(d->headpos()).normalize(), yaw, pitch);
             game::fixrange(yaw, pitch);
         }
-        uint dir = (yaw < 0 ? 360 + int(yaw)%360 : int(yaw)%360) + clamp(int(pitch+90), 0, 180)*360;
+        uint dir = (yaw < 0 ? 360 + int(yaw)%360 : int(yaw)%360) + std::clamp(int(pitch+90), 0, 180)*360;
         q.put(dir&0xFF);
         q.put((dir>>8)&0xFF);
-        q.put(clamp(int(d->roll+90), 0, 180));
+        q.put(std::clamp(int(d->roll+90), 0, 180));
         q.put(vel&0xFF);
         if(vel > 0xFF) q.put((vel>>8)&0xFF);
         float velyaw, velpitch;
         vectoyawpitch(d->vel, velyaw, velpitch);
-        uint veldir = (velyaw < 0 ? 360 + int(velyaw)%360 : int(velyaw)%360) + clamp(int(velpitch+90), 0, 180)*360;
+        uint veldir = (velyaw < 0 ? 360 + int(velyaw)%360 : int(velyaw)%360) + std::clamp(int(velpitch+90), 0, 180)*360;
         q.put(veldir&0xFF);
         q.put((veldir>>8)&0xFF);
         if(fall > 0)
@@ -1757,7 +1769,7 @@ namespace client
             {
                 float fallyaw, fallpitch;
                 vectoyawpitch(d->falling, fallyaw, fallpitch);
-                uint falldir = (fallyaw < 0 ? 360 + int(fallyaw)%360 : int(fallyaw)%360) + clamp(int(fallpitch+90), 0, 180)*360;
+                uint falldir = (fallyaw < 0 ? 360 + int(fallyaw)%360 : int(fallyaw)%360) + std::clamp(int(fallpitch+90), 0, 180)*360;
                 q.put(falldir&0xFF);
                 q.put((falldir>>8)&0xFF);
             }
@@ -1802,9 +1814,9 @@ namespace client
                 putint(p, game::player1.model);
                 putint(p, game::player1.checkpointspawn);
                 sendstring(game::player1.vanity, p);
-                putint(p, game::player1.loadweap.length());
+                putint(p, game::player1.loadweap.size());
                 loopv(game::player1.loadweap) putint(p, game::player1.loadweap[i]);
-                putint(p, game::player1.randweap.length());
+                putint(p, game::player1.randweap.size());
                 loopv(game::player1.randweap) putint(p, game::player1.randweap[i]);
             }
             if(sendcrcinfo)
@@ -1977,13 +1989,13 @@ namespace client
                 int dir = p.get();
                 dir |= p.get()<<8;
                 yaw = dir%360;
-                pitch = clamp(dir/360, 0, 180)-90;
-                roll = clamp(int(p.get()), 0, 180)-90;
+                pitch = std::clamp(dir/360, 0, 180)-90;
+                roll = std::clamp(int(p.get()), 0, 180)-90;
                 int mag = p.get();
                 if(flags&(1<<6)) mag |= p.get()<<8;
                 dir = p.get();
                 dir |= p.get()<<8;
-                vecfromyawpitch(dir%360, clamp(dir/360, 0, 180)-90, 1, 0, vel);
+                vecfromyawpitch(dir%360, std::clamp(dir/360, 0, 180)-90, 1, 0, vel);
                 vel.mul(mag/DVELF);
                 if(flags&(1<<7))
                 {
@@ -1993,7 +2005,7 @@ namespace client
                     {
                         dir = p.get();
                         dir |= p.get()<<8;
-                        vecfromyawpitch(dir%360, clamp(dir/360, 0, 180)-90, 1, 0, falling);
+                        vecfromyawpitch(dir%360, std::clamp(dir/360, 0, 180)-90, 1, 0, falling);
                     }
                     else falling = vec(0, 0, -1);
                     falling.mul(mag/DVELF);
@@ -2279,7 +2291,7 @@ namespace client
                         dummy.get(p);
                         break;
                     }
-                    int colour = getint(p), model = getint(p), cps = getint(p), team = clamp(getint(p), int(T_NEUTRAL), int(T_ENEMY)), priv = getint(p);
+                    int colour = getint(p), model = getint(p), cps = getint(p), team = std::clamp(getint(p), int(T_NEUTRAL), int(T_ENEMY)), priv = getint(p);
                     getstring(text, p);
                     string namestr = "";
                     filterstring(namestr, text, true, true, true, true, MAXNAMELEN);
@@ -3061,6 +3073,7 @@ namespace client
                         t->checkpoint = -1;
                         t->cpmillis = ent == -2 ? lastmillis : 0;
                     }
+                    break;
                 }
 
                 case N_SCORE:
@@ -3178,7 +3191,7 @@ namespace client
 
                 case N_INITAI:
                 {
-                    int bn = getint(p), on = getint(p), at = getint(p), et = getint(p), sk = clamp(getint(p), 1, 101);
+                    int bn = getint(p), on = getint(p), at = getint(p), et = getint(p), sk = std::clamp(getint(p), 1, 101);
                     getstring(text, p);
                     int tm = getint(p), cl = getint(p), md = getint(p);
                     string vanity;
@@ -3260,9 +3273,9 @@ namespace client
     {
         int ac = 0, bc = 0;
         if(a->address.host == ENET_HOST_ANY || a->ping >= serverinfo::WAITING || a->attr.empty()) ac = -1;
-        else ac = a->attr[0] == VERSION_GAME ? 0x7FFF : clamp(a->attr[0], 0, 0x7FFF-1);
+        else ac = a->attr[0] == VERSION_GAME ? 0x7FFF : std::clamp(a->attr[0], 0, 0x7FFF-1);
         if(b->address.host == ENET_HOST_ANY || b->ping >= serverinfo::WAITING || b->attr.empty()) bc = -1;
-        else bc = b->attr[0] == VERSION_GAME ? 0x7FFF : clamp(b->attr[0], 0, 0x7FFF-1);
+        else bc = b->attr[0] == VERSION_GAME ? 0x7FFF : std::clamp(b->attr[0], 0, 0x7FFF-1);
         if(ac > bc) return -1;
         if(ac < bc) return 1;
 
@@ -3309,6 +3322,7 @@ namespace client
                     else bc = 0;
 
                     retsw(ac, bc, true);
+                    break;
                 }
                 case SINFO_MUTS:
                 {

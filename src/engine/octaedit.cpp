@@ -393,7 +393,7 @@ void rendereditcursor()
                 if(!insideworld(w))
                 {
                     wdist = 0;
-                    loopi(3) w[i] = clamp(player->o[i], 0.0f, float(hdr.worldsize));
+                    loopi(3) w[i] = std::clamp(player->o[i], 0.0f, float(hdr.worldsize));
                 }
             }
             cube *c = &lookupcube(ivec(w));
@@ -1451,9 +1451,9 @@ static void renderprefab(prefab &p, const vec &o, float yaw, float pitch, float 
     matrix4 m;
     m.identity();
     m.settranslation(o);
-    if(yaw) m.rotate_around_z(yaw*RAD);
-    if(pitch) m.rotate_around_x(pitch*RAD);
-    if(roll) m.rotate_around_y(-roll*RAD);
+    if(yaw) m.rotate_around_z(yaw*rad);
+    if(pitch) m.rotate_around_x(pitch*rad);
+    if(roll) m.rotate_around_y(-roll*rad);
     matrix3 w(m);
     if(size > 0 && size != 1) m.scale(size);
     m.translate(vec(b.s).mul(-b.grid*0.5f));
@@ -1610,7 +1610,7 @@ void brushvert(int *x, int *y, int *v)
     *x += MAXBRUSH2 - brushx + 1; // +1 for automatic padding
     *y += MAXBRUSH2 - brushy + 1;
     if(*x<0 || *y<0 || *x>=MAXBRUSH || *y>=MAXBRUSH) return;
-    brush[*x][*y] = clamp(*v, 0, 8);
+    brush[*x][*y] = std::clamp(*v, 0, 8);
     paintbrush = paintbrush || (brush[*x][*y] > 0);
     brushmaxx = min(MAXBRUSH-1, max(brushmaxx, *x+1));
     brushmaxy = min(MAXBRUSH-1, max(brushmaxy, *y+1));
@@ -1958,8 +1958,8 @@ namespace hmap
         memset(flags, 0, sizeof flags);
 
         selecting = true;
-        select(clamp(MAXBRUSH2-cx, bmx, bnx),
-               clamp(MAXBRUSH2-cy, bmy, bny),
+        select(std::clamp(MAXBRUSH2-cx, bmx, bnx),
+               std::clamp(MAXBRUSH2-cy, bmy, bny),
               dc ? gz : hws - gz);
         selecting = false;
         if(paintme)
@@ -2278,7 +2278,7 @@ void vrotate(int *n)
     if(noedit()) return;
     VSlot ds;
     ds.changed = 1<<VSLOT_ROTATION;
-    ds.rotation = usevdelta ? *n : clamp(*n, 0, 5);
+    ds.rotation = usevdelta ? *n : std::clamp(*n, 0, 5);
     mpeditvslot(usevdelta, ds, allfaces, sel, true);
 }
 COMMAND(0, vrotate, "i");
@@ -2308,7 +2308,7 @@ void vscale(float *scale)
     if(noedit()) return;
     VSlot ds;
     ds.changed = 1<<VSLOT_SCALE;
-    ds.scale = *scale <= 0 ? 1 : (usevdelta ? *scale : clamp(*scale, 1/8.0f, 8.0f));
+    ds.scale = *scale <= 0 ? 1 : (usevdelta ? *scale : std::clamp(*scale, 1/8.0f, 8.0f));
     mpeditvslot(usevdelta, ds, allfaces, sel, true);
 }
 COMMAND(0, vscale, "f");
@@ -2334,8 +2334,8 @@ void valpha(float *front, float *back)
     if(noedit()) return;
     VSlot ds;
     ds.changed = 1<<VSLOT_ALPHA;
-    ds.alphafront = clamp(*front, 0.0f, 1.0f);
-    ds.alphaback = clamp(*back, 0.0f, 1.0f);
+    ds.alphafront = std::clamp(*front, 0.0f, 1.0f);
+    ds.alphaback = std::clamp(*back, 0.0f, 1.0f);
     mpeditvslot(usevdelta, ds, allfaces, sel, true);
 }
 COMMAND(0, valpha, "ff");
@@ -2366,7 +2366,7 @@ void vcoastscale(float *value)
     if(noedit()) return;
     VSlot ds;
     ds.changed = 1<<VSLOT_COAST;
-    ds.coastscale = clamp(*value, 0.f, 1000.f);
+    ds.coastscale = std::clamp(*value, 0.f, 1000.f);
     mpeditvslot(usevdelta, ds, allfaces, sel, true);
 }
 COMMAND(0, vcoastscale, "f");
@@ -2495,7 +2495,7 @@ void edittex_(int *dir)
     if(texmru.empty()) return;
     texpaneltimer = texpaneltime;
     if(!(lastsel==sel)) tofronttex();
-    curtexindex = clamp(curtexindex<0 ? 0 : curtexindex+*dir, 0, texmru.length()-1);
+    curtexindex = std::clamp(curtexindex<0 ? 0 : curtexindex+*dir, 0, texmru.length()-1);
     edittex(texmru[curtexindex], false);
 }
 
@@ -2866,7 +2866,7 @@ struct texturegui : guicb
                     g.space(0.5f);
                     g.textf(" texture #%03d \fa(%s)", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, texmru[curtex], v.slot->sts.empty() ? "<no texture>" : v.slot->sts[0].name);
                     g.textf(" - scale: \fa%f", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, v.scale);
-                    g.textf(" - rotation: \fa%d (%s)", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, v.rotation, rotations[clamp(v.rotation, 0, 5)]);
+                    g.textf(" - rotation: \fa%d (%s)", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, v.rotation, rotations[std::clamp(v.rotation, 0, 5)]);
                     g.textf(" - offset: \fa%d %d", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, v.offset.x, v.offset.y);
                     g.textf(" - scroll: \fa%f %f", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, v.scroll.x, v.scroll.y);
                     g.textf(" - alpha: \fa%f \fAfront \fa%f \fAback", 0xFFFFFF, NULL, 0, -1, false, NULL, 0xFFFFFF, v.alphafront, v.alphaback);
@@ -2937,7 +2937,7 @@ struct texturegui : guicb
             {
                 if(!texmru.inrange(menutex = !isempty(c) ? texmru.find(c.texture[sel.orient]) : texmru.find(lasttex)))
                     menutex = 0;
-                menupage = clamp(menutex, 0, texmru.length()-1)/(thumbwidth*thumbheight);
+                menupage = std::clamp(menutex, 0, texmru.length()-1)/(thumbwidth*thumbheight);
             }
             else menutex = menupage = 0;
         }

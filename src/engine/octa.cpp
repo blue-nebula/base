@@ -219,9 +219,9 @@ ivec lu;
 int lusize;
 cube &lookupcube(const ivec &to, int tsize, ivec &ro, int &rsize)
 {
-    int tx = clamp(to.x, 0, hdr.worldsize-1),
-        ty = clamp(to.y, 0, hdr.worldsize-1),
-        tz = clamp(to.z, 0, hdr.worldsize-1);
+    int tx = std::clamp(to.x, 0, hdr.worldsize-1),
+        ty = std::clamp(to.y, 0, hdr.worldsize-1),
+        tz = std::clamp(to.z, 0, hdr.worldsize-1);
     int scale = worldscale-1, csize = abs(tsize);
     cube *c = &worldroot[octastep(tx, ty, tz, scale)];
     if(!(csize>>scale)) do
@@ -422,10 +422,10 @@ bool subdividecube(cube &c, bool fullcheck, bool brighten)
         {
             ch[i].texture[j] = c.texture[j];
             int rd = (i>>R[d])&1, cd = (i>>C[d])&1, dd = (i>>D[d])&1;
-            edgeset(cubeedge(ch[i], d, 0, 0), z, clamp(e[rd][cd] - dd*8, 0, 8));
-            edgeset(cubeedge(ch[i], d, 1, 0), z, clamp(e[1+rd][cd] - dd*8, 0, 8));
-            edgeset(cubeedge(ch[i], d, 0, 1), z, clamp(e[rd][1+cd] - dd*8, 0, 8));
-            edgeset(cubeedge(ch[i], d, 1, 1), z, clamp(e[1+rd][1+cd] - dd*8, 0, 8));
+            edgeset(cubeedge(ch[i], d, 0, 0), z, std::clamp(e[rd][cd] - dd*8, 0, 8));
+            edgeset(cubeedge(ch[i], d, 1, 0), z, std::clamp(e[1+rd][cd] - dd*8, 0, 8));
+            edgeset(cubeedge(ch[i], d, 0, 1), z, std::clamp(e[rd][1+cd] - dd*8, 0, 8));
+            edgeset(cubeedge(ch[i], d, 1, 1), z, std::clamp(e[1+rd][1+cd] - dd*8, 0, 8));
         }
     }
 

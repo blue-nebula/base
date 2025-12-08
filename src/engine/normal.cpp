@@ -234,7 +234,7 @@ void calcnormals(bool lerptjoints)
     if(!lerpangle) return;
     usetnormals = lerptjoints;
     if(usetnormals) findtjoints();
-    lerpthreshold = cos(lerpangle*RAD) - 1e-5f;
+    lerpthreshold = cos(lerpangle*rad) - 1e-5f;
     nmprog = 1;
     loopi(8) addnormals(worldroot[i], ivec(i, ivec(0, 0, 0), hdr.worldsize/2), hdr.worldsize/2);
 }

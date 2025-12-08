@@ -813,9 +813,9 @@ struct skelmodel : animmodel
             vec forward1 = pose1.transformnormal(forward).project(axis).normalize(),
                 forward2 = pose2.transformnormal(forward).project(axis).normalize(),
                 daxis = vec().cross(forward1, forward2);
-            float dx = clamp(forward1.dot(forward2), -1.0f, 1.0f), dy = clamp(daxis.magnitude(), -1.0f, 1.0f);
+            float dx = std::clamp(forward1.dot(forward2), -1.0f, 1.0f), dy = std::clamp(daxis.magnitude(), -1.0f, 1.0f);
             if(daxis.dot(axis) < 0) dy = -dy;
-            return atan2f(dy, dx)/RAD;
+            return atan2f(dy, dx)/rad;
         }
 
         void calcpitchcorrects(float pitch, const vec &axis, const vec &forward)
@@ -836,7 +836,7 @@ struct skelmodel : animmodel
                 float tpitch = pitch - t.deviated;
                 for(int parent = t.corrects; parent >= 0; parent = pitchcorrects[parent].parent)
                     tpitch -= pitchcorrects[parent].pitchangle;
-                if(t.pitchmin || t.pitchmax) tpitch = clamp(tpitch, t.pitchmin, t.pitchmax);
+                if(t.pitchmin || t.pitchmax) tpitch = std::clamp(tpitch, t.pitchmin, t.pitchmax);
                 loopv(pitchcorrects)
                 {
                     pitchcorrect &c = pitchcorrects[i];
@@ -846,11 +846,11 @@ struct skelmodel : animmodel
                           used = tpitch*c.pitchscale;
                     if(c.pitchmin || c.pitchmax)
                     {
-                        if(used < 0) used = clamp(c.pitchmin, used, 0.0f);
-                        else used = clamp(c.pitchmax, 0.0f, used);
+                        if(used < 0) used = std::clamp(c.pitchmin, used, 0.0f);
+                        else used = std::clamp(c.pitchmax, 0.0f, used);
                     }
-                    if(used < 0) used = clamp(avail, used, 0.0f);
-                    else used = clamp(avail, 0.0f, used);
+                    if(used < 0) used = std::clamp(avail, used, 0.0f);
+                    else used = std::clamp(avail, 0.0f, used);
                     c.pitchangle = used;
                     c.pitchtotal = used + total;
                 }
@@ -904,12 +904,12 @@ struct skelmodel : animmodel
                 if(b.interpparent<0) sc.bdata[b.interpindex] = d;
                 else sc.bdata[b.interpindex].mul(sc.bdata[b.interpparent], d);
                 float angle;
-                if(b.pitchscale) { angle = b.pitchscale*pitch + b.pitchoffset; if(b.pitchmin || b.pitchmax) angle = clamp(angle, b.pitchmin, b.pitchmax); }
+                if(b.pitchscale) { angle = b.pitchscale*pitch + b.pitchoffset; if(b.pitchmin || b.pitchmax) angle = std::clamp(angle, b.pitchmin, b.pitchmax); }
                 else if(b.correctindex >= 0) angle = pitchcorrects[b.correctindex].pitchangle;
                 else continue;
                 if(as->cur.anim&ANIM_NOPITCH || (as->interp < 1 && as->prev.anim&ANIM_NOPITCH))
                     angle *= (as->cur.anim&ANIM_NOPITCH ? 0 : as->interp) + (as->interp < 1 && as->prev.anim&ANIM_NOPITCH ? 0 : 1-as->interp);
-                sc.bdata[b.interpindex].mulorient(quat(axis, angle*RAD), b.base);
+                sc.bdata[b.interpindex].mulorient(quat(axis, angle*rad), b.base);
             }
             loopv(antipodes) sc.bdata[antipodes[i].child].fixantipodal(sc.bdata[antipodes[i].parent]);
         }
@@ -1619,9 +1619,9 @@ struct skeladjustment
 
     void adjust(dualquat &dq)
     {
-        if(yaw) dq.mulorient(quat(vec(0, 0, 1), yaw*RAD));
-        if(pitch) dq.mulorient(quat(vec(0, -1, 0), pitch*RAD));
-        if(roll) dq.mulorient(quat(vec(-1, 0, 0), roll*RAD));
+        if(yaw) dq.mulorient(quat(vec(0, 0, 1), yaw*rad));
+        if(pitch) dq.mulorient(quat(vec(0, -1, 0), pitch*rad));
+        if(roll) dq.mulorient(quat(vec(-1, 0, 0), roll*rad));
         if(!translate.iszero()) dq.translate(translate);
     }
 };
@@ -1653,7 +1653,7 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
         part &mdl = MDL::loading->addpart();
         mdl.pitchscale = mdl.pitchoffset = mdl.pitchmin = mdl.pitchmax = 0;
         MDL::adjustments.setsize(0);
-        mdl.meshes = MDL::loading->sharemeshes(path(filename), skelname[0] ? skelname : NULL, double(*smooth > 0 ? cos(clamp(*smooth, 0.0f, 180.0f)*RAD) : 2));
+        mdl.meshes = MDL::loading->sharemeshes(path(filename), skelname[0] ? skelname : NULL, double(*smooth > 0 ? cos(std::clamp(*smooth, 0.0f, 180.0f)*rad) : 2));
         if(!mdl.meshes) conoutf("\frcould not load %s", filename);
         else
         {
@@ -1669,9 +1669,9 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
         int i = mdl.meshes ? ((meshgroup *)mdl.meshes)->skel->findbone(name) : -1;
         if(i >= 0)
         {
-            float cx = *rx ? cosf(*rx/2*RAD) : 1, sx = *rx ? sinf(*rx/2*RAD) : 0,
-                  cy = *ry ? cosf(*ry/2*RAD) : 1, sy = *ry ? sinf(*ry/2*RAD) : 0,
-                  cz = *rz ? cosf(*rz/2*RAD) : 1, sz = *rz ? sinf(*rz/2*RAD) : 0;
+            float cx = *rx ? cosf(*rx/2*rad) : 1, sx = *rx ? sinf(*rx/2*rad) : 0,
+                  cy = *ry ? cosf(*ry/2*rad) : 1, sy = *ry ? sinf(*ry/2*rad) : 0,
+                  cz = *rz ? cosf(*rz/2*rad) : 1, sz = *rz ? sinf(*rz/2*rad) : 0;
             matrix4x3 m(matrix3(quat(sx*cy*cz - cx*sy*sz, cx*sy*cz + sx*cy*sz, cx*cy*sz - sx*sy*cz, cx*cy*cz + sx*sy*sz)),
                         vec(*tx, *ty, *tz));
             ((meshgroup *)mdl.meshes)->skel->addtag(tagname, i, m);
@@ -1741,7 +1741,7 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
         loopv(skel->pitchtargets) if(skel->pitchtargets[i].bone == bone) return;
         pitchtarget &t = skel->pitchtargets.add();
         t.bone = bone;
-        t.frame = sa->frame + clamp(*frameoffset, 0, sa->range-1);
+        t.frame = sa->frame + std::clamp(*frameoffset, 0, sa->range-1);
         t.pitchmin = *pitchmin;
         t.pitchmax = *pitchmax;
     }

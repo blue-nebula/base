@@ -33,8 +33,8 @@ namespace entities
     VAR(0, routemaxdist, 0, 64, VAR_MAX);
 
     vector<extentity *> &getents() { return ents; }
-    int lastent(int type) { return type >= 0 && type < MAXENTTYPES ? clamp(lastenttype[type], 0, ents.length()) : 0; }
-    int lastuse(int type) { return type >= 0 && type < MAXENTTYPES ? clamp(lastusetype[type], 0, ents.length()) : 0; }
+    int lastent(int type) { return type >= 0 && type < MAXENTTYPES ? std::clamp(lastenttype[type], 0, ents.length()) : 0; }
+    int lastuse(int type) { return type >= 0 && type < MAXENTTYPES ? std::clamp(lastusetype[type], 0, ents.length()) : 0; }
 
     int numattrs(int type) { return type >= 0 && type < MAXENTTYPES ? enttype[type].numattrs : 0; }
     ICOMMAND(0, entityattrs, "b", (int *n), intret(numattrs(*n)));
@@ -186,7 +186,6 @@ namespace entities
                 switch(attr[0])
                 {
                     case 4: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
-                    {
                         if(attr[1] >= 256)
                         {
                             bool hasval = true;
@@ -212,8 +211,7 @@ namespace entities
                             if(val%64 >= 32) addentinfo("inverted");
                             break;
                         }
-                        // fall through
-                    }
+                        [[fallthrough]];
                     case 1: case 2:
                     {
                         switch(attr[1]%3)
@@ -377,7 +375,7 @@ namespace entities
                 int weap = w_attr(game::gamemode, game::mutators, type, attr[0], m_weapon(game::focus->actortype, game::gamemode, game::mutators));
                 return isweap(weap) && *weaptype[weap].item ? weaptype[weap].item : "projectiles/cartridge";
             }
-            case ACTOR: return actor[clamp(attr[0]+A_ENEMY, int(A_ENEMY), int(A_MAX-1))].playermodel[1];
+            case ACTOR: return actor[std::clamp(attr[0]+A_ENEMY, int(A_ENEMY), int(A_MAX-1))].playermodel[1];
             default: break;
         }
         return "";
@@ -578,27 +576,34 @@ namespace entities
         {
             e.lastemit = lastmillis;
             d->setused(n, lastmillis);
-            switch(e.attrs[1])
-            {
-                case TR_EXIT: if(d->actortype >= A_BOT) break;
-                case TR_TOGGLE: case TR_LINK: case TR_ONCE:
-                {
-                    client::addmsg(N_TRIGGER, "ri2", d->clientnum, n);
-                    if(!e.spawned() || e.attrs[1] == TR_TOGGLE) setspawn(n, e.spawned() ? 0 : 1);
+            switch (e.attrs[1]) {
+            case TR_EXIT:
+                if (d->actortype >= A_BOT) {
                     break;
                 }
-                case TR_SCRIPT:
-                {
-                    if(d == &game::player1)
-                    {
-                        defformatstring(s, "on_trigger_%d", e.attrs[0]);
-                        trigger = d; RUNWORLD(s); trigger = NULL;
+                [[fallthrough]];
+            case TR_TOGGLE:
+            case TR_LINK:
+            case TR_ONCE:
+                    client::addmsg(N_TRIGGER, "ri2", d->clientnum, n);
+                    if (!e.spawned() || e.attrs[1] == TR_TOGGLE) {
+                        setspawn(n, e.spawned() ? 0 : 1);
                     }
                     break;
-                }
-                default: break;
+            case TR_SCRIPT:
+                    if (d == &game::player1) {
+                        defformatstring(s, "on_trigger_%d", e.attrs[0]);
+                        trigger = d;
+                        RUNWORLD(s);
+                        trigger = NULL;
+                    }
+                    break;
+            default:
+                    break;
             }
-            if(act && e.attrs[2] == TA_ACTION) d->action[AC_USE] = false;
+            if (act && e.attrs[2] == TA_ACTION) {
+                    d->action[AC_USE] = false;
+            }
         }
     }
 
@@ -675,7 +680,7 @@ namespace entities
                         float mag = f.attrs[2] < 0 ? 0.f : max(vec(d->vel).add(d->falling).magnitude(), f.attrs[2] ? float(f.attrs[2]) : 50.f),
                               yaw = f.attrs[0] < 0 ? (lastmillis/5)%360 : f.attrs[0], pitch = f.attrs[1];
                         game::fixrange(yaw, pitch);
-                        if(mag > 0 && f.attrs[5] < 6) d->vel = vec(yaw*RAD, pitch*RAD).mul(mag);
+                        if(mag > 0 && f.attrs[5] < 6) d->vel = vec(yaw*rad, pitch*rad).mul(mag);
                         switch(f.attrs[5]%3)
                         {
                             case 2: break; // keep
@@ -696,7 +701,7 @@ namespace entities
                         }
                         game::fixrange(d->yaw, d->pitch);
                         if(mag <= 0) d->vel = vec(0, 0, 0);
-                        else if(f.attrs[5] >= 6) d->vel = vec(d->yaw*RAD, d->pitch*RAD).mul(mag);
+                        else if(f.attrs[5] >= 6) d->vel = vec(d->yaw*rad, d->pitch*rad).mul(mag);
                         if(physics::entinmap(d, gameent::is(d))) // entinmap first for getting position
                         {
                             f.lastemit = lastmillis;
@@ -741,15 +746,19 @@ namespace entities
                             switch(g->projtype)
                             {
                                 case PRJ_ENT: case PRJ_AFFINITY:
-                                {
                                     if(!g->beenused)
                                     {
                                         g->beenused = 1;
                                         g->lifetime = min(g->lifetime, g->fadetime);
                                     }
-                                    if(g->lifetime > 0) break;
-                                }
-                                default: g->state = CS_DEAD; g->escaped = true; break;
+                                    if (g->lifetime > 0) {
+                                        break;
+                                    }
+                                    [[fallthrough]];
+                                default:
+                                    g->state = CS_DEAD;
+                                    g->escaped = true;
+                                    break;
                             }
                         }
                         else d->state = CS_DEAD;
@@ -762,8 +771,8 @@ namespace entities
                     d->setused(n, lastmillis);
                     float mag = max(e.attrs[2], 1), maxrad = e.attrs[3] ? e.attrs[3] : enttype[PUSHER].radius, minrad = e.attrs[4];
                     if(dist > 0 && minrad > 0 && maxrad > minrad && dist > minrad && maxrad >= dist)
-                        mag *= 1.f-clamp((dist-minrad)/float(maxrad-minrad), 0.f, 1.f);
-                    vec dir(e.attrs[0]*RAD, e.attrs[1]*RAD), rel = vec(dir).mul(mag);
+                        mag *= 1.f-std::clamp((dist-minrad)/float(maxrad-minrad), 0.f, 1.f);
+                    vec dir(e.attrs[0]*rad, e.attrs[1]*rad), rel = vec(dir).mul(mag);
                     switch(e.attrs[5])
                     {
                         case 0:
@@ -997,11 +1006,13 @@ namespace entities
                 while(e.attrs[3] > 180) e.attrs[3] -= 360; // roll
                 while(e.attrs[4] < 0) e.attrs[4] += 101;
                 while(e.attrs[4] > 100) e.attrs[4] -= 101; // blend
-                if(e.attrs[5] < 0) e.attrs[5] = 0;
+                if (e.attrs[5] < 0) {
+                    e.attrs[5] = 0;
+                }
+                break;
             case PARTICLES:
             case MAPSOUND:
             case LIGHTFX:
-            {
                 e.nextemit = 0;
                 loopv(e.links) if(ents.inrange(e.links[i]))
                 {
@@ -1012,7 +1023,6 @@ namespace entities
                     break;
                 }
                 break;
-            }
             case LIGHT:
             {
                 if(e.attrs[0] < 0) e.attrs[0] = 0;
@@ -1751,13 +1761,24 @@ namespace entities
                     {
                         switch(e.attrs[0])
                         {
-                            case 0: if(e.attrs[3] <= 0) break;
+                        case 0:
+                            if (e.attrs[3] <= 0) {
+                                        break;
+                            }
+                            [[fallthrough]];
                             case 4: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 5: case 6:
                                 e.attrs[3] = (((e.attrs[3]&0xF)<<4)|((e.attrs[3]&0xF0)<<8)|((e.attrs[3]&0xF00)<<12))+0x0F0F0F;
-                                if(e.attrs[0] != 5 && e.attrs[0] != 6) break;
+                                if (e.attrs[0] != 5 && e.attrs[0] != 6) {
+                                    break;
+                                }
+                                [[fallthrough]];
                             case 3:
-                                e.attrs[2] = (((e.attrs[2]&0xF)<<4)|((e.attrs[2]&0xF0)<<8)|((e.attrs[2]&0xF00)<<12))+0x0F0F0F; break;
-                            default: break;
+                                e.attrs[2] = (((e.attrs[2] & 0xF) << 4) | ((e.attrs[2] & 0xF0) << 8) |
+                                              ((e.attrs[2] & 0xF00) << 12)) +
+                                             0x0F0F0F;
+                                break;
+                            default:
+                                break;
                         }
                     }
                     break;
@@ -1774,7 +1795,7 @@ namespace entities
                         {
                             int material = lookupmaterial(e.o), clipmat = material&MATF_CLIP;
                             if(clipmat == MAT_CLIP || (material&MAT_DEATH) || (material&MATF_VOLUME) == MAT_LAVA)
-                                e.o.add(vec(e.attrs[0]*RAD, e.attrs[1]*RAD));
+                                e.o.add(vec(e.attrs[0]*rad, e.attrs[1]*rad));
                         }
                     }
                     if(e.attrs[0] >= 0) checkyawmode(e, mtype, mver, gver, 0, -1);
@@ -1968,6 +1989,7 @@ namespace entities
                         break;
                     case WEAPON:
                         loopj(3) e.attrs[j+3] = ents[i]->attrs[j+2]; // mode, muts, id
+                        break;
                     default:
                         e.attrs[1] = (i%8)*45;
                         break;
@@ -2068,7 +2090,7 @@ namespace entities
                 }
                 case ENVMAP:
                 {
-                    int s = e.attrs[0] ? clamp(e.attrs[0], 0, 10000) : envmapradius;
+                    int s = e.attrs[0] ? std::clamp(e.attrs[0], 0, 10000) : envmapradius;
                     part_radius(e.o, vec(s, s, s), showentsize, 1, 1, 0x00FFFF);
                     break;
                 }
@@ -2087,7 +2109,7 @@ namespace entities
                         float radius = f.attrs[0];
                         if(!radius) radius = 2*e.o.dist(f.o);
                         vec dir = vec(e.o).sub(f.o).normalize();
-                        float angle = clamp(int(e.attrs[1]), 1, 89);
+                        float angle = std::clamp(int(e.attrs[1]), 1, 89);
                         int colour = ((f.attrs[1]/2)<<16)|((f.attrs[2]/2)<<8)|(f.attrs[3]/2);
                         part_cone(f.o, dir, radius, angle, showentsize, 1, 1, colour);
                         break;
@@ -2098,12 +2120,12 @@ namespace entities
                 {
                     int colour = ((e.attrs[2]/2)<<16)|((e.attrs[3]/2)<<8)|(e.attrs[4]/2),
                         offset = e.attrs[5] ? (e.attrs[5] > 0 ? e.attrs[5] : 0) : 10, yaw = e.attrs[0], pitch = e.attrs[1]+90;
-                    vec dir(yaw*RAD, pitch*RAD);
+                    vec dir(yaw*rad, pitch*rad);
                     static const float offsets[9][2] = { { 0, 0 }, { 0, 1 }, { 90, 1 }, { 180, 1 }, { 270, 1 }, { 45, 0.5f }, { 135, 0.5f }, { 225, 0.5f }, { 315, 0.5f } };
                     loopk(offset ? 9 : 1)
                     {
-                        vec spoke(yaw*RAD, (pitch + offset*offsets[k][1])*RAD);
-                        spoke.rotate(offsets[k][0]*RAD, dir);
+                        vec spoke(yaw*rad, (pitch + offset*offsets[k][1])*rad);
+                        spoke.rotate(offsets[k][0]*rad, dir);
                         float syaw, spitch;
                         vectoyawpitch(spoke, syaw, spitch);
                         entdirpart(e.o, syaw, spitch, getworldsize()*2, 1, colour);

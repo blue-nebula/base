@@ -85,7 +85,7 @@ struct partrenderer
             int weight = p->grav;
             if((type&PT_SHRINK || type&PT_GROW) && p->fade >= 50)
             {
-                float amt = clamp(ts/float(p->fade), 0.f, 1.f);
+                float amt = std::clamp(ts/float(p->fade), 0.f, 1.f);
                 if(type&PT_SHRINK)
                 {
                     if(type&PT_GROW) { if((amt *= 2) > 1) amt = 2-amt; amt *= amt; }
@@ -379,8 +379,8 @@ struct portalrenderer : listrenderer<portal>
     void renderpart(portal *p, int blend, int ts, float size)
     {
         matrix4x3 m(vec(size, 0, 0), vec(0, size, 0), vec(0, 0, size), p->o);
-        m.rotate_around_z(p->yaw*RAD);
-        m.rotate_around_x(p->pitch*RAD);
+        m.rotate_around_z(p->yaw*rad);
+        m.rotate_around_x(p->pitch*rad);
 
         bvec4 color(p->color.r, p->color.g, p->color.b, uchar(p->blend*blend));
         gle::attrib(m.transform(vec(-1, 0,  1))); gle::attribf(1, 0); gle::color(color);
@@ -451,8 +451,8 @@ struct iconrenderer : listrenderer<icon>
         bvec4 color(p->color.r, p->color.g, p->color.b, uchar(p->blend*blend));
         if(p->start > 0 || p->length < 1)
         {
-            float sx = cosf((p->start + 0.25f)*2*M_PI), sy = -sinf((p->start + 0.25f)*2*M_PI),
-                  ex = cosf((p->end + 0.25f)*2*M_PI), ey = -sinf((p->end + 0.25f)*2*M_PI);
+            float sx = cosf((p->start + 0.25f)*2*pi), sy = -sinf((p->start + 0.25f)*2*pi),
+                  ex = cosf((p->end + 0.25f)*2*pi), ey = -sinf((p->end + 0.25f)*2*pi);
             gle::end(); gle::begin(GL_TRIANGLE_FAN);
             iconvert(0, 0);
 
@@ -539,10 +539,10 @@ static inline void genrotpos(const vec &o, const vec &d, float size, int grav, i
 }
 
 #define ROTCOEFFS(n) { \
-    vec(-1,  1, 0).rotate_around_z(n*2*M_PI/32.0f), \
-    vec( 1,  1, 0).rotate_around_z(n*2*M_PI/32.0f), \
-    vec( 1, -1, 0).rotate_around_z(n*2*M_PI/32.0f), \
-    vec(-1, -1, 0).rotate_around_z(n*2*M_PI/32.0f) \
+    vec(-1,  1, 0).rotate_around_z(n*2*pi/32.0f), \
+    vec( 1,  1, 0).rotate_around_z(n*2*pi/32.0f), \
+    vec( 1, -1, 0).rotate_around_z(n*2*pi/32.0f), \
+    vec(-1, -1, 0).rotate_around_z(n*2*pi/32.0f) \
 }
 static const vec rotcoeffs[32][4] =
 {
@@ -769,7 +769,7 @@ struct softquadrenderer : quadrenderer
             int blend = 255, ts = 1;
             float size = 1;
             calc(&p, blend, ts, size, false);
-            float radius = size*SQRT2;
+            float radius = size*sqrt2;
             if(!isfoggedsphere(radius, p.o) && (depthfxscissor!=2 || depthfxtex.addscissorbox(p.o, radius)))
             {
                 numsoft++;
@@ -1006,9 +1006,9 @@ struct coneprimitiverenderer : listrenderer<coneprimitive>
         p->radius = radius;
         p->angle = angle;
         p->fill = fill;
-        p->spot = vec(p->dir).mul(p->radius*cosf(p->angle*RAD));
+        p->spot = vec(p->dir).mul(p->radius*cosf(p->angle*rad));
         p->spoke.orthogonal(p->dir);
-        p->spoke.normalize().mul(p->radius*sinf(p->angle*RAD));
+        p->spoke.normalize().mul(p->radius*sinf(p->angle*rad));
         return p;
     }
 
@@ -1306,7 +1306,7 @@ void part_trail(int ptype, int fade, const vec &s, const vec &e, int color, floa
     if(!canaddparticles()) return;
     vec v;
     float d = e.dist(s, v);
-    int steps = clamp(int(d*2), 1, maxparticletrail);
+    int steps = std::clamp(int(d*2), 1, maxparticletrail);
     v.div(steps);
     vec p = s;
     loopi(steps)
@@ -1412,7 +1412,7 @@ void part_dir(const vec &o, float yaw, float pitch, float length, float size, fl
 {
     if(!canaddparticles()) return;
 
-    vec v(yaw*RAD, pitch*RAD);
+    vec v(yaw*rad, pitch*rad);
     part_line(o, vec(v).mul(length).add(o), size, blend, fade, color);
     if(interval)
     {
@@ -1546,7 +1546,7 @@ static inline vec offsetvec(vec o, int dir, int dist)
         }
         else if(dir < 24) //sphere
         {
-            to = vec(PI2*float(rnd(1000))/1000.0, PI*float(rnd(1000)-500)/1000.0).mul(radius);
+            to = vec((pi*2)*float(rnd(1000))/1000.0, pi*float(rnd(1000)-500)/1000.0).mul(radius);
             to.add(p);
             from = p;
         }
@@ -1564,7 +1564,7 @@ static inline vec offsetvec(vec o, int dir, int dist)
 
         if(taper)
         {
-            float dist = clamp(from.dist2(camera1->o) / maxparticledistance, 0.0f, 1.0f);
+            float dist = std::clamp(from.dist2(camera1->o) / maxparticledistance, 0.0f, 1.0f);
             if(dist > 0.2f)
             {
                 dist = 1 - (dist - 0.2f)/0.8f;
@@ -1638,7 +1638,7 @@ void makeparticle(const vec &o, attrvector &attr)
             break;
         case 2: //water fountain - <dir>
         {
-            int mat = MAT_WATER + clamp(-attr[2], 0, 3);
+            int mat = MAT_WATER + std::clamp(-attr[2], 0, 3);
             const bvec &wfcol = getwaterfallcol(mat);
             int color = (int(wfcol[0])<<16) | (int(wfcol[1])<<8) | int(wfcol[2]);
             if(!color)
@@ -1688,19 +1688,19 @@ void makeparticle(const vec &o, attrvector &attr)
             regularflame(type, o, float(attr[1])/100.0f, float(attr[2])/100.0f, attr[3], density, attr[4] > 0 ? attr[4] : fademap[attr[0]-14], attr[5] != 0 ? attr[5]/100.f : sizemap[attr[0]-14], 1, attr[6] != 0 ? attr[6] : gravmap[attr[0]-14], 0, attr[7] != 0 ? attr[7] : velmap[attr[0]-14]);
             break;
         }
-        case 6: //meter, metervs - <percent> <rgb> <rgb2>
-        {
-            float length = clamp(attr[1], 0, 100)/100.f;
-            part_icon(o, textureload(hud::progresstex, 3), 2, 1, 0, 0, 1, partcolour(attr[3], attr[6], attr[7]), length, 1-length); // fall through
+        case 6 : {// meter, metervs - <percent> <rgb> <rgb2>
+            float length = std::clamp(attr[1], 0, 100) / 100.f;
+            part_icon(o, textureload(hud::progresstex, 3), 2, 1, 0, 0, 1, partcolour(attr[3], attr[6], attr[7]), length,
+                      1 - length);
+            [[fallthrough]];
         }
-        case 5:
-        {
-            float length = clamp(attr[1], 0, 100)/100.f;
+        case 5: {
+            float length = std::clamp(attr[1], 0, 100) / 100.f;
             int colour = partcolour(attr[2], attr[4], attr[5]);
-            part_icon(o, textureload(hud::progringtex, 3), 3, 1, 0, 0, 1, colour, (totalmillis%1000)/1000.f, 0.1f);
+            part_icon(o, textureload(hud::progringtex, 3), 3, 1, 0, 0, 1, colour, (totalmillis % 1000) / 1000.f, 0.1f);
             part_icon(o, textureload(hud::progresstex, 3), 3, 1, 0, 0, 1, colour, 0, length);
-            break;
         }
+        break;
         case 32: //lens flares - plain/sparkle/sun/sparklesun <red> <green> <blue>
         case 33:
         case 34:

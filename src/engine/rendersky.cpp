@@ -188,7 +188,7 @@ void drawenvoverlay(int w, float height, int subdiv, float fade, float scale, Te
     loopi(subdiv+1)
     {
         vec p(1, 1, 0);
-        p.rotate_around_z((-2.0f*M_PI*i)/subdiv);
+        p.rotate_around_z((-2.0f*pi*i)/subdiv);
         gle::attribf(p.x*psz, p.y*psz, z);
             gle::attribf(tx + p.x*tsz, ty + p.y*tsz);
     }
@@ -201,7 +201,7 @@ void drawenvoverlay(int w, float height, int subdiv, float fade, float scale, Te
     loopi(subdiv+1)
     {
         vec p(1, 1, 0);
-        p.rotate_around_z((-2.0f*M_PI*i)/subdiv);
+        p.rotate_around_z((-2.0f*pi*i)/subdiv);
         gle::attribf(p.x*psz, p.y*psz, z);
             gle::attribf(tx + p.x*tsz, ty + p.y*tsz);
             gle::attrib(color, a);
@@ -540,7 +540,7 @@ void drawskybox(int farplane, bool limited)
 
         matrix4 skymatrix = cammatrix, skyprojmatrix;
         skymatrix.settranslation(0, 0, 0);
-        skymatrix.rotate_around_z((spinsky*lastmillis/1000.0f+yawsky)*-RAD);
+        skymatrix.rotate_around_z((spinsky*lastmillis/1000.0f+yawsky)*-rad);
         skyprojmatrix.mul(projmatrix, skymatrix);
         LOCALPARAM(skymatrix, skyprojmatrix);
 
@@ -566,7 +566,7 @@ void drawskybox(int farplane, bool limited)
 
         matrix4 skymatrix = cammatrix, skyprojmatrix;
         skymatrix.settranslation(0, 0, 0);
-        skymatrix.rotate_around_z((spinclouds*lastmillis/1000.0f+yawclouds)*-RAD);
+        skymatrix.rotate_around_z((spinclouds*lastmillis/1000.0f+yawclouds)*-rad);
         skyprojmatrix.mul(projmatrix, skymatrix);
         LOCALPARAM(skymatrix, skyprojmatrix);
 
@@ -587,7 +587,7 @@ void drawskybox(int farplane, bool limited)
 
         matrix4 skymatrix = cammatrix, skyprojmatrix;
         skymatrix.settranslation(0, 0, 0);
-        skymatrix.rotate_around_z((spincloudlayer*lastmillis/1000.0f+yawcloudlayer)*-RAD);
+        skymatrix.rotate_around_z((spincloudlayer*lastmillis/1000.0f+yawcloudlayer)*-rad);
         skyprojmatrix.mul(projmatrix, skymatrix);
         LOCALPARAM(skymatrix, skyprojmatrix);
 
@@ -609,7 +609,7 @@ void drawskybox(int farplane, bool limited)
 
         matrix4 skymatrix = cammatrix, skyprojmatrix;
         skymatrix.settranslation(0, 0, 0);
-        skymatrix.rotate_around_z((spinenvlayer*lastmillis/1000.0f+yawenvlayer)*-RAD);
+        skymatrix.rotate_around_z((spinenvlayer*lastmillis/1000.0f+yawenvlayer)*-rad);
         skyprojmatrix.mul(projmatrix, skymatrix);
         LOCALPARAM(skymatrix, skyprojmatrix);
 

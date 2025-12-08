@@ -330,7 +330,7 @@ static void allocglslactiveuniforms(Shader &s)
         name[0] = '\0';
         glGetActiveUniform_(s.program, i, sizeof(name)-1, &namelen, &size, &format, name);
         if(namelen <= 0 || size <= 0) continue;
-        name[clamp(int(namelen), 0, (int)sizeof(name)-2)] = '\0';
+        name[std::clamp(int(namelen), 0, (int)sizeof(name)-2)] = '\0';
         char *brak = strchr(name, '[');
         if(brak) *brak = '\0';
         setglsluniformformat(s, name, format, size);
@@ -1428,7 +1428,7 @@ ICOMMAND(0, addpostfx, "siisffff", (char *name, int *bind, int *scale, char *inp
     else if(*inputs=='-') freeinputs = true;
     inputmask &= (1<<NUMPOSTFXBINDS)-1;
     freemask &= (1<<NUMPOSTFXBINDS)-1;
-    addpostfx(name, clamp(*bind, 0, NUMPOSTFXBINDS-1), max(*scale, 0), inputmask, freemask, vec4(*x, *y, *z, *w));
+    addpostfx(name, std::clamp(*bind, 0, NUMPOSTFXBINDS-1), max(*scale, 0), inputmask, freemask, vec4(*x, *y, *z, *w));
 });
 
 ICOMMAND(0, setpostfx, "sffff", (char *name, float *x, float *y, float *z, float *w),

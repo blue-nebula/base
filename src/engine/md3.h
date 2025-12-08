@@ -93,7 +93,7 @@ struct md3 : vertmodel, vertloader<md3>
                 f->seek(mesh_offset + mheader.ofs_triangles, SEEK_SET);
                 loopj(m.numtris)
                 {
-                    md3triangle tri;
+                    md3triangle tri{};
                     f->read(&tri, sizeof(md3triangle)); // read the triangles
                     lilswap(tri.vertexindices, 3);
                     loopk(3) m.tris[j].vert[k] = (ushort)tri.vertexindices[k];
@@ -109,7 +109,7 @@ struct md3 : vertmodel, vertloader<md3>
                 f->seek(mesh_offset + mheader.ofs_vertices, SEEK_SET);
                 loopj(numframes*m.numverts)
                 {
-                    md3vertex v;
+                    md3vertex v{};
                     f->read(&v, sizeof(md3vertex)); // read the vertices
                     lilswap(v.vertex, 4);
 
@@ -117,8 +117,8 @@ struct md3 : vertmodel, vertloader<md3>
                     m.verts[j].pos.y = -v.vertex[1]/64.0f;
                     m.verts[j].pos.z = v.vertex[2]/64.0f;
 
-                    float lng = (v.normal&0xFF)*PI2/255.0f; // decode vertex normals
-                    float lat = ((v.normal>>8)&0xFF)*PI2/255.0f;
+                    float lng = (v.normal&0xFF)*(pi*2)/255.0f; // decode vertex normals
+                    float lat = ((v.normal>>8)&0xFF)*(pi*2)/255.0f;
                     m.verts[j].norm.x = cosf(lat)*sinf(lng);
                     m.verts[j].norm.y = -sinf(lat)*sinf(lng);
                     m.verts[j].norm.z = cosf(lng);

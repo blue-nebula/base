@@ -2,6 +2,7 @@
 // runs dedicated or as client coroutine
 
 #include "engine.h"
+#include <atomic>
 #include <signal.h>
 
 #ifdef WIN32
@@ -134,7 +135,7 @@ void addipinfo(vector<ipinfo> &info, int type, const char *name, const char *rea
     ipinfo &p = info.add();
     p.ip = ip.i;
     p.mask = mask.i;
-    p.type = clamp(type, 0, int(ipinfo::MAXTYPES)-1);
+    p.type = std::clamp(type, 0, int(ipinfo::MAXTYPES)-1);
     p.flag = ipinfo::LOCAL;
     p.time = totalmillis ? totalmillis : 1;
 #ifdef STANDALONE
@@ -157,7 +158,7 @@ char *printipinfo(const ipinfo &info, char *buf)
     ip.i = info.ip;
     mask.i = info.mask;
     int lastdigit = -1;
-    str += sprintf(str, "[%s] ", ipinfotypes[clamp(info.type, 0, int(ipinfo::MAXTYPES)-1)]);
+    str += sprintf(str, "[%s] ", ipinfotypes[std::clamp(info.type, 0, int(ipinfo::MAXTYPES)-1)]);
     loopi(4) if(mask.b[i])
     {
         if(lastdigit >= 0) *str++ = '.';
@@ -1898,7 +1899,7 @@ void shutdownsignal(int signum)
 }
 
 #ifdef STANDALONE
-volatile int errors = 0;
+std::atomic<unsigned short> errors {0};
 void fatal(const char *s, ...)    // failure exit
 {
     if(++errors <= 2) // print up to one extra recursive error

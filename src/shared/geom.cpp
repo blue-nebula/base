@@ -4,23 +4,23 @@ void vecfromyawpitch(float yaw, float pitch, int move, int strafe, vec &m)
 {
     if(move)
     {
-        m.x = move*-sinf(RAD*yaw);
-        m.y = move*cosf(RAD*yaw);
+        m.x = move*-sinf(rad*yaw);
+        m.y = move*cosf(rad*yaw);
     }
     else m.x = m.y = 0;
 
     if(pitch)
     {
-        m.x *= cosf(RAD*pitch);
-        m.y *= cosf(RAD*pitch);
-        m.z = move*sinf(RAD*pitch);
+        m.x *= cosf(rad*pitch);
+        m.y *= cosf(rad*pitch);
+        m.z = move*sinf(rad*pitch);
     }
     else m.z = 0;
 
     if(strafe)
     {
-        m.x += strafe*cosf(RAD*yaw);
-        m.y += strafe*sinf(RAD*yaw);
+        m.x += strafe*cosf(rad*yaw);
+        m.y += strafe*sinf(rad*yaw);
     }
 
     if(!m.iszero()) m.normalize();
@@ -31,8 +31,8 @@ void vectoyawpitch(const vec &v, float &yaw, float &pitch)
     if(v.iszero()) yaw = pitch = 0;
     else
     {
-        yaw = -atan2(v.x, v.y)/RAD;
-        pitch = asin(v.z/v.magnitude())/RAD;
+        yaw = -atan2(v.x, v.y)/rad;
+        pitch = asin(v.z/v.magnitude())/rad;
     }
 }
 
@@ -172,7 +172,7 @@ vec closestpointcylinder(const vec &center, const vec &start, const vec &end, fl
     vec raddir = vec(relcenter).sub(vec(dir).mul(height));
     float radlen = raddir.magnitude();
     if(radlen > radius) raddir.mul(radius/radlen);
-    return dir.mul(clamp(height, 0.0f, 1.0f)).add(start).add(raddir);
+    return dir.mul(std::clamp(height, 0.0f, 1.0f)).add(start).add(raddir);
 }
 
 extern const vec2 sincos360[721] =

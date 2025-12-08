@@ -28,6 +28,7 @@ enum {
     W_S_EXCLUDE = (1<<W_S_IDLE)|(1<<W_S_POWER)|(1<<W_S_ZOOM)
 };
 
+// sounds emitted by weapons
 enum
 {
     S_W_PRIMARY = 0, S_W_SECONDARY,
@@ -43,7 +44,8 @@ enum
     S_W_MAX
 };
 
-enum
+// sounds when picking up weapons
+enum : int
 {
     S_WEAPONS   = S_GAME,
     S_CLAW      = S_WEAPONS,
@@ -854,13 +856,13 @@ WPFVARK(IDF_GAMEMOD,  weight, FVAR_MIN, FVAR_MAX,
 
 #define WRS(a,b,c,d)         ((a)*(m_dm_gladiator(c, d) ? G(gladiator##b##scale) : G(b##scale)*(m_sweaps(c, d) ? G(b##limited) : 1.f)))
 #define WX(k,a,b,c,d,e,f)    (!m_insta(d, e) || (a) != W_RIFLE ? WRS(WF(k, a, b, c)*f, radial, d, e) : 0)
-#define WSP(a,b,c,d,e)       (!m_insta(c, d) || (a) != W_RIFLE ? clamp(W2(a, spread, b)*(e), W2(a, spreadmin, b), W2(a, spreadmax, b) > 0 ? W2(a, spreadmax, b) : FVAR_MAX) : 0.f)
+#define WSP(a,b,c,d,e)       (!m_insta(c, d) || (a) != W_RIFLE ? std::clamp(W2(a, spread, b)*(e), W2(a, spreadmin, b), W2(a, spreadmax, b) > 0 ? W2(a, spreadmax, b) : FVAR_MAX) : 0.f)
 #define WSND(a,b)            (weaptype[a].sound+(b))
 #define WSNDF(a,b)           (weaptype[a].sound+((b) ? S_W_SECONDARY : S_W_PRIMARY))
 #define WSND2(a,b,c)         (weaptype[a].sound+((b) ? (c)+1 : (c)))
 #define WUSE(a)              (a < W_ITEM ? W(a, ammomax) : W(a, ammoadd))
-#define WHCOL(d,a,b,c)       (W2(a, b, c) >= 0 ? W2(a, b, c) : game::hexpulsecolour(d, clamp(INVPULSE(W2(a, b, c)), 0, int(PULSE_LAST)), 50))
-#define WPCOL(d,a,b,c)       (W2(a, b, c) >= 0 ? vec::hexcolor(W2(a, b, c)) : game::pulsecolour(d, clamp(INVPULSE(W2(a, b, c)), 0, int(PULSE_LAST)), 50))
+#define WHCOL(d,a,b,c)       (W2(a, b, c) >= 0 ? W2(a, b, c) : game::hexpulsecolour(d, std::clamp(INVPULSE(W2(a, b, c)), 0, int(PULSE_LAST)), 50))
+#define WPCOL(d,a,b,c)       (W2(a, b, c) >= 0 ? vec::hexcolor(W2(a, b, c)) : game::pulsecolour(d, std::clamp(INVPULSE(W2(a, b, c)), 0, int(PULSE_LAST)), 50))
 
 struct weaptypes
 {

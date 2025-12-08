@@ -357,19 +357,19 @@ ICOMMAND(0, ircbind, "ss", (const char *name, const char *s), {
 ICOMMAND(0, ircpass, "ss", (const char *name, const char *s), {
     ircnet *n = ircfind(name);
     if(!n) { conoutf("no such ircnet: %s", name); return; }
-    if(!s || !*s) { ircprintf(n, 4, NULL, "current password is: %s", n->passkey && *n->passkey ? "<set>" : "<not set>"); return; }
+    if(!s || !*s) { ircprintf(n, 4, NULL, "current password is: %s", *n->passkey ? "<set>" : "<not set>"); return; }
     copystring(n->passkey, s);
 });
 ICOMMAND(0, ircauthcommand, "ss", (const char *name, const char *s), {
     ircnet *n = ircfind(name);
     if(!n) { conoutf("no such ircnet: %s", name); return; }
-    if(!s || !*s) { ircprintf(n, 4, NULL, "current auth command is: %s", n->authcommand && *n->authcommand ? "<set>" : "<not set>"); return; }
+    if(!s || !*s) { ircprintf(n, 4, NULL, "current auth command is: %s", *n->authcommand ? "<set>" : "<not set>"); return; }
     copystring(n->authcommand, s);
 });
 ICOMMAND(0, ircauth, "sss", (const char *name, const char *s, const char *t), {
     ircnet *n = ircfind(name);
     if(!n) { conoutf("no such ircnet: %s", name); return; }
-    if(!s || !*s || !t || !*t) { ircprintf(n, 4, NULL, "current auth details are: %s (%s)", n->authname, n->authpass && *n->authpass ? "<set>" : "<not set>"); return; }
+    if(!s || !*s || !t || !*t) { ircprintf(n, 4, NULL, "current auth details are: %s (%s)", n->authname, *n->authpass ? "<set>" : "<not set>"); return; }
     copystring(n->authname, s);
     copystring(n->authpass, t);
 });
@@ -462,7 +462,7 @@ ICOMMAND(0, ircpasschan, "sss", (const char *name, const char *chan, const char 
     if(!n) { conoutf("no such ircnet: %s", name); return; }
     ircchan *c = ircfindchan(n, chan);
     if(!c) { ircprintf(n, 4, NULL, "no such channel: %s", chan); return; }
-    if(!s || !*s) { ircprintf(n, 4, NULL, "channel %s current password is: %s", c->name, c->passkey && *c->passkey ? "<set>" : "<not set>"); return; }
+    if(!s || !*s) { ircprintf(n, 4, NULL, "channel %s current password is: %s", c->name, *c->passkey ? "<set>" : "<not set>"); return; }
     copystring(c->passkey, s);
 });
 ICOMMAND(0, ircrelaychan, "sss", (const char *name, const char *chan, const char *s), {
@@ -820,16 +820,19 @@ bool ircaddsockets(ENetSocket &maxsock, ENetSocketSet &readset, ENetSocketSet &w
     loopv(ircnets)
     {
         ircnet *n = ircnets[i];
-        if(n->sock != ENET_SOCKET_NULL && n->state > IRC_DISC) switch(n->state)
-        {
+        if (n->sock != ENET_SOCKET_NULL && n->state > IRC_DISC) {
+            switch (n->state) {
             case IRC_WAIT:
                 ENET_SOCKETSET_ADD(writeset, n->sock);
-                // fall-through
-            case IRC_ONLINE: case IRC_CONN: case IRC_QUIT:
+                [[fallthrough]];
+            case IRC_ONLINE:
+            case IRC_CONN:
+            case IRC_QUIT:
                 maxsock = maxsock == ENET_SOCKET_NULL ? n->sock : max(maxsock, n->sock);
                 ENET_SOCKETSET_ADD(readset, n->sock);
                 numsocks++;
                 break;
+            }
         }
     }
     return numsocks > 0;
@@ -934,15 +937,15 @@ void ircslice()
                     break;
                 }
                 case IRC_ONLINE:
-                {
-                    loopvj(n->channels)
-                    {
+                    loopvj(n->channels) {
                         ircchan *c = &n->channels[j];
-                        if(c->type == IRCCT_AUTO && c->state != IRCC_JOINED && (!c->lastjoin || clocktime-c->lastjoin >= (c->state != IRCC_BANNED ? 5 : ircautorejoin)))
-                            ircjoin(n, c);
+                        if (c->type == IRCCT_AUTO && c->state != IRCC_JOINED &&
+                            (!c->lastjoin ||
+                             clocktime - c->lastjoin >= (c->state != IRCC_BANNED ? 5 : ircautorejoin))) {
+                        ircjoin(n, c);
+                        }
                     }
-                    // fall through
-                }
+                    [[fallthrough]];
                 case IRC_CONN:
                 {
                     if(n->state == IRC_CONN && (!n->lastattempt || clocktime-n->lastattempt >= irctimeout))

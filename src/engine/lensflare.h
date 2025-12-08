@@ -142,7 +142,7 @@ struct flarerenderer : partrenderer
                             r = e.attrs[2];
                             g = e.attrs[3];
                             b = e.attrs[4];
-                            o = vec(camera1->o).add(vec(e.attrs[0]*RAD, (e.attrs[1]+90)*RAD).mul(getworldsize()*2));
+                            o = vec(camera1->o).add(vec(e.attrs[0]*rad, (e.attrs[1]+90)*rad).mul(getworldsize()*2));
                             project = true;
                             if(e.attrs[7] > 0) scale = e.attrs[7]/100.f;
                             break;
