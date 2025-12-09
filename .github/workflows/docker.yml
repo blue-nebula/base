@@ -64,5 +64,5 @@ jobs:
           file: docker/Dockerfile
           # enable arm64 by default once native runners are available
           platforms: ${{ inputs.include_arm64 && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.repository == 'blue-nebula/base' && github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
