@@ -1,8 +1,8 @@
 // client.cpp, mostly network related client game code
 #include "engine.h"
 
-ENetHost *clienthost = NULL;
-ENetPeer *curpeer = NULL, *connpeer = NULL;
+ENetHost *clienthost = nullptr;
+ENetPeer *curpeer = nullptr, *connpeer = nullptr;
 int connmillis = 0, connattempts = 0, discmillis = 0;
 
 bool multiplayer(bool msg)
@@ -41,7 +41,7 @@ bool connected(bool attempt, bool local)
 
 const ENetAddress *connectedpeer()
 {
-    return curpeer ? &curpeer->address : NULL;
+    return curpeer ? &curpeer->address : nullptr;
 }
 
 ICOMMAND(0, connectedip, "", (),
@@ -70,10 +70,10 @@ void abortconnect(bool msg)
     client::connectfail();
     if(msg) conoutft(CON_MESG, "\faaborting connection attempt");
     if(connpeer->state!=ENET_PEER_STATE_DISCONNECTED) enet_peer_reset(connpeer);
-    connpeer = NULL;
+    connpeer = nullptr;
     if(curpeer) return;
     enet_host_destroy(clienthost);
-    clienthost = NULL;
+    clienthost = nullptr;
 }
 
 void connectfail()
@@ -136,7 +136,7 @@ void connectserv(const char *name, int port, const char *password)
 
     if(!clienthost)
     {
-        clienthost = enet_host_create(NULL, 2, server::numchannels(), rate*1024, rate*1024);
+        clienthost = enet_host_create(nullptr, 2, server::numchannels(), rate*1024, rate*1024);
         if(!clienthost)
         {
             conoutft(CON_MESG, "\frfailed creating client socket");
@@ -151,7 +151,7 @@ void connectserv(const char *name, int port, const char *password)
     connmillis = totalmillis;
     connattempts = 0;
     client::connectattempt(name ? name : "", port, password ? password : "", address);
-    conoutft(CON_MESG, "\fgconnecting to %s:[%d]", name != NULL ? name : "local server", port);
+    conoutft(CON_MESG, "\fgconnecting to %s:[%d]", name != nullptr ? name : "local server", port);
 }
 
 void disconnect(bool onlyclean, bool async)
@@ -172,7 +172,7 @@ void disconnect(bool onlyclean, bool async)
                 if(async) return;
                 enet_peer_reset(curpeer);
             }
-            curpeer = NULL;
+            curpeer = nullptr;
         }
         discmillis = 0;
         conoutft(CON_MESG, "\frdisconnected");
@@ -181,7 +181,7 @@ void disconnect(bool onlyclean, bool async)
     if(!connpeer && clienthost)
     {
         enet_host_destroy(clienthost);
-        clienthost = NULL;
+        clienthost = nullptr;
     }
     if(cleanup)
     {
@@ -194,7 +194,7 @@ void disconnect(bool onlyclean, bool async)
 ICOMMAND(0, connect, "sis", (char *n, int *a, char *pwd), connectserv(*n ? n : servermaster, *n || *a ? *a : SERVER_PORT, pwd));
 ICOMMAND(0, disconnect, "i", (int *force), trydisconnect(*force!=0));
 
-ICOMMAND(0, lanconnect, "is", (int *a, char *pwd), connectserv(NULL, *a, pwd));
+ICOMMAND(0, lanconnect, "is", (int *a, char *pwd), connectserv(nullptr, *a, pwd));
 ICOMMAND(0, localconnect, "i", (int *n), localconnect(*n ? false : true));
 
 ICOMMAND(0, isonline, "", (), intret(curpeer ? 1 : 0));
@@ -207,7 +207,7 @@ void reconnect(const char *pass)
     if(*connectname) copystring(addr, connectname);
     if(connectport) port = connectport;
     disconnect(true);
-    connectserv(*addr ? addr : NULL, port > 0 ? port : SERVER_PORT, pass);
+    connectserv(*addr ? addr : nullptr, port > 0 ? port : SERVER_PORT, pass);
 }
 COMMAND(0, reconnect, "s");
 
@@ -238,8 +238,8 @@ void localservertoclient(int chan, ENetPacket *packet)  // processes any updates
 
 void clientkeepalive()
 {
-    if(clienthost) enet_host_service(clienthost, NULL, 0);
-    if(serverhost) enet_host_service(serverhost, NULL, 0);
+    if(clienthost) enet_host_service(clienthost, nullptr, 0);
+    if(serverhost) enet_host_service(serverhost, nullptr, 0);
 
 }
 
@@ -266,7 +266,7 @@ void gets2c()           // get updates from the server
         case ENET_EVENT_TYPE_CONNECT:
             disconnect(1);
             curpeer = connpeer;
-            connpeer = NULL;
+            connpeer = nullptr;
             conoutft(CON_MESG, "\fgconnected to server");
             throttle();
             if(rate) setrate(rate);

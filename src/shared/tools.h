@@ -4,11 +4,8 @@
 #define _TOOLS_H
 #include <utility>
 #include <vector>
-
-#ifdef NULL
-#undef NULL
-#endif
-#define NULL 0
+#include <algorithm>
+#include <cstddef>
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -97,8 +94,8 @@ static inline int bitscan(uint mask)
 #define loopkrev(m) looprev(k,m)
 #define looplrev(m) looprev(l,m)
 
-#define DELETEP(p) if(p) { delete   p; p = 0; }
-#define DELETEA(p) if(p) { delete[] p; p = 0; }
+#define DELETEP(p) if(p) { delete   p; p = nullptr; }
+#define DELETEA(p) if(p) { delete[] p; p = nullptr; }
 
 #define PI  (3.1415927f)
 #define PI2 (2*PI)
@@ -139,6 +136,13 @@ static inline int bitscan(uint mask)
 #else
 #define PRINTFARGS(fmt, args)
 #endif
+
+template<class T, class U>
+constexpr bool inrange(const std::vector<T> &vec, U val)
+{
+    static_assert(std::is_integral<U>::value, "Second argument is not an integral, could not safely cast to size_t");
+    return static_cast<size_t>(val) < vec.size();
+}
 
 // easy safe strings
 

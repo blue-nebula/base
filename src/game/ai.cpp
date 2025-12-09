@@ -150,7 +150,10 @@ namespace ai
 
     int weappref(gameent *d)
     {
-        if(d->loadweap.length()) return d->loadweap[0];
+        if (!d->loadweap.empty()) {
+            return d->loadweap.front();
+        }
+
         return m_weapon(d->actortype, game::gamemode, game::mutators);
     }
 
@@ -229,8 +232,8 @@ namespace ai
         if((d->actortype = at) >= A_ENEMY) d->type = ENT_AI;
         else
         {
-            d->loadweap.shrink(0);
-            loopv(lweaps) d->loadweap.add(lweaps[i]);
+            d->loadweap.clear();
+            loopv(lweaps) d->loadweap.emplace_back(lweaps[i]);
         }
         d->setname(name);
         d->spawnpoint = et;
@@ -295,7 +298,7 @@ namespace ai
     int checkothers(vector<int> &targets, gameent *d, int state, int targtype, int target, bool teams, int *members)
     { // checks the states of other ai for a match
         targets.setsize(0);
-        gameent *e = NULL;
+        gameent *e = nullptr;
         int numdyns = game::numdynents();
         loopi(numdyns) if((e = (gameent *)game::iterdynents(i)))
         {
@@ -352,7 +355,7 @@ namespace ai
     bool enemy(gameent *d, aistate &b, const vec &pos, float guard, int pursue, bool force, bool retry = false)
     {
         if(d->ai->enemy >= 0 && lastmillis-d->ai->enemymillis >= (111-d->skill)*50) return false;
-        gameent *t = NULL, *e = NULL;
+        gameent *t = nullptr, *e = nullptr;
         float mindist = guard*guard, bestdist = 1e16f;
         int numdyns = game::numdynents();
         loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && targetable(d, e))
@@ -440,7 +443,7 @@ namespace ai
         bool dominated, visible;
         float dist;
 
-        targcache() : d(NULL), dominated(false), visible(false), dist(0) {}
+        targcache() : d(nullptr), dominated(false), visible(false), dist(0) {}
         ~targcache() {}
 
         static bool tcsort(targcache &a,  targcache &b)
@@ -459,7 +462,7 @@ namespace ai
     {
         static vector<targcache> targets;
         targets.setsize(0);
-        gameent *e = NULL;
+        gameent *e = nullptr;
         int numdyns = game::numdynents();
         loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && targetable(d, e))
         {
@@ -479,7 +482,7 @@ namespace ai
 
     void assist(gameent *d, aistate &b, vector<interest> &interests, bool all = false, bool force = false)
     {
-        gameent *e = NULL;
+        gameent *e = nullptr;
         int numdyns = game::numdynents();
         loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && e != d && (all || e->actortype == A_PLAYER) && d->team == e->team)
         {
@@ -1133,7 +1136,7 @@ namespace ai
                     else enemyok = false; // would hit non-targetable person
                 }
                 else if((!enemyok || d->ai->dontmove) && target(d, b, 0, d->ai->dontmove && (b.type != AI_S_DEFEND || b.targtype != AI_T_AFFINITY)))
-                    enemyok = (e = game::getclient(d->ai->enemy)) != NULL;
+                    enemyok = (e = game::getclient(d->ai->enemy)) != nullptr;
             }
             if(enemyok)
             {
@@ -1386,7 +1389,7 @@ namespace ai
                         if(d->ai->blockseq != 1 && iswaypoint(d->ai->targnode))
                         {
                             if(!d->ai->hasprevnode(d->ai->targnode)) d->ai->addprevnode(d->ai->targnode);
-                            wpavoid.avoidnear(NULL, waypoints[d->ai->targnode].o.z + WAYPOINTRADIUS, waypoints[d->ai->targnode].o, WAYPOINTRADIUS);
+                            wpavoid.avoidnear(nullptr, waypoints[d->ai->targnode].o.z + WAYPOINTRADIUS, waypoints[d->ai->targnode].o, WAYPOINTRADIUS);
                         }
                         break;
                     case 3: if(!transport(d)) d->ai->reset(false); break;
@@ -1507,7 +1510,7 @@ namespace ai
             if(!mmi->m->ellipsecollide) rotatebb(center, radius, int(e.attrs[1]), int(e.attrs[2]));
             float xy = max(radius.x, max(radius.y, radius.z));
             if(e.attrs[6]&MMT_HIDE) xy += WAYPOINTRADIUS + 1;
-            obstacles.avoidnear(NULL, e.o.z + radius.z + 1, e.o, xy);
+            obstacles.avoidnear(nullptr, e.o.z + radius.z + 1, e.o, xy);
         }
     }
 
@@ -1633,7 +1636,7 @@ namespace ai
                 loopvrev(d->ai->state)
                 {
                     aistate &b = d->ai->state[i];
-                    gameent *e = b.owner >= 0 ? game::getclient(b.owner) : NULL;
+                    gameent *e = b.owner >= 0 ? game::getclient(b.owner) : nullptr;
                     defformatstring(s, "%s%s (%s) %s:%d (\fs%s%s\fS%s%s%s)",
                         top ? "<default>\fg" : "<sub>\fa",
                         stnames[b.type],
@@ -1788,7 +1791,7 @@ namespace ai
                 else
                 {
                     bool defend = false;
-                    gameent *f = NULL;
+                    gameent *f = nullptr;
                     int numdyns = game::numdynents();
                     loopi(numdyns) if((f = (gameent *)game::iterdynents(i)) && f != e && f->team == e->team && !strcmp(w[pos], f->name))
                     {
@@ -1945,7 +1948,7 @@ namespace ai
                     }
                     else
                     {
-                        gameent *f = NULL;
+                        gameent *f = nullptr;
                         int numdyns = game::numdynents();
                         loopi(numdyns) if((f = (gameent *)game::iterdynents(i)) && f != e && f->team == e->team && !strcmp(w[pos], f->name))
                         {

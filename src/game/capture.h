@@ -36,8 +36,8 @@ struct capturestate
             votes.shrink(0);
             floorpos = vec(-1, -1, -1);
 #else
-            owner = lastowner = NULL;
-            proj = NULL;
+            owner = lastowner = nullptr;
+            proj = nullptr;
             displaytime = movetime = viewtime = interptime = 0;
 #endif
             team = T_NEUTRAL;
@@ -110,7 +110,7 @@ struct capturestate
 
     void destroy(int id)
     {
-        flags[id].proj = NULL;
+        flags[id].proj = nullptr;
         loopv(projs::projs) if(projs::projs[i]->projtype == PRJ_AFFINITY && projs::projs[i]->id == id)
         {
             projs::projs[i]->state = CS_DEAD;
@@ -121,7 +121,7 @@ struct capturestate
     void create(int id)
     {
         flag &f = flags[id];
-        f.proj = projs::create(f.droploc, f.inertia, false, NULL, PRJ_AFFINITY, -1, HIT_NONE, capturedelay, capturedelay, 1, 1, id);
+        f.proj = projs::create(f.droploc, f.inertia, false, nullptr, PRJ_AFFINITY, -1, HIT_NONE, capturedelay, capturedelay, 1, 1, id);
     }
 #endif
 
@@ -171,7 +171,7 @@ struct capturestate
         f.votes.shrink(0);
 #else
         f.movetime = 0;
-        f.owner = NULL;
+        f.owner = nullptr;
         destroy(i);
         create(i);
 #endif
@@ -191,7 +191,7 @@ struct capturestate
         f.floorpos = vec(-1, -1, -1);
 #else
         f.movetime = 0;
-        f.owner = NULL;
+        f.owner = nullptr;
         destroy(i);
 #endif
     }

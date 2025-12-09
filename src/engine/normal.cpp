@@ -90,7 +90,7 @@ static inline void findnormal(const normalgroup &g, const vec &surface, vec &v)
 static inline bool findtnormal(const normalgroup &g, const vec &surface, vec &v)
 {
     float bestangle = lerpthreshold;
-    tnormal *bestnorm = NULL;
+    tnormal *bestnorm = nullptr;
     for(int cur = g.tnormals; cur >= 0;)
     {
         tnormal &o = tnormals[cur];
@@ -293,7 +293,7 @@ void setlerpstep(float v, lerpbounds &bounds)
 
 void initlerpbounds(float u, float v, const lerpvert *lv, int numv, lerpbounds &start, lerpbounds &end)
 {
-    const lerpvert *first = &lv[0], *second = NULL;
+    const lerpvert *first = &lv[0], *second = nullptr;
     loopi(numv-1)
     {
         if(lv[i+1].tc.y < first->tc.y) { second = first; first = &lv[i+1]; }

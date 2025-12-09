@@ -6,34 +6,34 @@ struct soundsample
     Mix_Chunk *sound;
     char *name;
 
-    soundsample() : name(NULL) {}
+    soundsample() : name(nullptr) {}
     ~soundsample() { DELETEA(name); }
 
     void cleanup()
     {
         Mix_FreeChunk(sound);
-        sound = NULL;
+        sound = nullptr;
     }
 };
 
-soundslot::soundslot() : vol(255), maxrad(-1), minrad(-1), name(NULL) {}
+soundslot::soundslot() : vol(255), maxrad(-1), minrad(-1), name(nullptr) {}
 soundslot::~soundslot() { DELETEA(name); }
 
-sound::sound() : hook(NULL) { reset(); }
+sound::sound() : hook(nullptr) { reset(); }
 sound::~sound() {}
 bool sound::playing() { return chan >= 0 && (Mix_Playing(chan) || Mix_Paused(chan)); }
 void sound::reset()
 {
     pos = oldpos = vec(-1, -1, -1);
-    slot = NULL;
-    owner = NULL;
+    slot = nullptr;
+    owner = nullptr;
     vol = curvol = 255;
     curpan = 127;
     material = MAT_AIR;
     flags = maxrad = minrad = millis = ends = 0;
     slotnum = chan = -1;
     if(hook) *hook = -1;
-    hook = NULL;
+    hook = nullptr;
     buffer.shrink(0);
 }
 
@@ -42,10 +42,10 @@ vector<soundslot> gamesounds, mapsounds;
 vector<sound> sounds;
 
 bool nosound = true, changedvol = false, canmusic = false;
-Mix_Music *music = NULL;
-SDL_RWops *musicrw = NULL;
-stream *musicstream = NULL;
-char *musicfile = NULL, *musicdonecmd = NULL;
+Mix_Music *music = nullptr;
+SDL_RWops *musicrw = nullptr;
+stream *musicstream = nullptr;
+char *musicfile = nullptr, *musicdonecmd = nullptr;
 int musictime = -1, musicdonetime = -1;
 
 VARF(IDF_PERSIST, mastervol, 0, 255, 255, changedvol = true; if(!music && musicvol > 0 && mastervol > 0) smartmusic(true));
@@ -97,15 +97,15 @@ void stopmusic(bool docmd)
     if(music)
     {
         Mix_FreeMusic(music);
-        music = NULL;
+        music = nullptr;
     }
-    if(musicrw) { SDL_FreeRW(musicrw); musicrw = NULL; }
+    if(musicrw) { SDL_FreeRW(musicrw); musicrw = nullptr; }
     DELETEP(musicstream);
     DELETEA(musicfile);
-    if(musicdonecmd != NULL)
+    if(musicdonecmd != nullptr)
     {
         char *cmd = musicdonecmd;
-        musicdonecmd = NULL;
+        musicdonecmd = nullptr;
         if(docmd) execute(cmd);
         delete[] cmd;
     }
@@ -191,7 +191,7 @@ void getcursounds(int idx, int prop)
             case 13: intret(sounds[idx].valid() ? 1 : 0); break;
             case 14: intret(sounds[idx].playing() ? 1 : 0); break;
             case 15: intret(sounds[idx].flags&SND_MAP ? 1 : 0); break;
-            case 16: intret(sounds[idx].owner!=NULL ? 1 : 0); break;
+            case 16: intret(sounds[idx].owner!=nullptr ? 1 : 0); break;
             case 17: intret(sounds[idx].owner==camera1 ? 1 : 0); break;
             case 18: intret(client::getcn(sounds[idx].owner)); break;
             default: break;
@@ -212,7 +212,7 @@ Mix_Music *loadmusic(const char *name)
     else music = Mix_LoadMUS(findfile(name, "rb"));
     if(!music)
     {
-        if(musicrw) { SDL_FreeRW(musicrw); musicrw = NULL; }
+        if(musicrw) { SDL_FreeRW(musicrw); musicrw = nullptr; }
         DELETEP(musicstream);
     }
     return music;
@@ -299,7 +299,7 @@ int findsound(const char *name, int vol, vector<soundslot> &soundset)
 
 static Mix_Chunk *loadwav(const char *name)
 {
-    Mix_Chunk *c = NULL;
+    Mix_Chunk *c = nullptr;
     stream *z = openzipfile(name, "rb");
     if(z)
     {
@@ -337,7 +337,7 @@ int addsound(const char *name, int vol, int maxrad, int minrad, int value, vecto
         slot.maxrad = slot.minrad = -1;
         return soundset.length()-1;
     }
-    soundsample *sample = NULL;
+    soundsample *sample = nullptr;
     #define loadsound(req) \
     { \
         if(!(sample = soundsamples.access(req))) \
@@ -345,7 +345,7 @@ int addsound(const char *name, int vol, int maxrad, int minrad, int value, vecto
             char *n = newstring(req); \
             sample = &soundsamples[n]; \
             sample->name = n; \
-            sample->sound = NULL; \
+            sample->sound = nullptr; \
         } \
         if(!sample->sound) \
         { \
@@ -357,7 +357,7 @@ int addsound(const char *name, int vol, int maxrad, int minrad, int value, vecto
                 loopk(sizeof(exts)/sizeof(exts[0])) \
                 { \
                     formatstring(buf, "%s%s%s", dirs[i], sample->name, exts[k]); \
-                    if((sample->sound = loadwav(buf)) != NULL) found = true; \
+                    if((sample->sound = loadwav(buf)) != nullptr) found = true; \
                     if(found) break; \
                 } \
                 if(found) break; \
@@ -557,7 +557,7 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
         }
         soundslot *slot = &soundset[n];
         if(!oldhook || !issound(*oldhook) || (n != sounds[*oldhook].slotnum && strcmp(slot->name, gamesounds[sounds[*oldhook].slotnum].name)))
-            oldhook = NULL;
+            oldhook = nullptr;
 
         vec o = d ? game::camerapos(d) : pos;
         int cvol = 0, cpan = 0, v = clamp(vol >= 0 ? vol : 255, flags&SND_CLAMPED ? 64 : 0, 255),
@@ -575,7 +575,7 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
             if(oldhook) chan = *oldhook;
             else
             {
-                oldhook = NULL;
+                oldhook = nullptr;
                 soundsample *sample = slot->samples[rnd(slot->samples.length())];
                 if((chan = Mix_PlayChannel(-1, sample->sound, flags&SND_LOOP ? -1 : 0)) < 0)
                 {
@@ -617,7 +617,7 @@ int playsound(int n, const vec &pos, physent *d, int flags, int vol, int maxrad,
                     *hook = s.chan;
                     s.hook = hook;
                 }
-                else s.hook = NULL;
+                else s.hook = nullptr;
                 if(oldhook) *oldhook = -1;
                 updatesound(chan);
                 return chan;
@@ -666,7 +666,7 @@ void resetsound()
     {
         DELETEA(musicfile);
         DELETEA(musicdonecmd);
-        music = NULL;
+        music = nullptr;
         gamesounds.setsize(0);
         mapsounds.setsize(0);
         soundsamples.clear();
@@ -717,8 +717,8 @@ struct MumbleInfo
 #endif
 
 #ifdef WIN32
-static HANDLE mumblelink = NULL;
-static MumbleInfo *mumbleinfo = NULL;
+static HANDLE mumblelink = nullptr;
+static MumbleInfo *mumbleinfo = nullptr;
 #define VALID_MUMBLELINK (mumblelink && mumbleinfo)
 #elif _POSIX_SHARED_MEMORY_OBJECTS > 0
 static int mumblelink = -1;
@@ -750,7 +750,7 @@ void initmumble()
         mumblelink = shm_open(shmname, O_RDWR, 0);
         if(mumblelink >= 0)
         {
-            mumbleinfo = (MumbleInfo *)mmap(NULL, sizeof(MumbleInfo), PROT_READ|PROT_WRITE, MAP_SHARED, mumblelink, 0);
+            mumbleinfo = (MumbleInfo *)mmap(nullptr, sizeof(MumbleInfo), PROT_READ|PROT_WRITE, MAP_SHARED, mumblelink, 0);
             if(mumbleinfo != (MumbleInfo *)-1) wcsncpy(mumbleinfo->name, (const wchar_t *)versionuname, 256);
         }
     #endif
@@ -763,8 +763,8 @@ void initmumble()
 void closemumble()
 {
 #ifdef WIN32
-    if(mumbleinfo) { UnmapViewOfFile(mumbleinfo); mumbleinfo = NULL; }
-    if(mumblelink) { CloseHandle(mumblelink); mumblelink = NULL; }
+    if(mumbleinfo) { UnmapViewOfFile(mumbleinfo); mumbleinfo = nullptr; }
+    if(mumblelink) { CloseHandle(mumblelink); mumblelink = nullptr; }
 #elif _POSIX_SHARED_MEMORY_OBJECTS > 0
     if(mumbleinfo != (MumbleInfo *)-1) { munmap(mumbleinfo, sizeof(MumbleInfo)); mumbleinfo = (MumbleInfo *)-1; }
     if(mumblelink >= 0) { close(mumblelink); mumblelink = -1; }

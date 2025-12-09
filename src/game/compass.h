@@ -10,7 +10,7 @@ TVAR(IDF_PERSIST, compassringtex, "<grey>textures/hud/progress", 3);
 struct cstate
 {
     char *name, *contents;
-    cstate() : name(NULL), contents(NULL) {}
+    cstate() : name(nullptr), contents(nullptr) {}
     ~cstate()
     {
         DELETEA(name);
@@ -28,7 +28,7 @@ struct cmenu : cstate
     Texture *icon;
     vector<caction> actions;
     bool keep;
-    cmenu() : icon(NULL), keep(false) {}
+    cmenu() : icon(nullptr), keep(false) {}
     ~cmenu() { reset(); }
     void reset()
     {
@@ -46,7 +46,7 @@ struct cmenu : cstate
 };
 
 int compassmillis = 0, compasspos = 0;
-cmenu *curcompass = NULL;
+cmenu *curcompass = nullptr;
 vector<cmenu> cmenus;
 
 void clearcmenu()
@@ -56,7 +56,7 @@ void clearcmenu()
     if(curcompass)
     {
         curcompass->reset();
-        curcompass = NULL;
+        curcompass = nullptr;
     }
 }
 ICOMMAND(0, clearcompass, "", (), clearcmenu());
@@ -191,11 +191,11 @@ void rendercmenu()
 {
     if(compassmillis <= 0 || !curcompass) return;
     int size = int(compasssize*hudsize), hit = cmenuhit();
-    Texture *t = NULL;
+    Texture *t = nullptr;
     if(curcompass->icon && curcompass->icon != notexture) t = curcompass->icon;
     else if(*compassringtex) t = textureload(compassringtex, 3);
     renderaction(0, size, t, 0, curcompass->name, hit < 0);
-    t = *compasstex ? textureload(compasstex, 3) : NULL;
+    t = *compasstex ? textureload(compasstex, 3) : nullptr;
     loopi(min(curcompass->actions.length(), 8))
         renderaction(i+1, size, t, curcompass->actions[i].code, curcompass->actions[i].name, hit == i);
     if(curcompass->actions.length() > 8)

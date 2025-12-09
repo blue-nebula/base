@@ -3,7 +3,7 @@
 VAR(0, oqdynent, 0, 1, 1);
 VAR(0, animationinterpolationtime, 0, 200, 1000);
 
-model *loadingmodel = NULL;
+model *loadingmodel = nullptr;
 
 #include "ragdoll.h"
 #include "animmodel.h"
@@ -148,7 +148,7 @@ COMMAND(0, mdlglare, "ff");
 void mdlenvmap(float *envmapmax, float *envmapmin, const char *envmap)
 {
     checkmdl;
-    loadingmodel->setenvmap(*envmapmin, *envmapmax, envmap[0] ? cubemapload(envmap) : NULL);
+    loadingmodel->setenvmap(*envmapmin, *envmapmax, envmap[0] ? cubemapload(envmap) : nullptr);
 }
 
 COMMAND(0, mdlenvmap, "ffs");
@@ -351,7 +351,7 @@ void mmodel(char *name)
 {
     mapmodelinfo &mmi = mapmodels.add();
     copystring(mmi.name, name);
-    mmi.m = NULL;
+    mmi.m = nullptr;
 }
 
 void mapmodelcompat(int *rad, int *h, int *tex, char *name, char *shadow)
@@ -421,7 +421,7 @@ void preloadusedmapmodels(bool msg, bool bih)
         int mmindex = mapmodels[i];
         mapmodelinfo *mmi = getmminfo(mmindex);
         if(!mmi) { if(msg) conoutf("\frcould not find map model: %d", mmindex); }
-        else if(!loadmodel(NULL, mmindex, true)) { if(msg) conoutf("\frcould not load model: %s", mmi->name); }
+        else if(!loadmodel(nullptr, mmindex, true)) { if(msg) conoutf("\frcould not load model: %s", mmi->name); }
         else if(mmi->m)
         {
             if(bih) mmi->m->preloadBIH();
@@ -435,7 +435,7 @@ model *loadmodel(const char *name, int i, bool msg)
 {
     if(!name)
     {
-        if(!mapmodels.inrange(i)) return NULL;
+        if(!mapmodels.inrange(i)) return nullptr;
         mapmodelinfo &mmi = mapmodels[i];
         if(mmi.m) return mmi.m;
         name = mmi.name;
@@ -445,7 +445,7 @@ model *loadmodel(const char *name, int i, bool msg)
     if(mm) m = *mm;
     else
     {
-        if(loadingmodel || lightmapping > 1) return NULL;
+        if(loadingmodel || lightmapping > 1) return nullptr;
         if(msg)
         {
             defformatstring(str, "%s", name);
@@ -459,8 +459,8 @@ model *loadmodel(const char *name, int i, bool msg)
             if(m->load()) break;
             DELETEP(m);
         }
-        loadingmodel = NULL;
-        if(!m) return NULL;
+        loadingmodel = nullptr;
+        if(!m) return nullptr;
         models.access(m->name, m);
         m->preloadshaders();
     }
@@ -488,7 +488,7 @@ void clearmodel(char *name)
 {
     model **m = models.access(name);
     if(!m) { conoutf("\frmodel %s is not loaded", name); return; }
-    loopv(mapmodels) if(mapmodels[i].m==*m) mapmodels[i].m = NULL;
+    loopv(mapmodels) if(mapmodels[i].m==*m) mapmodels[i].m = nullptr;
     models.remove(name);
     (*m)->cleanup();
     delete *m;
@@ -563,7 +563,7 @@ struct modelbatch
 static vector<modelbatch *> batches;
 static vector<modelattach> modelattached;
 static int numbatches = -1;
-static occludequery *modelquery = NULL;
+static occludequery *modelquery = nullptr;
 
 void startmodelbatches()
 {
@@ -573,7 +573,7 @@ void startmodelbatches()
 
 modelbatch &addbatchedmodel(model *m)
 {
-    modelbatch *b = NULL;
+    modelbatch *b = nullptr;
     if(m->batch>=0 && m->batch<numbatches && batches[m->batch]->m==m) b = batches[m->batch];
     else
     {
@@ -592,7 +592,7 @@ modelbatch &addbatchedmodel(model *m)
 
 void renderbatchedmodel(model *m, batchedmodel &b)
 {
-    modelattach *a = NULL;
+    modelattach *a = nullptr;
     if(b.attached>=0) a = &modelattached[b.attached];
 
     int anim = b.anim;
@@ -641,7 +641,7 @@ void endmodelbatches()
             flushblobs();
         }
         bool rendered = false;
-        occludequery *query = NULL;
+        occludequery *query = nullptr;
         loopvj(b.batched)
         {
             batchedmodel &bm = b.batched[j];
@@ -669,8 +669,8 @@ void endmodelbatches()
     if(transparent.length())
     {
         transparent.sort(sorttransparentmodels);
-        model *lastmodel = NULL;
-        occludequery *query = NULL;
+        model *lastmodel = nullptr;
+        occludequery *query = nullptr;
         loopv(transparent)
         {
             transparentmodel &tm = transparent[i];
@@ -710,7 +710,7 @@ void endmodelquery()
     if(querybatches<=1)
     {
         if(!querybatches) modelquery->fragments = 0;
-        modelquery = NULL;
+        modelquery = nullptr;
         return;
     }
     flushblobs();
@@ -731,7 +731,7 @@ void endmodelquery()
         b.m->endrender();
     }
     endquery(modelquery);
-    modelquery = NULL;
+    modelquery = nullptr;
     modelattached.setsize(minattached);
 }
 
@@ -748,7 +748,7 @@ static inline void rendercullmodelquery(model *m, dynent *d, const vec &center, 
        fabs(camera1->o.y-center.y) < radius+1 &&
        fabs(camera1->o.z-center.z) < radius+1)
     {
-        d->query = NULL;
+        d->query = nullptr;
         return;
     }
     d->query = newquery(d);
@@ -764,7 +764,7 @@ static inline void disablecullmodelquery()
     endbb();
 }
 
-static inline int cullmodel(model *m, const vec &center, float radius, int flags, dynent *d = NULL, bool shadow = false)
+static inline int cullmodel(model *m, const vec &center, float radius, int flags, dynent *d = nullptr, bool shadow = false)
 {
     if(flags&MDL_CULL_DIST && center.dist(camera1->o)/radius>maxmodelradiusdistance) return MDL_CULL_DIST;
     if(flags&MDL_CULL_VFC)
@@ -928,7 +928,7 @@ void rendermodel(entitylight *light, const char *mdl, int anim, const vec &o, fl
     }
 
     vec lightcolor(1, 1, 1), lightdir(0, 0, 1);
-    const bvec *lightmaterial = NULL;
+    const bvec *lightmaterial = nullptr;
     if(!shadowmapping)
     {
         vec pos = o;
@@ -976,7 +976,7 @@ void rendermodel(entitylight *light, const char *mdl, int anim, const vec &o, fl
     if(a) for(int i = 0; a[i].tag; i++)
     {
         if(a[i].name) a[i].m = loadmodel(a[i].name);
-        //if(a[i].m && a[i].m->type()!=m->type()) a[i].m = NULL;
+        //if(a[i].m && a[i].m->type()!=m->type()) a[i].m = nullptr;
     }
 
     if(numbatches>=0)
@@ -1099,8 +1099,8 @@ void loadskin(const char *dir, const char *altdir, Texture *&skin, Texture *&mas
     masks = notexture;
 
     #define tryload(tex, prefix, cmd, path) loopi(4) { if((tex = textureload(makerelpath(i < 3 ? dirs[i] : "", path, prefix, cmd), 0, true, false)) != notexture) break; }
-    tryload(skin, NULL, NULL, "skin");
-    tryload(masks, NULL, NULL, "masks");
+    tryload(skin, nullptr, nullptr, "skin");
+    tryload(masks, nullptr, nullptr, "masks");
 }
 
 void setbbfrommodel(dynent *d, const char *mdl, float size)

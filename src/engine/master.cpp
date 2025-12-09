@@ -50,8 +50,8 @@ struct authreq
     {
         reqtime = 0;
         id = 0;
-        answer = NULL;
-        user = NULL;
+        answer = nullptr;
+        user = nullptr;
         hostname[0] = '\0';
     }
 };
@@ -609,7 +609,7 @@ void checkmaster()
             ENetBuffer buf;
             buf.data = (void *)&c.output[c.outputpos];
             buf.dataLength = c.output.length()-c.outputpos;
-            int res = enet_socket_send(c.socket, NULL, &buf, 1);
+            int res = enet_socket_send(c.socket, nullptr, &buf, 1);
             if(res >= 0)
             {
                 c.outputpos += res;
@@ -627,7 +627,7 @@ void checkmaster()
             ENetBuffer buf;
             buf.data = &c.input[c.inputpos];
             buf.dataLength = sizeof(c.input) - c.inputpos;
-            int res = enet_socket_receive(c.socket, NULL, &buf, 1);
+            int res = enet_socket_receive(c.socket, nullptr, &buf, 1);
             if(res > 0)
             {
                 c.inputpos += res;

@@ -63,13 +63,13 @@ struct blobrenderer
     uchar blobalpha;
 
     blobrenderer(const char *texname)
-      : texname(texname), tex(NULL),
-        cache(NULL), cachesize(0),
-        blobs(NULL), maxblobs(0), startblob(0), endblob(0),
-        verts(NULL), maxverts(0), startvert(0), endvert(0), availverts(0),
-        indexes(NULL), maxindexes(0), startindex(0), endindex(0), availindexes(0),
-        ebo(0), vbo(0), edata(NULL), vdata(NULL), numedata(0), numvdata(0),
-        startrender(NULL), endrender(NULL), lastblob(NULL)
+      : texname(texname), tex(nullptr),
+        cache(nullptr), cachesize(0),
+        blobs(nullptr), maxblobs(0), startblob(0), endblob(0),
+        verts(nullptr), maxverts(0), startvert(0), endvert(0), availverts(0),
+        indexes(nullptr), maxindexes(0), startindex(0), endindex(0), availindexes(0),
+        ebo(0), vbo(0), edata(nullptr), vdata(nullptr), numedata(0), numvdata(0),
+        startrender(nullptr), endrender(nullptr), lastblob(nullptr)
     {}
 
     ~blobrenderer()
@@ -87,7 +87,7 @@ struct blobrenderer
         DELETEA(edata);
         DELETEA(vdata);
         numedata = numvdata = 0;
-        startrender = endrender = NULL;
+        startrender = endrender = nullptr;
     }
  
     void init(int tris)
@@ -307,7 +307,7 @@ struct blobrenderer
         }
     }
 
-    void gentris(cube &cu, int orient, const ivec &o, int size, materialsurface *mat = NULL, int vismask = 0)
+    void gentris(cube &cu, int orient, const ivec &o, int size, materialsurface *mat = nullptr, int vismask = 0)
     {
         vec pos[MAXFACEVERTS+8];
         int dim = dimension(orient), numverts = 0, numplanes = 1, flat = -1;
@@ -452,7 +452,7 @@ struct blobrenderer
                     int vismask = cu[i].visible;
                     if(vismask&0xC0) 
                     {
-                        if(vismask&0x80) loopj(6) gentris(cu[i], j, co, size, NULL, vismask);
+                        if(vismask&0x80) loopj(6) gentris(cu[i], j, co, size, nullptr, vismask);
                         else loopj(6) if(vismask&(1<<j)) gentris(cu[i], j, co, size);
                     }
                 }
@@ -488,7 +488,7 @@ struct blobrenderer
         blobalphahigh = scale / blobfadehigh;
         blobalpha = uchar(scale);
         gentris(worldroot, ivec(0, 0, 0), hdr.worldsize>>1);
-        return !(b.flags & BL_DUP) ? &b : NULL;
+        return !(b.flags & BL_DUP) ? &b : nullptr;
     }
 
     static void setuprenderstate()
@@ -618,9 +618,9 @@ struct blobrenderer
         if(!vbo) glGenBuffers_(1, &vbo);
 
         gle::bindebo(ebo);
-        glBufferData_(GL_ELEMENT_ARRAY_BUFFER, maxindexes*sizeof(ushort), NULL, GL_STREAM_DRAW);
+        glBufferData_(GL_ELEMENT_ARRAY_BUFFER, maxindexes*sizeof(ushort), nullptr, GL_STREAM_DRAW);
         gle::bindvbo(vbo);
-        glBufferData_(GL_ARRAY_BUFFER, maxverts*sizeof(blobvert), NULL, GL_STREAM_DRAW);
+        glBufferData_(GL_ARRAY_BUFFER, maxverts*sizeof(blobvert), nullptr, GL_STREAM_DRAW);
   
         ushort *estart;
         blobvert *vstart;
@@ -644,7 +644,7 @@ struct blobrenderer
                     b->flags &= ~BL_RENDER;
                     if(b->next >= maxblobs) break;
                 }
-                startrender = endrender = NULL;
+                startrender = endrender = nullptr;
                 return;
             }
         }
@@ -661,7 +661,7 @@ struct blobrenderer
             vdst += b->endvert - b->startvert;
             if(b->next >= maxblobs) break;
         }
-        startrender = endrender = NULL;
+        startrender = endrender = nullptr;
 
         if(intel_mapbufferrange_bug)
         {
@@ -686,7 +686,7 @@ struct blobrenderer
 };
 
 int blobrenderer::lastreset = 0;
-blobrenderer *blobrenderer::lastrender = NULL;
+blobrenderer *blobrenderer::lastrender = nullptr;
 
 VARF(IDF_PERSIST, blobstattris, 128, 4096, 16384, initblobs(BLOB_STATIC));
 VARF(IDF_PERSIST, blobdyntris, 128, 4096, 16384, initblobs(BLOB_DYNAMIC));
@@ -719,7 +719,7 @@ void flushblobs()
 {
     loopi(sizeof(blobs)/sizeof(blobs[0])) blobs[i].flushblobs();
     if(blobrenderer::lastrender) blobrenderer::cleanuprenderstate();
-    blobrenderer::lastrender = NULL;
+    blobrenderer::lastrender = nullptr;
 }
 
 void cleanupblobs()

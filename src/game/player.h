@@ -200,7 +200,7 @@ struct vanityfile
     char *id, *name;
     bool proj;
 
-    vanityfile() : id(NULL), name(NULL), proj(false) {}
+    vanityfile() : id(nullptr), name(nullptr), proj(false) {}
     vanityfile(const char *d, const char *n, bool p = false) : id(newstring(d)), name(newstring(n)), proj(p) {}
     ~vanityfile()
     {
@@ -214,8 +214,8 @@ struct vanity
     char *ref, *model, *proj, *name, *tag;
     vector<vanityfile> files;
 
-    vanity() : type(-1), cond(0), style(0), ref(NULL), model(NULL), proj(NULL), name(NULL), tag(NULL) {}
-    vanity(int t, const char *r, const char *n, const char *g, int c, int s) : type(t), cond(c), style(s), ref(newstring(r)), model(NULL), proj(NULL), name(newstring(n)), tag(newstring(g)) { setmodel(r); }
+    vanity() : type(-1), cond(0), style(0), ref(nullptr), model(nullptr), proj(nullptr), name(nullptr), tag(nullptr) {}
+    vanity(int t, const char *r, const char *n, const char *g, int c, int s) : type(t), cond(c), style(s), ref(newstring(r)), model(nullptr), proj(nullptr), name(newstring(n)), tag(newstring(g)) { setmodel(r); }
     ~vanity()
     {
         if(ref) delete[] ref;

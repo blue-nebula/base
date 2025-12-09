@@ -93,7 +93,7 @@ struct md3 : vertmodel, vertloader<md3>
                 f->seek(mesh_offset + mheader.ofs_triangles, SEEK_SET);
                 loopj(m.numtris)
                 {
-                    md3triangle tri;
+                    md3triangle tri{};
                     f->read(&tri, sizeof(md3triangle)); // read the triangles
                     lilswap(tri.vertexindices, 3);
                     loopk(3) m.tris[j].vert[k] = (ushort)tri.vertexindices[k];
@@ -109,7 +109,7 @@ struct md3 : vertmodel, vertloader<md3>
                 f->seek(mesh_offset + mheader.ofs_vertices, SEEK_SET);
                 loopj(numframes*m.numverts)
                 {
-                    md3vertex v;
+                    md3vertex v{};
                     f->read(&v, sizeof(md3vertex)); // read the vertices
                     lilswap(v.vertex, 4);
 
@@ -160,7 +160,7 @@ struct md3 : vertmodel, vertloader<md3>
     meshgroup *loadmeshes(const char *name, va_list args)
     {
         md3meshgroup *group = new md3meshgroup;
-        if(!group->load(name)) { delete group; return NULL; }
+        if(!group->load(name)) { delete group; return nullptr; }
         return group;
     }
 
@@ -191,12 +191,12 @@ struct md3 : vertmodel, vertloader<md3>
         loading = this;
         if(execfile(cfgname, false) && parts.length()) // configured md3, will call the md3* commands below
         {
-            loading = NULL;
+            loading = nullptr;
             loopv(parts) if(!parts[i]->meshes) return false;
         }
         else // md3 without configuration, try default tris and skin
         {
-            loading = NULL;
+            loading = nullptr;
             if(!loaddefaultparts()) return false;
         }
         translate.y = -translate.y;

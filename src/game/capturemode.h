@@ -185,7 +185,7 @@ struct captureservmode : capturestate, servmode
     void sendaffinity()
     {
         packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
-        initclient(NULL, p, false);
+        initclient(nullptr, p, false);
         sendpacket(-1, 1, p.finalize());
     }
 
@@ -239,7 +239,7 @@ struct captureservmode : capturestate, servmode
         if(G(capturebuffing)) loopv(flags)
         {
             flag &f = flags[i];
-            clientinfo *owner = f.owner >= 0 ? (clientinfo *)getinfo(f.owner) : NULL;
+            clientinfo *owner = f.owner >= 0 ? (clientinfo *)getinfo(f.owner) : nullptr;
             if(f.team == ci->team)
             {
                 if((G(capturebuffing)&1 || G(capturebuffing)&2) && !owner && (!f.droptime || m_ctf_defend(gamemode, mutators) || G(capturebuffing)&2) && ci->o.dist(f.droptime ? f.droploc : f.spawnloc) <= G(capturebuffarea)) { buff = true; break; }

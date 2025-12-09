@@ -28,6 +28,7 @@ enum {
     W_S_EXCLUDE = (1<<W_S_IDLE)|(1<<W_S_POWER)|(1<<W_S_ZOOM)
 };
 
+// sounds emitted by weapons
 enum
 {
     S_W_PRIMARY = 0, S_W_SECONDARY,
@@ -43,7 +44,8 @@ enum
     S_W_MAX
 };
 
-enum
+// sounds when picking up weapons
+enum : int
 {
     S_WEAPONS   = S_GAME,
     S_CLAW      = S_WEAPONS,
