@@ -2,7 +2,7 @@
 # this is going to take the most time
 FROM alpine:3.22 AS builder
 
-LABEL org.opencontainers.image.source = "https://github.com/blue-nebula/base"
+LABEL org.opencontainers.image.source="https://github.com/blue-nebula/base"
 
 RUN apk add gcc g++ binutils sdl2-dev zlib-dev perl git wget ca-certificates coreutils \
     sdl2_image-dev sdl2_mixer-dev psmisc cmake ninja
@@ -65,4 +65,4 @@ EXPOSE 28799/udp 28800/udp 28801/udp 28802/udp
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
-CMD dockerize -template /servinit.tmpl:/blue-nebula/.blue-nebula/servinit.cfg install/bin/blue-nebula_server_linux
+CMD ["dockerize", "-template", "/servinit.tmpl:/blue-nebula/.blue-nebula/servinit.cfg", "install/bin/blue-nebula_server_linux"]
