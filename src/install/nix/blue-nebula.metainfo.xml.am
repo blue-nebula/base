@@ -8,6 +8,10 @@
   <developer id="org.blue-nebula">
     <name>Blue Nebula Team</name>
   </developer>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
   <branding>
     <color type="primary" scheme_preference="light">#1970c2</color>
     <color type="primary" scheme_preference="dark">#0a2a48</color>
