@@ -81,7 +81,7 @@ endif()
 # note that we have to include this before setting CMAKE_EXECUTABLE_SUFFIX
 # otherwise, enet's platform tests fail with cryptic error messages
 set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
-add_subdirectory(${ENET_SOURCE_DIRECTORY})
+add_subdirectory(${ENET_SOURCE_DIRECTORY} EXCLUDE_FROM_ALL)
 
 # platform specific code
 # the binary suffix is appended to all executables' filenames
