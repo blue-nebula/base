@@ -15,7 +15,7 @@ endif()
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     message(STATUS "Release build detected, adding release flags")
-    set(COMMON_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fomit-frame-pointer -fstack-protector-all -fpic -fpie -D_FORTIFY_SOURCE=2")
+    set(COMMON_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fomit-frame-pointer -fstack-protector-all -fpic -fpie -D_FORTIFY_SOURCE=3")
     if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(COMMON_C_FLAGS "${ADDITIONAL_BUILD_FLAGS} -D_GLIBCXX_ASSERTIONS")
     endif()
@@ -81,7 +81,7 @@ endif()
 # note that we have to include this before setting CMAKE_EXECUTABLE_SUFFIX
 # otherwise, enet's platform tests fail with cryptic error messages
 set(ENET_SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/enet)
-add_subdirectory(${ENET_SOURCE_DIRECTORY})
+add_subdirectory(${ENET_SOURCE_DIRECTORY} EXCLUDE_FROM_ALL)
 
 # platform specific code
 # the binary suffix is appended to all executables' filenames
