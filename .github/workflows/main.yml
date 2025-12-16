@@ -12,7 +12,7 @@ jobs:
     env:
       BUILD_TYPE: Debug
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Checkout enet submodule
         run: git submodule update --init src/enet
       - name: Install dependencies
@@ -24,7 +24,7 @@ jobs:
     name: Ubuntu (x86_64) release
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Checkout enet submodule
         run: git submodule update --init src/enet
       - name: Install dependencies
@@ -36,7 +36,7 @@ jobs:
     name: macOS (x86_64) release
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Checkout enet submodule
         run: git submodule update --init src/enet
       - name: Install dependencies
@@ -48,7 +48,7 @@ jobs:
     name: Windows (x86_64) release (crossbuild from Ubuntu x86_64, MinGW-w64)
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Checkout enet submodule
         run: git submodule update --init src/enet
       - name: Install dependencies
