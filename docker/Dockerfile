@@ -28,7 +28,7 @@ RUN mkdir build && \
 
 # next, we convert the example server config to a template
 # this is done in no time, so we do not have to benefit from Docker's caching a lot there
-FROM python:3.13-alpine AS template
+FROM python:3.14-alpine AS template
 
 COPY docker/generate-servinit-template.py doc/examples/servinit.cfg /
 
