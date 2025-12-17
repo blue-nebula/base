@@ -944,7 +944,7 @@ namespace hud
             }
             default: break;
         }
-        return NULL;
+        return nullptr;
     }
     ICOMMAND(0, getpointer, "ii", (int *i, int *j), result(getpointer(*i, *j)));
 
@@ -1177,7 +1177,7 @@ namespace hud
         int num = 0;
         loopi(3) if(circlebartype&(1<<i)) num++;
         if(!num) return;
-        Texture *t = circlebartex && *circlebartex ? textureload(circlebartex, 3) : NULL;
+        Texture *t = circlebartex && *circlebartex ? textureload(circlebartex, 3) : nullptr;
         if(!t || t == notexture) return;
         float slice = 1.f/num, pos = num%2 ? slice*0.5f : 0.f;
         if(t->type&Texture::ALPHA) glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1303,7 +1303,7 @@ namespace hud
 
     void drawpointertex(const char *tex, int x, int y, int s, float r, float g, float b, float fade)
     {
-        Texture *t = tex && *tex ? textureload(tex, 3) : NULL;
+        Texture *t = tex && *tex ? textureload(tex, 3) : nullptr;
         if(t && t != notexture)
         {
             if(t->type&Texture::ALPHA) glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2241,7 +2241,7 @@ namespace hud
                         continue;
                     }
                 }
-                drawblip(i ? tex : hinttex, 1, w, h, size*(i ? radarplayersize : radarplayerhintsize), fade*(i ? radarplayerblend : radarplayerhintblend), style, d->o, colour[i], NULL, !d->conopen);
+                drawblip(i ? tex : hinttex, 1, w, h, size*(i ? radarplayersize : radarplayerhintsize), fade*(i ? radarplayerblend : radarplayerhintblend), style, d->o, colour[i], nullptr, !d->conopen);
             }
         }
     }
@@ -2432,7 +2432,7 @@ namespace hud
         if(chkcond(radaritems, !game::tvmode()) || m_edit(game::gamemode)) drawentblips(w, h, blend*radarblend);
         if(chkcond(radarplayers, radarplayerfilter != 3 || m_duke(game::gamemode, game::mutators) || m_edit(game::gamemode)))
         {
-            gameent *d = NULL;
+            gameent *d = nullptr;
             int numdyns = game::numdynents(), style = radartype() != 2 ? radartype() : 1, others[T_MAX] = {0};
             if(radarplayerduke && game::focus->state == CS_ALIVE && m_survivor(game::gamemode, game::mutators))
             {
@@ -2605,8 +2605,8 @@ namespace hud
     int drawitem(const char *tex, int x, int y, float size, float sub, bool bg, bool left, float r, float g, float b, float fade, float skew, const char *font, const char *text, ...)
     {
         if(skew <= 0.f) return 0;
-        Texture *t = tex && *tex ? textureload(tex, 3, true, false) : NULL;
-        if(t == notexture) t = NULL;
+        Texture *t = tex && *tex ? textureload(tex, 3, true, false) : nullptr;
+        if(t == notexture) t = nullptr;
         float q = clamp(skew, 0.f, 1.f), cr = left ? r : r*q, cg = left ? g : g*q, cb = left ? b : b*q, s = size*skew, w = t ? float(t->w)/float(t->h)*s : s;
         int heal = m_health(game::gamemode, game::mutators, game::focus->actortype), sy = int(s), cx = x, cy = y, cs = int(s), cw = int(w);
         bool pulse = inventoryflash && game::focus->state == CS_ALIVE && game::focus->health < heal;
@@ -3386,7 +3386,7 @@ namespace hud
     {
         gle::colorf(1, 1, 1, 1);
 
-        Texture *t = NULL;
+        Texture *t = nullptr;
         int mapbg = 0;
         if(showloadingmapbg && *mapname && strcmp(mapname, "maps/untitled"))
         {

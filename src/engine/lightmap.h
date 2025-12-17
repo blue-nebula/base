@@ -52,7 +52,7 @@ struct LightMap
     LightMap()
      : type(LM_DIFFUSE), bpp(3), tex(-1), offsetx(-1), offsety(-1),
        lightmaps(0), lumels(0), unlitx(-1), unlity(-1),
-       data(NULL)
+       data(nullptr)
     {
     }
 

@@ -47,7 +47,7 @@ struct obj : vertmodel, vertloader<obj>
             #define STARTMESH do { \
                 vertmesh &m = *new vertmesh; \
                 m.group = this; \
-                m.name = meshname[0] ? newstring(meshname) : NULL; \
+                m.name = meshname[0] ? newstring(meshname) : nullptr; \
                 meshes.add(&m); \
                 curmesh = &m; \
                 verthash.clear(); \
@@ -79,7 +79,7 @@ struct obj : vertmodel, vertloader<obj>
             } while(0)
 
             string meshname = "";
-            vertmesh *curmesh = NULL;
+            vertmesh *curmesh = nullptr;
             while(file->getline(buf, sizeof(buf)))
             {
                 char *c = buf;
@@ -102,7 +102,7 @@ struct obj : vertmodel, vertloader<obj>
                         copystring(meshname, name, min(namelen+1, sizeof(meshname)));
 
                         if(curmesh) FLUSHMESH;
-                        curmesh = NULL;
+                        curmesh = nullptr;
                         break;
                     }
                     case 'f':
@@ -164,7 +164,7 @@ struct obj : vertmodel, vertloader<obj>
     meshgroup *loadmeshes(const char *name, va_list args)
     {
         objmeshgroup *group = new objmeshgroup;
-        if(!group->load(name, va_arg(args, double))) { delete group; return NULL; }
+        if(!group->load(name, va_arg(args, double))) { delete group; return nullptr; }
         return group;
     }
 
@@ -195,12 +195,12 @@ struct obj : vertmodel, vertloader<obj>
         loading = this;
         if(execfile(cfgname, false) && parts.length()) // configured obj, will call the obj* commands below
         {
-            loading = NULL;
+            loading = nullptr;
             loopv(parts) if(!parts[i]->meshes) return false;
         }
         else // obj without configuration, try default tris and skin
         {
-            loading = NULL;
+            loading = nullptr;
             if(!loaddefaultparts()) return false;
         }
         translate.y = -translate.y;

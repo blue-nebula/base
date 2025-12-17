@@ -149,10 +149,10 @@ namespace ai
     extern bool route(gameent *d, int node, int goal, vector<int> &route, const avoidset &obstacles, int retries = 0);
     extern void navigate();
     extern void clearwaypoints(bool full = false);
-    extern bool loadwaypoints(bool force = false, const char *mname = NULL);
-    extern void savewaypoints(bool force = false, const char *mname = NULL);
+    extern bool loadwaypoints(bool force = false, const char *mname = nullptr);
+    extern void savewaypoints(bool force = false, const char *mname = nullptr);
     extern bool importwaypoints();
-    extern bool getwaypoints(bool force = false, const char *mname = NULL, bool check = true);
+    extern bool getwaypoints(bool force = false, const char *mname = nullptr, bool check = true);
 
     // ai state information for the owner client
     enum
@@ -337,7 +337,7 @@ namespace ai
     extern void init(gameent *d, int at, int et, int on, int sk, int bn, char *name, int tm, int cl, int md, const char *vn, vector<int> &lweaps);
 
     extern bool badhealth(gameent *d);
-    extern int checkothers(vector<int> &targets, gameent *d = NULL, int state = -1, int targtype = -1, int target = -1, bool teams = false, int *members = NULL);
+    extern int checkothers(vector<int> &targets, gameent *d = nullptr, int state = -1, int targtype = -1, int target = -1, bool teams = false, int *members = nullptr);
     extern bool makeroute(gameent *d, aistate &b, int node, bool changed = true, int retries = 0);
     extern bool makeroute(gameent *d, aistate &b, const vec &pos, bool changed = true, int retries = 0);
     extern bool randomnode(gameent *d, aistate &b, const vec &pos, float guard = ALERTMIN, float wander = ALERTMAX);

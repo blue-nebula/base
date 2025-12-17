@@ -279,7 +279,7 @@ struct bomberservmode : bomberstate, servmode
     void sendaffinity()
     {
         packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
-        initclient(NULL, p, false);
+        initclient(nullptr, p, false);
         sendpacket(-1, 1, p.finalize());
     }
 

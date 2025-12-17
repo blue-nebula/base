@@ -70,13 +70,13 @@ enum
     MODOE_LIGHTENT = 1<<2
 };
 
-void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor, int size, const ivec &bo, const ivec &br, int leafsize, vtxarray *lastva = NULL)
+void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor, int size, const ivec &bo, const ivec &br, int leafsize, vtxarray *lastva = nullptr)
 {
     loopoctabox(cor, size, bo, br)
     {
         ivec o(i, cor, size);
         vtxarray *va = c[i].ext && c[i].ext->va ? c[i].ext->va : lastva;
-        if(c[i].children != NULL && size > leafsize)
+        if(c[i].children != nullptr && size > leafsize)
             modifyoctaentity(flags, id, e, c[i].children, o, size>>1, bo, br, leafsize, va);
         else if(flags&MODOE_ADD)
         {
@@ -142,7 +142,7 @@ void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor,
             if(oe.mapmodels.empty() && oe.other.empty())
                 freeoctaentities(c[i]);
         }
-        if(c[i].ext && c[i].ext->ents) c[i].ext->ents->query = NULL;
+        if(c[i].ext && c[i].ext->ents) c[i].ext->ents->query = nullptr;
         if(va && va!=lastva)
         {
             if(lastva)
@@ -206,7 +206,7 @@ void freeoctaentities(cube &c)
     if(c.ext->ents)
     {
         delete c.ext->ents;
-        c.ext->ents = NULL;
+        c.ext->ents = nullptr;
     }
 }
 
@@ -308,7 +308,7 @@ void entadd(int id)
 undoblock *newundoent()
 {
     int numents = entgroup.length();
-    if(numents <= 0) return NULL;
+    if(numents <= 0) return nullptr;
     vector<extentity *> &ents = entities::getents();
     int numattrs = 0;
     loopv(entgroup) numattrs += ents[entgroup[i]]->attrs.length();
@@ -431,7 +431,7 @@ void entrotate(int *cw)
 
 void entselectionbox(const extentity &e, vec &eo, vec &es)
 {
-    model *m = NULL;
+    model *m = nullptr;
     if(e.type == ET_MAPMODEL && (m = loadmapmodel(e.attrs[0])))
     {
         mmcollisionbox(e, m, eo, es);
@@ -731,7 +731,7 @@ extentity *newentity(bool local, const vec &o, int type, const attrvector &attrs
     {
         idx = -1;
         for(int i = keepents; i < ents.length(); i++)  if(ents[i]->type == ET_EMPTY) { idx = i; break; }
-        if(idx < 0 && ents.length() >= MAXENTS) { conoutft(CON_MESG, "\frtoo many entities"); return NULL; }
+        if(idx < 0 && ents.length() >= MAXENTS) { conoutft(CON_MESG, "\frtoo many entities"); return nullptr; }
     }
     else while(ents.length() < idx) ents.add(entities::newent())->type = ET_EMPTY;
     extentity &e = *entities::newent();
@@ -1136,7 +1136,7 @@ void shrinkmap()
 
     if(!worldroot[octant].children) subdividecube(worldroot[octant], false, false);
     cube *root = worldroot[octant].children;
-    worldroot[octant].children = NULL;
+    worldroot[octant].children = nullptr;
     freeocta(worldroot);
     worldroot = root;
     worldscale--;

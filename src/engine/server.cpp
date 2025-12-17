@@ -2,6 +2,7 @@
 // runs dedicated or as client coroutine
 
 #include "engine.h"
+#include <atomic>
 #include <signal.h>
 
 #ifdef WIN32
@@ -24,7 +25,7 @@ uint totalsecs = 0;
 VAR(0, maxruntime, 0, (INT_MAX-1)/1000, VAR_MAX); // time in seconds
 VAR(0, maxshutdownwait, 0, 3600, VAR_MAX); // time in seconds
 
-const char *load = NULL;
+const char *load = nullptr;
 vector<char *> gameargs;
 
 const char *platnames[MAX_PLATFORMS] = {
@@ -124,7 +125,7 @@ void addipinfo(vector<ipinfo> &info, int type, const char *name, const char *rea
     mask.i = 0;
     loopi(4)
     {
-        char *end = NULL;
+        char *end = nullptr;
         int n = strtol(name, &end, 10);
         if(!end) break;
         if(end > name) { ip.b[i] = n; mask.b[i] = 0xFF; }
@@ -171,19 +172,19 @@ char *printipinfo(const ipinfo &info, char *buf)
 ipinfo *checkipinfo(vector<ipinfo> &info, int type, enet_uint32 ip)
 {
     loopv(info) if(info[i].type == type && (ip & info[i].mask) == info[i].ip) return &info[i];
-    return NULL;
+    return nullptr;
 }
 
 #define LOGSTRLEN 512
 
-FILE *logfile = NULL;
+FILE *logfile = nullptr;
 
 void closelogfile()
 {
     if(logfile)
     {
         fclose(logfile);
-        logfile = NULL;
+        logfile = nullptr;
     }
 }
 
@@ -206,7 +207,7 @@ void setlogfile(const char *fname)
         if(fname) logfile = fopen(fname, "w");
     }
     FILE *f = getlogfile();
-    if(f) setvbuf(f, NULL, _IOLBF, BUFSIZ);
+    if(f) setvbuf(f, nullptr, _IOLBF, BUFSIZ);
 }
 
 void logoutf(const char *fmt, ...)
@@ -290,7 +291,7 @@ bool filterword(char *src, const char *list)
             {
                 char *t = src;
                 int count = strlen(word);
-                while((t = strstr(t, word)) != NULL)
+                while((t = strstr(t, word)) != nullptr)
                 {
                     loopj(count) if(*t) *t++ = '*';
                     filtered = true;
@@ -358,7 +359,7 @@ ICOMMAND(0, filter, "siiiiN", (char *s, int *a, int *b, int *c, int *d, int *num
 
 vector<clientdata *> clients;
 
-ENetHost *serverhost = NULL;
+ENetHost *serverhost = nullptr;
 int laststatus = 0;
 ENetSocket pongsock = ENET_SOCKET_NULL, lansock = ENET_SOCKET_NULL;
 
@@ -373,22 +374,22 @@ void delclient(int n)
     clientdata *c = clients[n];
     switch(c->type)
     {
-        case ST_TCPIP: nonlocalclients--; if(c->peer) c->peer->data = NULL; break;
+        case ST_TCPIP: nonlocalclients--; if(c->peer) c->peer->data = nullptr; break;
         case ST_LOCAL: localclients--; break;
         case ST_EMPTY: return;
     }
     c->type = ST_EMPTY;
-    c->peer = NULL;
+    c->peer = nullptr;
     if(c->info)
     {
         server::deleteinfo(c->info);
-        c->info = NULL;
+        c->info = nullptr;
     }
 }
 
 int addclient(int type)
 {
-    clientdata *c = NULL;
+    clientdata *c = nullptr;
     loopv(clients) if(clients[i]->type==ST_EMPTY)
     {
         c = clients[i];
@@ -413,7 +414,7 @@ int addclient(int type)
 void cleanupserversockets()
 {
     if(serverhost) enet_host_destroy(serverhost);
-    serverhost = NULL;
+    serverhost = nullptr;
 
     if(pongsock != ENET_SOCKET_NULL) enet_socket_destroy(pongsock);
     if(lansock != ENET_SOCKET_NULL) enet_socket_destroy(lansock);
@@ -437,7 +438,7 @@ void reloadserver()
 void process(ENetPacket *packet, int sender, int chan);
 
 int getservermtu() { return serverhost ? serverhost->mtu : -1; }
-void *getinfo(int i)            { return !clients.inrange(i) || clients[i]->type==ST_EMPTY ? NULL : clients[i]->info; }
+void *getinfo(int i)            { return !clients.inrange(i) || clients[i]->type==ST_EMPTY ? nullptr : clients[i]->info; }
 const char *gethostip(int i)    { int o = server::peerowner(i); return !clients.inrange(o) || clients[o]->type==ST_EMPTY ? "0.0.0.0" : clients[o]->hostip; }
 int getnumclients()             { return clients.length(); }
 uint getclientip(int n)         { int o = server::peerowner(n); return clients.inrange(o) && clients[o]->type==ST_TCPIP ? clients[o]->peer->address.host : 0; }
@@ -616,7 +617,7 @@ void process(ENetPacket *packet, int sender, int chan)  // sender may be -1
 
 void localclienttoserver(int chan, ENetPacket *packet)
 {
-    clientdata *c = NULL;
+    clientdata *c = nullptr;
     loopv(clients) if(clients[i]->type==ST_LOCAL) { c = clients[i]; break; }
     if(c) process(packet, c->num, chan);
 }
@@ -632,7 +633,7 @@ void localconnect(bool force)
         setvar("connectport", 0);
         int cn = addclient(ST_LOCAL);
         clientdata &c = *clients[cn];
-        c.peer = NULL;
+        c.peer = nullptr;
         copystring(c.hostip, "127.0.0.1");
         conoutf("\fglocal client %d connected", c.num);
         client::gameconnect(false);
@@ -787,7 +788,7 @@ void flushmasteroutput()
     ENetBuffer buf;
     buf.data = &masterout[masteroutpos];
     buf.dataLength = masterout.length() - masteroutpos;
-    int sent = enet_socket_send(mastersock, NULL, &buf, 1);
+    int sent = enet_socket_send(mastersock, nullptr, &buf, 1);
     if(sent >= 0)
     {
         masteroutpos += sent;
@@ -808,7 +809,7 @@ void flushmasterinput()
     ENetBuffer buf;
     buf.data = masterin.getbuf() + masterin.length();
     buf.dataLength = masterin.capacity() - masterin.length();
-    int recv = enet_socket_receive(mastersock, NULL, &buf, 1);
+    int recv = enet_socket_receive(mastersock, nullptr, &buf, 1);
     if(recv > 0)
     {
         masterin.advance(recv);
@@ -983,7 +984,7 @@ int getclockmillis()
 
 int updatetimer(bool limit)
 {
-    currenttime = time(NULL);
+    currenttime = time(nullptr);
     clocktime = mktime(gmtime(&currenttime));
     clockoffset = currenttime-clocktime;
 
@@ -1030,12 +1031,12 @@ int updatetimer(bool limit)
 #define IDI_ICON1 1
 
 static string apptip = "";
-static HINSTANCE appinstance = NULL;
+static HINSTANCE appinstance = nullptr;
 static ATOM wndclass = 0;
-static HWND appwindow = NULL, conwindow = NULL;
-static HICON appicon = NULL;
-static HMENU appmenu = NULL;
-static HANDLE outhandle = NULL;
+static HWND appwindow = nullptr, conwindow = nullptr;
+static HICON appicon = nullptr;
+static HMENU appmenu = nullptr;
+static HANDLE outhandle = nullptr;
 static const int MAXLOGLINES = 200;
 struct logline { int len; char buf[LOGSTRLEN]; };
 static queue<logline, MAXLOGLINES> loglines;
@@ -1087,7 +1088,7 @@ static void cleanupwindow()
     if(appmenu)
     {
         DestroyMenu(appmenu);
-        appmenu = NULL;
+        appmenu = nullptr;
     }
     if(wndclass)
     {
@@ -1117,7 +1118,7 @@ static void writeline(logline &line)
     {
         size_t numu = encodeutf8(ubuf, sizeof(ubuf), &((uchar *)line.buf)[carry], len - carry, &carry);
         DWORD written = 0;
-        WriteConsole(outhandle, ubuf, numu, &written, NULL);
+        WriteConsole(outhandle, ubuf, numu, &written, nullptr);
     }
 }
 
@@ -1163,7 +1164,7 @@ static LRESULT CALLBACK handlemessages(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
                 {
                     POINT pos;
                     GetCursorPos(&pos);
-                    TrackPopupMenu(appmenu, TPM_CENTERALIGN|TPM_BOTTOMALIGN|TPM_RIGHTBUTTON, pos.x, pos.y, 0, hWnd, NULL);
+                    TrackPopupMenu(appmenu, TPM_CENTERALIGN|TPM_BOTTOMALIGN|TPM_RIGHTBUTTON, pos.x, pos.y, 0, hWnd, nullptr);
                     PostMessage(hWnd, WM_NULL, 0, 0);
                     break;
                 }
@@ -1199,7 +1200,7 @@ static LRESULT CALLBACK handlemessages(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 static void setupwindow(const char *title)
 {
     copystring(apptip, title);
-    //appinstance = GetModuleHandle(NULL);
+    //appinstance = GetModuleHandle(nullptr);
     if(!appinstance) fatal("failed getting application instance");
     appicon = LoadIcon(appinstance, MAKEINTRESOURCE(IDI_ICON1));//(HICON)LoadImage(appinstance, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
     if(!appicon) fatal("failed loading icon");
@@ -1207,15 +1208,15 @@ static void setupwindow(const char *title)
     appmenu = CreatePopupMenu();
     if(!appmenu) fatal("failed creating popup menu");
     AppendMenu(appmenu, MF_STRING, MENU_OPENCONSOLE, "Open Console");
-    AppendMenu(appmenu, MF_SEPARATOR, 0, NULL);
+    AppendMenu(appmenu, MF_SEPARATOR, 0, nullptr);
     AppendMenu(appmenu, MF_STRING, MENU_EXIT, "Exit");
     //SetMenuDefaultItem(appmenu, 0, FALSE);
 
     WNDCLASS wc;
     memset(&wc, 0, sizeof(wc));
-    wc.hCursor = NULL; //LoadCursor(NULL, IDC_ARROW);
+    wc.hCursor = nullptr; //LoadCursor(nullptr, IDC_ARROW);
     wc.hIcon = appicon;
-    wc.lpszMenuName = NULL;
+    wc.lpszMenuName = nullptr;
     wc.lpszClassName = title;
     wc.style = 0;
     wc.hInstance = appinstance;
@@ -1225,7 +1226,7 @@ static void setupwindow(const char *title)
     wndclass = RegisterClass(&wc);
     if(!wndclass) fatal("failed registering window class");
 
-    appwindow = CreateWindow(MAKEINTATOM(wndclass), title, 0, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, HWND_MESSAGE, NULL, appinstance, NULL);
+    appwindow = CreateWindow(MAKEINTATOM(wndclass), title, 0, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, HWND_MESSAGE, nullptr, appinstance, nullptr);
     if(!appwindow) fatal("failed creating window");
 
     atexit(cleanupwindow);
@@ -1250,7 +1251,7 @@ static char *parsecommandline(const char *src, vector<char *> &args)
         }
         *dst++ = '\0';
     }
-    args.add(NULL);
+    args.add(nullptr);
     return buf;
 }
 
@@ -1317,7 +1318,7 @@ void serverloop()
         ircslice();
 #ifdef WIN32
         MSG msg;
-        while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        while(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if(msg.message == WM_QUIT) exit(EXIT_SUCCESS);
             TranslateMessage(&msg);
@@ -1415,7 +1416,7 @@ void changeservertype()
 
 void setupserver()
 {
-    server::changemap(load && *load ? load : NULL);
+    server::changemap(load && *load ? load : nullptr);
 
     if (servertype <= 0) {
         return;
@@ -1554,7 +1555,7 @@ void trytofindocta(bool fallback)
     { // user hasn't specifically set it, try some common locations alongside our folder
 #if defined(WIN32)
         string dir = "";
-        if(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILESX86, NULL, 0, dir) == S_OK)
+        if(SHGetFolderPath(nullptr, CSIDL_PROGRAM_FILESX86, nullptr, 0, dir) == S_OK)
         {
             defformatstring(s, "%s\\Sauerbraten", dir);
             if(findoctadir(s, true)) return;
@@ -1586,17 +1587,17 @@ void setlocations(bool wanthome) {
     // first, we check if our new FHS-like directory in .../bin/../share/blue-nebula exists
     // we do this relative to the main binary (therefore argv0 needs to be passed) in order to be able to relocate
     // the entire install tree (which is very handy, e.g., for distribution as an AppImage)
-    char* fhs_share_dir = NULL;
+    char* fhs_share_dir = nullptr;
 
 #if not defined(WIN32) and not defined(__APPLE__)
     {
-        // note: realpath allocates a buffer which needs to be free'd if NULL is passed as second parameter
-        char* bin_path = realpath("/proc/self/exe", NULL);
+        // note: realpath allocates a buffer which needs to be free'd if nullptr is passed as second parameter
+        char* bin_path = realpath("/proc/self/exe", nullptr);
         char* bin_dir = dirname(bin_path);
 
         fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
 
-        if (fhs_share_dir == NULL) {
+        if (fhs_share_dir == nullptr) {
             fatal("memory allocation failed\n");
         }
 
@@ -1611,7 +1612,7 @@ void setlocations(bool wanthome) {
         // we should get away with simply calling some Windows API method
         char bin_path[PATH_MAX];
 
-        unsigned long retval = GetModuleFileName(NULL, bin_path, PATH_MAX);
+        unsigned long retval = GetModuleFileName(nullptr, bin_path, PATH_MAX);
 
         if (retval == 0 || retval == PATH_MAX) {
             // method failed, we just print a message and move on
@@ -1637,9 +1638,9 @@ void setlocations(bool wanthome) {
         char bin_path[PATH_MAX];
 
         if (_NSGetExecutablePath(bin_path, &bin_path_size) == 0) {
-            char* abs_bin_path = realpath(bin_path, NULL);
+            char* abs_bin_path = realpath(bin_path, nullptr);
 
-            if (abs_bin_path == NULL) {
+            if (abs_bin_path == nullptr) {
                 fatal("readlink failed\n");
             }
 
@@ -1647,7 +1648,7 @@ void setlocations(bool wanthome) {
 
             fhs_share_dir = (char*) calloc(PATH_MAX, sizeof(char));
 
-            if (fhs_share_dir == NULL) {
+            if (fhs_share_dir == nullptr) {
                 free(abs_bin_path);
                 fatal("memory allocation failed\n");
             }
@@ -1665,9 +1666,9 @@ void setlocations(bool wanthome) {
     {
         // if the FHS-like directory tree is found, we just chdir() there and hope for the best
         // TODO: check whether config/version.cfg is found and if not, change to the previous working directory
-        if (fhs_share_dir != NULL) {
+        if (fhs_share_dir != nullptr) {
             char orig_cwd[PATH_MAX];
-            if (getcwd(orig_cwd, sizeof(orig_cwd)) == NULL) {
+            if (getcwd(orig_cwd, sizeof(orig_cwd)) == nullptr) {
                 fatal("getcwd() failed");
             }
 
@@ -1695,13 +1696,13 @@ void setlocations(bool wanthome) {
     // search for game data
     {
         const char* dir = getenv(sup_var("DATADIR"));
-        if (dir != NULL && dir[0] != '\0') {
+        if (dir != nullptr && dir[0] != '\0') {
             addpackagedir(dir);
         } else {
             addpackagedir("data");
         }
 
-        if (fhs_share_dir != NULL) {
+        if (fhs_share_dir != nullptr) {
             char fhs_data_dir[PATH_MAX];
             strncpy(fhs_data_dir, fhs_share_dir, PATH_MAX);
             strncat(fhs_data_dir, "/data", PATH_MAX - strlen(fhs_data_dir));
@@ -1716,7 +1717,7 @@ void setlocations(bool wanthome) {
         if (wanthome) {
 #if defined(WIN32)
             string dir = "";
-            if(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, dir) == S_OK)
+            if(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, dir) == S_OK)
             {
                 defformatstring(s, "%s\\My Games\\%s", dir, versionname);
                 sethomedir(s);
@@ -1731,7 +1732,7 @@ void setlocations(bool wanthome) {
             }
 #else
             const char* dir = getenv("HOME");
-            if (dir != NULL && dir[0] != '\0') {
+            if (dir != nullptr && dir[0] != '\0') {
                 defformatstring(s, "%s/.%s", dir, versionuname);
                 sethomedir(s);
             }
@@ -1742,7 +1743,7 @@ void setlocations(bool wanthome) {
         }
     }
 
-    if (fhs_share_dir != NULL) {
+    if (fhs_share_dir != nullptr) {
         free(fhs_share_dir);
     }
 }
@@ -1846,7 +1847,7 @@ void setverinfo(const char *bin)
     strcpy(versionbranch, prefix);
 
     // if the env var is not empty, we append it to our prefix
-    if (vbranch != NULL) {
+    if (vbranch != nullptr) {
         // here, the upper boundary of 12 characters needs to be applied
         strcat(versionbranch, "-");
         strncat(versionbranch, vbranch, max_vbranch_len);
@@ -1898,7 +1899,7 @@ void shutdownsignal(int signum)
 }
 
 #ifdef STANDALONE
-volatile int errors = 0;
+std::atomic<unsigned short> errors {0};
 void fatal(const char *s, ...)    // failure exit
 {
     if(++errors <= 2) // print up to one extra recursive error
@@ -1914,7 +1915,7 @@ void fatal(const char *s, ...)    // failure exit
             enet_deinitialize();
 #ifdef WIN32
             defformatstring(cap, "%s: Error", versionname);
-            MessageBox(NULL, msg, cap, MB_OK|MB_SYSTEMMODAL);
+            MessageBox(nullptr, msg, cap, MB_OK|MB_SYSTEMMODAL);
 #endif
         }
     }
@@ -1923,15 +1924,15 @@ void fatal(const char *s, ...)    // failure exit
 
 int main(int argc, char **argv)
 {
-    currenttime = time(NULL); // initialise
+    currenttime = time(nullptr); // initialise
     clocktime = mktime(gmtime(&currenttime));
     clockoffset = currenttime-clocktime;
 
-    setlogfile(NULL);
+    setlogfile(nullptr);
     setlocations(true);
     setverinfo(argv[0]);
 
-    char *initscript = NULL;
+    char *initscript = nullptr;
     for(int i = 1; i<argc; i++)
     {
         if(argv[i][0]=='-') switch(argv[i][1])

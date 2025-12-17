@@ -74,7 +74,7 @@ struct QuadNode
 
 static float wfwave, wfscroll, wfxscale, wfyscale;
 
-static void renderwaterfall(const materialsurface &m, float offset, const vec *normal = NULL)
+static void renderwaterfall(const materialsurface &m, float offset, const vec *normal = nullptr)
 {
     if(gle::attribbuf.empty())
     {
@@ -166,7 +166,7 @@ int findmaterial(const char *name, bool tryint)
 const char *findmaterialname(int type)
 {
     loopi(sizeof(materials)/sizeof(materials[0])) if(materials[i].id == type) { return materials[i].name; }
-    return NULL;
+    return nullptr;
 }
 
 const char *getmaterialdesc(int mat, const char *prefix)
@@ -362,7 +362,7 @@ void setupmaterials(int start, int len)
     for(int i = start; i < len; i++)
     {
         vtxarray *va = valist[i];
-        materialsurface *skip = NULL;
+        materialsurface *skip = nullptr;
         loopj(va->matsurfs)
         {
             materialsurface &m = va->matbuf[j];
@@ -589,7 +589,7 @@ GETMATIDXVAR(glass, col, const bvec &)
 
 VAR(IDF_PERSIST, glassenv, 0, 1, 1);
 
-static void drawglass(const materialsurface &m, float offset, const vec *normal = NULL)
+static void drawglass(const materialsurface &m, float offset, const vec *normal = nullptr)
 {
     if(gle::attribbuf.empty())
     {
@@ -634,7 +634,7 @@ void rendermaterials()
 
     glDisable(GL_CULL_FACE);
 
-    MSlot *mslot = NULL;
+    MSlot *mslot = nullptr;
     int lastorient = -1, lastmat = -1, usedwaterfall = -1;
     bool depth = true, blended = false;
     ushort envmapped = EMID_NONE;
@@ -867,7 +867,7 @@ void rendermaterials()
         switch(matvol)
         {
             case MAT_WATER:
-                renderwaterfall(m, 0.1f, waterfallenv ? &normals[m.orient] : NULL);
+                renderwaterfall(m, 0.1f, waterfallenv ? &normals[m.orient] : nullptr);
                 break;
 
             case MAT_LAVA:

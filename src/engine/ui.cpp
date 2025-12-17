@@ -14,7 +14,7 @@ enum {FIELDCOMMIT, FIELDABORT, FIELDEDIT, FIELDSHOW, FIELDKEY};
 static int fieldmode = FIELDSHOW;
 static bool fieldsactive = false;
 
-FVAR(IDF_PERSIST, ui_scale, FVAR_NONZERO, 0.00055f, VAR_MAX);
+FVAR(IDF_PERSIST, ui_scale, FVAR_NONZERO, 0.00055f, FVAR_MAX);
 VAR(IDF_PERSIST, ui_size_skin, 0, 48, VAR_MAX); // 0 = texture size, otherwise = size in pixels for skin scaling
 VAR(IDF_PERSIST, ui_size_slider, 1, 58, VAR_MAX);
 VAR(IDF_PERSIST, ui_size_separator, 1, 6, VAR_MAX);
@@ -81,7 +81,7 @@ VAR(IDF_PERSIST|IDF_HEX, ui_color_checkbox_two, -1, 0xF020F0, 0xFFFFFF);
 VAR(IDF_PERSIST|IDF_HEX, ui_color_radiobutton_box, -1, 0xF02020, 0xFFFFFF);
 
 static bool needsinput = false, hastitle = true, hasbgfx = true, tooltipforce = false;
-static char *statusstr = NULL, *tooltipstr = NULL, *tooltip = NULL;
+static char *statusstr = nullptr, *tooltipstr = nullptr, *tooltip = nullptr;
 static int lasttooltip = 0, statuswidth = 0, tooltipwidth = 0;
 
 #include "textedit.h"
@@ -128,7 +128,7 @@ struct gui : guient
                 {
                     int colour = colour1;
                     float blend = blend1;
-                    Texture *t = NULL;
+                    Texture *t = nullptr;
                     switch(k)
                     {
                         case 1:
@@ -521,7 +521,7 @@ struct gui : guient
                 m->boundbox(center, radius);
                 float yaw;
                 vec o = calcmodelpreviewpos(radius, yaw).sub(center);
-                rendermodel(&light, name, anim|ANIM_NOTRANS, o, yaw, 0, 0, 0, NULL, NULL, 0, 0, blend, scale);
+                rendermodel(&light, name, anim|ANIM_NOTRANS, o, yaw, 0, 0, 0, nullptr, nullptr, 0, 0, blend, scale);
             }
             modelpreview::end();
             hudshader->set();
@@ -644,7 +644,7 @@ struct gui : guient
         return field_(name, color, length, height, initval, initmode, FIELDKEY, focus, parent, prompt, immediate);
     }
 
-    char *field_(const char *name, int color, int length, int height, const char *initval, int initmode, int fieldtype = FIELDEDIT, bool focus = false, const char *parent = NULL, const char *prompt = NULL, bool immediate = false)
+    char *field_(const char *name, int color, int length, int height, const char *initval, int initmode, int fieldtype = FIELDEDIT, bool focus = false, const char *parent = nullptr, const char *prompt = nullptr, bool immediate = false)
     {
         editor *e = useeditor(name, initmode, false, initval, parent); // generate a new editor if necessary
         if(guilayoutpass)
@@ -669,7 +669,7 @@ struct gui : guient
         bool wasvertical = isvertical();
         if(wasvertical && e->maxy != 1) pushlist(false);
 
-        char *result = NULL;
+        char *result = nullptr;
         if(visible())
         {
             e->rendered = true;
@@ -719,7 +719,7 @@ struct gui : guient
             if(slines > 0)
             {
                 int oldpos = e->scrolly == editor::SCROLLEND ? slines : e->scrolly, newpos = oldpos;
-                slider(newpos, 0, slines, color, NULL, true, true, 0, -1);
+                slider(newpos, 0, slines, color, nullptr, true, true, 0, -1);
                 if(oldpos != newpos)
                 {
                     e->cy = newpos;
@@ -850,7 +850,7 @@ struct gui : guient
         skin(curx, cury, curx+w, cury+h, colour1, blend1, colour2, blend2, skinborder);
     }
 
-    void icon_(Texture *t, bool overlaid, int x, int y, int size, bool hit, int icolour = 0xFFFFFF, Texture *o = NULL, int ocolor = 0xFFFFFF)
+    void icon_(Texture *t, bool overlaid, int x, int y, int size, bool hit, int icolour = 0xFFFFFF, Texture *o = nullptr, int ocolor = 0xFFFFFF)
     {
         static const vec2 tc[4] = { vec2(0, 0), vec2(1, 0), vec2(1, 1), vec2(0, 1) };
         float xs = 0, ys = 0;
@@ -943,8 +943,8 @@ struct gui : guient
     {
         Slot &slot = *vslot.slot;
         if(slot.sts.empty()) return;
-        VSlot *layer = NULL;
-        Texture *t = NULL, *glowtex = NULL, *layertex = NULL;
+        VSlot *layer = nullptr;
+        Texture *t = nullptr, *glowtex = nullptr, *layertex = nullptr;
         if(slot.loaded)
         {
             t = slot.sts[0].t;
@@ -1030,7 +1030,7 @@ struct gui : guient
         if(hit && hitfx && cursorfx && !ui_cursor_type) ui_cursor_type = 1;
     }
 
-    void slice_(Texture *t, int x, int y, int size, float start = 0, float end = 1, const char *text = NULL)
+    void slice_(Texture *t, int x, int y, int size, float start = 0, float end = 1, const char *text = nullptr)
     {
         float scale = float(size)/max(t->xs, t->ys), xs = t->xs*scale, ys = t->ys*scale, fade = 1;
         if(start == end) { end = 1; fade = 0.5f; }
@@ -1116,7 +1116,7 @@ struct gui : guient
         return space;
     }
 
-    int button_(const char *text, int color, const char *icon, int icolour, bool clickable, int wrap = -1, bool faded = true, const char *oicon = NULL, int ocolor = 0xFFFFFF)
+    int button_(const char *text, int color, const char *icon, int icolour, bool clickable, int wrap = -1, bool faded = true, const char *oicon = nullptr, int ocolor = 0xFFFFFF)
     {
         int w = 0, h = 0;
         if((icon && *icon) || (oicon && *oicon))
@@ -1139,9 +1139,9 @@ struct gui : guient
             int x = curx;
             if((icon && *icon) || (oicon && *oicon))
             {
-                Texture *ttex = icon && *icon ? textureload(strstr(icon, "textures/") ? icon : makerelpath("textures", icon), 3, true, false) : NULL,
-                    *otex = oicon && *oicon ? textureload(strstr(oicon, "textures/") ? oicon : makerelpath("textures", oicon), 3, true, false) : NULL;
-                if(otex == notexture) otex = NULL;
+                Texture *ttex = icon && *icon ? textureload(strstr(icon, "textures/") ? icon : makerelpath("textures", icon), 3, true, false) : nullptr,
+                    *otex = oicon && *oicon ? textureload(strstr(oicon, "textures/") ? oicon : makerelpath("textures", oicon), 3, true, false) : nullptr;
+                if(otex == notexture) otex = nullptr;
                 icon_(ttex, false, x, cury, FONTH, clickable && hit, icolour, otex, ocolor);
                 x += FONTH;
                 if(text && *text) x += 8;
@@ -1190,7 +1190,7 @@ struct gui : guient
         if(guilayoutpass) nextlist = curlist;
         else
         {
-            if(tcurrent && !*tcurrent) tcurrent = NULL;
+            if(tcurrent && !*tcurrent) tcurrent = nullptr;
             cury = -ysize;
             curx = -xsize/2;
 
@@ -1273,7 +1273,7 @@ struct gui : guient
     }
 };
 
-Texture *gui::skintex = NULL, *gui::skinbordertex, *gui::overlaytex = NULL, *gui::exittex = NULL, *gui::hovertex = NULL;
+Texture *gui::skintex = nullptr, *gui::skinbordertex, *gui::overlaytex = nullptr, *gui::exittex = nullptr, *gui::hovertex = nullptr;
 TVARN(IDF_PERSIST|IDF_PRELOAD, ui_skin_texture, "textures/guiskin", gui::skintex, 0);
 TVARN(IDF_PERSIST|IDF_PRELOAD, ui_skin_border_texture, "textures/guiskinborder", gui::skinbordertex, 0);
 TVARN(IDF_PERSIST|IDF_PRELOAD, ui_overlay_texture, "textures/guioverlay", gui::overlaytex, 0);

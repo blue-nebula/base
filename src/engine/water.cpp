@@ -224,7 +224,7 @@ struct Reflection
     occludequery *query, *prevquery;
     vector<materialsurface *> matsurfs;
 
-    Reflection() : tex(0), refracttex(0), material(-1), height(-1), depth(0), age(0), init(false), query(NULL), prevquery(NULL)
+    Reflection() : tex(0), refracttex(0), material(-1), height(-1), depth(0), age(0), init(false), query(nullptr), prevquery(nullptr)
     {}
 };
 
@@ -341,12 +341,12 @@ void renderwater()
 
     #define SETWATERSHADER(which, name) \
     do { \
-        static Shader *name##shader = NULL; \
+        static Shader *name##shader = nullptr; \
         if(!name##shader) name##shader = lookupshaderbyname(#name); \
         which##shader = name##shader; \
     } while(0)
 
-    Shader *aboveshader = NULL;
+    Shader *aboveshader = nullptr;
     if(glaring) SETWATERSHADER(above, waterglare);
     else if(drawtex == DRAWTEX_MINIMAP) aboveshader = notextureshader;
     else if(waterenvmap && !waterreflect)
@@ -366,7 +366,7 @@ void renderwater()
     else if(waterreflect) SETWATERSHADER(above, waterreflect);
     else SETWATERSHADER(above, water);
 
-    Shader *belowshader = NULL;
+    Shader *belowshader = nullptr;
     if(!glaring && drawtex != DRAWTEX_MINIMAP)
     {
         if(waterrefract)
@@ -439,7 +439,7 @@ void renderwater()
         {
             materialsurface &m = *ref.matsurfs[j];
 
-            const extentity *light = (m.light && m.light->type==ET_LIGHT ? m.light : NULL);
+            const extentity *light = (m.light && m.light->type==ET_LIGHT ? m.light : nullptr);
             if(light!=lastlight)
             {
                 xtraverts += gle::end();
@@ -493,7 +493,7 @@ void cleanreflection(Reflection &ref)
     ref.material = -1;
     ref.height = -1;
     ref.init = false;
-    ref.query = ref.prevquery = NULL;
+    ref.query = ref.prevquery = nullptr;
     ref.matsurfs.setsize(0);
     if(ref.tex)
     {
@@ -605,7 +605,7 @@ void addwaterfallrefraction(materialsurface &m)
 void addreflection(materialsurface &m)
 {
     int mat = m.material, height = m.o.z;
-    Reflection *ref = NULL, *oldest = NULL;
+    Reflection *ref = nullptr, *oldest = nullptr;
     loopi(MAXREFLECTIONS)
     {
         Reflection &r = reflections[i];
@@ -632,7 +632,7 @@ void addreflection(materialsurface &m)
     {
         ref->material = mat;
         ref->height = height;
-        ref->prevquery = NULL;
+        ref->prevquery = nullptr;
     }
     rplanes++;
     ref->age = -1;
@@ -753,15 +753,15 @@ void queryreflections()
     if(waterreflect || waterrefract) loopi(MAXREFLECTIONS)
     {
         Reflection &ref = reflections[i];
-        ref.prevquery = oqwater > 1 ? ref.query : NULL;
-        ref.query = ref.height>=0 && !ref.age && ref.matsurfs.length() ? newquery(&ref) : NULL;
+        ref.prevquery = oqwater > 1 ? ref.query : nullptr;
+        ref.query = ref.height>=0 && !ref.age && ref.matsurfs.length() ? newquery(&ref) : nullptr;
         if(ref.query) queryreflection(ref, !refs++);
     }
     if(waterfallrefract)
     {
         Reflection &ref = waterfallrefraction;
-        ref.prevquery = oqwater > 1 ? ref.query : NULL;
-        ref.query = ref.height>=0 && !ref.age && ref.matsurfs.length() ? newquery(&ref) : NULL;
+        ref.prevquery = oqwater > 1 ? ref.query : nullptr;
+        ref.query = ref.height>=0 && !ref.age && ref.matsurfs.length() ? newquery(&ref) : nullptr;
         if(ref.query) queryreflection(ref, !refs++);
     }
 

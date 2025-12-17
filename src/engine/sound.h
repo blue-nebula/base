@@ -67,7 +67,7 @@ extern vector<sound> sounds;
 
 extern void initsound();
 extern void stopsound();
-extern bool playmusic(const char *name, const char *cmd = NULL);
+extern bool playmusic(const char *name, const char *cmd = nullptr);
 extern bool playingmusic(bool check = true);
 extern void smartmusic(bool cond, bool init = false);
 extern void musicdone(bool docmd);
@@ -75,7 +75,7 @@ extern void updatesounds();
 extern int addsound(const char *name, int vol, int maxrad, int minrad, int value, vector<soundslot> &soundset);
 extern void removesound(int c);
 extern void clearsound();
-extern int playsound(int n, const vec &pos, physent *d = NULL, int flags = 0, int vol = -1, int maxrad = -1, int minrad = -1, int *hook = NULL, int ends = 0, int *oldhook = NULL);
+extern int playsound(int n, const vec &pos, physent *d = nullptr, int flags = 0, int vol = -1, int maxrad = -1, int minrad = -1, int *hook = nullptr, int ends = 0, int *oldhook = nullptr);
 extern void removetrackedsounds(physent *d);
 
 extern void initmumble();

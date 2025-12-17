@@ -55,7 +55,7 @@ namespace client
 
     void makemaplist(int g, int m, int c)
     {
-         char *list = NULL;
+         char *list = nullptr;
          loopi(2)
          {
              maplist(list, g, m, c, mapsfilter, i!=0);
@@ -114,7 +114,7 @@ namespace client
 
     void vote(gameent *d, const char *text, int mode, int muts)
     {
-        mapvote *m = NULL;
+        mapvote *m = nullptr;
         if(!text || !*text) text = "<random>";
         if(!mapvotes.empty()) loopvrev(mapvotes)
         {
@@ -465,7 +465,7 @@ namespace client
 
     void setloadweap(const char *list)
     {
-        vector<int> items;
+        std::vector<int> items;
         if(list && *list)
         {
             std::vector<std::string> chunk;
@@ -477,11 +477,18 @@ namespace client
                 items.emplace_back(v >= W_OFFSET && v < W_ITEM ? v : 0);
             }
         }
-        game::player1.loadweap.shrink(0);
-        loopv(items) if(game::player1.loadweap.find(items[i]) < 0)
-        {
-            game::player1.loadweap.add(items[i]);
-            if(game::player1.loadweap.length() >= W_LOADOUT) break;
+        game::player1.loadweap.clear();
+        for (const auto i : items) {
+            bool no_weap = std::none_of(game::player1.loadweap.begin(),
+                game::player1.loadweap.end(), [=](auto d) { return d == i; });
+
+            if (no_weap) {
+                game::player1.loadweap.emplace_back(i);
+
+                if (game::player1.loadweap.size() >= W_LOADOUT) {
+                    break;
+                }
+            }
         }
         sendplayerinfo = true;
     }
@@ -501,18 +508,21 @@ namespace client
                 items.emplace_back(v != 0 ? 1 : 0);
             }
         }
-        game::player1.randweap.shrink(0);
+        game::player1.randweap.clear();
         loopv(items)
         {
-            game::player1.randweap.add(items[i]);
-            if(game::player1.randweap.length() >= W_LOADOUT) break;
+            game::player1.randweap.emplace_back(items[i]);
+
+            if (game::player1.randweap.size() >= W_LOADOUT) {
+                break;
+            }
         }
         sendplayerinfo = true;
     }
     SVARF(IDF_PERSIST, playerrandweap, "", setrandweap(playerrandweap));
 
-    ICOMMAND(0, getrandweap, "i", (int *n), intret(game::player1.randweap.inrange(*n) ? game::player1.randweap[*n] : 1));
-    ICOMMAND(0, getloadweap, "i", (int *n), intret(game::player1.loadweap.inrange(*n) ? game::player1.loadweap[*n] : -1));
+    ICOMMAND(0, getrandweap, "i", (int *n), intret(inrange(game::player1.randweap, *n) ? game::player1.randweap[*n] : 1));
+    ICOMMAND(0, getloadweap, "i", (int *n), intret(inrange(game::player1.loadweap, *n) ? game::player1.loadweap[*n] : -1));
     ICOMMAND(0, allowedweap, "i", (int *n), intret(isweap(*n) && m_check(W(*n, modes), W(*n, muts), game::gamemode, game::mutators) && !W(*n, disabled) ? 1 : 0));
     ICOMMAND(0, hasloadweap, "bb", (int *g, int *m), intret(m_loadout(m_game(*g) ? *g : game::gamemode, *m >= 0 ? *m : game::mutators) ? 1 : 0));
 
@@ -722,7 +732,7 @@ namespace client
     int getclientloadweap(int cn, int n)
     {
         gameent *d = game::getclient(cn);
-        return d ? (d->loadweap.inrange(n) ? d->loadweap[n] : 0) : -1;
+        return d ? (inrange(d->loadweap, n) ? d->loadweap[n] : 0) : -1;
     }
     ICOMMAND(0, getclientloadweap, "si", (char *who, int *n), intret(getclientloadweap(parsewho(who), *n)));
 
@@ -827,7 +837,7 @@ namespace client
         return true;
     }
 
-    bool ismodelocked(int reqmode, int reqmuts, int askmuts = 0, const char *reqmap = NULL)
+    bool ismodelocked(int reqmode, int reqmuts, int askmuts = 0, const char *reqmap = nullptr)
     {
         reqmuts |= mutslockforce;
         if(!m_game(reqmode) || (m_local(reqmode) && remote)) return true;
@@ -855,7 +865,7 @@ namespace client
         }
         if(!israndom && !m_edit(reqmode) && G(mapslock))
         {
-            char *list = NULL;
+            char *list = nullptr;
             switch(G(mapslocktype))
             {
                 case 1:
@@ -1055,7 +1065,7 @@ namespace client
         loopv(game::players) if(game::players[i]) game::clientdisconnected(i);
         game::waiting.setsize(0);
         hud::cleanup();
-        emptymap(0, true, NULL, true);
+        emptymap(0, true, nullptr, true);
         smartmusic(true);
         enumerate(idents, ident, id, {
             if(id.flags&IDF_CLIENT) switch(id.type)
@@ -1201,12 +1211,12 @@ namespace client
 
     void parsecommand(gameent *d, const char *cmd, const char *arg)
     {
-        const char *oldval = NULL;
+        const char *oldval = nullptr;
         bool needfreeoldval = false;
         ident *id = idents.access(cmd);
         if(id && id->flags&IDF_CLIENT)
         {
-            const char *val = NULL;
+            const char *val = nullptr;
             switch(id->type)
             {
                 case ID_COMMAND:
@@ -1277,7 +1287,7 @@ namespace client
             defformatstring(scmd, "sv_%s", cmd);
             if(server::servcmd(nargs, scmd, arg))
             {
-                if(nargs > 1 && arg) parsecommand(NULL, cmd, arg);
+                if(nargs > 1 && arg) parsecommand(nullptr, cmd, arg);
                 return true;
             }
         }
@@ -1475,7 +1485,7 @@ namespace client
             else
             {
                 conoutf("\frfailed to open map file: \fc%s", reqfext);
-                sendfile(-1, 2, NULL, "ri3", N_SENDMAPFILE, i, mapcrc);
+                sendfile(-1, 2, nullptr, "ri3", N_SENDMAPFILE, i, mapcrc);
             }
         }
         if(savedtype >= 0) setnames(mapname, savedtype, 0);
@@ -1527,11 +1537,11 @@ namespace client
 
     void sendclipboard()
     {
-        uchar *outbuf = NULL;
+        uchar *outbuf = nullptr;
         int inlen = 0, outlen = 0;
         if(!packeditinfo(localedit, inlen, outbuf, outlen))
         {
-            outbuf = NULL;
+            outbuf = nullptr;
             inlen = outlen = 0;
             needclipboard = -1;
         }
@@ -1646,7 +1656,7 @@ namespace client
             case EDIT_UNDO:
             case EDIT_REDO:
             {
-                uchar *outbuf = NULL;
+                uchar *outbuf = nullptr;
                 int inlen = 0, outlen = 0;
                 if(packundo(op, inlen, outbuf, outlen))
                 {
@@ -1668,9 +1678,9 @@ namespace client
         putint(p, game::player1.colour);
         putint(p, game::player1.model);
         sendstring(game::player1.vanity, p);
-        putint(p, game::player1.loadweap.length());
+        putint(p, game::player1.loadweap.size());
         loopv(game::player1.loadweap) putint(p, game::player1.loadweap[i]);
-        putint(p, game::player1.randweap.length());
+        putint(p, game::player1.randweap.size());
         loopv(game::player1.randweap) putint(p, game::player1.randweap[i]);
 
         string hash = "";
@@ -1766,7 +1776,7 @@ namespace client
 
     void sendpositions()
     {
-        gameent *d = NULL;
+        gameent *d = nullptr;
         int numdyns = game::numdynents();
         loopi(numdyns) if((d = (gameent *)game::iterdynents(i)))
         {
@@ -1802,9 +1812,9 @@ namespace client
                 putint(p, game::player1.model);
                 putint(p, game::player1.checkpointspawn);
                 sendstring(game::player1.vanity, p);
-                putint(p, game::player1.loadweap.length());
+                putint(p, game::player1.loadweap.size());
                 loopv(game::player1.loadweap) putint(p, game::player1.loadweap[i]);
-                putint(p, game::player1.randweap.length());
+                putint(p, game::player1.randweap.size());
                 loopv(game::player1.randweap) putint(p, game::player1.randweap[i]);
             }
             if(sendcrcinfo)
@@ -2170,7 +2180,7 @@ namespace client
                 {
                     int snd = getint(p), targ = getint(p);
                     getstring(text, p);
-                    if(targ >= 0 && text[0]) game::announcef(snd, targ, NULL, false, "%s", text);
+                    if(targ >= 0 && text[0]) game::announcef(snd, targ, nullptr, false, "%s", text);
                     else game::announce(snd);
                     break;
                 }
@@ -2189,7 +2199,7 @@ namespace client
                 case N_COMMAND:
                 {
                     int lcn = getint(p);
-                    gameent *f = lcn >= 0 ? game::getclient(lcn) : NULL;
+                    gameent *f = lcn >= 0 ? game::getclient(lcn) : nullptr;
                     getstring(text, p);
                     int alen = getint(p);
                     if(alen < 0 || alen > p.remaining()) break;
@@ -2344,7 +2354,7 @@ namespace client
                     gameent *f = game::newclient(lcn);
                     if(!f || f == &game::player1 || f->ai)
                     {
-                        parsestate(NULL, p);
+                        parsestate(nullptr, p);
                         break;
                     }
                     parsestate(f, p);
@@ -2357,7 +2367,7 @@ namespace client
                     gameent *f = game::newclient(lcn);
                     if(!f || (f != &game::player1 && !f->ai))
                     {
-                        parsestate(NULL, p);
+                        parsestate(nullptr, p);
                         break;
                     }
                     if(f == &game::player1 && editmode) toggleedit();
@@ -2411,7 +2421,7 @@ namespace client
                     vec norm(0, 0, 0), pos(0, 0, 0);
                     loopk(3) norm[k] = getint(p)/DNF;
                     loopk(3) pos[k] = getint(p)/DMF;
-                    gameent *t = game::getclient(scn), *v = tcn >= 0 ? game::getclient(tcn) : NULL;
+                    gameent *t = game::getclient(scn), *v = tcn >= 0 ? game::getclient(tcn) : nullptr;
                     if(t && (tcn < 0 || v)) projs::sticky(t, id, norm, pos, v);
                     break;
                 }
@@ -2538,7 +2548,7 @@ namespace client
                         gameent *f = game::newclient(lcn);
                         if(!f)
                         {
-                            parsestate(NULL, p);
+                            parsestate(nullptr, p);
                             break;
                         }
                         parsestate(f, p, true);
@@ -2557,11 +2567,11 @@ namespace client
                     {
                         int sweap = m_weapon(game::focus->actortype, game::gamemode, game::mutators), attr = w_attr(game::gamemode, game::mutators, e.type, e.attrs[0], sweap),
                             colour = e.type == WEAPON && isweap(attr) ? W(attr, colour) : 0xFFFFFF;
-                        playsound(e.type == WEAPON && attr >= W_OFFSET && attr < W_ALL ? WSND(attr, S_W_SPAWN) : S_ITEMSPAWN, e.o, NULL, 0, -1, -1, -1, &e.schan);
+                        playsound(e.type == WEAPON && attr >= W_OFFSET && attr < W_ALL ? WSND(attr, S_W_SPAWN) : S_ITEMSPAWN, e.o, nullptr, 0, -1, -1, -1, &e.schan);
                         if(entities::showentdescs)
                         {
                             vec pos = vec(e.o).add(vec(0, 0, 4));
-                            const char *texname = entities::showentdescs >= 2 ? hud::itemtex(e.type, attr) : NULL;
+                            const char *texname = entities::showentdescs >= 2 ? hud::itemtex(e.type, attr) : nullptr;
                             if(texname && *texname) part_icon(pos, textureload(texname, 3), game::aboveitemiconsize, 1, -10, 0, game::eventiconfade, colour);
                             else
                             {
@@ -3379,7 +3389,7 @@ namespace client
                 break;
 
             case 1:
-                parsemessages(-1, NULL, p);
+                parsemessages(-1, nullptr, p);
                 break;
 
             case 2:

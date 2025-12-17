@@ -24,7 +24,7 @@ struct grasswedge
       across.div(-across.dot(bound1));
     }
 };
-grasswedge *grasswedges = NULL;
+grasswedge *grasswedges = nullptr;
 void resetgrasswedges(int n)
 {
     DELETEA(grasswedges);
@@ -53,7 +53,7 @@ struct grassgroup
 
 static vector<grassgroup> grassgroups;
 
-float *grassoffsets = NULL, *grassanimoffsets = NULL;
+float *grassoffsets = nullptr, *grassanimoffsets = nullptr;
 void resetgrassoffsets(int n)
 {
     DELETEA(grassoffsets);
@@ -236,10 +236,10 @@ static void gengrassquads(vtxarray *va)
         if(!s.grasstex)
         {
             if(!s.texgrass) continue;
-            s.grasstex = textureload(makerelpath(NULL, s.texgrass, NULL, "<premul>"), 2);
+            s.grasstex = textureload(makerelpath(nullptr, s.texgrass, nullptr, "<premul>"), 2);
         }
 
-        grassgroup *group = NULL;
+        grassgroup *group = nullptr;
         loopi(numgrasswedges)
         {
             grasswedge &w = grasswedges[i];
@@ -287,7 +287,7 @@ void generategrass()
     gle::bindvbo(grassvbo);
     int size = grassverts.length()*sizeof(grassvert);
     grassvbosize = max(grassvbosize, size);
-    glBufferData_(GL_ARRAY_BUFFER, grassvbosize, size == grassvbosize ? grassverts.getbuf() : NULL, GL_STREAM_DRAW);
+    glBufferData_(GL_ARRAY_BUFFER, grassvbosize, size == grassvbosize ? grassverts.getbuf() : nullptr, GL_STREAM_DRAW);
     if(size != grassvbosize) glBufferSubData_(GL_ARRAY_BUFFER, 0, size, grassverts.getbuf());
     gle::clearvbo();
 }

@@ -279,9 +279,9 @@ void convertoldsurfaces(cube &c, const ivec &co, int size, surfacecompat *srcsur
     loopi(6) if((hassurfs|hasnorms|hasmerges)&(1<<i))
     {
         surfaceinfo &dst = dstsurfs[i];
-        vertinfo *curverts = NULL;
+        vertinfo *curverts = nullptr;
         int numverts = 0;
-        surfacecompat *src = NULL, *blend = NULL;
+        surfacecompat *src = nullptr, *blend = nullptr;
         if(hassurfs&(1<<i))
         {
             src = &srcsurfs[i];
@@ -600,7 +600,7 @@ void loadc(stream *f, cube &c, const ivec &co, int size, bool &failed)
         }
     }
 
-    c.children = (haschildren ? loadchildren(f, co, size>>1, failed) : NULL);
+    c.children = (haschildren ? loadchildren(f, co, size>>1, failed) : nullptr);
 }
 
 cube *loadchildren(stream *f, const ivec &co, int size, bool &failed)
@@ -752,13 +752,13 @@ void loadvslots(stream *f, int numvslots)
         int changed = f->getlil<int>();
         if(changed < 0)
         {
-            loopi(-changed) vslots.add(new VSlot(NULL, vslots.length()));
+            loopi(-changed) vslots.add(new VSlot(nullptr, vslots.length()));
             numvslots += changed;
         }
         else
         {
             prev[vslots.length()] = f->getlil<int>();
-            loadvslot(f, *vslots.add(new VSlot(NULL, vslots.length())), changed);
+            loadvslot(f, *vslots.add(new VSlot(nullptr, vslots.length())), changed);
             numvslots--;
         }
     }
@@ -1583,7 +1583,7 @@ bool load_world(const char *mname, int crc)       // still supports all map form
         }
 
         freeocta(worldroot);
-        worldroot = NULL;
+        worldroot = nullptr;
 
         progress(0, "loading entities...");
         vector<extentity *> &ents = entities::getents();
@@ -1781,7 +1781,7 @@ bool load_world(const char *mname, int crc)       // still supports all map form
         entities::initents(maptype, hdr.version, hdr.gameid, hdr.gamever);
         delete f;
         defformatstring(fname, "%s.txt", mapname);
-        char *buf = loadfile(fname, NULL);
+        char *buf = loadfile(fname, nullptr);
         if(buf)
         {
             setsvar("maptext", buf, false);
@@ -1847,8 +1847,8 @@ void writeobj(char *name)
     loopv(valist)
     {
         vtxarray &va = *valist[i];
-        ushort *edata = NULL;
-        vertex *vdata = NULL;
+        ushort *edata = nullptr;
+        vertex *vdata = nullptr;
         if(!readva(&va, edata, vdata)) continue;
         ushort *idx = edata;
         loopj(va.texs)

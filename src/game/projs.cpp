@@ -308,11 +308,11 @@ namespace projs
     {
         loopv(projs)
         {
-            if(projs[i]->target == owner) projs[i]->target = NULL;
+            if(projs[i]->target == owner) projs[i]->target = nullptr;
             if(projs[i]->stick == owner)
             {
                 projs[i]->stuck = 0;
-                projs[i]->stick = NULL;
+                projs[i]->stick = nullptr;
                 projs[i]->lastbounce = lastmillis;
             }
             if(projs[i]->owner == owner)
@@ -327,7 +327,7 @@ namespace projs
                     delete projs[i];
                     projs.removeunordered(i--);
                 }
-                else projs[i]->owner = NULL;
+                else projs[i]->owner = nullptr;
             }
         }
     }
@@ -368,7 +368,7 @@ namespace projs
                 if(proj.stick->state != CS_ALIVE)
                 {
                     proj.stuck = 0;
-                    proj.stick = NULL;
+                    proj.stick = nullptr;
                     proj.lastbounce = lastmillis;
                     proj.resetinterp();
                 }
@@ -394,7 +394,7 @@ namespace projs
         return proj.stuck != 0;
     }
 
-    void stick(projent &proj, const vec &dir, gameent *d = NULL)
+    void stick(projent &proj, const vec &dir, gameent *d = nullptr)
     {
         if(proj.projtype != PRJ_SHOT || (proj.owner && proj.local))
         {
@@ -622,7 +622,7 @@ namespace projs
                 if(ricochet && !proj.limited && !WK(proj.flags))
                 {
                     int vol = clamp(int(proj.vel.magnitude()*proj.curscale)*2, 0, 255);
-                    if(vol > 0) playsound(WSND2(proj.weap, WS(proj.flags), S_W_BOUNCE), proj.o, NULL, 0, vol);
+                    if(vol > 0) playsound(WSND2(proj.weap, WS(proj.flags), S_W_BOUNCE), proj.o, nullptr, 0, vol);
                 }
                 break;
             }
@@ -633,7 +633,7 @@ namespace projs
                 {
                     adddecal(DECAL_BLOOD, proj.o, proj.norm, proj.radius*clamp(proj.vel.magnitude()/2, 1.f, 4.f), bvec(125, 255, 255));
                     int vol = clamp(int(proj.vel.magnitude()*proj.curscale)*2, 0, 255);
-                    if(vol > 0) playsound(S_SPLOSH, proj.o, NULL, 0, vol);
+                    if(vol > 0) playsound(S_SPLOSH, proj.o, nullptr, 0, vol);
                     break;
                 } // otherwise fall through
             }
@@ -643,14 +643,14 @@ namespace projs
                 if(vol > 0)
                 {
                     if(proj.projtype == PRJ_VANITY) vol /= 2;
-                    playsound(S_DEBRIS, proj.o, NULL, 0, vol);
+                    playsound(S_DEBRIS, proj.o, nullptr, 0, vol);
                 }
                 break;
             }
             case PRJ_EJECT: case PRJ_AFFINITY:
             {
                 int vol = clamp(int(proj.vel.magnitude()*proj.curscale)*3, proj.projtype == PRJ_AFFINITY ? 32 : 0, 255);
-                if(vol > 0) playsound(proj.projtype == PRJ_EJECT ? int(S_SHELL) : int(S_BOUNCE), proj.o, NULL, 0, vol);
+                if(vol > 0) playsound(proj.projtype == PRJ_EJECT ? int(S_SHELL) : int(S_BOUNCE), proj.o, nullptr, 0, vol);
                 break;
             }
             default: break;
@@ -748,8 +748,8 @@ namespace projs
             default: return false;
         }
         size = clamp(size*proj.curscale, 0.1f, 1.f);
-        model *m = NULL;
-        if(proj.mdl && *proj.mdl && ((m = loadmodel(proj.mdl)) != NULL))
+        model *m = nullptr;
+        if(proj.mdl && *proj.mdl && ((m = loadmodel(proj.mdl)) != nullptr))
         {
             vec center, radius;
             m->boundbox(center, radius);
@@ -1041,7 +1041,7 @@ namespace projs
         }
         if(proj.projtype != PRJ_SHOT) updatebb(proj, true);
         proj.spawntime = lastmillis;
-        proj.hit = NULL;
+        proj.hit = nullptr;
         proj.hitflags = HITFLAG_NONE;
         proj.movement = 1;
         if(proj.owner && (proj.projtype != PRJ_SHOT || (!proj.child && !(WF(WK(proj.flags), proj.weap, collide, WS(proj.flags))&COLLIDE_HITSCAN))))
@@ -1184,7 +1184,7 @@ namespace projs
                 {
                     if(issound(d->wschan) && (sounds[d->wschan].slotnum == WSNDF(weap, false) || sounds[d->wschan].slotnum == WSNDF(weap, true)))
                     {
-                        sounds[d->wschan].hook = NULL;
+                        sounds[d->wschan].hook = nullptr;
                         d->wschan = -1;
                     }
                     playsound(slot, d->o, d, 0, vol, -1, -1, &d->wschan);
@@ -1331,7 +1331,7 @@ namespace projs
     void iter(projent &proj)
     {
         proj.lifespan = clamp((proj.lifemillis-proj.lifetime)/float(max(proj.lifemillis, 1)), 0.f, 1.f);
-        if(proj.target && proj.target->state != CS_ALIVE) proj.target = NULL;
+        if(proj.target && proj.target->state != CS_ALIVE) proj.target = nullptr;
         updatesticky(proj);
         if(proj.projtype == PRJ_SHOT)
         {
@@ -1661,7 +1661,7 @@ namespace projs
                         if(type != W_FLAMER && !m_kaboom(game::gamemode, game::mutators) && game::nogore != 2 && game::debrisscale > 0)
                         {
                             int debris = rnd(type != W_ROCKET ? 5 : 10)+5, amt = int((rnd(debris)+debris+1)*game::debrisscale);
-                            loopi(amt) create(proj.o, vec(proj.o).add(proj.vel), true, NULL, PRJ_DEBRIS, -1, HIT_NONE, rnd(game::debrisfade)+game::debrisfade, 0, rnd(501), rnd(101)+50, 0, proj.weap, 0, proj.flags);
+                            loopi(amt) create(proj.o, vec(proj.o).add(proj.vel), true, nullptr, PRJ_DEBRIS, -1, HIT_NONE, rnd(game::debrisfade)+game::debrisfade, 0, rnd(501), rnd(101)+50, 0, proj.weap, 0, proj.flags);
                         }
                         adddecal(DECAL_ENERGY, proj.o, proj.norm, expl*0.75f, bvec::fromcolor(FWCOL(P, explcol, proj)));
                         if(type != W_FLAMER || WK(proj.flags) || W2(proj.weap, fragweap, WS(proj.flags))%W_MAX != W_FLAMER) loopi(type != W_ROCKET ? 5 : 10)
@@ -1740,7 +1740,7 @@ namespace projs
                 if(vol > 0 && !proj.limited && !WK(proj.flags))
                 {
                     int slot = WX(WK(proj.flags), proj.weap, explode, WS(proj.flags), game::gamemode, game::mutators, proj.curscale*proj.lifesize) > 0 ? S_W_EXPLODE : S_W_DESTROY;
-                    playsound(WSND2(proj.weap, WS(proj.flags), slot), proj.o, NULL, 0, vol);
+                    playsound(WSND2(proj.weap, WS(proj.flags), slot), proj.o, nullptr, 0, vol);
                 }
                 if(proj.owner)
                 {
@@ -1781,8 +1781,8 @@ namespace projs
             case PRJ_AFFINITY:
             {
                 if(proj.beenused <= 1) client::addmsg(N_RESETAFFIN, "ri", proj.id);
-                if(m_capture(game::gamemode) && capture::st.flags.inrange(proj.id)) capture::st.flags[proj.id].proj = NULL;
-                else if(m_bomber(game::gamemode) && bomber::st.flags.inrange(proj.id)) bomber::st.flags[proj.id].proj = NULL;
+                if(m_capture(game::gamemode) && capture::st.flags.inrange(proj.id)) capture::st.flags[proj.id].proj = nullptr;
+                else if(m_bomber(game::gamemode) && bomber::st.flags.inrange(proj.id)) bomber::st.flags[proj.id].proj = nullptr;
                 break;
             }
             default: break;
@@ -1814,7 +1814,7 @@ namespace projs
                     else size *= 2.5f;
                 }
                 else size *= 2.5f;
-                if(vol > 0) playsound(snd, proj.o, NULL, 0, vol);
+                if(vol > 0) playsound(snd, proj.o, nullptr, 0, vol);
                 part_create(PART_SMOKE, 500, proj.o, 0xAAAAAA, max(size, 1.5f), 1, -10);
                 proj.limited = true;
                 if(proj.projtype == PRJ_DEBRIS) proj.light.material[0] = bvec(255, 255, 255);
@@ -2111,7 +2111,7 @@ namespace projs
                 {
                     if(WF(WK(proj.flags), proj.weap, guided, WS(proj.flags))%2 && proj.target && proj.target->state == CS_ALIVE)
                         proj.dest = proj.target->center();
-                    gameent *t = NULL;
+                    gameent *t = nullptr;
                     switch(WF(WK(proj.flags), proj.weap, guided, WS(proj.flags)))
                     {
                         case 2: case 3: default:
@@ -2260,7 +2260,7 @@ namespace projs
             projent &proj = *projs[i];
             if(proj.projtype == PRJ_SHOT && WF(WK(proj.flags), proj.weap, radial, WS(proj.flags)))
             {
-                proj.hit = NULL;
+                proj.hit = nullptr;
                 proj.hitflags = HITFLAG_NONE;
             }
             hits.setsize(0);
@@ -2320,7 +2320,7 @@ namespace projs
                 if(WF(WK(proj.flags), proj.weap, collide, WS(proj.flags))&COLLIDE_HITSCAN) proj.o = proj.to;
                 if(!proj.limited && proj.state != CS_DEAD)
                 {
-                    if(!(proj.projcollide&DRILL_PLAYER)) proj.hit = NULL;
+                    if(!(proj.projcollide&DRILL_PLAYER)) proj.hit = nullptr;
                     bool radial = WF(WK(proj.flags), proj.weap, radial, WS(proj.flags)) && expl > 0 && (!proj.lastradial || lastmillis-proj.lastradial >= WF(WK(proj.flags), proj.weap, radial, WS(proj.flags)));
                     int proxim = proj.stuck && !proj.beenused ? WF(WK(proj.flags), proj.weap, proxtype, WS(proj.flags)) : 0;
                     if(radial || proxim)
@@ -2331,7 +2331,7 @@ namespace projs
                         if(dist <= 1e-6f) proxim = 0;
                         int numdyns = game::numdynents();
                         gameent *oldstick = proj.stick;
-                        proj.stick = NULL;
+                        proj.stick = nullptr;
                         loopj(numdyns)
                         {
                             dynent *f = game::iterdynents(j);
@@ -2363,12 +2363,12 @@ namespace projs
                 }
                 if(proj.state == CS_DEAD)
                 {
-                    if(!(proj.projcollide&DRILL_PLAYER)) proj.hit = NULL;
+                    if(!(proj.projcollide&DRILL_PLAYER)) proj.hit = nullptr;
                     if(!proj.limited && expl > 0)
                     {
                         int numdyns = game::numdynents(true);
                         gameent *oldstick = proj.stick;
-                        proj.stick = NULL;
+                        proj.stick = nullptr;
                         loopj(numdyns)
                         {
                             dynent *f = game::iterdynents(j, true);
@@ -2509,7 +2509,7 @@ namespace projs
                 }
                 default: break;
             }
-            rendermodel(&proj.light, proj.mdl, ANIM_MAPMODEL|ANIM_LOOP, proj.o, yaw, pitch, roll, flags, &proj, NULL, proj.spawntime, 0, trans, size);
+            rendermodel(&proj.light, proj.mdl, ANIM_MAPMODEL|ANIM_LOOP, proj.o, yaw, pitch, roll, flags, &proj, nullptr, proj.spawntime, 0, trans, size);
         }
     }
 

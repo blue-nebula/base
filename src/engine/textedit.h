@@ -8,8 +8,8 @@ struct editline
     char *text;
     int len, maxlen;
 
-    editline() : text(NULL), len(0), maxlen(0) {}
-    editline(const char *init) : text(NULL), len(0), maxlen(0)
+    editline() : text(nullptr), len(0), maxlen(0) {}
+    editline(const char *init) : text(nullptr), len(0), maxlen(0)
     {
         set(init);
     }
@@ -161,8 +161,8 @@ struct editor
 
     vector<editline> lines; // MUST always contain at least one line!
 
-    editor(const char *name, int mode, const char *initval, const char *parent = NULL) :
-        mode(mode), active(true), rendered(false), unfocus(false), name(newstring(name)), filename(NULL), parent(newstring(parent && *parent ? parent : "")),
+    editor(const char *name, int mode, const char *initval, const char *parent = nullptr) :
+        mode(mode), active(true), rendered(false), unfocus(false), name(newstring(name)), filename(nullptr), parent(newstring(parent && *parent ? parent : "")),
         cx(0), cy(0), mx(-1), my(-1), maxx(-1), maxy(-1), scrolly(mode==EDITORREADONLY ? SCROLLEND : 0), linewrap(false), pixelwidth(-1), pixelheight(-1)
     {
         //printf("editor %08x '%s'\n", this, name);
@@ -175,7 +175,7 @@ struct editor
         DELETEA(name);
         DELETEA(filename);
         DELETEA(parent);
-        clear(NULL);
+        clear(nullptr);
     }
 
     void clear(const char *init = "")
@@ -201,7 +201,7 @@ struct editor
     void load()
     {
         if(!filename) return;
-        clear(NULL);
+        clear(nullptr);
         stream *file = openutf8file(filename, "r");
         if(file)
         {
@@ -286,7 +286,7 @@ struct editor
     {
         if(b == this) return;
 
-        b->clear(NULL);
+        b->clear(nullptr);
         int sx, sy, ex, ey;
         region(sx, sy, ex, ey);
         loopi(1+ey-sy)
@@ -592,7 +592,7 @@ struct editor
         return slines;
     }
 
-    void draw(int x, int y, int color, bool hit, const char *prompt = NULL)
+    void draw(int x, int y, int color, bool hit, const char *prompt = nullptr)
     {
         int h = 0, maxwidth = linewrap ? pixelwidth : -1;
 
@@ -730,7 +730,7 @@ struct editor
 // a 'stack' where the last is the current focused editor
 static vector <editor*> editors;
 
-static editor *currentfocus() { return (editors.length() > 0)?editors.last():NULL; }
+static editor *currentfocus() { return (editors.length() > 0)?editors.last():nullptr; }
 
 static void readyeditors()
 {
@@ -746,7 +746,7 @@ static void flusheditors()
     }
 }
 
-static editor *useeditor(const char *name, int mode, bool focus, const char *initval = NULL, const char *parent = NULL)
+static editor *useeditor(const char *name, int mode, bool focus, const char *initval = nullptr, const char *parent = nullptr)
 {
     loopv(editors) if(strcmp(editors[i]->name, name) == 0)
     {
@@ -764,7 +764,7 @@ static editor *useeditor(const char *name, int mode, bool focus, const char *ini
 static editor *findeditor(const char *name)
 {
     loopv(editors) if(strcmp(editors[i]->name, name) == 0) return editors[i];
-    return NULL;
+    return nullptr;
 }
 
 #define TEXTCOMMAND(f, s, d, body) ICOMMAND(0, f, s, d,\
@@ -814,8 +814,8 @@ TEXTCOMMAND(textload, "s", (char *file), // loads into the topmost editor, retur
 );
 TEXTCOMMAND(ui_textinit, "sss", (char *name, char *file, char *initval), // loads into named editor if no file assigned and editor has been rendered
 {
-    char *f = identflags&IDF_WORLD ? NULL : file;
-    editor *e = NULL;
+    char *f = identflags&IDF_WORLD ? nullptr : file;
+    editor *e = nullptr;
     loopv(editors) if(!strcmp(editors[i]->name, name)) { e = editors[i]; break; }
     if(e && e->rendered && !e->filename && f && *f && (e->lines.empty() || (e->lines.length() == 1 && !strcmp(e->lines[0].text, initval))))
     {
@@ -844,7 +844,7 @@ TEXTCOMMAND(textexec, "i", (int *selected), // execute script commands from the 
 
 TEXTCOMMAND(textadd, "ss", (char *name, char *str), // loads into named editor if no file assigned and editor has been rendered
 {
-    editor *e = NULL;
+    editor *e = nullptr;
     loopv(editors) if(!strcmp(editors[i]->name, name)) { e = editors[i]; break; }
     if(e && e->rendered) e->insert(str);
 });

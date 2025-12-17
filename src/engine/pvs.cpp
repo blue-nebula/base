@@ -258,11 +258,11 @@ static inline bool htcmp(const pvsdata &x, const pvsdata &y)
     return x.len==y.len && !memcmp(&pvsbuf[x.offset], &pvsbuf[y.offset], x.len);
 }
 
-static SDL_mutex *pvsmutex = NULL;
+static SDL_mutex *pvsmutex = nullptr;
 static hashtable<pvsdata, int> pvscompress;
 static vector<pvsdata> pvs;
 
-static SDL_mutex *viewcellmutex = NULL;
+static SDL_mutex *viewcellmutex = nullptr;
 struct viewcellrequest
 {
     int *result;
@@ -289,7 +289,7 @@ uint numwaterplanes = 0;
 
 struct pvsworker
 {
-    pvsworker() : thread(NULL), pvsnodes(new pvsnode[origpvsnodes.length()])
+    pvsworker() : thread(nullptr), pvsnodes(new pvsnode[origpvsnodes.length()])
     {
     }
     ~pvsworker()
@@ -313,7 +313,7 @@ struct pvsworker
         origin = ivec(0, 0, 0);
     }
 
-    int hasvoxel(const ivec &p, int coord, int dir, int ocoord = 0, int odir = 0, int *omin = NULL)
+    int hasvoxel(const ivec &p, int coord, int dir, int ocoord = 0, int odir = 0, int *omin = nullptr)
     {
         uint diff = (origin.x^p.x)|(origin.y^p.y)|(origin.z^p.z);
         if(diff >= uint(hdr.worldsize)) return 0;
@@ -765,7 +765,7 @@ struct pvsworker
         serializepvs(pvsnodes[0]);
     }
 
-    uchar *testviewcell(const ivec &co, int size, int *waterpvs = NULL, int *len = NULL)
+    uchar *testviewcell(const ivec &co, int size, int *waterpvs = nullptr, int *len = nullptr)
     {
         calcpvs(co, size);
 
@@ -946,26 +946,26 @@ static void genviewcells(viewcellnode &p, cube *c, const ivec &co, int size, int
     }
 }
 
-static viewcellnode *viewcells = NULL;
+static viewcellnode *viewcells = nullptr;
 static int lockedwaterplanes[MAXWATERPVS];
-static uchar *curpvs = NULL, *lockedpvs = NULL;
+static uchar *curpvs = nullptr, *lockedpvs = nullptr;
 static int curwaterpvs = 0, lockedwaterpvs = 0;
 
 static inline pvsdata *lookupviewcell(const vec &p)
 {
     uint x = uint(floor(p.x)), y = uint(floor(p.y)), z = uint(floor(p.z));
-    if(!viewcells || (x|y|z)>=uint(hdr.worldsize)) return NULL;
+    if(!viewcells || (x|y|z)>=uint(hdr.worldsize)) return nullptr;
     viewcellnode *vc = viewcells;
     for(int scale = worldscale-1; scale>=0; scale--)
     {
         int i = octastep(x, y, z, scale);
         if(vc->leafmask&(1<<i))
         {
-            return vc->children[i].pvs>=0 ? &pvs[vc->children[i].pvs] : NULL;
+            return vc->children[i].pvs>=0 ? &pvs[vc->children[i].pvs] : nullptr;
         }
         vc = vc->children[i].node;
     }
-    return NULL;
+    return nullptr;
 }
 
 static void lockpvs_(bool lock)
@@ -990,7 +990,7 @@ VARN(0, waterpvs, usewaterpvs, 0, 1, 1);
 
 void setviewcell(const vec &p)
 {
-    if(!usepvs) curpvs = NULL;
+    if(!usepvs) curpvs = nullptr;
     else if(lockedpvs)
     {
         curpvs = lockedpvs;
@@ -999,7 +999,7 @@ void setviewcell(const vec &p)
     else
     {
         pvsdata *d = lookupviewcell(p);
-        curpvs = d ? &pvsbuf[d->offset] : NULL;
+        curpvs = d ? &pvsbuf[d->offset] : nullptr;
         curwaterpvs = 0;
         if(d)
         {
@@ -1014,7 +1014,7 @@ void clearpvs()
     DELETEP(viewcells);
     pvs.setsize(0);
     pvsbuf.setsize(0);
-    curpvs = NULL;
+    curpvs = nullptr;
     numwaterplanes = 0;
     lockpvs = 0;
     lockpvs_(false);
@@ -1129,7 +1129,7 @@ void genpvs(int *viewcellsize)
     if(numthreads<=1)
     {
         pvsworkers.add(new pvsworker);
-        timer = SDL_AddTimer(500, genpvs_timer, NULL);
+        timer = SDL_AddTimer(500, genpvs_timer, nullptr);
     }
     viewcells = new viewcellnode;
     genviewcells(*viewcells, worldroot, ivec(0, 0, 0), hdr.worldsize>>1, *viewcellsize>0 ? *viewcellsize : 32);
@@ -1160,7 +1160,7 @@ void genpvs(int *viewcellsize)
         SDL_LockMutex(viewcellmutex);
         viewcellrequests.setsize(0);
         SDL_UnlockMutex(viewcellmutex);
-        loopv(pvsworkers) SDL_WaitThread(pvsworkers[i]->thread, NULL);
+        loopv(pvsworkers) SDL_WaitThread(pvsworkers[i]->thread, nullptr);
     }
     pvsworkers.deletecontents();
 
@@ -1226,12 +1226,12 @@ static inline bool pvsoccluded(uchar *buf, const ivec &bbmin, const ivec &bbmax)
 
 bool pvsoccluded(const ivec &bbmin, const ivec &bbmax)
 {
-    return curpvs!=NULL && pvsoccluded(curpvs, bbmin, bbmax);
+    return curpvs!=nullptr && pvsoccluded(curpvs, bbmin, bbmax);
 }
 
 bool pvsoccludedsphere(const vec &center, float radius)
 {
-    if(curpvs==NULL) return false;
+    if(curpvs==nullptr) return false;
     ivec bbmin(vec(center).sub(radius)), bbmax(vec(center).add(radius+1));
     return pvsoccluded(curpvs, bbmin, bbmax);
 }

@@ -66,7 +66,7 @@ namespace defend
             vec effect = skewcolour(b.owner, b.enemy, occupy);
             int colour = effect.tohexcolor();
             b.baselight.material[0] = bvec::fromcolor(effect);
-            rendermodel(&b.baselight, "props/point", ANIM_MAPMODEL|ANIM_LOOP, b.render, b.yaw, 0, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, NULL, NULL, 0, 0, 1);
+            rendermodel(&b.baselight, "props/point", ANIM_MAPMODEL|ANIM_LOOP, b.render, b.yaw, 0, 0, MDL_DYNSHADOW|MDL_CULL_VFC|MDL_CULL_OCCLUDED, nullptr, nullptr, 0, 0, 1);
             if(b.enemy && b.owner)
             {
                 defformatstring(bowner, "%s", game::colourteam(b.owner));
@@ -316,7 +316,7 @@ namespace defend
             {
                 if(b.owner != owner)
                 {
-                    gameent *d = NULL, *e = NULL;
+                    gameent *d = nullptr, *e = nullptr;
                     int numdyns = game::numdynents();
                     loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && e->actortype < A_ENEMY && insideaffinity(b, e))
                         if((d = e) == game::focus) break;
@@ -327,7 +327,7 @@ namespace defend
             }
             else if(b.owner)
             {
-                gameent *d = NULL, *e = NULL;
+                gameent *d = nullptr, *e = nullptr;
                 int numdyns = game::numdynents();
                 loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && e->actortype < A_ENEMY && insideaffinity(b, e))
                     if((d = e) == game::focus) break;
@@ -362,7 +362,7 @@ namespace defend
                 static vector<int> targets; // build a list of others who are interested in this
                 targets.setsize(0);
                 ai::checkothers(targets, d, ai::AI_S_DEFEND, ai::AI_T_AFFINITY, j, true);
-                gameent *e = NULL;
+                gameent *e = nullptr;
                 bool regen = !m_regen(game::gamemode, game::mutators) || d->health >= m_health(game::gamemode, game::mutators, d->actortype);
                 int numdyns = game::numdynents();
                 loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && !e->ai && e->state == CS_ALIVE && d->team == e->team)
@@ -401,7 +401,7 @@ namespace defend
                 ai::checkothers(targets, d, ai::AI_S_DEFEND, ai::AI_T_AFFINITY, b.target, true);
                 if(d->actortype == A_BOT)
                 {
-                    gameent *e = NULL;
+                    gameent *e = nullptr;
                     int numdyns = game::numdynents();
                     float mindist = enttype[AFFINITY].radius*2; mindist *= mindist;
                     loopi(numdyns) if((e = (gameent *)game::iterdynents(i)) && d->team == e->team)

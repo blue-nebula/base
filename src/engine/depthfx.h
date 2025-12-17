@@ -93,13 +93,13 @@ static struct depthfxtexture : rendertarget
         if(highprecision())
         {
             scale = depthfxfpscale;
-            ranges = NULL;
+            ranges = nullptr;
             numranges = 0;
         }
         else if(emulatehighprecision())
         {
             scale = depthfxfpscale;
-            ranges = NULL;
+            ranges = nullptr;
             numranges = -3;
         }
         renderdepthobstacles(depthfxmin, depthfxmax, scale, ranges, numranges);
@@ -148,7 +148,7 @@ bool binddepthfxtex()
     return false;
 }
 
-void binddepthfxparams(float blend, float minblend = 0, bool allow = true, void *owner = NULL)
+void binddepthfxparams(float blend, float minblend = 0, bool allow = true, void *owner = nullptr)
 {
     if(!reflecting && !refracting && depthfx && depthfxtex.rendertex && numdepthfxranges>0)
     {

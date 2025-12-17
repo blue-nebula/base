@@ -8,7 +8,7 @@ reversequeue<cline, MAXCONLINES> conlines;
 
 int commandmillis = -1;
 bigstring commandbuf;
-char *commandaction = NULL, *commandicon = NULL;
+char *commandaction = nullptr, *commandicon = nullptr;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1, CF_MESSAGE = 1<<2 };
 int commandflags = 0, commandpos = -1, commandcolour = 0;
 
@@ -57,7 +57,7 @@ struct keym
     char *actions[NUMACTIONS];
     bool pressed, persist[NUMACTIONS];
 
-    keym() : code(-1), name(NULL), pressed(false) { loopi(NUMACTIONS) { actions[i] = newstring(""); persist[i] = false; } }
+    keym() : code(-1), name(nullptr), pressed(false) { loopi(NUMACTIONS) { actions[i] = newstring(""); persist[i] = false; } }
     ~keym() { DELETEA(name); loopi(NUMACTIONS) { DELETEA(actions[i]); persist[i] = false; } }
 };
 
@@ -74,18 +74,18 @@ void keymap(int *code, char *key)
 
 COMMAND(0, keymap, "is");
 
-keym *keypressed = NULL;
-char *keyaction = NULL;
+keym *keypressed = nullptr;
+char *keyaction = nullptr;
 
 const char *getkeyname(int code)
 {
     keym *km = keyms.access(code);
-    return km ? km->name : NULL;
+    return km ? km->name : nullptr;
 }
 
 void searchbindlist(const char *action, int type, int limit, const char *s1, const char *s2, const char *sep1, const char *sep2, vector<char> &names, bool force)
 {
-    const char *name1 = NULL, *name2 = NULL, *lastname = NULL;
+    const char *name1 = nullptr, *name2 = nullptr, *lastname = nullptr;
     int found = 0;
     enumerate(keyms, keym, km,
     {
@@ -154,12 +154,12 @@ const char *searchbind(const char *action, int type)
         char *act = ((!km.actions[type] || !*km.actions[type]) && type ? km.actions[keym::ACTION_DEFAULT] : km.actions[type]);
         if(!strcmp(act, action)) return km.name;
     });
-    return NULL;
+    return nullptr;
 }
 
 void getkeypressed(int limit, const char *s1, const char *s2, const char *sep1, const char *sep2, vector<char> &names)
 {
-    const char *name1 = NULL, *name2 = NULL, *lastname = NULL;
+    const char *name1 = nullptr, *name2 = nullptr, *lastname = nullptr;
     int found = 0;
     enumerate(keyms, keym, km,
     {
@@ -235,7 +235,7 @@ keym *findbind(char *key)
     {
         if(!strcasecmp(km.name, key)) return &km;
     });
-    return NULL;
+    return nullptr;
 }
 
 void getbind(char *key, int type)
@@ -278,7 +278,7 @@ ICOMMAND(0, searchwaitbinds, "sissssb", (char *action, int *limit, char *s1, cha
 
 ICOMMAND(0, keyspressed, "issss", (int *limit, char *s1, char *s2, char *sep1, char *sep2), { vector<char> list; getkeypressed(max(*limit, 0), s1, s2, sep1, sep2, list); result(list.getbuf()); });
 
-void inputcommand(char *init, char *action = NULL, char *icon = NULL, int colour = 0, char *flags = NULL) // turns input to the command line on or off
+void inputcommand(char *init, char *action = nullptr, char *icon = nullptr, int colour = 0, char *flags = nullptr) // turns input to the command line on or off
 {
     commandmillis = init ? totalmillis : -totalmillis;
     textinput(commandmillis >= 0, TI_CONSOLE);
@@ -324,7 +324,7 @@ struct hline
     char *buf, *action, *icon;
     int colour, flags;
 
-    hline() : buf(NULL), action(NULL), icon(NULL), colour(0), flags(0) {}
+    hline() : buf(nullptr), action(nullptr), icon(nullptr), colour(0), flags(0) {}
     ~hline()
     {
         DELETEA(buf);
@@ -347,8 +347,8 @@ struct hline
     bool shouldsave()
     {
         return strcmp(commandbuf, buf) ||
-               (commandaction ? !action || strcmp(commandaction, action) : action!=NULL) ||
-               (commandicon ? !icon || strcmp(commandicon, icon) : icon!=NULL) ||
+               (commandaction ? !action || strcmp(commandaction, action) : action!=nullptr) ||
+               (commandicon ? !icon || strcmp(commandicon, icon) : icon!=nullptr) ||
                commandcolour != colour ||
                commandflags != flags;
     }
@@ -400,7 +400,7 @@ vector<releaseaction> releaseactions;
 
 const char *addreleaseaction(char *s)
 {
-    if(!keypressed) { delete[] s; return NULL; }
+    if(!keypressed) { delete[] s; return nullptr; }
     releaseaction &ra = releaseactions.add();
     ra.key = keypressed;
     ra.action = s;
@@ -441,7 +441,7 @@ void execbind(keym &k, bool isdown)
         keyaction = action;
         keypressed = &k;
         execute(keyaction);
-        keypressed = NULL;
+        keypressed = nullptr;
         if(keyaction!=action) delete[] keyaction;
     }
     k.pressed = isdown;
@@ -535,7 +535,7 @@ bool consolekey(int code, bool isdown)
             case SDLK_TAB:
                 if(commandflags&CF_COMPLETE)
                 {
-                    complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : NULL);
+                    complete(commandbuf, BIGSTRLEN, commandflags&CF_EXECUTE ? "/" : nullptr);
                     if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
                 }
                 break;
@@ -549,7 +549,7 @@ bool consolekey(int code, bool isdown)
     {
         if(code==SDLK_RETURN || code==SDLK_KP_ENTER)
         {
-            hline *h = NULL;
+            hline *h = nullptr;
             if(commandbuf[0])
             {
                 if(history.empty() || history.last()->shouldsave())
@@ -564,7 +564,7 @@ bool consolekey(int code, bool isdown)
                 else h = history.last();
             }
             histpos = history.length();
-            inputcommand(NULL);
+            inputcommand(nullptr);
             if(h)
             {
                 interactive = true;
@@ -575,7 +575,7 @@ bool consolekey(int code, bool isdown)
         else if(code==SDLK_ESCAPE || code < 0)
         {
             histpos = history.length();
-            inputcommand(NULL);
+            inputcommand(nullptr);
         }
     }
 
@@ -637,7 +637,7 @@ void processkey(int code, bool isdown)
 
 char *getcurcommand()
 {
-    return commandmillis > 0 ? commandbuf : (char *)NULL;
+    return commandmillis > 0 ? commandbuf : (char *)nullptr;
 }
 
 void clear_console()
@@ -689,7 +689,7 @@ struct filesval
     vector<char *> files;
     int millis;
 
-    filesval(int type, const char *dir, const char *ext) : type(type), dir(newstring(dir)), ext(ext && ext[0] ? newstring(ext) : NULL), millis(-1) {}
+    filesval(int type, const char *dir, const char *ext) : type(type), dir(newstring(dir)), ext(ext && ext[0] ? newstring(ext) : nullptr), millis(-1) {}
     ~filesval() { DELETEA(dir); DELETEA(ext); loopv(files) DELETEA(files[i]); files.shrink(0); }
 
     void update()
@@ -731,7 +731,7 @@ void addcomplete(char *command, int type, char *dir, char *ext)
     if(!dir[0])
     {
         filesval **hasfiles = completions.access(command);
-        if(hasfiles) *hasfiles = NULL;
+        if(hasfiles) *hasfiles = nullptr;
         return;
     }
     if(type==FILES_DIR)
@@ -741,7 +741,7 @@ void addcomplete(char *command, int type, char *dir, char *ext)
         if(ext)
         {
             if(strchr(ext, '*')) ext[0] = '\0';
-            if(!ext[0]) ext = NULL;
+            if(!ext[0]) ext = nullptr;
         }
     }
     fileskey key(type, dir, ext);
@@ -765,7 +765,7 @@ void addfilecomplete(char *command, char *dir, char *ext)
 
 void addlistcomplete(char *command, char *list)
 {
-    addcomplete(command, FILES_LIST, list, NULL);
+    addcomplete(command, FILES_LIST, list, nullptr);
 }
 
 COMMANDN(0, complete, addfilecomplete, "sss");
@@ -839,13 +839,13 @@ void complete(char *s, size_t s_size, const char *cmdprefix)
         completesize = (int)strlen(start);
         lastcomplete[0] = '\0';
     }
-    filesval *f = NULL;
+    filesval *f = nullptr;
     if(completesize)
     {
         char *end = strchr(start, ' ');
-        if(end) f = completions.find(stringslice(start, end), NULL);
+        if(end) f = completions.find(stringslice(start, end), nullptr);
     }
-    const char *nextcomplete = NULL;
+    const char *nextcomplete = nullptr;
     int prefixlen = start-s;
     if(f) // complete using filenames
     {
@@ -959,7 +959,7 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
             update = totalmillis;
         }
     }
-    g->field("console_window", 0x666666, -width, height, NULL, EDITORREADONLY);
+    g->field("console_window", 0x666666, -width, height, nullptr, EDITORREADONLY);
     char *w = g->field("console_input", 0x666666, -width, 0, init, EDITORFOREVER, g->visible(), "console_window");
     if(w && *w)
     {
@@ -972,7 +972,7 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
         if(!consolecmd) commandaction = newstring("say $commandbuffer");
         commandcolour = 0;
         commandflags = CF_EXECUTE|CF_MESSAGE;
-        hline *h = NULL;
+        hline *h = nullptr;
         if(commandbuf[0])
         {
             if(history.empty() || history.last()->shouldsave())
@@ -987,7 +987,7 @@ bool consolegui(guient *g, int width, int height, const char *init, int &update)
             else h = history.last();
         }
         histpos = history.length();
-        inputcommand(NULL);
+        inputcommand(nullptr);
 
         if(h)
         {

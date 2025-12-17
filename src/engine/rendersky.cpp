@@ -27,7 +27,7 @@ void loadsky(const char *basename, Texture *texs[6])
     }
 }
 
-Texture *cloudoverlay = NULL, *envoverlay = NULL;
+Texture *cloudoverlay = nullptr, *envoverlay = nullptr;
 
 Texture *loadskyoverlay(const char *basename)
 {
@@ -113,7 +113,7 @@ void drawenvboxbgface(int x0, int y0, int z0,
     xtraverts += gle::end();
 }
 
-void drawenvbox(int w, float z1clip = 0.0f, float z2clip = 1.0f, int faces = 0x3F, Texture **sky = NULL)
+void drawenvbox(int w, float z1clip = 0.0f, float z2clip = 1.0f, int faces = 0x3F, Texture **sky = nullptr)
 {
     if(z1clip >= z2clip) return;
 
@@ -176,7 +176,7 @@ void drawenvboxbg(int w, float z1clip = 0.0f, float z2clip = 1.0f, int faces = 0
     if(z2clip >= 1 && faces&0x20) drawenvboxbgface( w,  w,  w, -w,  w,  w, -w, -w,  w,  w, -w,  w);
 }
 
-void drawenvoverlay(int w, float height, int subdiv, float fade, float scale, Texture *overlay = NULL, int colour = 0xFFFFFF, float a = 1.f, float tx = 0, float ty = 0)
+void drawenvoverlay(int w, float height, int subdiv, float fade, float scale, Texture *overlay = nullptr, int colour = 0xFFFFFF, float a = 1.f, float tx = 0, float ty = 0)
 {
     float z = w*height, tsz = 0.5f*(1-fade)/scale, psz = w*(1-fade);
     glBindTexture(GL_TEXTURE_2D, overlay ? overlay->id : notexture->id);
@@ -238,8 +238,8 @@ namespace fogdome
         {
             if(v0.pos.z != v1.pos.z) color.a += uchar((v1.color.a - v0.color.a) * (pos.z - v0.pos.z) / (v1.pos.z - v0.pos.z));
         }
-    } *verts = NULL;
-    GLushort *indices = NULL;
+    } *verts = nullptr;
+    GLushort *indices = nullptr;
     int numverts = 0, numindices = 0, capindices = 0;
     GLuint vbuf = 0, ebuf = 0;
     bvec lastcolor(0, 0, 0);

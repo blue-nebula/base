@@ -6,8 +6,8 @@ namespace sphere
     {
         vec pos;
         ushort s, t;
-    } *verts = NULL;
-    GLushort *indices = NULL;
+    } *verts = nullptr;
+    GLushort *indices = nullptr;
     int numverts = 0, numindices = 0;
     GLuint vbuf = 0, ebuf = 0;
 

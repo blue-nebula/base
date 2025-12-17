@@ -146,7 +146,7 @@ struct smd : skelmodel, skelloader<smd>
      
         void readtriangles(stream *f, char *buf, size_t bufsize)
         {
-            smdmeshdata *curmesh = NULL;
+            smdmeshdata *curmesh = nullptr;
             hashtable<const char *, smdmeshdata> materials(1<<6);
             hashset<int> verts(1<<12); 
             while(f->getline(buf, bufsize))
@@ -353,7 +353,7 @@ struct smd : skelmodel, skelloader<smd>
             if(sa || skel->numbones <= 0) return sa;
 
             stream *f = openfile(filename, "r");
-            if(!f) return NULL;
+            if(!f) return nullptr;
 
             char buf[512];
             int version = -1;
@@ -364,13 +364,13 @@ struct smd : skelmodel, skelloader<smd>
                 if(skipcomment(curbuf)) continue;
                 if(sscanf(curbuf, " version %d", &version) == 1)
                 {
-                    if(version != 1) { delete f; return NULL; }
+                    if(version != 1) { delete f; return nullptr; }
                 }
                 else if(!strncmp(curbuf, "nodes", 5))
                 {
                     vector<smdbone> bones;
                     readnodes(f, buf, sizeof(buf), bones);
-                    if(bones.length() != skel->numbones) { delete f; return NULL; }
+                    if(bones.length() != skel->numbones) { delete f; return nullptr; }
                 }
                 else if(!strncmp(curbuf, "triangles", 9))
                     skipsection(f, buf, sizeof(buf));
@@ -412,7 +412,7 @@ struct smd : skelmodel, skelloader<smd>
     {
         smdmeshgroup *group = new smdmeshgroup;
         group->shareskeleton(va_arg(args, char *));
-        if(!group->load(name)) { delete group; return NULL; }
+        if(!group->load(name)) { delete group; return nullptr; }
         return group;
     }
 
@@ -425,7 +425,7 @@ struct smd : skelmodel, skelloader<smd>
         do --fname; while(fname >= name && *fname!='/' && *fname!='\\');
         fname++;
         defformatstring(meshname, "%s/%s.smd", name, fname);
-        mdl.meshes = sharemeshes(path(meshname), NULL);
+        mdl.meshes = sharemeshes(path(meshname), nullptr);
         if(!mdl.meshes) return false;
         mdl.initanimparts();
         mdl.initskins();
@@ -440,17 +440,17 @@ struct smd : skelmodel, skelloader<smd>
         loading = this;
         if(execfile(cfgname, false) && parts.length()) // configured smd, will call the smd* commands below
         {
-            loading = NULL;
+            loading = nullptr;
             loopv(parts) if(!parts[i]->meshes) return false;
         }
         else // smd without configuration, try default tris and skin 
         {
             if(!loaddefaultparts()) 
             {
-                loading = NULL;
+                loading = nullptr;
                 return false;
             }
-            loading = NULL;
+            loading = nullptr;
         }
         loaded();
         return true;

@@ -43,9 +43,9 @@ struct decalrenderer
     decalrenderer(const char *texname, int flags = 0, int fadeintime = 0, int fadeouttime = 1000, int timetolive = -1)
         : texname(texname), flags(flags),
           fadeintime(fadeintime), fadeouttime(fadeouttime), timetolive(timetolive),
-          tex(NULL),
-          decals(NULL), maxdecals(0), startdecal(0), enddecal(0),
-          verts(NULL), maxverts(0), startvert(0), endvert(0), lastvert(0), availverts(0),
+          tex(nullptr),
+          decals(nullptr), maxdecals(0), startdecal(0), enddecal(0),
+          verts(nullptr), maxverts(0), startvert(0), endvert(0), lastvert(0), availverts(0),
           vbo(0), dirty(false),
           decalu(0), decalv(0)
     {
@@ -268,7 +268,7 @@ struct decalrenderer
         int count = endvert < startvert ? maxverts - startvert : endvert - startvert;
         if(dirty)
         {
-            glBufferData_(GL_ARRAY_BUFFER, maxverts*sizeof(decalvert), NULL, GL_STREAM_DRAW);
+            glBufferData_(GL_ARRAY_BUFFER, maxverts*sizeof(decalvert), nullptr, GL_STREAM_DRAW);
             glBufferSubData_(GL_ARRAY_BUFFER, 0, count*sizeof(decalvert), &verts[startvert]);
             if(endvert < startvert)
             {
@@ -383,7 +383,7 @@ struct decalrenderer
         return numout;
     }
 
-    void gentris(cube &cu, int orient, const ivec &o, int size, materialsurface *mat = NULL, int vismask = 0)
+    void gentris(cube &cu, int orient, const ivec &o, int size, materialsurface *mat = nullptr, int vismask = 0)
     {
         vec pos[MAXFACEVERTS+4];
         int numverts = 0, numplanes = 1;
@@ -561,7 +561,7 @@ struct decalrenderer
                     int vismask = cu[i].visible;
                     if(vismask&0xC0)
                     {
-                        if(vismask&0x80) loopj(6) gentris(cu[i], j, co, size, NULL, vismask);
+                        if(vismask&0x80) loopj(6) gentris(cu[i], j, co, size, nullptr, vismask);
                         else loopj(6) if(vismask&(1<<j)) gentris(cu[i], j, co, size);
                     }
                 }
