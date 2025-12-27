@@ -1,0 +1,2 @@
+This work, made by Kirill Kolesnikov aka TristamK <tristamk@bk.ru> is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. 
+To view a copy of this license, see cc-by-sa.txt or visit http://creativecommons.org/licenses/by-sa/3.0/

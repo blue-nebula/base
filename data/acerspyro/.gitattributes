@@ -1,0 +1,17 @@
+*       text=auto
+*.c     text=auto
+*.h     text=auto
+*.cpp   text=auto
+*.txt   text=auto
+*.cfg   text=auto
+*.bat   text eol=crlf
+*.sh    text eol=lf
+*.png   binary
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.ico   binary
+*.icns  binary
+*.dll   binary
+*.lib   binary
+*.nib   binary
+*.a     binary
+*.iqm filter=lfs diff=lfs merge=lfs -text

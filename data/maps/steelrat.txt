@@ -1,0 +1,15 @@
+This work, "steelrat", is created by D.a.M.i.E.n. <daymeenn@gmail.com>
+It is based on a work "Capinox" created by Kirill "TristamK" Kolesnikov <TristamK@bk.ru> and D.a.M.i.E.n. <daymeenn@gmail.com>
+
+It is Copyright (C) 2012 Kirill "TristamK" Kolesnikov <TristamK@bk.ru>
+and Copyright (C) 2012-2013 D.a.M.i.E.n. <daymeenn@gmail.com>
+
+It is licensed under the Creative Commons Attribution ShareAlike (CC-BY-SA)
+Unported License version 3.0.
+
+To view a copy of this license:
+1. visit http://creativecommons.org/licenses/by-sa/3.0/ or
+2. read cc-by-sa.txt file or
+3. send a letter to Creative Commons,
+444 Castro Street, Suite 900,
+Mountain View, California, 94041, USA.

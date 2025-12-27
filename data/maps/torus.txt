@@ -1,0 +1,9 @@
+
+simple map concept for gladiator deathmatch by bonifarz
+torus geometry by vampirefrog, http://quadropolis.us/node/2058
+skybox and texture by Unnamed
+
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. 
+To view a copy of this license visit 
+http://creativecommons.org/licenses/by-sa/3.0/ 
