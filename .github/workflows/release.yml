@@ -61,7 +61,7 @@ jobs:
             build_script: mac/build-archive.sh
             upload_pattern: blue*.zip
 
-    name: ${{ matrix.name }} ${{ matrix.arch }}
+    name: ${{ matrix.name }} [${{ matrix.arch }}]
     runs-on: ${{ matrix.runs_on }}
     env:
       ARCH: ${{ matrix.arch }}
