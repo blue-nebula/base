@@ -35,7 +35,7 @@ jobs:
       - name: Fetch relevant submodules
         run: |
           git submodule update --init src/enet
-          git submodule update --init data/maps
+          git lfs pull --include data/maps/
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
