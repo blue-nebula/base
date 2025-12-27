@@ -1,0 +1,104 @@
+name: (Pre)release builds
+
+on:
+  push:
+    paths:
+      - .github/workflows/release.yml
+    branches:
+      - "release/**"
+    tags:
+      - "v*"
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: AppImage
+            arch: x86_64
+            runs_on: ubuntu-22.04
+            apt_deps: libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev zlib1g-dev
+            build_script: nix/build-appimage.sh
+            upload_pattern: Blue_Nebula*.AppImage*
+
+          - name: AppImage
+            arch: aarch64
+            runs_on: ubuntu-22.04-arm
+            apt_deps: libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev zlib1g-dev
+            build_script: nix/build-appimage.sh
+            upload_pattern: Blue_Nebula*.AppImage*
+
+          - name: Windows zipball (cross build)
+            arch: x86_64
+            runs_on: ubuntu-latest
+            apt_deps: mingw-w64 g++-mingw-w64
+            build_script: win/build-archive.sh
+            upload_pattern: blue*.zip
+
+          - name: Windows installer (cross build)
+            arch: x86_64
+            runs_on: ubuntu-latest
+            apt_deps: mingw-w64 g++-mingw-w64 nsis
+            build_script: win/build-installer.sh
+            upload_pattern: blue*win64.exe
+
+          - name: macOS zipball (Intel)
+            arch: x86_64
+            runs_on: macos-15-intel
+            brew_deps: coreutils sdl2 sdl2_image sdl2_mixer glew
+            build_script: mac/build-archive.sh
+            upload_pattern: blue*.zip
+
+          - name: macOS zipball (ARM)
+            arch: arm64
+            runs_on: macos-15
+            brew_deps: coreutils sdl2 sdl2_image sdl2_mixer glew
+            build_script: mac/build-archive.sh
+            upload_pattern: blue*.zip
+
+    name: ${{ matrix.name }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.runs_on }}
+    env:
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          submodules: true
+      - name: Install dependencies with apt
+        if: ${{ matrix.apt_deps }}
+        run: sudo apt-get install -y ${{ matrix.apt_deps }}
+      - name: Install dependencies with brew
+        if: ${{ matrix.brew_deps }}
+        run: brew install ${{ matrix.brew_deps }}
+      - name: Build ${{ matrix.name }}
+        run: bash release/${{ matrix.build_script }}
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }} ${{ matrix.arch }}
+          path: ${{ matrix.upload_pattern }}
+
+  upload:
+    name: Create release and upload artifacts
+    needs:
+      - package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+      - name: Inspect directory after downloading artifacts
+        run: ls -alFR
+      - name: Create release and upload artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          wget -q https://github.com/TheAssassin/pyuploadtool/releases/download/continuous/pyuploadtool-x86_64.AppImage
+          chmod +x pyuploadtool-x86_64.AppImage
+          ./pyuploadtool-x86_64.AppImage **/Blue*.AppImage* **/blue*.zip **/blue*win64.exe
