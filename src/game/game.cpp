@@ -1567,7 +1567,7 @@ namespace game
             }
             else concatstring(d->obit, obitkilled);
             if (d->conopen) {
-                concatstring(d->obit, " while chatting");
+                concatstring(d->obit, " \fs\fzawwhile chatting\fS");
             }
             concatstring(d->obit, " by");
             bool override = false;
