@@ -87,6 +87,9 @@ dylibbundler -od -b -x "$DESTDIR"/bin/blue-nebula_osx -d "$DESTDIR"/lib/
 # copy the license files from the bundled Windows libs dir... to be on the safe side
 cp "$REPO_ROOT"/src/bundled-libs/x86_64-w64-mingw32/lib/LICENSE* "$DESTDIR"/lib/
 
+# needed for whatever reason
+(cd "$DESTDIR" && ln -s lib libs)
+
 # let's build the final zip archive
 zip -r "$DESTDIR".zip "$DESTDIR"/* &>zip.log
 
