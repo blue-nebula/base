@@ -32,7 +32,7 @@ FROM python:3.14-alpine AS template
 
 COPY docker/generate-servinit-template.py doc/examples/servinit.cfg /
 
-RUN python3 /generate-servinit-template.py /servinit.cfg > /servinit.tmpl
+RUN python3 /generate-servinit-template.py /servinit.cfg 2>/dev/null 1>/servinit.tmpl
 
 
 # finally, let's build the final runtime image (doesn't need all of the build dependencies)

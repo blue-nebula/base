@@ -4,12 +4,68 @@ import re
 import sys
 import textwrap
 
+from collections import OrderedDict
+
 
 class ParsingException(Exception):
     pass
 
 
+SPECIAL_VARIABLES = OrderedDict()
+
+
+def special_variable(name: str):
+    def decorator(f):
+        SPECIAL_VARIABLES[name] = f
+        return f
+    return decorator
+
+
+@special_variable("ADDLOCALOP")
+def addlocalop():
+    return textwrap.dedent("""
+    {{ if (contains .Env "ADDLOCALOP") -}}
+    // local operators (authenticated against master server)
+    {{ range $e := (split .Env.ADDLOCALOP ";") -}}
+    addlocalop {{ $e }}
+    {{ end -}}
+    {{ end -}}
+    """)
+
+
+# for built-in masterserver: users that can authenticate
+# TODO: allow users to auth against local database
+@special_variable("ADDAUTH")
+def addauth():
+    return textwrap.dedent("""
+    {{ if (contains .Env "ADDAUTH") -}}
+    // built-in masterserver: users that can authenticate
+    {{ range $e := (split .Env.ADDAUTH ";") -}}
+    addauth {{ $e }}
+    {{ end -}}
+    {{ end -}}
+    """)
+
+
+# for built-in masterserver: servers that can authenticate
+# TODO: allow users to auth against local database
+@special_variable("ADDSERVERAUTH")
+def addauth():
+    return textwrap.dedent("""
+    {{ if (contains .Env "ADDSERVERAUTH") -}}
+    // built-in masterserver: servers that can authenticate
+    {{ range $e := (split .Env.ADDSERVERAUTH ";") -}}
+    addserverauth {{ $e }}
+    {{ end -}}
+    {{ end -}}
+    """)
+
+
 def convert_variable(variable_name: str, default_value: str, comment: str, indentation: int = None):
+    if variable_name in SPECIAL_VARIABLES.keys():
+        print(f"skipping conversion of special variable {variable_name}", file=sys.stderr)
+        return
+
     if indentation is None:
         indentation = 0
 
@@ -152,6 +208,9 @@ def main():
 
     for line in lines:
         print(parse_and_convert_line(line))
+
+    for handler in SPECIAL_VARIABLES.values():
+        print(handler())
 
     print(make_irc_section())
     print(make_additional_vars_section())
