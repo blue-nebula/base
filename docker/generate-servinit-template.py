@@ -136,6 +136,7 @@ def parse_and_convert_line(line: str) -> str:
             return parsed
 
     else:
+        print(f"line could not be parsed as a variable, skipping: {line}", file=sys.stderr)
         return line
 
 
