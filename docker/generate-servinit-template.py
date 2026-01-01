@@ -91,7 +91,7 @@ def parse_and_convert_variable(pattern: str, line: str, indentation: int = None)
     if not match:
         return
 
-    return convert_variable(*match.groups(), indentation)
+    return convert_variable(*match.groups(), indentation=indentation)
 
 
 def parse_regular_variable(line: str):
