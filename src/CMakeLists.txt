@@ -85,19 +85,28 @@ add_subdirectory(${ENET_SOURCE_DIRECTORY} EXCLUDE_FROM_ALL)
 
 # platform specific code
 # the binary suffix is appended to all executables' filenames
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CMAKE_EXECUTABLE_SUFFIX "_linux")
-elseif(APPLE)
-    set(CMAKE_EXECUTABLE_SUFFIX "_osx")
-
-    # TODO: fix genkey on macOS
-    set(BUILD_GENKEY OFF)
-elseif(MINGW)
-    set(CMAKE_EXECUTABLE_SUFFIX "_windows.exe")
+# note: CUSTOM_EXECUTABLE_SUFFIX is meant for packagers (e.g., distros, Flatpak, homebrew, ...)
+# as they may want to set this to an empty string, it is impossible to have them just set CMAKE_EXECUTABLE_SUFFIX to an empty string
+if(DEFINED CUSTOM_EXECUTABLE_SUFFIX)
+    set(CMAKE_EXECUTABLE_SUFFIX "${CUSTOM_EXECUTABLE_SUFFIX}")
+    message(WARNING "Executable suffix set externally to '${CMAKE_EXECUTABLE_SUFFIX}'")
 else()
-    message(WARNING "Unknown build platform")
-    set(CMAKE_EXECUTABLE_SUFFIX "_unknown")
+    if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+        set(CMAKE_EXECUTABLE_SUFFIX "_linux")
+    elseif(APPLE)
+        set(CMAKE_EXECUTABLE_SUFFIX "_osx")
+
+        # TODO: fix genkey on macOS
+        set(BUILD_GENKEY OFF)
+    elseif(MINGW)
+        set(CMAKE_EXECUTABLE_SUFFIX "_windows.exe")
+    else()
+        message(WARNING "Unknown build platform")
+        set(CMAKE_EXECUTABLE_SUFFIX "_unknown")
+    endif()
 endif()
+
+message(STATUS "Detected executable suffix: ${CMAKE_EXECUTABLE_SUFFIX}")
 
 # configure local includes
 include_directories(
