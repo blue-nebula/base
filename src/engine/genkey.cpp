@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     }
 
     // generate key pair with provided seed
-    if(argc == 2) {
+    if (argc == 2) {
         vector<char> privkey, pubkey;
         genprivkey(argv1.c_str(), privkey, pubkey);
         printf("private key: %s\n", privkey.getbuf());
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     }
 
     // print yes/no to match pubkey with privkey: genkey <pubkey> <privkey>
-    if(argc == 3) {
+    if (argc == 3) {
         vector<char> pubkey;
         genpubkey(argv[2], pubkey);
         std::cerr << (argv1 == pubkey.data() ? "yes" : "no") << std::endl;
