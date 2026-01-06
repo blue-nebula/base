@@ -53,7 +53,7 @@ chmod +x linuxdeploy*.AppImage
 git_version="$(cd "$REPO_ROOT" && git describe --tags)"
 
 # configure AppImageUpdate
-export UPD_INFO="gh-releases-zsync|blue-nebula|release|continuous|Blue_Nebula-*$ARCH.AppImage.zsync"
+export UPD_INFO="gh-releases-zsync|blue-nebula|base|latest|Blue_Nebula-*$ARCH.AppImage.zsync"
 export VERSION="$git_version"
 
 ./linuxdeploy-"$ARCH".AppImage --appdir AppDir --output appimage
