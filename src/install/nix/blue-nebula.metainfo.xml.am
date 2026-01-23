@@ -32,6 +32,7 @@
     </ul>
   </description>
   <url type="homepage">https://blue-nebula.org</url>
+  <url type="help">https://docs.blue-nebula.org</url>
   <url type="bugtracker">https://github.com/blue-nebula/base/issues</url>
   <url type="vcs-browser">https://github.com/blue-nebula/base</url>
   <screenshots>
