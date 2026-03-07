@@ -80,7 +80,7 @@ jobs:
       - name: Build ${{ matrix.name }}
         run: bash release/${{ matrix.build_script }}
       - name: Archive artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.name }} ${{ matrix.arch }}
           path: ${{ matrix.upload_pattern }}
