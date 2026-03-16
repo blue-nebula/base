@@ -1711,6 +1711,7 @@ namespace game
     };
     extern avatarent avatarmodel, bodymodel;
 
+    extern void load_game_sounds();
     extern void vanityreset();
     extern void vanitybuild(gameent *d);
     extern const char *vanityfname(gameent *d, int n, bool proj = false);
