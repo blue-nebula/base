@@ -1252,12 +1252,23 @@ namespace entities
         if(!m_edit(game::gamemode) && suicide) game::suicide(d, HIT_SPAWN);
     }
 
-    void editent(int i)
+
+    void editent(int i, bool send_update_to_server, bool fix_entity)
     {
         extentity &e = *ents[i];
-        fixentity(i, true);
-        if(m_edit(game::gamemode) && game::player1.state == CS_EDITING)
+
+        if (fix_entity)
+        {
+            fixentity(i, true);
+        }
+
+        if (send_update_to_server &&
+            m_edit(game::gamemode) &&
+            game::player1.state == CS_EDITING)
+        {
             client::addmsg(N_EDITENT, "ri5iv", i, (int)(e.o.x*DMF), (int)(e.o.y*DMF), (int)(e.o.z*DMF), e.type, e.attrs.length(), e.attrs.length(), e.attrs.getbuf()); // FIXME
+        }
+
         if(e.type < MAXENTTYPES)
         {
             lastenttype[e.type] = max(lastenttype[e.type], i+1);
