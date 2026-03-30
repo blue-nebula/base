@@ -9,11 +9,7 @@ We thank the *Red Eclipse* developers for providing us with one of the (if not t
 
 ## Download the game
 
-The game has not officially been release yet. However, there are **beta-grade builds** available on our [release page](https://github.com/blue-nebula/release/releases/tag/continuous).
-
-- For Linux, we recommend using our [AppImages](http://appimage.org/).
-- For Windows, we consider creating an installer later on. For now, you can download a `.zip` archive containing both the game and the data.
-- For macOS, we provide a binary archive, too. Please note that currently those have not been tested yet. Feedback welcome!
+Release builds for Linux, Windows and macOS are available on our [release page](https://github.com/blue-nebula/base/releases) and additionally as a Flatpak on [Flathub](https://flathub.org/en/apps/org.blue_nebula.BlueNebula).
 
 The builds are, as of yet, **fully compatible with Red Eclipse 1.5.8 to 1.6.0**.
 
@@ -27,8 +23,6 @@ Please do not hesitate to get in touch with us!
 ## Current state of Blue Nebula
 
 We already provide our own [master server](https://github.com/TheAssassin/python-masterserver) (which also re-hosts the entries on the Red Eclipse master server) to which many more Blue Nebula servers are connected than to the Red Eclipse one. Check out our online server browser, [Blueflare](https://blueflare.assassinate-you.net).
-
-Right now we are working on creating downloadable binaries, installers etc., as a first step in our journey to a standalone **Blue Nebula** game.
 
 
 -------
