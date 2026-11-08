@@ -1,6 +1,7 @@
 // main.cpp: initialisation & main loop
 #include "engine.h"
 #include <signal.h>
+#include <game.h>
 
 string caption = "";
 
@@ -1064,6 +1065,7 @@ int main(int argc, char **argv)
 
     conoutf("loading sound..");
     initsound();
+    game::load_game_sounds();
 
     game::start();
 
