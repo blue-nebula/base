@@ -37,7 +37,19 @@ jobs:
 
   macos-release:
     name: macOS (x86_64) release
-    runs-on: macos-14
+    runs-on: macos-26-intel
+    steps:
+      - uses: actions/checkout@v6
+      - name: Checkout enet submodule
+        run: git submodule update --init src/enet
+      - name: Install dependencies
+        run: brew install coreutils sdl2 sdl2_image sdl2_mixer glew
+      - name: Build for mac
+        run: bash -xe ci/build-mac.sh
+
+  macos-arm64-release:
+    name: macOS (arm64) release
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v6
       - name: Checkout enet submodule

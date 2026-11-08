@@ -49,14 +49,14 @@ jobs:
 
           - name: macOS zipball (Intel)
             arch: x86_64
-            runs_on: macos-15-intel
+            runs_on: macos-26-intel
             brew_deps: coreutils sdl2 sdl2_image sdl2_mixer glew
             build_script: mac/build-archive.sh
             upload_pattern: blue*.zip
 
           - name: macOS zipball (ARM)
             arch: arm64
-            runs_on: macos-15
+            runs_on: macos-26
             brew_deps: coreutils sdl2 sdl2_image sdl2_mixer glew
             build_script: mac/build-archive.sh
             upload_pattern: blue*.zip
