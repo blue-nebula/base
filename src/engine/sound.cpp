@@ -48,7 +48,7 @@ stream *musicstream = NULL;
 char *musicfile = NULL, *musicdonecmd = NULL;
 int musictime = -1, musicdonetime = -1;
 
-VARF(IDF_PERSIST, mastervol, 0, 255, 255, changedvol = true; if(!music && musicvol > 0 && mastervol > 0) smartmusic(true));
+VARF(IDF_PERSIST, mastervol, 0, 255, 255, changedvol = true);
 VAR(IDF_PERSIST, soundvol, 0, 255, 255);
 VARF(0, soundmono, 0, 0, 1, initwarning("sound configuration", INIT_RESET, CHANGE_SOUND));
 VARF(0, soundmixchans, 16, 32, 1024, initwarning("sound configuration", INIT_RESET, CHANGE_SOUND));
@@ -62,7 +62,7 @@ FVAR(IDF_PERSIST, soundenvvol, 0, 1, FVAR_MAX);
 FVAR(IDF_PERSIST, soundenvscale, 0, 1, FVAR_MAX);
 VAR(IDF_PERSIST, soundcull, 0, 1, 1);
 
-VARF(IDF_PERSIST, musicvol, 0, 64, 255, changedvol = true; if(!music && musicvol > 0) smartmusic(true));
+VARF(IDF_PERSIST, musicvol, 0, 64, 255, changedvol = true);
 VAR(IDF_PERSIST, musicfadein, 0, 1000, VAR_MAX);
 VAR(IDF_PERSIST, musicfadeout, 0, 2500, VAR_MAX);
 SVAR(0, titlemusic, "sounds/theme");
@@ -280,8 +280,10 @@ bool playingmusic(bool check)
 
 void smartmusic(bool cond, bool init)
 {
-    if(init) canmusic = true;
-    if(!canmusic || nosound || !mastervol || !musicvol || (!cond && Mix_PlayingMusic()) || !*titlemusic) return;
+    if (init)
+        canmusic = true;
+    if (!canmusic || nosound || (!cond && Mix_PlayingMusic()) || !*titlemusic)
+        return;
     if(!playingmusic() || (cond && strcmp(musicfile, titlemusic))) playmusic(titlemusic);
     else
     {
@@ -528,7 +530,8 @@ void updatesounds()
     }
     if(music || Mix_PlayingMusic())
     {
-        if(nosound || !mastervol || !musicvol) stopmusic(false);
+        if (nosound)
+            stopmusic(false);
         else if(!playingmusic()) musicdone(true);
         else if(changedvol)
         {
