@@ -9,7 +9,9 @@ We thank the *Red Eclipse* developers for providing us with one of the (if not t
 
 ## Download the game
 
-Release builds for Linux, Windows and macOS are available on our [release page](https://github.com/blue-nebula/base/releases) and additionally as a Flatpak on [Flathub](https://flathub.org/en/apps/org.blue_nebula.BlueNebula).
+Release builds for Linux (AppImage), Windows and macOS are available on our [release page](https://github.com/blue-nebula/base/releases).
+
+Additionally for Linux users, we provide a Flatpak on [Flathub](https://flathub.org/en/apps/org.blue_nebula.BlueNebula).
 
 The builds are, as of yet, **fully compatible with Red Eclipse 1.5.8 to 1.6.0**.
 
