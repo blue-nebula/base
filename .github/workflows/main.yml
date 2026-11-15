@@ -36,8 +36,8 @@ jobs:
         run: bash -xe ci/build-nix.sh
 
   macos-release:
-    name: macOS (x86_64) release
-    runs-on: macos-14
+    name: macOS (arm64) release
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
       - name: Checkout enet submodule
