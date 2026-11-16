@@ -1,6 +1,6 @@
 # first, let's build the software
 # this is going to take the most time
-FROM alpine:3.23 AS builder
+FROM alpine:3.24 AS builder
 
 LABEL org.opencontainers.image.source="https://github.com/blue-nebula/base"
 
@@ -36,7 +36,7 @@ RUN python3 /generate-servinit-template.py /servinit.cfg 2>/dev/null 1>/servinit
 
 
 # finally, let's build the final runtime image (doesn't need all of the build dependencies)
-FROM alpine:3.23
+FROM alpine:3.24
 
 LABEL maintainer="https://blue-nebula.org"
 
