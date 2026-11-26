@@ -2859,7 +2859,7 @@ namespace game
                 resetcamera();
                 return;
             }
-            else if(!nosound && mastervol && musicvol && type && !playingmusic())
+            else if (!nosound && type && !playingmusic())
             {
                 if(type == 6) smartmusic(true);
                 else
